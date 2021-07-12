@@ -63,8 +63,8 @@ def ICA_POH(VideoFile,FS,StartTime,
     BVP = BVP_F
 
     #
-    BVP_mat = scio.loadmat("BVP_ica.mat")["BVP"]
-    print(np.sqrt(mean_squared_error(BVP_mat, BVP)))
+    # BVP_mat = scio.loadmat("BVP_ica.mat")["BVP"]
+    # print(np.sqrt(mean_squared_error(BVP_mat, BVP)))
 
     PR = utils.prpsd(BVP[0],FS,40,240,False)
 
@@ -84,7 +84,7 @@ def process_video(VideoFile):
     VidObj = cv2.VideoCapture(VideoFile)
     VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
     FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
-    FramesNumToRead = math.ceil(Duration * FrameRate)  # TODO:cell?
+    FramesNumToRead = math.ceil(Duration * FrameRate)+1  # TODO:cell?
 
     T = np.zeros((FramesNumToRead, 1))
     RGB = np.zeros((FramesNumToRead, 3))
@@ -109,7 +109,7 @@ def process_video(VideoFile):
 
     # T =scio.loadmat("T.mat")["T"]
     # RGB = scio.loadmat("RGB_pos.mat")["RGB"]
-    return T,RGB
+    return T[:FN],RGB[:FN]
 
 def ica(X,Nsources,Wprev=0):
     nRows = X.shape[0]
@@ -292,8 +292,8 @@ def jade(X,m,Wprev):
 
     #return BVP,PR,HR_ECG,PR_PPG,SNR
 DataDirectory           = 'test_data\\'
-VideoFile               = DataDirectory+ 'video_example.mp4'
-FS                      = 30
+VideoFile               = DataDirectory+ 'video_example3.avi'
+FS                      = 120
 StartTime               = 0
 Duration                = 60
 ECGFile                 = DataDirectory+ 'ECGData.mat'
