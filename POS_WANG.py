@@ -23,7 +23,7 @@ def POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
     else:
         PlotPRPSD = False
         PlotSNR = False
-    T, RGB = process_video(VideoFile)
+    T, RGB= process_video(VideoFile)
     FN = T.shape[0]
 
     #POS begin
@@ -67,8 +67,8 @@ def POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
 
     BVP = H
     T = T[:BVP.shape[0]]
-    BVP_mat = scio.loadmat("BVP_pos.mat")["BVP"]
-    print(np.sqrt(mean_squared_error(BVP_mat,BVP)))
+    # BVP_mat = scio.loadmat("BVP_pos.mat")["BVP"]
+    # print(np.sqrt(mean_squared_error(BVP_mat,BVP)))
     PR = utils.prpsd(BVP[0],FS,40,240,PlotPRPSD)
 
     HR_ECG = utils.parse_ECG(ECGFile,StartTime,Duration)
@@ -84,8 +84,7 @@ def process_video(VideoFile):
     VidObj = cv2.VideoCapture(VideoFile)
     VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
     FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
-    FramesNumToRead = math.ceil(Duration * FrameRate)
-
+    FramesNumToRead = math.ceil(Duration * FrameRate)+1#TODO,refine
     T = np.zeros((FramesNumToRead, 1))
     RGB = np.zeros((FramesNumToRead, 3))
     FN = 0
@@ -99,21 +98,21 @@ def process_video(VideoFile):
         frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
         frame = np.asarray(frame)
         sum = np.sum(np.sum(frame,axis=0),axis=0)
-        RGB_mat = scio.loadmat("RGB_initial.mat")["VidROI"]
         # loss = RGB_mat-frame
         RGB[FN] = sum/(frame.shape[0]*frame.shape[1])
         success, frame = VidObj.read()
         CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
         FN+=1
     # TODO:Skin segement TF
-
+    T = T[:FN]
+    RGB = RGB[:FN]
     # T =scio.loadmat("T.mat")["T"]
     # RGB = scio.loadmat("RGB_pos.mat")["RGB"]
     return T,RGB
 
 DataDirectory           = 'test_data\\'
-VideoFile               = DataDirectory+ 'video_example.mp4'
-FS                      = 30
+VideoFile               = DataDirectory+ 'video_example3.avi'#TODO:deal with files not found error
+FS                      = 120
 StartTime               = 0
 Duration                = 60
 ECGFile                 = DataDirectory+ 'ECGData.mat'

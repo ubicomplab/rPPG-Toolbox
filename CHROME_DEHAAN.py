@@ -39,7 +39,8 @@ def CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
     WinS = 0
     WinM = int(WinS+WinL//2)
     WinE = WinS+WinL
-    totallen = 24*(NWin+1)
+    #todo:the total len
+    totallen = (WinL//2)*(NWin+1)
     S = np.zeros(totallen)
     TX = np.zeros(totallen)
 
@@ -78,11 +79,12 @@ def CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
         WinS = WinM
         WinM = WinS+WinL//2
         WinE = WinS+WinL
+      /
 
     BVP = S
     #Evaluate
-    BVP_mat = scio.loadmat("BVP_ch.mat")["S"]
-    print(np.sqrt(mean_squared_error(BVP_mat,BVP)))
+    # BVP_mat = scio.loadmat("BVP_ch.mat")["S"]
+    # print(np.sqrt(mean_squared_error(BVP_mat,BVP)))
     T = T[0:BVP.shape[0]]
 
     PR = utils.prpsd(BVP,FS,40,240,PlotPRPSD)
@@ -97,7 +99,7 @@ def process_video(VideoFile):
     VidObj = cv2.VideoCapture(VideoFile)
     VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
     FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
-    FramesNumToRead = math.ceil(Duration * FrameRate)  # TODO:cell?
+    FramesNumToRead = math.ceil(Duration * FrameRate)+1  # TODO:cell?
 
     T = np.zeros((FramesNumToRead, 1))
     RGB = np.zeros((FramesNumToRead, 3))
@@ -122,11 +124,11 @@ def process_video(VideoFile):
     #
     # T =scio.loadmat("T.mat")["T"]
     # RGB = scio.loadmat("RGB_chorme.mat")["RGB"]
-    return T,RGB
+    return T[:FN],RGB[:FN]
 
 DataDirectory           = 'test_data\\'
-VideoFile               = DataDirectory+ 'video_example.mp4'
-FS                      = 30
+VideoFile               = DataDirectory+ 'video_example3.avi'
+FS                      = 120
 StartTime               = 0
 Duration                = 60
 ECGFile                 = DataDirectory+ 'ECGData.mat'
