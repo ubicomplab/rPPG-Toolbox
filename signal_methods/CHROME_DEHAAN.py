@@ -79,7 +79,6 @@ def CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
         WinS = WinM
         WinM = WinS+WinL//2
         WinE = WinS+WinL
-      /
 
     BVP = S
     #Evaluate
