@@ -67,9 +67,9 @@ def green_channel(video,bvp):
 
 
 # read the video
-videodata = skvideo.io.vread("../data_example/video.avi")
+videodata = skvideo.io.vread("video.avi")
 # read the ground-true ecg
-ecg = util.read_wave("../data_example/wave.csv")
+ecg = util.read_wave("wave.csv")
 # get green channel signals
 greenchannel, bvp = green_channel(videodata,ecg)
 # downsample
