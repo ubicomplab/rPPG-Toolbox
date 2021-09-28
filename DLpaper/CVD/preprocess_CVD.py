@@ -9,11 +9,16 @@ import math
 import skvideo.io
 import matplotlib.pyplot as plt
 from scipy import signal
+import face_detector
+import dlib
+import os
+import h5py
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'same') / w
-
+#6->63
+#ff2n
 def combine(list,n):
     temp_list = []
     for c in combinations(list,n):
@@ -25,21 +30,20 @@ def get_all_combines(num):
     combine_id_list = []
     for i in range(1,num+1):
         combine_id_list.extend(combine(index,i))
-    print(combine_id_list)
     return combine_id_list
 
 
 def getCombinedSignalMap(SignalMap,ROInum):
-    All_idx = get_all_combines(ROInum.shape[0])
+    All_idx = get_all_combines(ROInum.shape[0])#
     SignalMapOut = np.zeros((len(All_idx),SignalMap.shape[1]))
     i = 0
-    for tmp_idx in All_idx:
+    for tmp_idx in All_idx:#tmp_idx= (0,1,2)[(0),(1),(2)]
         tmp_idx = np.asarray(tmp_idx)
-        tmp_signal = SignalMap[tmp_idx]
-        tmp_ROI = ROInum[tmp_idx]
-        tmp_ROI = np.true_divide(tmp_ROI,np.sum(tmp_ROI))
-        tmp_ROI = np.tile(tmp_ROI,(1,6))
-        SignalMapOut[i,:] = np.sum(np.multiply(tmp_signal,tmp_ROI),axis=0)
+        tmp_signal = SignalMap[tmp_idx]#6 每个区域的平均值 10->1 20->2 30->3 1*10/(10+20+30)+2*(20/(10+20+30))+3*
+        tmp_ROI = ROInum[tmp_idx]# 10,20,30
+        tmp_ROI = np.true_divide(tmp_ROI,np.sum(tmp_ROI))# 10/10+20+30, 20/10+20+30,30/10+20+30
+        tmp_ROI = np.tile(tmp_ROI,(1,6))# (10/10+20+30, 20/10+20+30,30/10+20+30)*6
+        SignalMapOut[i,:] = np.sum(np.multiply(tmp_signal,tmp_ROI),axis=0)# (1,2,3)`(1/6,2/6,3/,6) = 1*1/6+2*2/6+3*3/6
         i = i+1
     return SignalMapOut
 
@@ -58,7 +62,7 @@ def poly2mask(vertex_row_coords, vertex_col_coords, shape):
     mask[fill_col_coords,fill_row_coords] = True
     return mask
 
-def parse_frame(frame,lmk,lmk_num):
+def parse_frame(frame,lmk,lmk_num):#w*h*3
     lmk = lmk.astype(np.int)
     R = frame[:,:,0]
     G = frame[:,:,1]
@@ -126,7 +130,7 @@ def parse_frame(frame,lmk,lmk_num):
     ROI_num[4] = np.where(mask_ROI_mouth == True)[0].shape[0]
     ROI_num[5] = np.where(mask_ROI_forehead == True)[0].shape[0]
 
-    return getCombinedSignalMap(Signal_tmp,ROI_num)
+    return getCombinedSignalMap(Signal_tmp,ROI_num)#w*h*3,6->6,63
 
 def parse_video(VideoFile,StartTime,Duration):
     '''
@@ -150,10 +154,10 @@ def parse_video(VideoFile,StartTime,Duration):
         T[FN] = CurrentTime
 
         #how to preprocess the frame
-        #TODO:get the landmarks
-        # landmark
-        #TODO:preprocess the frames:
+
+        landmarks = face_detector.landmarks_detection(frame)
         frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
+
         RGB[:,FN,:] = parse_frame(frame,landmarks,81)
         success, frame = VidObj.read()
         CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
@@ -174,7 +178,6 @@ def read_time(path):
         for line in f.readlines():
             line = line.strip("\n")
             time.append(int(line))
-    print(time)
     return np.asarray(time)
 
 def read_gt(path):
@@ -211,8 +214,7 @@ def green_channel(video,bvp):
     green_channel = roi_data[:, :, :, 1]
     green_channel_mean = green_channel.mean(axis=(1, 2))
     fs = 30
-    green_channel_mean = np.diff(green_channel_mean)
-    b,a = signal.butter(8,[0.05,0.15],'bandpass')
+    b,a = signal.butter(1,[1.5/fs,5/fs],'bandpass')
     green_channel_mean = signal.filtfilt(b,a,green_channel_mean)
     N = next_power_of_2(green_channel_mean.shape[0])
     f, pxx = scipy.signal.periodogram(green_channel_mean, fs=fs, nfft=N, detrend=False)
@@ -344,6 +346,7 @@ def save_MSTmaps(res,bvp,gt,fps,clip_length):
 
         img_rgb.append(final_signal_n[:,:,0:3])
         img_yuv.append(final_signal_n[:,:,3:6])
+    return gt_p,fps_p,bpm_p,bvp_p,img_rgb,img_yuv
 
 
 # Press the green button in the gutter to run the script.
@@ -376,11 +379,44 @@ ECGFile                 = DataDirectory+ 'ECGData.mat'
 PPGFile                 = DataDirectory+ 'PPGData.mat'
 PlotTF                  = False
 
+# test green channel
+# input: frame_n, T*W*H*3, BVP_n, T
+# for whole VIPL
 
-# res = parse_video(VideoFile,StartTime,Duration)
-videodata = skvideo.io.vread(VideoFile)
-synchronize(videodata,bvp,gt,fps,clip_length)
-# gt_p,fps_p,bpm_p,bvp_p,img_rgb,img_yuv = save_MSTmaps(res[1],bvp,gt,fps,clip_length)
+gt_all = []
+fps_all = []
+bpm_all = []
+bvp_all = []
+img_rgb_all = []
+img_yuv_all = []
+res = parse_video(VideoFile,StartTime,Duration)
+# videodata = skvideo.io.vread(VideoFile)
+# synchronize(videodata,bvp,gt,fps,clip_length)
+gt_p,fps_p,bpm_p,bvp_p,img_rgb,img_yuv = save_MSTmaps(res[1],bvp,gt,fps,clip_length)
+#
+# gt_all.extend(gt_p)
+# fps_all.extend(fps_p)
+# bpm_all.extend(bpm_p)
+# bvp_all.extend(bvp_p)
+# img_rgb_all.extend(img_rgb)
+# img_yuv_all.extend(img_yuv)
+#
+#
+# file_name = "Demo.h5"
+# if not os.path.exists(file_name):
+# 	f = h5py.File(file_name, 'w')
+# else:
+#     f = h5py.File(file_name, 'w')
+# f.create_dataset('gt', data=np.asarray(gt_all))
+# f.create_dataset('fps', data=np.asarray(fps_all))
+# f.create_dataset('bpm',data=np.asarray(bpm_all))
+# f.create_dataset('bvp',data = np.asarray(bvp_all))
+# f.create_dataset('img_rgb',data = np.asarray(img_rgb_all))
+# f.create_dataset('img_yuv',data = np.asarray(img_yuv_all))
+# f.close()
+
+
+
 print()
 
 
