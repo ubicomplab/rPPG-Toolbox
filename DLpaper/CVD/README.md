@@ -5,6 +5,11 @@ step1 put https://github.com/nxsEdson/CVD-Physiological-Measurement/tree/master/
 
 step2 run preprocess_CVD.py
 
+### run time
+python:27.78s (using time.time()) \
+matlab:24.26s (using tic and toc) 
 
-ref:shape_predictor_81_face_landmarks is from project https://github.com/codeniko/shape_predictor_81_face_landmarks
+
+### ref
+shape_predictor_81_face_landmarks is from project https://github.com/codeniko/shape_predictor_81_face_landmarks
 
