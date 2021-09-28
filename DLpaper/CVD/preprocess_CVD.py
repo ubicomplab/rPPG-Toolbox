@@ -13,6 +13,7 @@ import face_detector
 import dlib
 import os
 import h5py
+import time as t
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 def moving_average(x, w):
@@ -138,7 +139,7 @@ def parse_video(VideoFile,StartTime,Duration):
     '''
     # Standard:
 
-    landmarks = scio.loadmat("landmarks.mat")["landmarks"]
+    # landmarks = scio.loadmat("landmarks.mat")["landmarks"]
     VidObj = cv2.VideoCapture(VideoFile)
     VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
     FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
@@ -147,6 +148,7 @@ def parse_video(VideoFile,StartTime,Duration):
     RGB = np.zeros((63,FramesNumToRead,6))
     FN = 0
     success, frame = VidObj.read()
+    landmarks = face_detector.landmarks_detection(frame)
     CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
     EndTime = StartTime + Duration
 
@@ -155,7 +157,7 @@ def parse_video(VideoFile,StartTime,Duration):
 
         #how to preprocess the frame
 
-        landmarks = face_detector.landmarks_detection(frame)
+        # landmarks = face_detector.landmarks_detection(frame)
         frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
 
         RGB[:,FN,:] = parse_frame(frame,landmarks,81)
@@ -383,6 +385,7 @@ PlotTF                  = False
 # input: frame_n, T*W*H*3, BVP_n, T
 # for whole VIPL
 
+starttime = t.time()
 gt_all = []
 fps_all = []
 bpm_all = []
@@ -393,6 +396,8 @@ res = parse_video(VideoFile,StartTime,Duration)
 # videodata = skvideo.io.vread(VideoFile)
 # synchronize(videodata,bvp,gt,fps,clip_length)
 gt_p,fps_p,bpm_p,bvp_p,img_rgb,img_yuv = save_MSTmaps(res[1],bvp,gt,fps,clip_length)
+endtime = t.time()
+print("Used:",endtime-starttime)
 #
 # gt_all.extend(gt_p)
 # fps_all.extend(fps_p)
