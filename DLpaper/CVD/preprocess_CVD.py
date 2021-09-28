@@ -417,6 +417,3 @@ gt_p,fps_p,bpm_p,bvp_p,img_rgb,img_yuv = save_MSTmaps(res[1],bvp,gt,fps,clip_len
 
 
 
-print()
-
-
