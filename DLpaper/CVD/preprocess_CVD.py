@@ -357,7 +357,7 @@ def save_MSTmaps(res,bvp,gt,fps,clip_length):
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 
 #这部分和之前的保持一致
-video_path = "./data/video.avi"
+video_path = "./data/video001.avi"
 landmark_num = 81
 landmark_dir = "./data/face_landmarks_81p"
 gt_file = "./data_example/gt_HR.csv"
@@ -372,8 +372,8 @@ clip_length = 300;
 #TODO:处理输入视频得到fps和time
 # fps = ?
 
-DataDirectory           = 'data_example\\'
-VideoFile               = DataDirectory+'video.avi'#TODO:deal with files not found error
+DataDirectory           = 'data_example'+os.sep
+VideoFile               = DataDirectory+'video001.avi'#TODO:deal with files not found error
 FS                      = 120
 StartTime               = 0
 Duration                = 60
