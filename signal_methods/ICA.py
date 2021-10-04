@@ -10,8 +10,10 @@ from skimage.util import img_as_float
 from sklearn.metrics import mean_squared_error
 #utils
 import utils
+from fake_video import fake_video
+
 def ICA_POH(VideoFile,FS,StartTime,
-            Duration, ECGFile, PPGFile, PlotTF):
+            Duration, ECGFile, PPGFile, PlotTF,test_mode=False,WIDTH=0,HEIGHT=0):
     # paras:cut off frequency
     LPF = 0.7
     HPF = 2.5
@@ -22,7 +24,10 @@ def ICA_POH(VideoFile,FS,StartTime,
         PlotPRPST = False
         PlotSNR = False
 
-    T,RGB = process_video(VideoFile)
+    if(test_mode):
+        T,RGB  = fake_video(VideoFile,StartTime,Duration,FS,WIDTH,HEIGHT)
+    else:
+        T, RGB= process_video(VideoFile,StartTime,Duration)
 
     #Detrend & ICA
     NyquistF = 1/2*FS
@@ -79,7 +84,7 @@ def ICA_POH(VideoFile,FS,StartTime,
     #Ground Truth HR
 
 
-def process_video(VideoFile):
+def process_video(VideoFile,StartTime,Duration):
     #Standard:
     VidObj = cv2.VideoCapture(VideoFile)
     VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
@@ -291,13 +296,13 @@ def jade(X,m,Wprev):
 
 
     #return BVP,PR,HR_ECG,PR_PPG,SNR
-DataDirectory           = 'test_data\\'
-VideoFile               = DataDirectory+ 'video_example3.avi'
-FS                      = 120
-StartTime               = 0
-Duration                = 60
-ECGFile                 = DataDirectory+ 'ECGData.mat'
-PPGFile                 = DataDirectory+ 'PPGData.mat'
-PlotTF                  = False
-
-ICA_POH(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)
+# DataDirectory           = 'test_data\\'
+# VideoFile               = DataDirectory+ 'video_example3.avi'
+# FS                      = 120
+# StartTime               = 0
+# Duration                = 60
+# ECGFile                 = DataDirectory+ 'ECGData.mat'
+# PPGFile                 = DataDirectory+ 'PPGData.mat'
+# PlotTF                  = False
+#
+# ICA_POH(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)
