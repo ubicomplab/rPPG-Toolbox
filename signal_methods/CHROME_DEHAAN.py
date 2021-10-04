@@ -9,7 +9,9 @@ from skimage.util import img_as_float
 from sklearn.metrics import mean_squared_error
 
 import utils
-def CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
+from fake_video import fake_video
+
+def CHROME_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF,test_mode=False,WIDTH=0,HEIGHT=0):
     #Parameters
     SkinSegementTF = False
     LPF = 0.7
@@ -26,7 +28,10 @@ def CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
         PlotPRPSD = False
         PlotSNR = False
 
-    T,RGB = process_video(VideoFile)
+    if(test_mode):
+        T,RGB  = fake_video(VideoFile,StartTime,Duration,FS,WIDTH,HEIGHT)
+    else:
+        T, RGB= process_video(VideoFile,StartTime,Duration)
     FN = T.shape[0]
     NyquistF = 1/2*FS
     B,A = signal.butter(3,[LPF/NyquistF,HPF/NyquistF],'bandpass')
@@ -93,7 +98,7 @@ def CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
     SNR = utils.bvpsnr(BVP, FS, HR_ECG, PlotSNR)
     return BVP,PR,HR_ECG,PR_PPG,SNR
 
-def process_video(VideoFile):
+def process_video(VideoFile,StartTime,Duration):
     #Standard:
     VidObj = cv2.VideoCapture(VideoFile)
     VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
@@ -125,13 +130,13 @@ def process_video(VideoFile):
     # RGB = scio.loadmat("RGB_chorme.mat")["RGB"]
     return T[:FN],RGB[:FN]
 
-DataDirectory           = 'test_data\\'
-VideoFile               = DataDirectory+ 'video_example3.avi'
-FS                      = 120
-StartTime               = 0
-Duration                = 60
-ECGFile                 = DataDirectory+ 'ECGData.mat'
-PPGFile                 = DataDirectory+ 'PPGData.mat'
-PlotTF                  = False
-
-CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)
+# DataDirectory           = 'test_data\\'
+# VideoFile               = DataDirectory+ 'video_example3.avi'
+# FS                      = 120
+# StartTime               = 0
+# Duration                = 60
+# ECGFile                 = DataDirectory+ 'ECGData.mat'
+# PPGFile                 = DataDirectory+ 'PPGData.mat'
+# PlotTF                  = False
+#
+# CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)
