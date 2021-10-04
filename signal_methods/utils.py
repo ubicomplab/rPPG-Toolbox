@@ -92,6 +92,8 @@ def prpsd(BVP,FS,LL_PR,UL_PR,PlotTF):
     return PR
 
 def parse_ECG(ECGFile,StartTime,Duration):
+    if ECGFile == None:
+        return -1
     ECG = scio.loadmat(ECGFile)["ECG"]
     ECG_data = ECG["data"][0,0]
     ECG_fs = ECG["fs"][0,0]
@@ -106,6 +108,8 @@ def parse_ECG(ECGFile,StartTime,Duration):
     return HR_ECG
 
 def parse_PPG(PPGFile,StartTime,Duration):
+    if PPGFile == None:
+        return -1
     try:
         PPG = scio.loadmat(PPGFile)["PPG"]
     except:

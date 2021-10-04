@@ -8,8 +8,9 @@ from scipy import io as scio
 from skimage.util import img_as_float
 from sklearn.metrics import mean_squared_error
 import utils
+from fake_video import fake_video
 
-def POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
+def POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF,test_mode = False,WIDTH=0,HEIGHT=0):
     SkinSegmentTF = False
     LPF = 0.7
     HPF = 2.5
@@ -23,8 +24,11 @@ def POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
     else:
         PlotPRPSD = False
         PlotSNR = False
-    T, RGB= process_video(VideoFile)
-    FN = T.shape[0]
+    if(test_mode):
+        T,RGB  = fake_video(VideoFile,StartTime,Duration,FS,WIDTH,HEIGHT)
+    else:
+        T, RGB= process_video(VideoFile,StartTime,Duration)
+
 
     #POS begin
     useFGTransform = False
@@ -66,7 +70,6 @@ def POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
             H[0,m:n] = H[0,m:n]+(h[0])
 
     BVP = H
-    T = T[:BVP.shape[0]]
     # BVP_mat = scio.loadmat("BVP_pos.mat")["BVP"]
     # print(np.sqrt(mean_squared_error(BVP_mat,BVP)))
     PR = utils.prpsd(BVP[0],FS,40,240,PlotPRPSD)
@@ -79,7 +82,7 @@ def POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF):
 
 
 
-def process_video(VideoFile):
+def process_video(VideoFile,StartTime,Duration):
     #Standard:
     VidObj = cv2.VideoCapture(VideoFile)
     VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
@@ -110,13 +113,15 @@ def process_video(VideoFile):
     # RGB = scio.loadmat("RGB_pos.mat")["RGB"]
     return T,RGB
 
-DataDirectory           = 'test_data\\'
-VideoFile               = DataDirectory+ 'video_example3.avi'#TODO:deal with files not found error
-FS                      = 120
-StartTime               = 0
-Duration                = 60
-ECGFile                 = DataDirectory+ 'ECGData.mat'
-PPGFile                 = DataDirectory+ 'PPGData.mat'
-PlotTF                  = False
 
-POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)
+
+# DataDirectory           = 'test_data\\'
+# VideoFile               = DataDirectory+ 'video_example3.avi'#TODO:deal with files not found error
+# FS                      = 120
+# StartTime               = 0
+# Duration                = 60
+# ECGFile                 = DataDirectory+ 'ECGData.mat'
+# PPGFile                 = DataDirectory+ 'PPGData.mat'
+# PlotTF                  = False
+#
+# POS_WANG(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)
