@@ -6,7 +6,6 @@ from scipy import sparse
 from scipy import linalg
 from scipy import io as scio
 from skimage.util import img_as_float
-from sklearn.metrics import mean_squared_error
 import utils
 from fake_video import fake_video
 
