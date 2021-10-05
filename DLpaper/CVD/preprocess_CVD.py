@@ -151,16 +151,17 @@ def parse_video(VideoFile,StartTime,Duration):
     landmarks = face_detector.landmarks_detection(frame)
     CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
     EndTime = StartTime + Duration
-
+    total_time = 0
     while (success and (CurrentTime <= (EndTime * 1000))):
         T[FN] = CurrentTime
 
         #how to preprocess the frame
-
-        # landmarks = face_detector.landmarks_detection(frame)
+        start = t.time()
+        landmarks = face_detector.landmarks_detection(frame)
         frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
-
         RGB[:,FN,:] = parse_frame(frame,landmarks,81)
+        end = t.time()
+        total_time += (end-start)
         success, frame = VidObj.read()
         CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
         FN += 1
@@ -169,7 +170,8 @@ def parse_video(VideoFile,StartTime,Duration):
     RGB = RGB[:,:FN,:]
     # T =scio.loadmat("T.mat")["T"]
     # RGB = scio.loadmat("RGB_pos.mat")["RGB"]
-    return T, RGB
+    return T, RGB, total_time
+
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -385,7 +387,6 @@ PlotTF                  = False
 # input: frame_n, T*W*H*3, BVP_n, T
 # for whole VIPL
 
-starttime = t.time()
 gt_all = []
 fps_all = []
 bpm_all = []
@@ -393,12 +394,15 @@ bvp_all = []
 img_rgb_all = []
 img_yuv_all = []
 res = parse_video(VideoFile,StartTime,Duration)
+total_time = res[2]
 # videodata = skvideo.io.vread(VideoFile)
 # synchronize(videodata,bvp,gt,fps,clip_length)
+starttime = t.time()
 gt_p,fps_p,bpm_p,bvp_p,img_rgb,img_yuv = save_MSTmaps(res[1],bvp,gt,fps,clip_length)
 endtime = t.time()
-print("Total Time (second): ",endtime-starttime)
-print('Time per Frame (ms) : ', (endtime-starttime) * 1000 / (res[1].shape[1]))
+final_time = endtime-starttime+total_time
+print("Total Time (second): ", final_time)
+print('Time per Frame (ms) : ', final_time * 1000 / (res[1].shape[1]))
 #
 # gt_all.extend(gt_p)
 # fps_all.extend(fps_p)
