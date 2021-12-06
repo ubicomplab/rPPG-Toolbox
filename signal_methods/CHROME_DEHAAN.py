@@ -129,14 +129,3 @@ def process_video(VideoFile,StartTime,Duration):
     # T =scio.loadmat("T.mat")["T"]
     # RGB = scio.loadmat("RGB_chorme.mat")["RGB"]
     return T[:FN],RGB[:FN]
-
-# DataDirectory           = 'test_data\\'
-# VideoFile               = DataDirectory+ 'video_example3.avi'
-# FS                      = 120
-# StartTime               = 0
-# Duration                = 60
-# ECGFile                 = DataDirectory+ 'ECGData.mat'
-# PPGFile                 = DataDirectory+ 'PPGData.mat'
-# PlotTF                  = False
-#
-# CHROM_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)
