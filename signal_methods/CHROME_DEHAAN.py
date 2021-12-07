@@ -8,10 +8,8 @@ from scipy import io as scio
 from skimage.util import img_as_float
 from sklearn.metrics import mean_squared_error
 
-import utils
-from fake_video import fake_video
-
-def CHROME_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF,test_mode=False,WIDTH=0,HEIGHT=0):
+import signal_methods.utils as utils
+def CHROME_DEHAAN(VideoFile,ECGFile,PPGFile,PlotTF):
     #Parameters
     SkinSegementTF = False
     LPF = 0.7
@@ -28,10 +26,7 @@ def CHROME_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF,test_mo
         PlotPRPSD = False
         PlotSNR = False
 
-    if(test_mode):
-        T,RGB  = fake_video(VideoFile,StartTime,Duration,FS,WIDTH,HEIGHT)
-    else:
-        T, RGB= process_video(VideoFile,StartTime,Duration)
+    T, RGB,FS= process_video(VideoFile)
     FN = T.shape[0]
     NyquistF = 1/2*FS
     B,A = signal.butter(3,[LPF/NyquistF,HPF/NyquistF],'bandpass')
@@ -92,40 +87,31 @@ def CHROME_DEHAAN(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF,test_mo
     T = T[0:BVP.shape[0]]
 
     PR = utils.prpsd(BVP,FS,40,240,PlotPRPSD)
-    HR_ECG = utils.parse_ECG(ECGFile, StartTime, Duration)
-    PR_PPG = utils.parse_PPG(PPGFile, StartTime, Duration)
+    return BVP,PR
 
-    SNR = utils.bvpsnr(BVP, FS, HR_ECG, PlotSNR)
-    return BVP,PR,HR_ECG,PR_PPG,SNR
-
-def process_video(VideoFile,StartTime,Duration):
+def process_video(VideoFile):
     #Standard:
     VidObj = cv2.VideoCapture(VideoFile)
-    VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
     FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
-    FramesNumToRead = math.ceil(Duration * FrameRate)+1  # TODO:cell?
 
-    T = np.zeros((FramesNumToRead, 1))
-    RGB = np.zeros((FramesNumToRead, 3))
-    FN = 0
+    T = []
+    RGB = []
     success, frame = VidObj.read()
     CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
-    EndTime = StartTime + Duration
 
-    while(success and ( CurrentTime <= (EndTime*1000) )):
-        T[FN] = CurrentTime
+    while(success):
+        T.append(CurrentTime)
         #TODO: if different region
         frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
         frame = np.asarray(frame)
         sum = np.sum(np.sum(frame,axis=0),axis=0)
 
         # loss = RGB_mat-frame
-        RGB[FN] = sum/(frame.shape[0]*frame.shape[1])
+        RGB.append(sum/(frame.shape[0]*frame.shape[1]))
         success, frame = VidObj.read()
         CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
-        FN+=1
     # TODO:Skin segement TF
     #
     # T =scio.loadmat("T.mat")["T"]
     # RGB = scio.loadmat("RGB_chorme.mat")["RGB"]
-    return T[:FN],RGB[:FN]
+    return np.asarray(T),np.asarray(RGB),FrameRate

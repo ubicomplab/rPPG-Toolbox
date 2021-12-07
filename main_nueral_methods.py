@@ -1,3 +1,7 @@
+# TODO: Add descriptions for the file
+
+
+# Lint as: python3
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
@@ -35,7 +39,7 @@ if __name__ == "__main__":
     # configurations
     writer = SummaryWriter('runs/exp/'+args.model)
     device = torch.device("cuda:"+str(args.device)
-                          if (args.device > 0 and torch.cuda.is_available()) else "cpu")
+                          if (args.device >= 0 and torch.cuda.is_available()) else "cpu")
     print(device)
 
 

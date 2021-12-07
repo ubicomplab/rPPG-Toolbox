@@ -1,3 +1,4 @@
+# TODO
 import os
 from dataset.data_loader import data_loader
 from dataset.preprocess import data_preprocess
@@ -15,7 +16,7 @@ class UBFC_loader(data_loader):
     def __getitem__(self, index):
         x = np.load(self.xs[index])
         y = np.load(self.ys[index])
-        x = np.transpose(x, (3, 0, 1, 2))
+        x = np.transpose(x, (3, 0, 1, 2))## 3,T,W,H
         return x, y
         # return super().__getitem__(index)
 
@@ -62,30 +63,5 @@ class UBFC_loader(data_loader):
             fs = len(times) / times[-1]
         self.bvps = np.asarray(bvp)
 
-    def resize(self, H, W):
-        face_region = data_preprocess.facial_detection(self.frames[0])
-        self.frames = data_preprocess.resize(self.frames, H, W, face_region)
 
-    def synchronize(self):
-        self.frames, self.bvps = data_preprocess.synchronize(
-            self.frames, self.bvps, True)
 
-    def chunk(self, clip_length):
-        self.frames, self.bvps = data_preprocess.ubfc_chunk(
-            self.frames, self.bvps, clip_length)
-
-    def save(self):
-        if(not os.path.exists("preprocessed")):
-            os.mkdir("preprocessed")
-        for i in range(len(self.bvps)):
-            assert(len(self.xs) == len(self.ys))
-            assert(len(self.xs) == (self.count))
-            x_path_name = "preprocessed"+os.sep + \
-                str(self.name)+str(self.count)+"_x.npy"
-            y_path_name = "preprocessed"+os.sep + \
-                str(self.name)+str(self.count)+"_y.npy"
-            self.xs.append(x_path_name)
-            self.ys.append(y_path_name)
-            np.save(x_path_name, self.frames[i])
-            np.save(y_path_name, self.bvps[i])
-            self.count += 1
