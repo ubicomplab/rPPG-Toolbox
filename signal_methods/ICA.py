@@ -9,11 +9,9 @@ from scipy import io as scio
 from skimage.util import img_as_float
 from sklearn.metrics import mean_squared_error
 #utils
-import utils
-from fake_video import fake_video
+from signal_methods import utils
 
-def ICA_POH(VideoFile,FS,StartTime,
-            Duration, ECGFile, PPGFile, PlotTF,test_mode=False,WIDTH=0,HEIGHT=0):
+def ICA_POH(VideoFile,ECGFile, PPGFile, PlotTF):
     # paras:cut off frequency
     LPF = 0.7
     HPF = 2.5
@@ -24,10 +22,8 @@ def ICA_POH(VideoFile,FS,StartTime,
         PlotPRPST = False
         PlotSNR = False
 
-    if(test_mode):
-        T,RGB  = fake_video(VideoFile,StartTime,Duration,FS,WIDTH,HEIGHT)
-    else:
-        T, RGB= process_video(VideoFile,StartTime,Duration)
+
+    T, RGB, FS= process_video(VideoFile)
 
     #Detrend & ICA
     NyquistF = 1/2*FS
@@ -73,48 +69,37 @@ def ICA_POH(VideoFile,FS,StartTime,
 
     PR = utils.prpsd(BVP[0],FS,40,240,False)
 
-    HR_ECG = utils.parse_ECG(ECGFile,StartTime,Duration)
-    PR_PPG = utils.parse_PPG(PPGFile,StartTime,Duration)
+    # HR_ECG = utils.parse_ECG(ECGFile,StartTime,Duration)
+    # PR_PPG = utils.parse_PPG(PPGFile,StartTime,Duration)
 
 
-    SNR = utils.bvpsnr(BVP[0], FS, HR_ECG, PlotSNR)
+    # SNR = utils.bvpsnr(BVP[0], FS, HR_ECG, PlotSNR)
     #TODO:plot
-    return BVP,PR,HR_ECG,PR_PPG,SNR
+    return BVP,PR
 
     #Ground Truth HR
 
 
-def process_video(VideoFile,StartTime,Duration):
+def process_video(VideoFile):
     #Standard:
     VidObj = cv2.VideoCapture(VideoFile)
-    VidObj.set(cv2.CAP_PROP_POS_MSEC, StartTime * 1000)
     FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
-    FramesNumToRead = math.ceil(Duration * FrameRate)+1  # TODO:cell?
-
-    T = np.zeros((FramesNumToRead, 1))
-    RGB = np.zeros((FramesNumToRead, 3))
+    T = []
+    RGB = []
     FN = 0
-    success, frame = VidObj.read()
     CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
-    EndTime = StartTime + Duration
-
-    while(success and ( CurrentTime <= (EndTime*1000) )):
-        T[FN] = CurrentTime
+    success, frame = VidObj.read()
+    while(success):
+        T.append(CurrentTime)
         #TODO: if different region
         frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
         frame = np.asarray(frame)
         sum = np.sum(np.sum(frame,axis=0),axis=0)
-        RGB_mat = scio.loadmat("RGB_initial.mat")["VidROI"]
-        # loss = RGB_mat-frame
-        RGB[FN] = sum
+        RGB.append(sum)
         success, frame = VidObj.read()
         CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
         FN+=1
-    # TODO:Skin segement TF
-
-    # T =scio.loadmat("T.mat")["T"]
-    # RGB = scio.loadmat("RGB_pos.mat")["RGB"]
-    return T[:FN],RGB[:FN]
+    return np.asarray(T),np.asarray(RGB),FrameRate
 
 def ica(X,Nsources,Wprev=0):
     nRows = X.shape[0]
