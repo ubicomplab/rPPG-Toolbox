@@ -7,7 +7,9 @@ import cv2
 
 
 class data_loader(Dataset):
+    '''data loader for UBFC dataset'''
     def __init__(self, video_files, bvp_files, name):
+        '''initialization'''
         self.video_files = video_files
         self.bvp_files = bvp_files
         self.xs = []
@@ -17,24 +19,30 @@ class data_loader(Dataset):
         self.name = name
 
     def read_video(self):
+        '''read the video from UBFC dataset'''
         pass
 
     def read_bvp(self):
+        '''read the bvp signal from UBFC dataset'''
         pass
 
     def resize(self, H, W):
+        '''resize the frame for preprocessing'''
         face_region = data_preprocess.facial_detection(self.frames[0])
         self.frames = data_preprocess.resize(self.frames, H, W, face_region)
 
     def synchronize(self):
+        '''synchronize the video frames and the bvps'''
         self.frames, self.bvps = data_preprocess.synchronize(
             self.frames, self.bvps, True)
 
     def chunk(self, clip_length):
+        '''wrap certain length of data into chunks'''
         self.frames, self.bvps = data_preprocess.ubfc_chunk(
             self.frames, self.bvps, clip_length)
 
     def save(self):
+        '''save the preprocessed data to the given path'''
         if (not os.path.exists("preprocessed")):
             os.mkdir("preprocessed")
         for i in range(len(self.bvps)):
