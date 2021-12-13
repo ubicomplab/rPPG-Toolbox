@@ -4,11 +4,13 @@ import scipy
 
 
 def normalization(data):
+    '''normalize the data into [-1,1]'''
     _range = np.max(abs(data))
     return data / _range
 
 
 def corr_relate_align(signal, gt, maxshift=-1):
+    '''do align'''
     signal = normalization(signal)
     gt = normalization(gt)
     if(maxshift <= 0):
