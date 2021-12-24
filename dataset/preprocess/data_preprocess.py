@@ -7,6 +7,7 @@ H = 128
 
 
 def facial_detection(frame):
+    '''facial detection function for one face'''
     detector = cv2.CascadeClassifier(
         '/home/dlenv/xiaoyu/Toolbox/dataset/haarcascade_frontalface_default.xml')
     face_zone = detector.detectMultiScale(frame)
@@ -19,16 +20,19 @@ def facial_detection(frame):
 
 
 def crop_face_down_sample(frame, x, y, w, h):
+    '''crop one face and resize the frame to 128*128'''
     frame = frame[y:y + h, x:x + w]
     frame = cv2.resize(frame, (W, H))
     return frame
 
 
 def down_sample(a, len):
+    '''down sampling'''
     return np.interp(np.linspace(1, a.shape[0], len), np.linspace(1, a.shape[0], a.shape[0]), a)
 
 
 def resize(frames, H, W, face_region):
+    '''Downsample every frame into 128x128 and normalize the image'''
     resize_frames = np.zeros((frames.shape[0], H, W, 3))
     for i in range(0, frames.shape[0]):
         frame = frames[i]
@@ -39,6 +43,7 @@ def resize(frames, H, W, face_region):
 
 
 def synchronize(frames, bvps, plot_flag):
+    '''synchronize the video frames and the bvps'''
     face_region = facial_detection(frames[0])
     greenchannel, bvp = green_channel.green_channel(
         frames, bvps, face_region, False)
@@ -54,6 +59,7 @@ def synchronize(frames, bvps, plot_flag):
 
 
 def ubfc_chunk(frames, bvps, clip_len):
+    '''wrap certain length of data into chunks'''
     """
     size:(w,h)
     """
