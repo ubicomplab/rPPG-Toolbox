@@ -6,6 +6,7 @@ import scipy
 
 
 def down_sample(a, len):
+    '''downsample'''
     return np.interp(
         np.linspace(
             1, a.shape[0], len), np.linspace(
@@ -13,10 +14,12 @@ def down_sample(a, len):
 
 
 def next_power_of_2(x):
+    '''get the signal with the length of 2^n'''
     return 1 if x == 0 else 2**(x - 1).bit_length()
 
 
 def green_channel(video, bvp, face_region=None, plot_flag=False):
+    '''get green channel signals'''
     """
     Args:
         video: T*W*H*3. T-Time, W-Frame Width, H-Frame Height
@@ -84,7 +87,7 @@ def green_channel(video, bvp, face_region=None, plot_flag=False):
 
 
 def gc_and_align(frames, bvps):
-
+''' get green channel signals and do align'''
     greenchannel, bvp = green_channel(frames, bvps)
 # # downsample
     greenchannel_ds = down_sample(greenchannel, bvp.shape[0])
