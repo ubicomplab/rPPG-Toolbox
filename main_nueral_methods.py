@@ -5,127 +5,95 @@
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
-import torch.optim as optim
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 from neural_methods.model.PhysNet import *
 from neural_methods.model.rPPGNet import *
-from dataset.data_loader.data_loader import UBFC_loader
+from dataset.data_loader.UBFC_loader import UBFC_loader
 from tensorboardX import SummaryWriter
 import argparse
 import glob
-from neural_methods.trainer import *
+from neural_methods.trainer.physnet_trainer import physnet_trainer
 import os
+import time
+
+
+def get_data():
+    bvp_files = glob.glob(args.data_dir + os.sep + "subject*/*.txt")
+    video_files = glob.glob(args.data_dir + os.sep + "subject*/*.avi")
+
+    return {
+        "bvp": {
+            "train": bvp_files,
+            "valid": bvp_files,
+            "test": bvp_files},
+        "video": {
+            "train": video_files,
+            "valid": video_files,
+            "test": video_files}}
+
+
+def add_args(parser):
+    parser.add_argument('--do_train', action='store_true')
+    parser.add_argument(
+        '--device',
+        default=0,
+        type=int,
+        help="an integer to specify which gpu to use, -1 for cpu")
+    parser.add_argument('--batch_size', default=4, type=int)
+    parser.add_argument('--model_name', default="physnet", type=str)
+    parser.add_argument('--data_dir', default="G:\\UBFC_data",
+                        type=str, help='The path of the data directory')
+    t = time.localtime()
+    parser.add_argument(
+        '--name', default="{0}-{1}".format(str(t.tm_hour), str(t.tm_min)), type=str)
+    return parser
+
+
+def main(args, writer, data_loader):
+    trainner = trainner_name(args, writer)
+    trainner.train(dataloader)
+    print("End")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--do_train', action='store_true')
-    parser.add_argument('--device', default=0, type=int,help="an integer to specify which gpu to use, -1 for cpu")
-    parser.add_argument('--batch_size', default=4, type=int)
-    parser.add_argument('--round_num_max', default=20, type=int)
-    parser.add_argument('--learn_rate', default=1e-4, type=float)
-    parser.add_argument("--frame_num", default=64, type=int)
-    parser.add_argument("--model", default="physnet", type=str)
-    # parser.add_argument('--beta1', type=float, default=0.5,
-    #                     help='beta1 for adam. default=0.5')
-    parser.add_argument('--data_dir', default="/mnt/data0/UBFC/UBFC",
-                        type=str, help='The path of the data directory')
-    # parser.add_argument('--ckpt_dir', default='results',
-    #                     type=str, help='The path of the checkpoint directory')
-    # parser.add_argument('--log_dir', default='./runs', type=str)
+    parser = add_args(parser)
     args = parser.parse_args()
-
-
-    # configurations
-    writer = SummaryWriter('runs/exp/'+args.model)
-    device = torch.device("cuda:"+str(args.device)
-                          if (args.device >= 0 and torch.cuda.is_available()) else "cpu")
-    print(device)
-
+    trainner_name = eval('{0}_trainer'.format(args.model_name))
+    parser = trainner_name.add_trainer_args(parser)
+    args = parser.parse_args()
+    writer = SummaryWriter('runs/exp/' + args.name)
 
     # load data
-    bvp_files = glob.glob(args.data_dir+os.sep+"subject*/*.txt")
-    video_files = glob.glob(args.data_dir+os.sep+"subject*/*.avi")
-
-    # TODO: optimize dataset spliting
-    bvp_train_files = bvp_files[:-10]
-    bvp_valid_files = bvp_files[-10:-5]
-    bvp_test_files = bvp_files[-5:]
-
-    video_train_files = video_files[:-10]
-    video_valid_files = video_files[-10:-5]
-    video_test_files = video_files[-5:]
-
-    train_data = UBFC_loader(video_train_files, bvp_train_files, "train")
+    data_files = get_data()
+    train_data = UBFC_loader(
+        data_files["video"]["train"],
+        data_files["bvp"]["train"],
+        "train")
     train_data.preprocessing()
-    valid_data = UBFC_loader(video_valid_files, bvp_valid_files, "valid")
+    valid_data = UBFC_loader(
+        data_files["video"]["valid"],
+        data_files["bvp"]["valid"],
+        "valid")
     valid_data.preprocessing()
-    test_data = UBFC_loader(video_test_files, bvp_test_files, "test")
+    test_data = UBFC_loader(
+        data_files["video"]["test"],
+        data_files["bvp"]["test"],
+        "test")
     test_data.preprocessing()
 
-    train_loader = DataLoader(dataset=train_data, num_workers=2,
-                              batch_size=args.batch_size, shuffle=True)
-    valid_loader = DataLoader(dataset=valid_data, num_workers=2,
-                              batch_size=args.batch_size, shuffle=True)
-    test_loader = DataLoader(dataset=test_data, num_workers=2,
-                             batch_size=args.batch_size, shuffle=True)
-
-    # define models and optimizer
-    if args.model == "physnet":
-        model = PhysNet_padding_Encoder_Decoder_MAX(
-            frames=args.frame_num).to(device)  # [3, T, 128,128]
-    elif args.model == "rppgnet":
-        model = rPPGNet(frames=args.frame_num).to(device)
-    criterion_Pearson = Neg_Pearson()   # rPPG singal
-    optimizer = optim.Adam(model.parameters(), lr=args.learn_rate)
-
-    valid_step = 0
-    train_step = 0
-
-    # training begin
-    for round in range(args.round_num_max):
-        print(f"====training:ROUND{round}====")
-        train_loss = []
-        model.train()
-        for i, batch in enumerate(train_loader):
-            if args.model == "physnet":
-                loss_ecg = train_physnet(
-                    model, criterion_Pearson, batch, device, train_step, writer)
-            elif args.model == "rppgnet":
-                loss_ecg = train_rppgnet(model, criterion_Pearson, batch,
-                                         device, train_step, writer)
-            train_loss.append(loss_ecg.item())
-            train_step += 1
-            optimizer.step()
-            optimizer.zero_grad()
-        train_loss = np.asarray(train_loss)
-        print(np.mean(train_loss))
-        print(" ====validing===")
-        valid_loss = []
-        model.eval()
-        with torch.no_grad():
-            for valid_i, valid_batch in enumerate(valid_loader):
-                if args.model == "physnet":
-                    loss_ecg = valid_physnet(
-                        model, criterion_Pearson, valid_batch, device, valid_step, writer)
-                elif args.model == "rppgnet":
-                    loss_ecg = valid_rppgnet(model, criterion_Pearson,
-                                             valid_batch, device, valid_step, writer)
-                valid_loss.append(loss_ecg.item())
-                valid_step += 1
-            valid_loss = np.asarray(valid_loss)
-            print(np.mean(valid_loss))
-    torch.save(model.state_dict(), "model_ubfc.pth")
-
-print(" ====testing===")
-test_step = 0
-model.eval()
-with torch.no_grad():
-    for test_i, test_batch in enumerate(valid_loader):
-        if args.model == "physnet":
-            loss_ecg = test_physnet(
-                model, criterion_Pearson, test_batch, device, test_step, writer)
-        # elif args.model == "rppgnet":
-
-        test_step += 1
-        print(loss_ecg.item())
+    dataloader = {
+        "train": DataLoader(
+            dataset=train_data,
+            num_workers=2,
+            batch_size=args.batch_size,
+            shuffle=True),
+        "valid": DataLoader(
+            dataset=valid_data,
+            num_workers=2,
+            batch_size=args.batch_size,
+            shuffle=True),
+        "test": DataLoader(dataset=test_data, num_workers=2,
+                           batch_size=args.batch_size, shuffle=True)
+    }
+    main(args, writer, dataloader)

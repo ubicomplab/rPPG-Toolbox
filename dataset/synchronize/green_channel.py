@@ -20,10 +20,6 @@ def next_power_of_2(x):
 
 def green_channel(video, bvp, face_region=None, plot_flag=False):
     '''get green channel signals'''
-    """
-    Args:
-        video: T*W*H*3. T-Time, W-Frame Width, H-Frame Height
-    """
     imCrop = video[0]
     # r = cv2.selectROI("face", sample_image)  # Press enter after selecting box
     # print('Coordiantes: ', r)
@@ -87,11 +83,11 @@ def green_channel(video, bvp, face_region=None, plot_flag=False):
 
 
 def gc_and_align(frames, bvps):
-''' get green channel signals and do align'''
+    ''' get green channel signals and do align'''
     greenchannel, bvp = green_channel(frames, bvps)
-# # downsample
+    # # downsample
     greenchannel_ds = down_sample(greenchannel, bvp.shape[0])
-# # do align
+    # # do align
     final_shift = align.corr_relate_align(greenchannel_ds, bvp)
     frames = frames[:-final_shift]
     bvps = bvps[final_shift:]
