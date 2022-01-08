@@ -5,11 +5,13 @@ from dataset.preprocess import data_preprocess
 import numpy as np
 import cv2
 
+
 class UBFC_loader(data_loader):
     '''data loader for UBFC dataset'''
+
     def __init__(self, video_file, bvp_file, name):
         """initialization"""
-        super().__init__(video_file,bvp_file,name)
+        super().__init__(video_file, bvp_file, name)
 
     def __len__(self):
         '''calculate the length of bvps'''
@@ -20,9 +22,8 @@ class UBFC_loader(data_loader):
         '''get the item of certain index'''
         x = np.load(self.xs[index])
         y = np.load(self.ys[index])
-        x = np.transpose(x, (3, 0, 1, 2))## 3,T,W,H
+        x = np.transpose(x, (3, 0, 1, 2))
         return x, y
-        # return super().__getitem__(index)
 
     def preprocessing(self):
         '''preprocessiong of the dataset'''
@@ -69,6 +70,3 @@ class UBFC_loader(data_loader):
             times = [float(x) for x in times.split()]
             fs = len(times) / times[-1]
         self.bvps = np.asarray(bvp)
-
-
-
