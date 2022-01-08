@@ -13,6 +13,8 @@ from tensorboardX import SummaryWriter
 import argparse
 import glob
 from neural_methods.trainer.physnet_trainer import physnet_trainer
+from neural_methods.trainer.trainer import trainer
+
 import os
 import time
 
@@ -23,16 +25,17 @@ def get_data():
 
     return {
         "bvp": {
-            "train": bvp_files,
-            "valid": bvp_files,
-            "test": bvp_files},
+            "train": bvp_files[:-2],
+            "valid": bvp_files[-2:-1],
+            "test": bvp_files[-1:]},
         "video": {
-            "train": video_files,
-            "valid": video_files,
-            "test": video_files}}
+            "train": video_files[:-2],
+            "valid": video_files[-2:-1],
+            "test": video_files[-1:]}}
 
 
 def add_args(parser):
+    parser.add_argument('--model_name', default="physnet", type=str)
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
@@ -40,18 +43,19 @@ def add_args(parser):
         type=int,
         help="an integer to specify which gpu to use, -1 for cpu")
     parser.add_argument('--batch_size', default=4, type=int)
-    parser.add_argument('--model_name', default="physnet", type=str)
     parser.add_argument('--data_dir', default="G:\\UBFC_data",
                         type=str, help='The path of the data directory')
     t = time.localtime()
     parser.add_argument(
         '--name', default="{0}-{1}".format(str(t.tm_hour), str(t.tm_min)), type=str)
+    parser.add_argument('--round_num_max', default=20, type=int)
     return parser
 
 
 def main(args, writer, data_loader):
-    trainner = trainner_name(args, writer)
-    trainner.train(dataloader)
+    trainer_name = eval('{0}_trainer'.format(args.model_name))
+    trainner = trainer_name(args, writer)
+    trainner.train(data_loader)
     print("End")
 
 
@@ -59,8 +63,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser = add_args(parser)
     args = parser.parse_args()
-    trainner_name = eval('{0}_trainer'.format(args.model_name))
-    parser = trainner_name.add_trainer_args(parser)
+    parser = trainer.add_trainer_args(parser)
     args = parser.parse_args()
     writer = SummaryWriter('runs/exp/' + args.name)
 

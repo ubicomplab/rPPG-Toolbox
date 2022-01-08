@@ -3,3 +3,5 @@ __pycache__/
 *.log
 .idea
 preprocessed
+store_model
+runs

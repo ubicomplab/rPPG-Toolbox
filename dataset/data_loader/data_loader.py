@@ -1,4 +1,4 @@
-#TODO:
+# TODO:
 import numpy as np
 from dataset.preprocess import data_preprocess
 import os
@@ -7,7 +7,14 @@ import cv2
 
 
 class data_loader(Dataset):
+    @staticmethod
+    def add_data_loader_args(parser):
+        """Adds arguments to Paser for training process"""
+        parser.add_argument(
+            "--cached_dir", default="/mnt/data0/UBFC/", type=str)
+        return parser
     '''data loader for UBFC dataset'''
+
     def __init__(self, video_files, bvp_files, name):
         '''initialization'''
         self.video_files = video_files
