@@ -1,6 +1,6 @@
 # TODO
 import os
-from dataset.data_loader import data_loader
+from dataset.data_loader.data_loader import data_loader
 from dataset.preprocess import data_preprocess
 import numpy as np
 import cv2
@@ -8,8 +8,8 @@ import cv2
 class UBFC_loader(data_loader):
     '''data loader for UBFC dataset'''
     def __init__(self, video_file, bvp_file, name):
-        '''initialization'''
-        super(UBFC_loader, self).__init__(video_file, bvp_file, name)
+        """initialization"""
+        super().__init__(video_file,bvp_file,name)
 
     def __len__(self):
         '''calculate the length of bvps'''
