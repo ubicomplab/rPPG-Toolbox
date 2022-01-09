@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from dataset.synchronize import green_channel, align
+from dataset.synchronize import green_channel,align
 
 W = 128
 H = 128
@@ -9,7 +9,7 @@ H = 128
 def facial_detection(frame):
     '''facial detection function for one face'''
     detector = cv2.CascadeClassifier(
-        '/home/dlenv/xiaoyu/Toolbox/dataset/haarcascade_frontalface_default.xml')
+        './dataset/preprocess/haarcascade_frontalface_default.xml')
     face_zone = detector.detectMultiScale(frame)
     if(len(face_zone) < 1):
         print("ERROR:No Face Detected")
