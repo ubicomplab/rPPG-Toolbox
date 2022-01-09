@@ -2,3 +2,6 @@ __pycache__/
 *.py[cod]
 *.log
 .idea
+preprocessed
+store_model
+runs
