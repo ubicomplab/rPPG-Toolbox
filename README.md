@@ -16,5 +16,5 @@ For exemple, if your UBFC data are [/path/UBFC/subject1/video+signal,/path/UBFC/
 
 The command should be:
 
-**python main.py --model physnet --data_dir  /path  --device 1**
+**python main_neural_methods.py --model physnet --data_dir  /path  --device 1**
 
