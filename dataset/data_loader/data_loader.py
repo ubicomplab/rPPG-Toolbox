@@ -9,6 +9,7 @@ import os
 import cv2
 from torch.utils.data import Dataset
 
+
 class data_loader(Dataset):
     """The base class for data loading based on pytorch Dataset.
 
@@ -31,8 +32,8 @@ class data_loader(Dataset):
             cached_dir(str): The directory where preprocessing results are stored.
         """
         self.cached_dir = cached_dir
-        self.inputs = []
-        self.labels = []
+        self.inputs = list()
+        self.labels = list()
         self.len = 0
 
     def preprocess(self, w, h, clip_length, crop_face):
@@ -45,34 +46,43 @@ class data_loader(Dataset):
         """
         pass
 
-    def read_video(self, video_path):
-        """Reads the file, returns frames."""
-        pass
-
-    def read_bvp(self, bvp_path):
-        """Reads the file, return bvp signals."""
-        pass
-
-    def facial_detection(self, frame):
-        """Conducts face detection on a single frame. """
+    def facial_detection(self, frame, larger_box=False):
+        """Conducts face detection on a single frame.
+        Sets larger_box=True for larger bounding box, e.g. moving trials."""
         detector = cv2.CascadeClassifier(
             './dataset/haarcascade_frontalface_default.xml')
         face_zone = detector.detectMultiScale(frame)
+        result = face_zone[0]
         if (len(face_zone) < 1):
             print("ERROR:No Face Detected")
         if (len(face_zone) >= 2):
-            print("WARN:More than one faces are detected(Only cropping one face)")
-        return face_zone[0]
+            result = np.argmax(face_zone, axis=0)
+            print("WARN:More than one faces are detected(Only cropping the biggest one.)")
+            result = face_zone[result[2]]
+        if larger_box:
+            print("Larger Bounding Box")
+            result[0] = max(0, result[0] - 0.4 * result[2])
+            result[1] = max(0, result[1] - 0.1 * result[2])
+            result[2] = 1.8 * result[2]
+            result[3] = 1.2 * result[3]
+        return result
 
-    def resize(self, frames, w, h, detect_face=True):
+    def resize(self, frames, w, h, detect_face=True, larger_box=False):
         """Resizes each frame, crops the face area if flag is true."""
-        face_region = self.facial_detection(frames[0])
+        face_region = self.facial_detection(frames[0], larger_box)
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]
             if detect_face:
-                frame = frame[face_region[1]:face_region[1] + face_region[3],
-                              face_region[0]:face_region[0] + face_region[2]]
+                frame = frame[max(face_region[1],
+                                  0):min(face_region[1] + face_region[3],
+                                         frame.shape[0]),
+                              max(face_region[0],
+                                  0):min(face_region[0] + face_region[2],
+                                         frame.shape[1])]
+                # view the cropped area.
+                # cv2.imshow("frame",frame)
+                # cv2.waitKey(0)
             resize_frames[i] = cv2.resize(frame, (w, h))
         return resize_frames
 
