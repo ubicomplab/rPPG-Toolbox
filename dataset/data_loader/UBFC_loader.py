@@ -37,7 +37,6 @@ class UBFC_loader(data_loader):
         self.data_dirs = data_dirs
         self.preprocess()
 
-
     def __len__(self):
         """Returns the length of the dataset."""
         return self.len
@@ -61,11 +60,12 @@ class UBFC_loader(data_loader):
                 os.path.join(
                     self.data_dirs[i],
                     "ground_truth.txt"))
-            frames = self.resize(frames, w, h, crop_face)
+            frames = self.resize(frames, w, h, detect_face=crop_face)
             frames_clips, bvps_clips = self.chunk(frames, bvps, clip_length)
             self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i])
 
-    def read_video(self, video_file):
+    @staticmethod
+    def read_video(video_file):
         """Reads a video file, returns frames(T,H,W,3) """
         VidObj = cv2.VideoCapture(video_file)
         VidObj.set(cv2.CAP_PROP_POS_MSEC, 0)
@@ -78,7 +78,8 @@ class UBFC_loader(data_loader):
             success, frame = VidObj.read()
         return np.asarray(frames)
 
-    def read_wave(self, bvp_file):
+    @staticmethod
+    def read_wave(bvp_file):
         """Reads a bvp signal file."""
         with open(bvp_file, "r") as f:
             str1 = f.read()
