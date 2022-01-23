@@ -49,7 +49,7 @@ def get_PURE_data(args):
     For the dataset structure, see dataset/dataloader/PURE_dataloader.py """
     data_dirs = glob.glob(args.data_dir + os.sep + "*-*")
     return {
-        "train": data_dirs[2:],
+        "train": data_dirs,
         "valid": data_dirs[-1:],
         "test": data_dirs[-1:]
     }
@@ -57,17 +57,17 @@ def get_PURE_data(args):
 
 def add_args(parser):
     """Adds arguments for parser."""
-    parser.add_argument('--model_name', default="physnet", type=str)
-    parser.add_argument('--dataset', default="COHFACE", type=str)
+    parser.add_argument('--model_name', default="physnet", type=str, help="The name of the model.")
+    parser.add_argument('--dataset', required=True, choices=["COHFACE","PURE","UBFC"], type=str, help="The Dataset. Supporting UBFC/PURE/COHFACE.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
         default=0,
         type=int,
-        help="an integer to specify which gpu to use, -1 for cpu")
+        help="An integer to specify which gpu to use, -1 for cpu.")
     parser.add_argument('--batch_size', default=4, type=int)
-    parser.add_argument('--data_dir', default="G:\\PURE",
-                        type=str, help='The path of the data directory')
+    parser.add_argument('--data_dir', required=True,
+                        type=str, help='The path of the data directory.')
     current_time = time.localtime()
     parser.add_argument('--name',
                         default="{0}-{1}".format(str(current_time.tm_hour),
@@ -94,14 +94,15 @@ if __name__ == "__main__":
     writer = SummaryWriter('runs/exp/' + args.name)
 
     # loads data
-    data_files = get_PURE_data(args)
-    train_data = PURE_loader(
+    data_files = eval("get_{0}_data".format(args.dataset))(args)
+    loader = eval("{0}_loader".format(args.dataset))
+    train_data = loader(
         data_dirs=data_files["train"],
         cached_dir=args.cached_dir)
-    valid_data = PURE_loader(
+    valid_data = loader(
         data_dirs=data_files["valid"],
         cached_dir=args.cached_dir)
-    test_data = PURE_loader(
+    test_data = loader(
         data_dirs=data_files["test"],
         cached_dir=args.cached_dir)
     dataloader = {
