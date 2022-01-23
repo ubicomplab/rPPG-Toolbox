@@ -1,7 +1,7 @@
 
 # Overview
 
-xxx is a python toolbox aiming for rPPG signal extraction supporting bothe deep-learning
+xxx is a python toolbox aiming for rPPG signal extraction, supporting both deep-learning
 and signal processing methods. #TODO: Adds more description.
 
 # Requirments
