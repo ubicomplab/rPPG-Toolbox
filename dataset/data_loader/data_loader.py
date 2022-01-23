@@ -80,7 +80,7 @@ class data_loader(Dataset):
                               max(face_region[0],
                                   0):min(face_region[0] + face_region[2],
                                          frame.shape[1])]
-                # view the cropped area.
+                #view the cropped area.
                 # cv2.imshow("frame",frame)
                 # cv2.waitKey(0)
             resize_frames[i] = cv2.resize(frame, (w, h))
