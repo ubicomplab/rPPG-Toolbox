@@ -27,9 +27,9 @@ def get_UBFC_data(args):
     For the dataset structure, see dataset/dataloader/UBFC_dataloader.py """
     data_dirs = glob.glob(args.data_dir + os.sep + "subject*")
     return {
-        "train": data_dirs,
-        "valid": data_dirs,
-        "test": data_dirs
+        "train": data_dirs[:-2],
+        "valid": data_dirs[-2:-1],
+        "test": data_dirs[-1:]
     }
 
 
@@ -38,9 +38,9 @@ def get_COHFACE_data(args):
     For the dataset structure, see dataset/dataloader/COHFACE_dataloader.py """
     data_dirs = glob.glob(args.data_dir + os.sep + "*")
     return {
-        "train": data_dirs,
-        "valid": data_dirs[-2:],
-        "test": data_dirs[-2:]
+        "train": data_dirs[:-2],
+        "valid": data_dirs[-2:-1],
+        "test": data_dirs[-1:]
     }
 
 
@@ -49,11 +49,10 @@ def get_PURE_data(args):
     For the dataset structure, see dataset/dataloader/PURE_dataloader.py """
     data_dirs = glob.glob(args.data_dir + os.sep + "*-*")
     return {
-        "train": data_dirs,
-        "valid": data_dirs[-1:],
+        "train": data_dirs[:-2],
+        "valid": data_dirs[-2:-1],
         "test": data_dirs[-1:]
     }
-
 
 def add_args(parser):
     """Adds arguments for parser."""
