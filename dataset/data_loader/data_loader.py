@@ -10,12 +10,13 @@ import cv2
 from torch.utils.data import Dataset
 
 
-class data_loader(Dataset):
+class DataLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
 
     The dataloader supports both providing data for pytorch training and common data-preprocessing methods,
     including reading files, resizing each frame, chunking, and video-signal synchronization.
     """
+
     @staticmethod
     def add_data_loader_args(parser):
         """Adds arguments to parser for training process"""
@@ -77,10 +78,10 @@ class data_loader(Dataset):
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
-                              max(face_region[0],
-                                  0):min(face_region[0] + face_region[2],
-                                         frame.shape[1])]
-                #view the cropped area.
+                        max(face_region[0],
+                            0):min(face_region[0] + face_region[2],
+                                   frame.shape[1])]
+                # view the cropped area.
                 # cv2.imshow("frame",frame)
                 # cv2.waitKey(0)
             resize_frames[i] = cv2.resize(frame, (w, h))
@@ -105,12 +106,30 @@ class data_loader(Dataset):
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_dir + os.sep + \
-                "{0}_input{1}.npy".format(filename, str(count))
+                              "{0}_input{1}.npy".format(filename, str(count))
             label_path_name = self.cached_dir + os.sep + \
-                "{0}_label{1}.npy".format(filename, str(count))
+                              "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
             np.save(label_path_name, bvps_clips[i])
             count += 1
         return count
+
+    @staticmethod
+    def diff_normalize_data(data):
+        """Difference frames and normalization data"""
+        n, h, w, c = data.shape
+        normalized_len = n - 1
+        normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
+        for j in range(normalized_len - 1):
+            normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / \
+                                            (data[j + 1, :, :, :] + data[j, :, :, :])
+        normalized_data = normalized_data / np.std(normalized_data)
+        return normalized_data
+
+    @staticmethod
+    def diff_normalize_label(label):
+        """Difference frames and normalization labels"""
+        diff_label = np.diff(label, axis=0)
+        return diff_label / np.std(diff_label)
