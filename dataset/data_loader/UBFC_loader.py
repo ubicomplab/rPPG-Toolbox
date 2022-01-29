@@ -13,7 +13,7 @@ from dataset.data_loader.data_loader import data_loader
 class UBFC_loader(data_loader):
     """The data loader for the UBFC dataset."""
 
-    def __init__(self, data_dirs, cached_dir):
+    def __init__(self, name,data_dirs,config_data):
         """Initializes an UBFC dataloader.
             Args:
                 data_dirs(list): A list of paths storing raw video and bvp data.
@@ -31,11 +31,10 @@ class UBFC_loader(data_loader):
                      |       |-- vid.avi
                      |       |-- ground_truth.txt
                 -----------------
-                cached_dir(str): The directory where preprocessing results are stored.
+                name(string): name of the dataloader.
+                config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(cached_dir)
-        self.data_dirs = data_dirs
-        self.preprocess()
+        super().__init__(name,data_dirs,config_data)
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -48,7 +47,7 @@ class UBFC_loader(data_loader):
         input = np.transpose(input, (3, 0, 1, 2))
         return input, label
 
-    def preprocess(self, w=128, h=128, clip_length=64, crop_face=True):
+    def preprocess_dataset(self, config_preprocess):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
         for i in range(file_num):
@@ -60,9 +59,10 @@ class UBFC_loader(data_loader):
                 os.path.join(
                     self.data_dirs[i],
                     "ground_truth.txt"))
-            frames = self.resize(frames, w, h, detect_face=crop_face)
-            frames_clips, bvps_clips = self.chunk(frames, bvps, clip_length)
+            frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
             self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i])
+        print(self.len)
+
 
     @staticmethod
     def read_video(video_file):
@@ -70,7 +70,7 @@ class UBFC_loader(data_loader):
         VidObj = cv2.VideoCapture(video_file)
         VidObj.set(cv2.CAP_PROP_POS_MSEC, 0)
         success, frame = VidObj.read()
-        frames = []
+        frames = list()
         while(success):
             frame = cv2.cvtColor(np.array(frame), cv2.COLOR_BGR2RGB)
             frame = np.asarray(frame)
