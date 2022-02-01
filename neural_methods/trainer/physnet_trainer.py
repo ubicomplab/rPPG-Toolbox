@@ -23,25 +23,25 @@ import os
 
 class physnet_trainer(trainer):
 
-    def __init__(self, args, twriter):
+    def __init__(self, config, twriter):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
-        self.device = torch.device("cuda:" + str(args.device)
-                                   if (args.device >= 0 and torch.cuda.is_available()) else "cpu")
+        self.device = torch.device(config.DEVICE)
+        print(self.device)
         self.model = PhysNet_padding_Encoder_Decoder_MAX(
-            frames=args.frame_num).to(self.device)  # [3, T, 128,128]
+            frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
         self.loss_model = Neg_Pearson()
         self.optimizer = optim.Adam(
-            self.model.parameters(), lr=args.learn_rate)
-        self.round_num_max = args.round_num_max
-        self.model_path = args.model_path
+            self.model.parameters(), lr=config.TRAIN.LR)
+        self.epochs = config.TRAIN.EPOCHS
+        self.model_path = config.MODEL.MODEL_PATH
         self.twriter = twriter
         print(self.device)
 
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
-        for round in range(self.round_num_max):
+        for round in range(self.epochs):
             print(f"====training:ROUND{round}====")
             train_loss = []
             self.model.train()
