@@ -8,10 +8,9 @@ class trainer():
     @staticmethod
     def add_trainer_args(parser):
         """Adds arguments to Paser for training process"""
-        parser.add_argument("--frame_num", default=64, type=int)
-        parser.add_argument('--learn_rate', default=1e-4, type=float)
+        parser.add_argument('--lr', default=None, type=float)
         parser.add_argument(
-            '--model_path', default="store_model", type=str)
+            '--model_path', default=None, type=str)
         return parser
 
     def __init__(self):

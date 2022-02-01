@@ -7,6 +7,7 @@ Dataset already supported:UBFC(TODO: add more dataset)
 import numpy as np
 import os
 import cv2
+import glob
 from torch.utils.data import Dataset
 
 
@@ -21,33 +22,58 @@ class DataLoader(Dataset):
     def add_data_loader_args(parser):
         """Adds arguments to parser for training process"""
         parser.add_argument(
-            "--cached_dir", default="preprocessed", type=str)
+            "--cached_path", default=None, type=str)
         parser.add_argument(
             "--preprocessing", default=True, type=bool)
         return parser
 
-    def __init__(self, cached_dir):
+    def __init__(self, name,data_dirs,config_data):
         """Inits dataloader with lists of files.
 
         Args:
-            cached_dir(str): The directory where preprocessing results are stored.
+            name(str): name of the dataloader.
+            config_data(CfgNode): data settings(ref:config.py).
         """
-        self.cached_dir = cached_dir
+        self.name = name
+        self.data_dirs = data_dirs
+        self.cached_path = os.path.join(config_data.CACHED_PATH, name)
         self.inputs = list()
         self.labels = list()
         self.len = 0
+        if config_data.DO_PREPROCESS:
+            self.preprocess_dataset(config_data)
+        else:
+            self.load()
 
-    def preprocess(self, w, h, clip_length, crop_face):
-        """Preprocesses the raw data.
+    def preprocess_dataset(self,config_preprocess):
+        """Parses and preprocesses all data.
 
         Args:
-            w,h(int): The shape of each frame after preprocessing.
-            clip_length(int): The length of each clip.
-            crop__face(bool): Whether to crop the face area
+            config_preprocess(CfgNode): preprocessing settings(ref:config.py).
+
         """
         pass
 
-    def facial_detection(self, frame, larger_box=False):
+    @staticmethod
+    def preprocess(frames, bvps, config_preprocess, large_box):
+        """Preprocesses a pair of data.
+
+        Args:
+            config_preprocess(CfgNode): preprocessing settings(ref:config.py).
+
+        """
+        frames = data_loader.resize(
+            frames,
+            config_preprocess.W,
+            config_preprocess.H,
+            config_preprocess.CROP_FACE,
+            large_box)
+        frames_clips, bvps_clips = data_loader.chunk(
+            frames, bvps, config_preprocess.CLIP_LENGTH)
+        return frames_clips, bvps_clips
+
+    @staticmethod
+    def facial_detection(frame, larger_box=False):
         """Conducts face detection on a single frame.
         Sets larger_box=True for larger bounding box, e.g. moving trials."""
         detector = cv2.CascadeClassifier(
@@ -68,13 +94,14 @@ class DataLoader(Dataset):
             result[3] = 1.2 * result[3]
         return result
 
-    def resize(self, frames, w, h, detect_face=True, larger_box=False):
+    @staticmethod
+    def resize(frames, w, h, crop_face=True, larger_box=False):
         """Resizes each frame, crops the face area if flag is true."""
-        face_region = self.facial_detection(frames[0], larger_box)
+        face_region = data_loader.facial_detection(frames[0], larger_box)
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]
-            if detect_face:
+            if crop_face:
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
@@ -87,7 +114,8 @@ class DataLoader(Dataset):
             resize_frames[i] = cv2.resize(frame, (w, h))
         return resize_frames
 
-    def chunk(self, frames, bvps, clip_length):
+    @staticmethod
+    def chunk(frames, bvps, clip_length):
         """Chunks the data into clips."""
         assert (frames.shape[0] == bvps.shape[0])
         clip_num = frames.shape[0] // clip_length
@@ -99,22 +127,31 @@ class DataLoader(Dataset):
 
     def save(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
-        if (not os.path.exists(self.cached_dir)):
-            os.mkdir(self.cached_dir)
+        if (not os.path.exists(self.cached_path)):
+            os.makedirs(self.cached_path)
         count = 0
         filename = os.path.split(filename)[-1]
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
-            input_path_name = self.cached_dir + os.sep + \
-                              "{0}_input{1}.npy".format(filename, str(count))
-            label_path_name = self.cached_dir + os.sep + \
-                              "{0}_label{1}.npy".format(filename, str(count))
+            input_path_name = self.cached_path + os.sep + \
+                "{0}_input{1}.npy".format(filename, str(count))
+            label_path_name = self.cached_path + os.sep + \
+                "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
             np.save(label_path_name, bvps_clips[i])
             count += 1
         return count
+
+    def load(self):
+        """Loads the preprocessing data."""
+        inputs = glob.glob(os.path.join(self.cached_path,"*input*.npy"))
+        labels = glob.glob(os.path.join(self.cached_path,"*label*.npy"))
+        assert(len(inputs)==len(labels))
+        self.inputs = inputs
+        self.labels = labels
+        self.len = len(inputs)
 
     @staticmethod
     def diff_normalize_data(data):

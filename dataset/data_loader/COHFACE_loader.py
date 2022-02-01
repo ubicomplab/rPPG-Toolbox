@@ -16,7 +16,7 @@ from utils.utils import sample
 class COHFACE_loader(data_loader):
     """The data loader for the COHFACE dataset."""
 
-    def __init__(self, data_dirs, cached_dir):
+    def __init__(self, name,data_dirs, config_data):
         """Initializes an COHFACE dataloader.
             Args:
                 data_dirs(list): A list of paths storing raw video and bvp data.
@@ -42,11 +42,11 @@ class COHFACE_loader(data_loader):
                      |          |-- data.avi
                      |          |-- data.hdf5
                 -----------------
-                cached_dir(str): The directory where preprocessing results are stored.
+                name(str): name of the dataloader.
+                config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(cached_dir)
-        self.data_dirs = data_dirs
-        self.preprocess()
+        super().__init__(name,data_dirs,config_data)
+
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -59,7 +59,7 @@ class COHFACE_loader(data_loader):
         input = np.transpose(input, (3, 0, 1, 2))
         return input, label
 
-    def preprocess(self, w=128, h=128, clip_length=64, crop_face=True):
+    def preprocess_dataset(self,config_preprocess):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
         for i in range(file_num):
@@ -74,10 +74,8 @@ class COHFACE_loader(data_loader):
                         self.data_dirs[i],
                         str(j),
                         "data.hdf5"))
-                frames = self.resize(frames, w, h, detect_face=crop_face)
                 bvps = sample(bvps, frames.shape[0])
-                frames_clips, bvps_clips = self.chunk(
-                    frames, bvps, clip_length)
+                frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
                 self.len += self.save(frames_clips, bvps_clips,
                                       "{0}-{1}".format(self.data_dirs[i], str(j)))
 
