@@ -2,7 +2,6 @@
 
 TODO: Adds detailed description for models and datasets supported.
 An end-to-end training pipleine for neural network methods.
-
   Typical usage example:
 
   python main.py --model_name physnet --data_dir "G:\\UBFC_data"
@@ -22,7 +21,6 @@ from dataset.data_loader.PURE_loader import PURE_loader
 from tensorboardX import SummaryWriter
 from neural_methods.trainer.trainer import trainer
 from neural_methods.trainer.physnet_trainer import physnet_trainer
-
 
 def get_UBFC_data(config):
     """Returns directories for train sets, validation sets and test sets.

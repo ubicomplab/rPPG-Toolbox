@@ -11,7 +11,7 @@ import glob
 from torch.utils.data import Dataset
 
 
-class data_loader(Dataset):
+class DataLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
 
     The dataloader supports both providing data for pytorch training and common data-preprocessing methods,
@@ -105,9 +105,9 @@ class data_loader(Dataset):
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
-                              max(face_region[0],
-                                  0):min(face_region[0] + face_region[2],
-                                         frame.shape[1])]
+                        max(face_region[0],
+                            0):min(face_region[0] + face_region[2],
+                                   frame.shape[1])]
                 # view the cropped area.
                 # cv2.imshow("frame",frame)
                 # cv2.waitKey(0)
@@ -152,3 +152,21 @@ class data_loader(Dataset):
         self.inputs = inputs
         self.labels = labels
         self.len = len(inputs)
+
+    @staticmethod
+    def diff_normalize_data(data):
+        """Difference frames and normalization data"""
+        n, h, w, c = data.shape
+        normalized_len = n - 1
+        normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
+        for j in range(normalized_len - 1):
+            normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / \
+                                            (data[j + 1, :, :, :] + data[j, :, :, :])
+        normalized_data = normalized_data / np.std(normalized_data)
+        return normalized_data
+
+    @staticmethod
+    def diff_normalize_label(label):
+        """Difference frames and normalization labels"""
+        diff_label = np.diff(label, axis=0)
+        return diff_label / np.std(diff_label)
