@@ -11,7 +11,7 @@ import glob
 from torch.utils.data import Dataset
 
 
-class DataLoader(Dataset):
+class data_loader(Dataset):
     """The base class for data loading based on pytorch Dataset.
 
     The dataloader supports both providing data for pytorch training and common data-preprocessing methods,
@@ -45,7 +45,7 @@ class DataLoader(Dataset):
         else:
             self.load()
 
-    def preprocess_dataset(self,config_preprocess):
+    def preprocess_dataset(self, config_preprocess):
         """Parses and preprocesses all data.
 
         Args:

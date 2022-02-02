@@ -11,16 +11,15 @@ import os
 
 class tscan_trainer(trainer):
 
-    def __init__(self, args, twriter):
+    def __init__(self, config, twriter):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
-        self.device = torch.device("cuda:" + str(args.device)
-                                   if (args.device >= 0 and torch.cuda.is_available()) else "cpu")
-        self.model = TSCAN(frame_depth=20).to(self.device)
+        self.device = torch.device(config.DEVICE)
+        self.model = TSCAN(config.FRAME_DEPTH).to(self.device)
         self.criterion = Neg_Pearson()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=args.learn_rate)
-        self.max_epoch_num = args.max_epoch_num
-        self.model_path = args.model_path
+        self.optimizer = optim.Adam(self.model.parameters(), lr=config.TRAIN.LR)
+        self.max_epoch_num = config.TRAIN.EPOCHS
+        self.model_path = config.MODEL.MODEL_PATH
         self.twriter = twriter
         print(self.device)
 
