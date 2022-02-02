@@ -72,9 +72,9 @@ def add_args(parser):
     return parser
 
 
-def main(config, writer, data_loader):
+def train(config, writer, data_loader):
     """Trains the model."""
-    trainer_name = eval('{0}_trainer'.format(config.MODEL.NAME))
+    trainer_name = eval('{0}_trainer'.format(config.MODEL.NAME)) # can we use getattr? eval is too confusing to DL toolbox
     trainner = trainer_name(config, writer)
     trainner.train(data_loader)
 
@@ -123,4 +123,4 @@ if __name__ == "__main__":
         "test": DataLoader(dataset=test_data, num_workers=2,
                            batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
     }
-    main(config, writer, dataloader)
+    train(config, writer, dataloader)

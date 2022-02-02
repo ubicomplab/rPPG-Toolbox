@@ -43,7 +43,7 @@ _C.DATA.PREPROCESS.CLIP_LENGTH = 64
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
 # Model name
-_C.MODEL.NAME = 'physnet'
+_C.MODEL.NAME = 'tscan'
 # Pretrained weight from checkpoint, could be imagenet22k pretrained weight
 # could be overwritten by command line argument
 _C.MODEL.PRETRAINED = ''
