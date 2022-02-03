@@ -21,6 +21,7 @@ from dataset.data_loader.PURE_loader import PURE_loader
 from tensorboardX import SummaryWriter
 from neural_methods.trainer.trainer import trainer
 from neural_methods.trainer.physnet_trainer import physnet_trainer
+from neural_methods.trainer.tscan_trainer import tscan_trainer
 
 def get_UBFC_data(config):
     """Returns directories for train sets, validation sets and test sets.

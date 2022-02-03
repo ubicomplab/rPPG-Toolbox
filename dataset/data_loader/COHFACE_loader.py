@@ -16,7 +16,7 @@ from utils.utils import sample
 class COHFACE_loader(data_loader):
     """The data loader for the COHFACE dataset."""
 
-    def __init__(self, name,data_dirs, config_data):
+    def __init__(self, name, data_dirs, config_data):
         """Initializes an COHFACE dataloader.
             Args:
                 data_dirs(list): A list of paths storing raw video and bvp data.
@@ -45,8 +45,7 @@ class COHFACE_loader(data_loader):
                 name(str): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(name,data_dirs,config_data)
-
+        super().__init__(name, data_dirs, config_data)
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -54,10 +53,17 @@ class COHFACE_loader(data_loader):
 
     def __getitem__(self, index):
         """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
-        input = np.load(self.inputs[index])
+        data = np.load(self.inputs[index])
         label = np.load(self.labels[index])
-        input = np.transpose(input, (3, 0, 1, 2))
-        return input, label
+        if self.data_format == 'NDCHW':
+            data = np.transpose(data, (0, 3, 1, 2))
+        elif self.data_format == 'NCDHW':
+            data = np.transpose(data, (3, 0, 1, 2))
+        else:
+            raise ValueError('Unsupported Data Format!')
+        data = np.float32(data)
+        label = np.float32(label)
+        return data, label
 
     def preprocess_dataset(self,config_preprocess):
         """Preprocesses the raw data."""
