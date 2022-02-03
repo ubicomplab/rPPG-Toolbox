@@ -41,7 +41,7 @@ class data_loader(Dataset):
         self.labels = list()
         self.len = 0
         if config_data.DO_PREPROCESS:
-            self.preprocess_dataset(config_data)
+            self.preprocess_dataset(config_data.PREPROCESS)
         else:
             self.load()
 
@@ -62,6 +62,7 @@ class data_loader(Dataset):
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
 
         """
+        print(config_preprocess)
         frames = data_loader.resize(
             frames,
             config_preprocess.W,
