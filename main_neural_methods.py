@@ -21,6 +21,7 @@ from dataset.data_loader.PURE_loader import PURE_loader
 from tensorboardX import SummaryWriter
 from neural_methods.trainer.trainer import trainer
 from neural_methods.trainer.physnet_trainer import physnet_trainer
+from neural_methods.trainer.tscan_trainer import tscan_trainer
 
 def get_UBFC_data(config):
     """Returns directories for train sets, validation sets and test sets.
@@ -72,9 +73,9 @@ def add_args(parser):
     return parser
 
 
-def main(config, writer, data_loader):
+def train(config, writer, data_loader):
     """Trains the model."""
-    trainer_name = eval('{0}_trainer'.format(config.MODEL.NAME))
+    trainer_name = eval('{0}_trainer'.format(config.MODEL.NAME)) # can we use getattr? eval is too confusing to DL toolbox
     trainner = trainer_name(config, writer)
     trainner.train(data_loader)
 
@@ -123,4 +124,4 @@ if __name__ == "__main__":
         "test": DataLoader(dataset=test_data, num_workers=2,
                            batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
     }
-    main(config, writer, dataloader)
+    train(config, writer, dataloader)
