@@ -41,16 +41,6 @@ class PURELoader(BaseLoader):
         """
         super().__init__(name,data_dirs,config_data)
 
-    def __len__(self):
-        """Returns the length of the dataset."""
-        return self.len
-
-    def __getitem__(self, index):
-        """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
-        input = np.load(self.inputs[index])
-        label = np.load(self.labels[index])
-        input = np.transpose(input, (3, 0, 1, 2))
-        return input, label
 
     def preprocess_datset(self, config_preprocess):
         """Preprocesses the raw data."""

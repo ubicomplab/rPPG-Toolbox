@@ -54,7 +54,7 @@ def get_PURE_data(config):
 
 def add_args(parser):
     """Adds arguments for parser."""
-    parser.add_argument('--config_file', required=True, type=str, help="The name of the model.")
+    parser.add_argument('--config_file', required=False, default="configs/COHFACE_PHYSNET_BASIC.yaml",type=str, help="The name of the model.")
     parser.add_argument('--model_name', default=None, type=str, help="The name of the model.")
     parser.add_argument('--dataset', default=None, choices=["COHFACE", "PURE", "UBFC"], type=str,
                         help="The Dataset. Supporting UBFC/PURE/COHFACE.")
@@ -65,7 +65,7 @@ def add_args(parser):
         type=int,
         help="An integer to specify which gpu to use, -1 for cpu.")
     parser.add_argument('--batch_size', default=None, type=int)
-    parser.add_argument('--data_path', default=None, required=True,
+    parser.add_argument('--data_path', default="G:\\COHFACE\\RawData", required=False,
                         type=str, help='The path of the data directory.')
     parser.add_argument('--epochs', default=None, type=int)
     parser.add_argument('--log_path', default=None, type=str)
@@ -90,9 +90,9 @@ if __name__ == "__main__":
     parser = data_loader.BaseLoader.BaseLoader.add_data_loader_args(parser)
     args = parser.parse_args()
 
-    print(args)
     # forms configurations.
     config = get_config(args)
+    print(config)
 
     writer = SummaryWriter(config.LOG.PATH)
 

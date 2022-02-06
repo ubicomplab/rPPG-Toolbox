@@ -4,6 +4,8 @@ DATA:
   DATASET: COHFACE
   DO_PREPROCESS: False
   PREPROCESS :
+    DATA_TYPE : Combined
+    LABEL_TYPE : Normalized
     CLIP_LENGTH: 64
     CROP_FACE: True
     H: 128
