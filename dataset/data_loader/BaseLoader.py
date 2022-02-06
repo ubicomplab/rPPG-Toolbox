@@ -40,8 +40,9 @@ class BaseLoader(Dataset):
         self.inputs = list()
         self.labels = list()
         self.len = 0
+        self.data_format = config_data.DATA_FORMAT
         if config_data.DO_PREPROCESS:
-            self.preprocess_dataset(config_data.PREPROCESS)
+            self.preprocess_dataset(config_data)
         else:
             self.load()
 

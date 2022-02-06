@@ -15,6 +15,7 @@ import logging
 from config import get_config
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
+
 from dataset import data_loader
 from neural_methods import trainer
 
@@ -72,7 +73,7 @@ def add_args(parser):
     return parser
 
 
-def main(config, writer, data_loader):
+def train(config, writer, data_loader):
     """Trains the model."""
     if config.MODEL.NAME == "Physnet":
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, writer)
@@ -135,4 +136,4 @@ if __name__ == "__main__":
         "test": DataLoader(dataset=test_data, num_workers=2,
                            batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
     }
-    main(config, writer, dataloader)
+    train(config, writer, dataloader)

@@ -103,14 +103,16 @@ class TSCAN(nn.Module):
             self.final_dense_1 = nn.Linear(16384, self.nb_dense, bias=True)
         elif img_size == 96:
             self.final_dense_1 = nn.Linear(30976, self.nb_dense, bias=True)
+        elif img_size == 128:
+            self.final_dense_1 = nn.Linear(57600, self.nb_dense, bias=True)
         else:
             raise Exception('Unsupported image size')
         self.final_dense_2 = nn.Linear(self.nb_dense, 1, bias=True)
 
     def forward(self, inputs, params=None):
-
         diff_input = inputs[:, :3, :, :]
-        raw_input = inputs[:, 3:, :, :]
+        raw_input = inputs[:, :3, :, :]
+        print('Need to fix Raw input data!!!')
 
         diff_input = self.TSM_1(diff_input)
         d1 = torch.tanh(self.motion_conv1(diff_input))

@@ -4,22 +4,22 @@ DATA:
   DATASET: COHFACE
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
-  PREPROCESS :
-    DATA_TYPE : Combined
-    LABEL_TYPE : Normalized
+  PREPROCESS:
+    DATA_TYPE: Combined
+    LABEL_TYPE: Normalized
     CLIP_LENGTH: 64
     CROP_FACE: True
     H: 128
     W: 128
-DEVICE: cuda:0
+DEVICE: cpu
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
   MODEL_PATH: store_model
-  NAME: Physnet
-  PHYSNET:
-    FRAME_NUM: 64
+  NAME: Tscan
+  TSCAN:
+    FRAME_DEPTH: 10
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 50

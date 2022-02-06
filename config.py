@@ -25,8 +25,8 @@ _C.DATA.DATA_PATH = ''
 _C.DATA.CACHED_PATH = ''
 # Dataset name, coule be overwritten by command line argument
 _C.DATA.DATASET = ''
-_C.DATA.DO_PREPROCESS = True
-
+_C.DATA.DO_PREPROCESS = False
+_C.DATA.DATA_FORMAT = 'NDCHW'
 # -----------------------------------------------------------------------------
 # Data preprocessing
 # TODO: add other preprocessing configs
@@ -44,7 +44,7 @@ _C.DATA.PREPROCESS.LABEL_TYPE = ''
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
 # Model name
-_C.MODEL.NAME = 'physnet'
+_C.MODEL.NAME = 'tscan'
 # Pretrained weight from checkpoint, could be imagenet22k pretrained weight
 # could be overwritten by command line argument
 _C.MODEL.PRETRAINED = ''
@@ -58,8 +58,11 @@ _C.MODEL.MODEL_PATH = 'store_model'
 _C.MODEL.PHYSNET = CN()
 _C.MODEL.PHYSNET.FRAME_NUM = 64
 
-#TODO: Specific parameters for CAN
-
+# -----------------------------------------------------------------------------
+# Model Settings for TS-CAN
+# -----------------------------------------------------------------------------
+_C.MODEL.TSCAN = CN()
+_C.MODEL.TSCAN.FRAME_DEPTH = 10
 
 # -----------------------------------------------------------------------------
 # Training settings
