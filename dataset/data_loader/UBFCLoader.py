@@ -7,10 +7,10 @@ S. Bobbia, R. Macwan, Y. Benezeth, A. Mansouri, J. Dubois, "Unsupervised skin ti
 import os
 import cv2
 import numpy as np
-from dataset.data_loader.data_loader import data_loader
+from dataset.data_loader.BaseLoader import BaseLoader
 
 
-class UBFC_loader(data_loader):
+class UBFCLoader(BaseLoader):
     """The data loader for the UBFC dataset."""
 
     def __init__(self, name,data_dirs,config_data):

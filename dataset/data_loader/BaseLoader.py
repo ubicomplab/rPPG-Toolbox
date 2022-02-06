@@ -11,7 +11,7 @@ import glob
 from torch.utils.data import Dataset
 
 
-class data_loader(Dataset):
+class BaseLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
 
     The dataloader supports both providing data for pytorch training and common data-preprocessing methods,
@@ -24,7 +24,7 @@ class data_loader(Dataset):
         parser.add_argument(
             "--cached_path", default=None, type=str)
         parser.add_argument(
-            "--preprocessing", default=True, type=bool)
+            "--preprocess", default=None, action='store_true')
         return parser
 
     def __init__(self, name,data_dirs,config_data):
@@ -62,14 +62,14 @@ class data_loader(Dataset):
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
 
         """
-        print(config_preprocess)
-        frames = data_loader.resize(
+        frames = BaseLoader.resize(
             frames,
             config_preprocess.W,
             config_preprocess.H,
             config_preprocess.CROP_FACE,
             large_box)
-        frames_clips, bvps_clips = data_loader.chunk(
+
+        frames_clips, bvps_clips = BaseLoader.chunk(
             frames, bvps, config_preprocess.CLIP_LENGTH)
         return frames_clips, bvps_clips
 
@@ -98,7 +98,7 @@ class data_loader(Dataset):
     @staticmethod
     def resize(frames, w, h, crop_face=True, larger_box=False):
         """Resizes each frame, crops the face area if flag is true."""
-        face_region = data_loader.facial_detection(frames[0], larger_box)
+        face_region = BaseLoader.facial_detection(frames[0], larger_box)
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]

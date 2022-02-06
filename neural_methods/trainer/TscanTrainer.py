@@ -1,6 +1,6 @@
 """Trainer for TSCAN, but also applies to 3D-CAN, Hybrid-CAN, and DeepPhys."""
 
-from neural_methods.trainer.trainer import trainer
+from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
 from neural_methods.model.ts_can import TSCAN
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 
-class tscan_trainer(trainer):
+class TscanTrainer(BaseTrainer):
 
     def __init__(self, args, twriter):
         """Inits parameters from args and the writer for TensorboardX."""
@@ -18,7 +18,9 @@ class tscan_trainer(trainer):
                                    if (args.device >= 0 and torch.cuda.is_available()) else "cpu")
         self.model = TSCAN(frame_depth=20).to(self.device)
         self.criterion = Neg_Pearson()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=args.learn_rate)
+        self.optimizer = optim.Adam(
+            self.model.parameters(),
+            lr=args.learn_rate)
         self.max_epoch_num = args.max_epoch_num
         self.model_path = args.model_path
         self.twriter = twriter
@@ -33,7 +35,9 @@ class tscan_trainer(trainer):
             self.model.train()
             # Model Training
             for idx, batch in enumerate(data_loader["train"]):
-                inputs, labels = batch[0].to(self.device), batch[1].to(self.device)
+                inputs, labels = batch[0].to(
+                    self.device), batch[1].to(
+                    self.device)
                 self.optimizer.zero_grad()
                 pred_ppg = self.model(inputs)
                 loss = self.criterion(pred_ppg, labels)
@@ -41,13 +45,20 @@ class tscan_trainer(trainer):
                 self.optimizer.step()
                 running_loss += loss.item()
                 if i % 100 == 99:  # print every 100 mini-batches
-                    print(f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
+                    print(
+                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss_ecg.item())
-                self.twriter.add_scalar("train_loss", scalar_value=float(loss), global_step=round)
+                self.twriter.add_scalar(
+                    "train_loss",
+                    scalar_value=float(loss),
+                    global_step=round)
             # Model Validation
             valid_loss = self.valid(data_loader)
-            self.twriter.add_scalar("valid_loss", scalar_value=float(valid_loss), global_step=round)
+            self.twriter.add_scalar(
+                "valid_loss",
+                scalar_value=float(valid_loss),
+                global_step=round)
             # Saving the best model checkpoint based on the validation loss.
             if valid_loss < min_valid_loss:
                 print("Updating the best ckpt")
@@ -61,7 +72,8 @@ class tscan_trainer(trainer):
         valid_step = 0
         with torch.no_grad():
             for valid_idx, valid_batch in enumerate(data_loader["valid"]):
-                inputs_valid, labels_valid = valid_batch[0].to(self.device), valid_batch[1].to(self.device)
+                inputs_valid, labels_valid = valid_batch[0].to(
+                    self.device), valid_batch[1].to(self.device)
                 pred_ppg_valid = self.model(inputs_valid)
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
@@ -77,7 +89,8 @@ class tscan_trainer(trainer):
         self.model.eval()
         with torch.no_grad():
             for test_idx, test_batch in enumerate(data_loader["test"]):
-                inputs_test, labels_test = test_batch[0].to(self.device), test_batch[1].to(self.device)
+                inputs_test, labels_test = test_batch[0].to(
+                    self.device), test_batch[1].to(self.device)
                 pred_ppg_test = self.model(inputs_test)
                 loss = self.criterion(pred_ppg_test, labels_test)
                 test_loss.append(loss.item())

@@ -2,19 +2,19 @@ BASE: ['']
 DATA:
   CACHED_PATH: preprocessed
   DATASET: COHFACE
-  DO_PREPROCESS: True
-  PREPROCESS:
+  DO_PREPROCESS: False
+  PREPROCESS :
     CLIP_LENGTH: 64
     CROP_FACE: True
     H: 128
     W: 128
-DEVICE: cpu
+DEVICE: cuda:0
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
   MODEL_PATH: store_model
-  NAME: physnet
+  NAME: Physnet
   PHYSNET:
     FRAME_NUM: 64
 TRAIN:

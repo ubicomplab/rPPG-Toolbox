@@ -109,7 +109,7 @@ def _update_config_from_file(config, cfg_file):
 
 def update_config(config, args):
     #TODO:add config file
-    _update_config_from_file(config, args.cfg)
+    _update_config_from_file(config, args.config_file)
 
     config.defrost()
     if args.model_name:
@@ -131,10 +131,13 @@ def update_config(config, args):
         config.TRAIN.LR = args.lr
     if args.model_path:
         config.MODEL.MODEL_PATH = args.model_path
+    if args.preprocess:
+        config.DATA.DO_PREPROCESS = args.preprocess
 
     config.LOG.PATH = os.path.join(config.LOG.PATH,"-".join([config.DATA.DATASET,config.MODEL.NAME]))
     config.DATA.CACHED_PATH = os.path.join(config.DATA.CACHED_PATH,"-".join([config.DATA.DATASET,config.MODEL.NAME]))
     config.DATA.DATA_PATH = args.data_path
+
     config.freeze()
 
 
@@ -142,6 +145,7 @@ def get_config(args):
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
     config = _C.clone()
+    print(args)
     update_config(config, args)
 
     return config
