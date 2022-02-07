@@ -11,7 +11,7 @@ import glob
 from torch.utils.data import Dataset
 
 
-class data_loader(Dataset):
+class BaseLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
 
     The dataloader supports both providing data for pytorch training and common data-preprocessing methods,
@@ -24,10 +24,10 @@ class data_loader(Dataset):
         parser.add_argument(
             "--cached_path", default=None, type=str)
         parser.add_argument(
-            "--preprocessing", default=True, type=bool)
+            "--preprocess", default=None, action='store_true')
         return parser
 
-    def __init__(self, name,data_dirs,config_data):
+    def __init__(self, name, data_dirs, config_data):
         """Inits dataloader with lists of files.
 
         Args:
@@ -55,22 +55,57 @@ class data_loader(Dataset):
         """
         pass
 
+    def __len__(self):
+        """Returns the length of the dataset."""
+        return self.len
+
+    def __getitem__(self, index):
+        """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
+        data = np.load(self.inputs[index])
+        label = np.load(self.labels[index])
+        data = np.transpose(data, (3, 0, 1, 2))
+        print(data.shape,label.shape)
+        return data, label
+
     @staticmethod
     def preprocess(frames, bvps, config_preprocess, large_box):
         """Preprocesses a pair of data.
 
         Args:
+            frames(np.array): Frames in a video.
+            bvps(np.array): Bvp signal labels for a video.
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
-
+            large_box(bool): Whether to use a large bounding box in face cropping, e.g. in moving situations.
         """
-        frames = data_loader.resize(
+        frames = BaseLoader.resize(
             frames,
             config_preprocess.W,
             config_preprocess.H,
             config_preprocess.CROP_FACE,
             large_box)
-        frames_clips, bvps_clips = data_loader.chunk(
+
+        # data_type
+        if config_preprocess.DATA_TYPE == "Raw":
+            frames = frames[:-1,:,:,:]
+        elif config_preprocess.DATA_TYPE == "Normalized":
+            frames = BaseLoader.diff_normalize_data(frames)
+        elif config_preprocess.DATA_TYPE == "Combined":
+            normalized_frames = BaseLoader.diff_normalize_data(frames)
+            frames = frames[:-1, :, :, :]
+            frames = np.concatenate((frames, normalized_frames), axis=3)
+        else:
+            raise ValueError("Unsupported data type!")
+
+        if config_preprocess.LABEL_TYPE == "Raw":
+            bvps = bvps[:-1]
+        elif config_preprocess.LABEL_TYPE == "Normalized":
+            bvps = BaseLoader.diff_normalize_label(bvps)
+        else:
+            raise ValueError("Unsupported label type!")
+
+        frames_clips, bvps_clips = BaseLoader.chunk(
             frames, bvps, config_preprocess.CLIP_LENGTH)
+
         return frames_clips, bvps_clips
 
     @staticmethod
@@ -98,7 +133,7 @@ class data_loader(Dataset):
     @staticmethod
     def resize(frames, w, h, crop_face=True, larger_box=False):
         """Resizes each frame, crops the face area if flag is true."""
-        face_region = data_loader.facial_detection(frames[0], larger_box)
+        face_region = BaseLoader.facial_detection(frames[0], larger_box)
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]
@@ -118,7 +153,7 @@ class data_loader(Dataset):
     @staticmethod
     def chunk(frames, bvps, clip_length):
         """Chunks the data into clips."""
-        assert (frames.shape[0] == bvps.shape[0])
+        # assert (frames.shape[0] == bvps.shape[0])
         clip_num = frames.shape[0] // clip_length
         frames_clips = [
             frames[i * clip_length:(i + 1) * clip_length] for i in range(clip_num)]
@@ -135,9 +170,9 @@ class data_loader(Dataset):
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
-                "{0}_input{1}.npy".format(filename, str(count))
+                              "{0}_input{1}.npy".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + \
-                "{0}_label{1}.npy".format(filename, str(count))
+                              "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
@@ -147,9 +182,9 @@ class data_loader(Dataset):
 
     def load(self):
         """Loads the preprocessing data."""
-        inputs = glob.glob(os.path.join(self.cached_path,"*input*.npy"))
-        labels = glob.glob(os.path.join(self.cached_path,"*label*.npy"))
-        assert(len(inputs)==len(labels))
+        inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
+        labels = glob.glob(os.path.join(self.cached_path, "*label*.npy"))
+        assert (len(inputs) == len(labels))
         self.inputs = inputs
         self.labels = labels
         self.len = len(inputs)
@@ -158,11 +193,14 @@ class data_loader(Dataset):
     def diff_normalize_data(data):
         """Difference frames and normalization data"""
         n, h, w, c = data.shape
+        data = np.float32(data) / 255
+        data[data > 1] = 1
+        data[data < 1 / 255] = 1 / 255
         normalized_len = n - 1
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / \
-                                            (data[j + 1, :, :, :] + data[j, :, :, :])
+                                          (data[j + 1, :, :, :] + data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
         return normalized_data
 

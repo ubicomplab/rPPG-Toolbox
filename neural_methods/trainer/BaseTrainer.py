@@ -4,7 +4,7 @@ from tensorboardX import SummaryWriter
 import matplotlib.pyplot as plt
 
 
-class trainer():
+class BaseTrainer():
     @staticmethod
     def add_trainer_args(parser):
         """Adds arguments to Paser for training process"""

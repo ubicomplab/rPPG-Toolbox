@@ -11,7 +11,7 @@ examples.
   foo = ClassFoo()
   bar = foo.FunctionBar()
 """
-from neural_methods.trainer.trainer import trainer
+from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
 from torch.autograd import Variable
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
@@ -21,7 +21,7 @@ import numpy as np
 import os
 
 
-class physnet_trainer(trainer):
+class PhysnetTrainer(BaseTrainer):
 
     def __init__(self, config, twriter):
         """Inits parameters from args and the writer for TensorboardX."""
