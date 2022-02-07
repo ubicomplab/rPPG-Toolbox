@@ -14,14 +14,11 @@ import time
 import logging
 from config import get_config
 from torch.utils.data import DataLoader
-from dataset.data_loader.data_loader import data_loader
-from dataset.data_loader.UBFC_loader import UBFC_loader
-from dataset.data_loader.COHFACE_loader import COHFACE_loader
-from dataset.data_loader.PURE_loader import PURE_loader
 from tensorboardX import SummaryWriter
-from neural_methods.trainer.trainer import trainer
-from neural_methods.trainer.physnet_trainer import physnet_trainer
-from neural_methods.trainer.tscan_trainer import tscan_trainer
+
+from dataset import data_loader
+from neural_methods import trainer
+
 
 def get_UBFC_data(config):
     """Returns directories for train sets, validation sets and test sets.
@@ -55,40 +52,45 @@ def get_PURE_data(config):
         "test": data_dirs[-1:]
     }
 
+
 def add_args(parser):
     """Adds arguments for parser."""
-    parser.add_argument('--cfg', default="configs/COHFACE_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+    parser.add_argument('--config_file', required=False, default="configs/COHFACE_PHYSNET_BASIC.yaml",type=str, help="The name of the model.")
     parser.add_argument('--model_name', default=None, type=str, help="The name of the model.")
-    parser.add_argument('--dataset', default=None,choices=["COHFACE","PURE","UBFC"], type=str, help="The Dataset. Supporting UBFC/PURE/COHFACE.")
+    parser.add_argument('--dataset', default=None, choices=["COHFACE", "PURE", "UBFC"], type=str,
+                        help="The Dataset. Supporting UBFC/PURE/COHFACE.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
         default=None,
+        type=int,
         help="An integer to specify which gpu to use, -1 for cpu.")
-    parser.add_argument('--batch_size', default=None,type=int)
-    parser.add_argument('--data_path', default=None,required=True,
+    parser.add_argument('--batch_size', default=None, type=int)
+    parser.add_argument('--data_path', default="G:\\COHFACE\\RawData", required=False,
                         type=str, help='The path of the data directory.')
-    parser.add_argument('--epochs',default=None,type=int)
-    parser.add_argument('--log_path',default=None, type=str)
+    parser.add_argument('--epochs', default=None, type=int)
+    parser.add_argument('--log_path', default=None, type=str)
     return parser
 
 
 def train(config, writer, data_loader):
     """Trains the model."""
-    trainer_name = eval('{0}_trainer'.format(config.MODEL.NAME)) # can we use getattr? eval is too confusing to DL toolbox
-    trainner = trainer_name(config, writer)
-    trainner.train(data_loader)
+    if config.MODEL.NAME == "Physnet":
+        model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, writer)
+    elif config.MODEL.NAME == "Tscan":
+        model_trainer = trainer.TscanTrainer.TscanTrainer(config, writer)
+
+    model_trainer.train(data_loader)
 
 
 if __name__ == "__main__":
     # parses arguments.
     parser = argparse.ArgumentParser()
     parser = add_args(parser)
-    parser = trainer.add_trainer_args(parser)
-    parser = data_loader.add_data_loader_args(parser)
+    parser = trainer.BaseTrainer.BaseTrainer.add_trainer_args(parser)
+    parser = data_loader.BaseLoader.BaseLoader.add_data_loader_args(parser)
     args = parser.parse_args()
 
-    print(args)
     # forms configurations.
     config = get_config(args)
     print(config)
@@ -96,8 +98,18 @@ if __name__ == "__main__":
     writer = SummaryWriter(config.LOG.PATH)
 
     # loads data
-    data_files = eval("get_{0}_data".format(config.DATA.DATASET))(config)
-    loader = eval("{0}_loader".format(config.DATA.DATASET))
+    if config.DATA.DATASET == "COHFACE":
+        data_files = get_COHFACE_data(config)
+        loader = data_loader.COHFACELoader.COHFACELoader
+    elif config.DATA.DATASET == "UBFC":
+        data_files = get_UBFC_data(config)
+        loader = data_loader.UBFCLoader.UBFCLoader
+    elif config.DATA.DATASET == "PURE":
+        data_files = get_PURE_data(config)
+        loader = data_loader.PURELoader.PURELoader
+    else:
+        raise ValueError("Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
+
     train_data = loader(
         name="train",
         data_dirs=data_files["train"],

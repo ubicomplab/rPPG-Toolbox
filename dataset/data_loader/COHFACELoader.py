@@ -9,11 +9,11 @@ import os
 import cv2
 import numpy as np
 import h5py
-from dataset.data_loader.data_loader import data_loader
+from dataset.data_loader.BaseLoader import BaseLoader
 from utils.utils import sample
 
 
-class COHFACE_loader(data_loader):
+class COHFACELoader(BaseLoader):
     """The data loader for the COHFACE dataset."""
 
     def __init__(self, name, data_dirs, config_data):

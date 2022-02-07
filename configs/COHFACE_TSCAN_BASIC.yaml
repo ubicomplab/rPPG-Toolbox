@@ -5,6 +5,8 @@ DATA:
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
   PREPROCESS:
+    DATA_TYPE: Combined
+    LABEL_TYPE: Normalized
     CLIP_LENGTH: 64
     CROP_FACE: True
     H: 128
@@ -15,7 +17,7 @@ LOG:
 MODEL:
   DROP_RATE: 0.2
   MODEL_PATH: store_model
-  NAME: tscan
+  NAME: Tscan
   TSCAN:
     FRAME_DEPTH: 10
 TRAIN:

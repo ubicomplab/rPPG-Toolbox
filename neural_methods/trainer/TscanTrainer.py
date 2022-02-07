@@ -1,6 +1,6 @@
 """Trainer for TSCAN, but also applies to 3D-CAN, Hybrid-CAN, and DeepPhys."""
 
-from neural_methods.trainer.trainer import trainer
+from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
 from neural_methods.model.ts_can import TSCAN
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
@@ -9,7 +9,8 @@ import numpy as np
 import os
 
 
-class tscan_trainer(trainer):
+class TscanTrainer(BaseTrainer):
+
     def __init__(self, config, twriter):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
@@ -52,7 +53,10 @@ class tscan_trainer(trainer):
                 self.twriter.add_scalar("train_loss", scalar_value=float(loss.item()), global_step=round)
             # Model Validation
             valid_loss = self.valid(data_loader)
-            self.twriter.add_scalar("valid_loss", scalar_value=float(valid_loss), global_step=round)
+            self.twriter.add_scalar(
+                "valid_loss",
+                scalar_value=float(valid_loss),
+                global_step=round)
             # Saving the best model checkpoint based on the validation loss.
             if valid_loss < min_valid_loss:
                 print("Updating the best ckpt")
