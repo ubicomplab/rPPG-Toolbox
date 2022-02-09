@@ -1,7 +1,7 @@
-# TOD
+
 # Overview
 
-xxx is a python toolbox aiming for rPPG signal extraction, supporting both deep-learning
+xxx is a python toolbox aiming for rPPG signal extraction supporting bothe deep-learning
 and signal processing methods. #TODO: Adds more description.
 
 # Requirments
@@ -70,16 +70,21 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
          |      |-- ii-jj.json
     -----------------
 # Deep Model
-## Description
+# Configuration
 TODO
-## Run
+# Run
+## Deep Model
 
-python main.py --model_name physnet --dataset *[UBFC/PURE/COHFACE]* --data_dir *[path for dataset]* --device *[e.g:0 for using cuda:0, -1 for using cpu]*
+python main.py --config_file  *[path for the config file]* --data_path *[path for dataset]*  --preprocess
+
+You need to keep the preprocess arg unless this is not the first time you run the same pipeline and want to skip data preprocessing.
 
 Here are some exemples. The data should be organized as mentioned.
 
-* Train **physnet** on **UBFC** dataset using **cuda:1**
-    * python main_neural_methods.py --model_name physnet --dataset UBFC --data_dir  data/UBFC  --device 1
+* Train **physnet** on **COHFACE** dataset using **cuda:1**
+    * python main_neural_methods.py --config_file configs/COHFACE_PHYSNET_BASIC.yaml --data_path /mnt/COHFACE/RawData
+
+
 
 ## Tensorboard
 command: tensorboard --logdir=runs/
