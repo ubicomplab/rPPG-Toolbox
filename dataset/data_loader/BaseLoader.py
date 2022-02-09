@@ -42,7 +42,7 @@ class BaseLoader(Dataset):
         self.len = 0
         self.data_format = config_data.DATA_FORMAT
         if config_data.DO_PREPROCESS:
-            self.preprocess_dataset(config_data)
+            self.preprocess_dataset(config_data.PREPROCESS)
         else:
             self.load()
 
@@ -64,7 +64,7 @@ class BaseLoader(Dataset):
         data = np.load(self.inputs[index])
         label = np.load(self.labels[index])
         data = np.transpose(data, (3, 0, 1, 2))
-        print(data.shape,label.shape)
+        print(data.shape, label.shape)
         return data, label
 
     @staticmethod
@@ -86,7 +86,7 @@ class BaseLoader(Dataset):
 
         # data_type
         if config_preprocess.DATA_TYPE == "Raw":
-            frames = frames[:-1,:,:,:]
+            frames = frames[:-1, :, :, :]
         elif config_preprocess.DATA_TYPE == "Normalized":
             frames = BaseLoader.diff_normalize_data(frames)
         elif config_preprocess.DATA_TYPE == "Combined":
@@ -141,9 +141,9 @@ class BaseLoader(Dataset):
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
-                        max(face_region[0],
-                            0):min(face_region[0] + face_region[2],
-                                   frame.shape[1])]
+                              max(face_region[0],
+                                  0):min(face_region[0] + face_region[2],
+                                         frame.shape[1])]
                 # view the cropped area.
                 # cv2.imshow("frame",frame)
                 # cv2.waitKey(0)
@@ -170,9 +170,9 @@ class BaseLoader(Dataset):
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
-                              "{0}_input{1}.npy".format(filename, str(count))
+                "{0}_input{1}.npy".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + \
-                              "{0}_label{1}.npy".format(filename, str(count))
+                "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
@@ -200,7 +200,8 @@ class BaseLoader(Dataset):
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / \
-                                          (data[j + 1, :, :, :] + data[j, :, :, :])
+                                          (data[j + 1, :, :, :] +
+                                           data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
         return normalized_data
 

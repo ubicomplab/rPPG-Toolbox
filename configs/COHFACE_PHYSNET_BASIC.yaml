@@ -3,9 +3,9 @@ DATA:
   CACHED_PATH: preprocessed
   DATASET: COHFACE
   DO_PREPROCESS: False
-  DATA_FORMAT: NDCHW
+  DATA_FORMAT: NCDHW
   PREPROCESS :
-    DATA_TYPE : Combined
+    DATA_TYPE : Raw
     LABEL_TYPE : Normalized
     CLIP_LENGTH: 64
     CROP_FACE: True
