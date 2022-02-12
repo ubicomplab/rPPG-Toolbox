@@ -15,13 +15,11 @@ DEVICE: cuda:0
 LOG:
   PATH: runs/exp
 MODEL:
-  DROP_RATE: 0.2
-  MODEL_DIR: store_model
-  NAME: Physnet
+  NAME : Physnet
   PHYSNET:
     FRAME_NUM: 64
-TRAIN:
+INFERENCE:
+  MODEL_PATH: store_model/physnet.pth
   BATCH_SIZE: 4
-  EPOCHS: 50
-  LR: 0.0001
-  MODEL_FILE_NAME: physnet.pth
+
+
