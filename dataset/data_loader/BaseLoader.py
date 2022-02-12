@@ -204,22 +204,8 @@ class BaseLoader(Dataset):
         normalized_len = n - 1
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
-            normalized_data[j,
-            :,
-            :,
-            :] = (data[j + 1,
-                  :,
-                  :,
-                  :] - data[j,
-                       :,
-                       :,
-                       :]) / (data[j + 1,
-                              :,
-                              :,
-                              :] + data[j,
-                                   :,
-                                   :,
-                                   :])
+            normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
+                        data[j + 1, :, :, :] + data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
         return normalized_data
 
