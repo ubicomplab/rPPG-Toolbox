@@ -4,15 +4,15 @@ TODO: Adds detailed description for models and datasets supported.
 An evaluation pipleine for neural network methods, including model loading, inference and ca
   Typical usage example:
 
-  python main.py --model_name physnet --data_dir "G:\\UBFC_data"
+  python evaluation_neural_method.py --data_path /mnt/data0/COHFACE/RawData --model_path store_model/physnet.pth --preprocess
+  You should edit predict (model,data_loader,config) and add functions for definition,e.g, define_Physnet_model to support your models.
 """
 
 import argparse
 import glob
 import os
-import torch
-import tqdm
 import numpy as np
+import torch
 from config import get_evaluate_config
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
@@ -94,7 +94,6 @@ def predict(model, data_loader, config):
     model.eval()
     with torch.no_grad():
         for _, batch in enumerate(data_loader):
-            print(_)
             data, label = batch[0].to(
                 config.DEVICE), batch[1].to(config.DEVICE)
             prediction, _, _, _ = model(data)
@@ -111,7 +110,7 @@ def eval(config):
     physnet_model = define_Physnet_model(config)
     physnet_model = load_model(physnet_model, config)
     predictions, labels = predict(physnet_model, dataloader["test"], config)
-    print(predictions.shape, labels.shape)
+    calculate_metrics(predictions,labels)
 
 
 if __name__ == "__main__":
@@ -167,3 +166,4 @@ if __name__ == "__main__":
         "test": DataLoader(dataset=test_data, num_workers=2,
                            batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
     }
+    eval(config)

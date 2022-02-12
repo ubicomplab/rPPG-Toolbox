@@ -36,7 +36,7 @@ _C.DATA.PREPROCESS.CROP_FACE = True
 _C.DATA.PREPROCESS.W = 128
 _C.DATA.PREPROCESS.H = 128
 _C.DATA.PREPROCESS.CLIP_LENGTH = 64
-_C.DATA.PREPROCESS.DATA_TYPE = ''
+_C.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.DATA.PREPROCESS.LABEL_TYPE = ''
 
 # -----------------------------------------------------------------------------
