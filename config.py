@@ -44,15 +44,12 @@ _C.DATA.PREPROCESS.LABEL_TYPE = ''
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
 # Model name
-_C.MODEL.NAME = 'tscan'
-# Pretrained weight from checkpoint, could be imagenet22k pretrained weight
-# could be overwritten by command line argument
-_C.MODEL.PRETRAINED = ''
+_C.MODEL.NAME = ''
 # Checkpoint to resume, could be overwritten by command line argument
 _C.MODEL.RESUME = ''
 # Dropout rate
 _C.MODEL.DROP_RATE = 0.0
-_C.MODEL.MODEL_PATH = 'store_model'
+_C.MODEL.MODEL_DIR = 'store_model'
 
 # Specific parameters for physnet parameters
 _C.MODEL.PHYSNET = CN()
@@ -79,11 +76,20 @@ _C.TRAIN.OPTIMIZER.EPS = 1e-4
 _C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999)
 # SGD momentum
 _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
+_C.TRAIN.MODEL_FILE_NAME = ''
 
 # -----------------------------------------------------------------------------
 # Testing settings
 # -----------------------------------------------------------------------------
 _C.TEST = CN()
+
+# -----------------------------------------------------------------------------
+# Inference settings
+# -----------------------------------------------------------------------------
+_C.INFERENCE = CN()
+_C.INFERENCE.BATCH_SIZE = 4
+_C.INFERENCE.MODEL_PATH = ''
+
 
 # -----------------------------------------------------------------------------
 # Device settings
@@ -95,6 +101,7 @@ _C.DEVICE = "cuda:0"
 # -----------------------------------------------------------------------------
 _C.LOG = CN()
 _C.LOG.PATH = "runs/exp"
+
 
 def _update_config_from_file(config, cfg_file):
     config.defrost()
@@ -112,14 +119,9 @@ def _update_config_from_file(config, cfg_file):
 
 
 def update_config(config, args):
-    #TODO:add config file
     _update_config_from_file(config, args.config_file)
 
     config.defrost()
-    if args.model_name:
-        config.MODEL.NAME = args.model_name
-    if args.dataset:
-        config.DATA.DATASET = args.dataset
     if args.device:
         if args.device >= 0:
             config.DEVICE = "cuda:" + str(args.device)
@@ -133,14 +135,43 @@ def update_config(config, args):
         config.DATA.CACHED_PATH = args.cached_path
     if args.lr:
         config.TRAIN.LR = args.lr
-    if args.model_path:
-        config.MODEL.MODEL_PATH = args.model_path
+    if args.model_dir:
+        config.MODEL.MODEL_DIR = args.model_dir
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
 
-    config.LOG.PATH = os.path.join(config.LOG.PATH,"-".join([config.DATA.DATASET,config.MODEL.NAME]))
-    config.DATA.CACHED_PATH = os.path.join(config.DATA.CACHED_PATH,"-".join([config.DATA.DATASET,config.MODEL.NAME]))
+    config.LOG.PATH = os.path.join(
+        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+    config.DATA.CACHED_PATH = os.path.join(
+        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
     config.DATA.DATA_PATH = args.data_path
+
+    config.freeze()
+
+
+def update_evaluate_config(config, args):
+
+    _update_config_from_file(config, args.config_file)
+    config.defrost()
+
+    if args.device:
+        if args.device >= 0:
+            config.DEVICE = "cuda:" + str(args.device)
+        else:
+            config.DEVICE = "cpu"
+    if args.batch_size:
+        config.TRAIN.BATCH_SIZE = args.batch_size
+    if args.cached_path:
+        config.DATA.CACHED_PATH = args.cached_path
+    if args.preprocess:
+        config.DATA.DO_PREPROCESS = args.preprocess
+
+    config.LOG.PATH = os.path.join(
+        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+    config.DATA.CACHED_PATH = os.path.join(
+        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+    config.DATA.DATA_PATH = args.data_path
+    config.INFERENCE.MODEL_PATH = args.model_path
 
     config.freeze()
 
@@ -149,7 +180,13 @@ def get_config(args):
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
     config = _C.clone()
-    print(args)
     update_config(config, args)
+
+    return config
+
+
+def get_evaluate_config(args):
+    config = _C.clone()
+    update_evaluate_config(config, args)
 
     return config

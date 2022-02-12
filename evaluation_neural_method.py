@@ -1,24 +1,23 @@
-""" The main function of rPPG deep learning pipeline.
+""" The main function of rPPG deep model evaluation pipeline.
 
 TODO: Adds detailed description for models and datasets supported.
-An end-to-end training pipleine for neural network methods.
+An evaluation pipleine for neural network methods, including model loading, inference and ca
   Typical usage example:
 
-  python main_neural_methods.py --config_file configs/COHFACE_PHYSNET_BASIC.yaml --data_path "G:\\COHFACE" --preprocess
-  python main_neural_methods.py --config_file configs/TSCAN_COHFACE_BASIC.yaml --data_path "G:\\COHFACE"
+  python main.py --model_name physnet --data_dir "G:\\UBFC_data"
 """
 
 import argparse
 import glob
 import os
-import time
-import logging
-from config import get_config
+import torch
+import tqdm
+import numpy as np
+from config import get_evaluate_config
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
-
 from dataset import data_loader
-from neural_methods import trainer
+from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 
 
 def get_UBFC_data(config):
@@ -57,42 +56,73 @@ def get_PURE_data(config):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/COHFACE_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
-    parser.add_argument('--do_train', action='store_true')
+                        default="configs/COHFACE_PHYSNET_EVALUATION.yaml", type=str, help="The name of the model.")
     parser.add_argument(
         '--device',
         default=None,
         type=int,
         help="An integer to specify which gpu to use, -1 for cpu.")
+    parser.add_argument(
+        '--model_path', required=True, type=str)
     parser.add_argument('--batch_size', default=None, type=int)
     parser.add_argument('--data_path', default="G:\\COHFACE\\RawData", required=False,
                         type=str, help='The path of the data directory.')
-    parser.add_argument('--epochs', default=None, type=int)
     parser.add_argument('--log_path', default=None, type=str)
-    parser.add_argument('--model_dir', default=None, type=str)
     return parser
 
 
-def train(config, writer, data_loader):
-    """Trains the model."""
-    if config.MODEL.NAME == "Physnet":
-        model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, writer)
-    elif config.MODEL.NAME == "Tscan":
-        model_trainer = trainer.TscanTrainer.TscanTrainer(config, writer)
+def define_Physnet_model(config):
+    model = PhysNet_padding_Encoder_Decoder_MAX(
+        frames=config.MODEL.PHYSNET.FRAME_NUM).to(config.DEVICE)  # [3, T, 128,128]
+    return model
 
-    model_trainer.train(data_loader)
+
+def load_model(model, config):
+    model.load_state_dict(torch.load(
+        config.INFERENCE.MODEL_PATH))
+    model = model.to(config.DEVICE)
+
+    return model
+
+
+def predict(model, data_loader, config):
+    """
+
+    """
+    predictions = list()
+    labels = list()
+    model.eval()
+    with torch.no_grad():
+        for _, batch in enumerate(data_loader):
+            print(_)
+            data, label = batch[0].to(
+                config.DEVICE), batch[1].to(config.DEVICE)
+            prediction, _, _, _ = model(data)
+            predictions.extend(prediction.to("cpu").numpy())
+            labels.extend(label.to("cpu").numpy())
+    return np.array(predictions), np.array(labels)
+
+
+def calculate_metrics(predictions, labels):
+    print("Calculate Metrics:")
+
+
+def eval(config):
+    physnet_model = define_Physnet_model(config)
+    physnet_model = load_model(physnet_model, config)
+    predictions, labels = predict(physnet_model, dataloader["test"], config)
+    print(predictions.shape, labels.shape)
 
 
 if __name__ == "__main__":
     # parses arguments.
     parser = argparse.ArgumentParser()
     parser = add_args(parser)
-    parser = trainer.BaseTrainer.BaseTrainer.add_trainer_args(parser)
     parser = data_loader.BaseLoader.BaseLoader.add_data_loader_args(parser)
     args = parser.parse_args()
 
     # forms configurations.
-    config = get_config(args)
+    config = get_evaluate_config(args)
     print(config)
 
     writer = SummaryWriter(config.LOG.PATH)
@@ -137,4 +167,3 @@ if __name__ == "__main__":
         "test": DataLoader(dataset=test_data, num_workers=2,
                            batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
     }
-    train(config, writer, dataloader)
