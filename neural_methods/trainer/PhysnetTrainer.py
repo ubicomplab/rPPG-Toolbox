@@ -34,7 +34,8 @@ class PhysnetTrainer(BaseTrainer):
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=config.TRAIN.LR)
         self.epochs = config.TRAIN.EPOCHS
-        self.model_path = config.MODEL.MODEL_PATH
+        self.model_dir = config.MODEL.MODEL_DIR
+        self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.twriter = twriter
         print(self.device)
 
@@ -117,9 +118,9 @@ class PhysnetTrainer(BaseTrainer):
         return np.mean(test_loss)
 
     def save_model(self):
-        if(not os.path.exists(self.model_path)):
-            os.mkdir(self.model_path)
+        if(not os.path.exists(self.model_dir)):
+            os.makedirs(self.model_dir)
         torch.save(self.model.state_dict(), os.path.join(
-            self.model_path, "physnet.pth"))
+            self.model_dir, self.model_file_name))
 
     # def load_model(self):

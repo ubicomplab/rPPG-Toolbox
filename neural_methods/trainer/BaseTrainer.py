@@ -9,8 +9,7 @@ class BaseTrainer():
     def add_trainer_args(parser):
         """Adds arguments to Paser for training process"""
         parser.add_argument('--lr', default=None, type=float)
-        parser.add_argument(
-            '--model_path', default=None, type=str)
+        parser.add_argument('--model_file_name', default=None, type=float)
         return parser
 
     def __init__(self):
