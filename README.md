@@ -82,7 +82,9 @@ You need to keep the preprocess arg unless this is not the first time you run th
 Here are some exemples. The data should be organized as mentioned.
 
 * Train **physnet** on **COHFACE** dataset using **cuda:1**
-    * python main_neural_methods.py --config_file configs/COHFACE_PHYSNET_BASIC.yaml --data_path /mnt/COHFACE/RawData
+    * python main_neural_methods.py --config_file configs/COHFACE_PHYSNET_BASIC.yaml --data_path [YOUR_PATH] --preprocess 
+
+`--preprocess` is a boolean flag. You don't have to turn it on after the data being preprocessed. 
 
 
 
