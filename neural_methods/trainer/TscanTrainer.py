@@ -18,7 +18,7 @@ class TscanTrainer(BaseTrainer):
         self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
         self.model = TSCAN(frame_depth=self.frame_depth,
                            img_size=config.DATA.PREPROCESS.H).to(self.device)
-        self.criterion = Neg_Pearson()
+        self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=config.TRAIN.LR)
         self.max_epoch_num = config.TRAIN.EPOCHS
@@ -55,14 +55,16 @@ class TscanTrainer(BaseTrainer):
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
-                self.twriter.add_scalar("train_loss", scalar_value=float(
-                    loss.item()), global_step=round)
+                # self.twriter.add_scalar("train_loss", scalar_value=float(
+                #     loss.item()), global_step=round)
             # Model Validation
-            valid_loss = self.valid(data_loader)
-            self.twriter.add_scalar(
-                "valid_loss",
-                scalar_value=float(valid_loss),
-                global_step=round)
+            valid_loss = self.validate(data_loader)
+            print('valid loss: ', valid_loss)
+            print('min_valid_loss: ', min_valid_loss)
+            # self.twriter.add_scalar(
+            #     "valid_loss",
+            #     scalar_value=float(valid_loss),
+            #     global_step=round)
             # Saving the best model checkpoint based on the validation loss.
             if valid_loss < min_valid_loss:
                 print("Updating the best ckpt")
