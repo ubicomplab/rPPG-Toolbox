@@ -152,7 +152,7 @@ class BaseLoader(Dataset):
                 # view the cropped area.
                 # cv2.imshow("frame",frame)
                 # cv2.waitKey(0)
-            resize_frames[i] = cv2.resize(frame, (w, h))
+            resize_frames[i] = cv2.resize(frame, (w, h), interpolation = cv2.INTER_AREA)
         return resize_frames
 
     @staticmethod
@@ -218,8 +218,10 @@ class BaseLoader(Dataset):
     @staticmethod
     def standardized_data(data):
         """Difference frames and normalization data"""
-        data[data < 1] = 1
-        return data - np.mean(data) / np.std(data)
+        # data[data < 1] = 1
+        data = data - np.mean(data)
+        data = data / np.std(data)
+        return data
 
     @staticmethod
     def standardized_label(label):
