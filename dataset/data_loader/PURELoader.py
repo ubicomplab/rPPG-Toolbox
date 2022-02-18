@@ -39,10 +39,9 @@ class PURELoader(BaseLoader):
                 name(str): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(name,data_dirs,config_data)
+        super().__init__(name, data_dirs, config_data)
 
-
-    def preprocess_datset(self, config_preprocess):
+    def preprocess_dataset(self, config_preprocess):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
         for i in range(file_num):
@@ -61,7 +60,7 @@ class PURELoader(BaseLoader):
                 larger_box = True
             else:
                 larger_box = False
-            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess,larger_box)
+            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, larger_box)
             self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i])
 
     @staticmethod

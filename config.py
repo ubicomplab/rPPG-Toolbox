@@ -19,6 +19,7 @@ _C.BASE = ['']
 # Data settings
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
+_C.DATA.FS = 0
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.DATA_PATH = ''
 # Path to preprocessing data, could be overwritten by command line argument
@@ -32,6 +33,7 @@ _C.DATA.DATA_FORMAT = 'NDCHW'
 # TODO: add other preprocessing configs
 # -----------------------------------------------------------------------------
 _C.DATA.PREPROCESS = CN()
+_C.DATA.PREPROCESS.DO_CHUNK = True
 _C.DATA.PREPROCESS.CROP_FACE = True
 _C.DATA.PREPROCESS.W = 128
 _C.DATA.PREPROCESS.H = 128
@@ -82,6 +84,7 @@ _C.TRAIN.MODEL_FILE_NAME = ''
 # Testing settings
 # -----------------------------------------------------------------------------
 _C.TEST = CN()
+_C.TEST.METRICS = []
 
 # -----------------------------------------------------------------------------
 # Inference settings
@@ -89,6 +92,7 @@ _C.TEST = CN()
 _C.INFERENCE = CN()
 _C.INFERENCE.BATCH_SIZE = 4
 _C.INFERENCE.MODEL_PATH = ''
+
 
 
 # -----------------------------------------------------------------------------
