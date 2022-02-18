@@ -47,24 +47,6 @@ class COHFACELoader(BaseLoader):
         """
         super().__init__(name, data_dirs, config_data)
 
-    def __len__(self):
-        """Returns the length of the dataset."""
-        return self.len
-
-    def __getitem__(self, index):
-        """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
-        data = np.load(self.inputs[index])
-        label = np.load(self.labels[index])
-        if self.data_format == 'NDCHW':
-            data = np.transpose(data, (0, 3, 1, 2))
-        elif self.data_format == 'NCDHW':
-            data = np.transpose(data, (3, 0, 1, 2))
-        else:
-            raise ValueError('Unsupported Data Format!')
-        data = np.float32(data)
-        label = np.float32(label)
-        return data, label
-
     def preprocess_dataset(self,config_preprocess):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
