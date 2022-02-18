@@ -63,8 +63,15 @@ class BaseLoader(Dataset):
         """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
         data = np.load(self.inputs[index])
         label = np.load(self.labels[index])
-        data = np.transpose(data, (3, 0, 1, 2))
-        print(data.shape, label.shape)
+        if self.data_format == 'NDCHW':
+            data = np.transpose(data, (0, 3, 1, 2))
+        elif self.data_format == 'NCDHW':
+            data = np.transpose(data, (3, 0, 1, 2))
+        else:
+            raise ValueError('Unsupported Data Format!')
+        data = np.float32(data)
+        label = np.float32(label)
+
         return data, label
 
     @staticmethod
@@ -97,7 +104,6 @@ class BaseLoader(Dataset):
             else:
                 raise ValueError("Unsupported data type!")
         data = np.concatenate(data, axis=3)
-        print(data.shape)
 
         if config_preprocess.LABEL_TYPE == "Raw":
             bvps = bvps[:-1]
@@ -107,10 +113,13 @@ class BaseLoader(Dataset):
             bvps = BaseLoader.standardized_data(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
-        print(bvps.shape)
+        print(data.shape,bvps.shape)
+        if config_preprocess.DO_CHUNK:
+            frames_clips, bvps_clips = BaseLoader.chunk(data, bvps, config_preprocess.CLIP_LENGTH)
+        else:
+            frames_clips = np.array([data])
+            bvps_clips = np.array([bvps])
 
-        frames_clips, bvps_clips = BaseLoader.chunk(
-            data, bvps, config_preprocess.CLIP_LENGTH)
         return frames_clips, bvps_clips
 
     @staticmethod
@@ -153,6 +162,9 @@ class BaseLoader(Dataset):
                 # cv2.imshow("frame",frame)
                 # cv2.waitKey(0)
             resize_frames[i] = cv2.resize(frame, (w, h), interpolation = cv2.INTER_AREA)
+        resize_frames = np.float32(resize_frames) / 255
+        frame[frame > 1] = 1
+        frame[frame < 1 / 255] = 1 / 255
         return resize_frames
 
     @staticmethod
@@ -198,9 +210,6 @@ class BaseLoader(Dataset):
     def diff_normalize_data(data):
         """Difference frames and normalization data"""
         n, h, w, c = data.shape
-        data = np.float32(data) / 255
-        data[data > 1] = 1
-        data[data < 1 / 255] = 1 / 255
         normalized_len = n - 1
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
