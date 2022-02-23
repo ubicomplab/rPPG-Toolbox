@@ -11,14 +11,14 @@ An evaluation pipleine for neural network methods, including model loading, infe
 import argparse
 import glob
 import os
-import numpy as np
 import torch
-from config import get_evaluate_config
-from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
+from torch.utils.data import DataLoader
+
+from config import get_evaluate_config
 from dataset import data_loader
-from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 from eval.post_process import *
+from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 
 
 def get_UBFC_data(config):
