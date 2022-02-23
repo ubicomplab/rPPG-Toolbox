@@ -4,7 +4,7 @@ TODO: Adds detailed description for models and datasets supported.
 An end-to-end training pipleine for neural network methods.
   Typical usage example:
 
-  python main_neural_method.py --config_file configs/COHFACE_PHYSNET_BASIC.yaml --data_path "G:\\COHFACE" --preprocess
+
   python main_neural_method.py --config_file configs/TSCAN_COHFACE_BASIC.yaml --data_path "G:\\COHFACE"
 """
 
