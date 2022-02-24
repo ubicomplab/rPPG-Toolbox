@@ -19,6 +19,7 @@ from config import get_evaluate_config
 from dataset import data_loader
 from eval.post_process import *
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
+from eval.post_process import *
 
 
 def get_UBFC_data(config):
@@ -93,7 +94,6 @@ def predict(model, data_loader, config):
             prediction, _, _, _ = model(data)
             predictions.extend(prediction.to("cpu").numpy())
             labels.extend(label.to("cpu").numpy())
-
     return np.reshape(np.array(predictions),(-1)), np.reshape(np.array(labels),(-1))
 
 
@@ -114,7 +114,7 @@ def calculate_metrics(predictions, labels, config):
             RMSE =np.sqrt(np.mean(np.square(predict_hr - label_hr)))
             print("RMSE:{0}".format(RMSE))
 
-
+            
 def eval(data_files,loader, config):
     physnet_model = define_Physnet_model(config)
     physnet_model = load_model(physnet_model, config)
