@@ -11,7 +11,7 @@ import argparse
 import glob
 import os
 import torch
-import tqdm
+from tqdm import tqdm
 import numpy as np
 from config import get_evaluate_config
 from torch.utils.data import DataLoader
@@ -93,8 +93,7 @@ def predict(model, data_loader, config):
     labels = list()
     model.eval()
     with torch.no_grad():
-        for _, batch in enumerate(data_loader):
-            print(_)
+        for _, batch in enumerate(tqdm(data_loader)):
             data, label = batch[0].to(
                 config.DEVICE), batch[1].to(config.DEVICE)
             prediction, _, _, _ = model(data)
@@ -111,6 +110,7 @@ def eval(config):
     physnet_model = define_Physnet_model(config)
     physnet_model = load_model(physnet_model, config)
     predictions, labels = predict(physnet_model, dataloader["test"], config)
+    calculate_metrics(predictions, labels)
     print(predictions.shape, labels.shape)
 
 
@@ -167,3 +167,4 @@ if __name__ == "__main__":
         "test": DataLoader(dataset=test_data, num_workers=2,
                            batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
     }
+    eval(config)
