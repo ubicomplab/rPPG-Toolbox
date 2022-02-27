@@ -94,7 +94,6 @@ _C.INFERENCE.BATCH_SIZE = 4
 _C.INFERENCE.MODEL_PATH = ''
 
 
-
 # -----------------------------------------------------------------------------
 # Inference settings
 # -----------------------------------------------------------------------------
@@ -149,8 +148,6 @@ def update_config(config, args):
         config.TRAIN.LR = args.lr
     if args.model_dir:
         config.MODEL.MODEL_DIR = args.model_dir
-<<<<<<< HEAD
-=======
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
 
@@ -177,7 +174,6 @@ def update_evaluate_config(config, args):
         config.TRAIN.BATCH_SIZE = args.batch_size
     if args.cached_path:
         config.DATA.CACHED_PATH = args.cached_path
->>>>>>> e647fc4a27f9c434369cf5cb498e82142ce7137e
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
 

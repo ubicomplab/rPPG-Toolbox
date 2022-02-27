@@ -4,13 +4,8 @@ TODO: Adds detailed description for models and datasets supported.
 An end-to-end training pipleine for neural network methods.
   Typical usage example:
 
-<<<<<<< HEAD:main_neural_methods.py
-  python main_neural_methods.py --config_file configs/COHFACE_PHYSNET_BASIC.yaml --data_path "G:\\COHFACE" --preprocess
-  python main_neural_methods.py --config_file configs/TSCAN_COHFACE_BASIC.yaml --data_path "G:\\COHFACE"
-=======
 
   python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
->>>>>>> e647fc4a27f9c434369cf5cb498e82142ce7137e:main_neural_method.py
 """
 
 import argparse
@@ -30,9 +25,9 @@ def get_UBFC_data(config):
     """Returns directories for train sets, validation sets and test sets.
     For the dataset structure, see dataset/dataloader/UBFC_dataloader.py """
     data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "subject*")
-    dirs = [{"index":re.search('subject(\d+)',data_dir).group(0),"path":data_dir} for data_dir in data_dirs]
+    dirs = [{"index": re.search(
+        'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
     return dirs
-
 
 
 def get_COHFACE_data(config):
@@ -43,9 +38,9 @@ def get_COHFACE_data(config):
     for data_dir in data_dirs:
         for i in range(4):
             subject = os.path.split(data_dir)[-1]
-            dirs.append({"index": '{0}0{1}'.format(subject,i), "path": os.path.join(data_dir,str(i))})
+            dirs.append({"index": '{0}0{1}'.format(subject, i),
+                        "path": os.path.join(data_dir, str(i))})
     return dirs[:10]
-
 
 
 def get_PURE_data(config):
@@ -54,7 +49,7 @@ def get_PURE_data(config):
     data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "*-*")
     dirs = list()
     for data_dir in data_dirs:
-        subject = os.path.split(data_dir)[-1].replace('-','')
+        subject = os.path.split(data_dir)[-1].replace('-', '')
         dirs.append({"index": subject, "path": data_dir})
     return dirs
 
@@ -62,7 +57,7 @@ def get_PURE_data(config):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/COHFACE_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/PURE_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
