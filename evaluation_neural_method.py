@@ -30,7 +30,7 @@ def get_UBFC_data(config):
     data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "subject*")
     dirs = [{"index": re.search(
         'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
-    return dirs
+    return dirs[:5]
 
 
 def get_COHFACE_data(config):
@@ -43,7 +43,7 @@ def get_COHFACE_data(config):
             subject = os.path.split(data_dir)[-1]
             dirs.append({"index": '{0}0{1}'.format(subject, i),
                         "path": os.path.join(data_dir, str(i))})
-    return dirs
+    return dirs[:5]
 
 
 def get_PURE_data(config):
@@ -56,13 +56,13 @@ def get_PURE_data(config):
         if subject[0] == '0':
             subject = subject[1:]
         dirs.append({"index": subject, "path": data_dir})
-    return dirs
+    return dirs[:5]
 
 
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PHYSNET_EVALUATION.yaml", type=str, help="The name of the model.")
+                        default="configs/COHFACE_PHYSNET_EVALUATION.yaml", type=str, help="The name of the model.")
     parser.add_argument(
         '--device',
         default=None,
@@ -141,8 +141,8 @@ def calculate_metrics(predictions, labels, config):
     predict_hr = np.array(predict_hr)
     rppg_hr = np.array(rppg_hr)
     label_hr = np.array(label_hr)
-    print(predict_hr)
-    print(label_hr)
+    print("predict_hr:", predict_hr)
+    print("label_hr:", label_hr)
     for metric in config.TEST.METRICS:
         if metric == "MAE":
             MAE = np.mean(np.abs(predict_hr - label_hr))

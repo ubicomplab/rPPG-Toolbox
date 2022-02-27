@@ -113,7 +113,6 @@ class BaseLoader(Dataset):
             bvps = BaseLoader.standardized_data(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
-        print(data.shape, bvps.shape)
         if config_preprocess.DO_CHUNK:
             frames_clips, bvps_clips = BaseLoader.chunk(
                 data, bvps, config_preprocess.CLIP_LENGTH)
@@ -130,7 +129,6 @@ class BaseLoader(Dataset):
         detector = cv2.CascadeClassifier(
             './dataset/haarcascade_frontalface_default.xml')
         face_zone = detector.detectMultiScale(frame)
-        print(face_zone)
         if (len(face_zone) < 1):
             print("ERROR:No Face Detected")
             result = [0, 0, frame.shape[0], frame.shape[1]]
