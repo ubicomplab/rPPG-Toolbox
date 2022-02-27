@@ -43,7 +43,7 @@ def get_COHFACE_data(config):
             subject = os.path.split(data_dir)[-1]
             dirs.append({"index": '{0}0{1}'.format(subject, i),
                         "path": os.path.join(data_dir, str(i))})
-    return dirs[:10]
+    return dirs
 
 
 def get_PURE_data(config):
@@ -53,6 +53,8 @@ def get_PURE_data(config):
     dirs = list()
     for data_dir in data_dirs:
         subject = os.path.split(data_dir)[-1].replace('-', '')
+        if subject[0] == '0':
+            subject = subject[1:]
         dirs.append({"index": subject, "path": data_dir})
     return dirs
 
@@ -139,6 +141,7 @@ def calculate_metrics(predictions, labels, config):
     predict_hr = np.array(predict_hr)
     rppg_hr = np.array(rppg_hr)
     label_hr = np.array(label_hr)
+    print(predict_hr)
     print(label_hr)
     for metric in config.TEST.METRICS:
         if metric == "MAE":

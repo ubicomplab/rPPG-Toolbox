@@ -18,11 +18,7 @@ class TscanTrainer(BaseTrainer):
         self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
         self.model = TSCAN(frame_depth=self.frame_depth,
                            img_size=config.DATA.PREPROCESS.H).to(self.device)
-<<<<<<< HEAD
-        self.criterion = Neg_Pearson()
-=======
         self.criterion = torch.nn.MSELoss()
->>>>>>> e647fc4a27f9c434369cf5cb498e82142ce7137e
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=config.TRAIN.LR)
         self.max_epoch_num = config.TRAIN.EPOCHS
@@ -59,13 +55,8 @@ class TscanTrainer(BaseTrainer):
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
-<<<<<<< HEAD
-                self.twriter.add_scalar("train_loss", scalar_value=float(
-                    loss.item()), global_step=round)
-=======
                 # self.twriter.add_scalar("train_loss", scalar_value=float(
                 #     loss.item()), global_step=round)
->>>>>>> e647fc4a27f9c434369cf5cb498e82142ce7137e
             # Model Validation
             valid_loss = self.validate(data_loader)
             print('valid loss: ', valid_loss)
