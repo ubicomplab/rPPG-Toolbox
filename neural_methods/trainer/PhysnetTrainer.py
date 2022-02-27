@@ -119,7 +119,11 @@ class PhysnetTrainer(BaseTrainer):
 
     def save_model(self):
         if(not os.path.exists(self.model_dir)):
+<<<<<<< HEAD
             os.mkdirs(self.model_dir)
+=======
+            os.makedirs(self.model_dir)
+>>>>>>> e647fc4a27f9c434369cf5cb498e82142ce7137e
         torch.save(self.model.state_dict(), os.path.join(
             self.model_dir, self.model_file_name))
 

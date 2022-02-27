@@ -5,7 +5,7 @@ DATA:
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
   PREPROCESS:
-    DATA_TYPE: Combined
+    DATA_TYPE: ['Standardized','Normalized' ]
     LABEL_TYPE: Normalized
     CLIP_LENGTH: 64
     CROP_FACE: True
@@ -23,5 +23,9 @@ MODEL:
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 50
+<<<<<<< HEAD
   LR: 0.0001
+=======
+  LR: 0.001
+>>>>>>> e647fc4a27f9c434369cf5cb498e82142ce7137e
   MODEL_FILE_NAME: tscan_pretrained.pth
