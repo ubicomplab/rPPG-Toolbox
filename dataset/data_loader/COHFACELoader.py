@@ -51,21 +51,17 @@ class COHFACELoader(BaseLoader):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
         for i in range(file_num):
-            for j in range(4):
-                frames = self.read_video(
-                    os.path.join(
-                        self.data_dirs[i],
-                        str(j),
-                        "data.avi"))
-                bvps = self.read_wave(
-                    os.path.join(
-                        self.data_dirs[i],
-                        str(j),
-                        "data.hdf5"))
-                bvps = sample(bvps, frames.shape[0])
-                frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
-                self.len += self.save(frames_clips, bvps_clips,
-                                      "{0}-{1}".format(self.data_dirs[i], str(j)))
+            frames = self.read_video(
+                os.path.join(
+                    self.data_dirs[i]["path"],
+                    "data.avi"))
+            bvps = self.read_wave(
+                os.path.join(
+                    self.data_dirs[i]["path"],
+                    "data.hdf5"))
+            bvps = sample(bvps, frames.shape[0])
+            frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
+            self.len += self.save(frames_clips, bvps_clips,self.data_dirs[i]["index"])
 
     @staticmethod
     def read_video(video_file):
