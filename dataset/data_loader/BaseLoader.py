@@ -113,9 +113,9 @@ class BaseLoader(Dataset):
             bvps = BaseLoader.standardized_data(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
-        print(data.shape,bvps.shape)
         if config_preprocess.DO_CHUNK:
-            frames_clips, bvps_clips = BaseLoader.chunk(data, bvps, config_preprocess.CLIP_LENGTH)
+            frames_clips, bvps_clips = BaseLoader.chunk(
+                data, bvps, config_preprocess.CLIP_LENGTH)
         else:
             frames_clips = np.array([data])
             bvps_clips = np.array([bvps])
@@ -129,13 +129,15 @@ class BaseLoader(Dataset):
         detector = cv2.CascadeClassifier(
             './dataset/haarcascade_frontalface_default.xml')
         face_zone = detector.detectMultiScale(frame)
-        result = face_zone[0]
         if (len(face_zone) < 1):
             print("ERROR:No Face Detected")
-        if (len(face_zone) >= 2):
+            result = [0, 0, frame.shape[0], frame.shape[1]]
+        elif (len(face_zone) >= 2):
             result = np.argmax(face_zone, axis=0)
-            print("WARN:More than one faces are detected(Only cropping the biggest one.)")
             result = face_zone[result[2]]
+            print("WARN:More than one faces are detected(Only cropping the biggest one.)")
+        else:
+            result = face_zone[0]
         if larger_box:
             print("Larger Bounding Box")
             result[0] = max(0, result[0] - 0.4 * result[2])
@@ -155,13 +157,14 @@ class BaseLoader(Dataset):
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
-                        max(face_region[0],
-                            0):min(face_region[0] + face_region[2],
-                                   frame.shape[1])]
+                              max(face_region[0],
+                                  0):min(face_region[0] + face_region[2],
+                                         frame.shape[1])]
                 # view the cropped area.
                 # cv2.imshow("frame",frame)
                 # cv2.waitKey(0)
-            resize_frames[i] = cv2.resize(frame, (w, h), interpolation = cv2.INTER_AREA)
+            resize_frames[i] = cv2.resize(
+                frame, (w, h), interpolation=cv2.INTER_AREA)
         resize_frames = np.float32(resize_frames) / 255
         frame[frame > 1] = 1
         frame[frame < 1 / 255] = 1 / 255
@@ -187,9 +190,9 @@ class BaseLoader(Dataset):
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
-                              "{0}_input{1}.npy".format(filename, str(count))
+                "{0}_input{1}.npy".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + \
-                              "{0}_label{1}.npy".format(filename, str(count))
+                "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
@@ -214,7 +217,7 @@ class BaseLoader(Dataset):
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
-                        data[j + 1, :, :, :] + data[j, :, :, :])
+                data[j + 1, :, :, :] + data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
         return normalized_data
 

@@ -23,5 +23,5 @@ MODEL:
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 50
-  LR: 0.001
+  LR: 0.0001
   MODEL_FILE_NAME: tscan_pretrained.pth

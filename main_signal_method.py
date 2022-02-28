@@ -23,6 +23,3 @@ if __name__ == "__main__":
         CHROME_DEHAAN(args.video_file,args.bvp_file,args.ppg_file,False)
     elif(args.method == "ica"):
         ICA_POH(args.video_file,args.bvp_file,args.ppg_file,False)
-
-
-0
