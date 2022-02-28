@@ -45,14 +45,14 @@ class PURELoader(BaseLoader):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
         for i in range(file_num):
-            filename = os.path.split(self.data_dirs[i])[-1]
+            filename = os.path.split(self.data_dirs[i]['path'])[-1]
             frames = self.read_video(
                 os.path.join(
-                    self.data_dirs[i],
+                    self.data_dirs[i]['path'],
                     filename, ""))
             bvps = self.read_wave(
                 os.path.join(
-                    self.data_dirs[i],
+                    self.data_dirs[i]['path'],
                     "{0}.json".format(filename)))
             bvps = sample(bvps, frames.shape[0])
             # Slow Translation and Fast Translation setups.
@@ -60,8 +60,10 @@ class PURELoader(BaseLoader):
                 larger_box = True
             else:
                 larger_box = False
-            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, larger_box)
-            self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i])
+            frames_clips, bvps_clips = self.preprocess(
+                frames, bvps, config_preprocess, larger_box)
+            self.len += self.save(frames_clips, bvps_clips,
+                                  self.data_dirs[i]['index'])
 
     @staticmethod
     def read_video(video_file):
