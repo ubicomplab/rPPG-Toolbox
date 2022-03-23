@@ -1,7 +1,7 @@
 BASE: ['']
 DATA:
   CACHED_PATH: preprocessed
-  DATASET: PURE
+  DATASET: UBFC
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW
   PREPROCESS :
@@ -23,5 +23,5 @@ MODEL:
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
-  LR: 0.0001
+  LR: 1e-5
   MODEL_FILE_NAME: physnet.pth
