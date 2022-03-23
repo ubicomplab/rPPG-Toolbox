@@ -3,25 +3,25 @@ DATA:
   CACHED_PATH: preprocessed
   DATASET: PURE
   DO_PREPROCESS: False
-  DATA_FORMAT: NCDHW
+  DATA_FORMAT: NDCHW
   PREPROCESS :
-    DATA_TYPE : ['Normalized']
+    DATA_TYPE: ['Standardized','Normalized' ]
     LABEL_TYPE : Normalized
-    CLIP_LENGTH: 64
+    CLIP_LENGTH: 180
     CROP_FACE: True
-    H: 128
-    W: 128
+    H: 36
+    W: 36
 DEVICE: cuda:0
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
   MODEL_DIR: store_model
-  NAME: Physnet
-  PHYSNET:
-    FRAME_NUM: 64
+  NAME: Tscan
+  TSCAN:
+    FRAME_DEPTH: 10
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
   LR: 0.0001
-  MODEL_FILE_NAME: physnet.pth
+  MODEL_FILE_NAME: tscan.pth

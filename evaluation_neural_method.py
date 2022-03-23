@@ -4,8 +4,7 @@ TODO: Adds detailed description for models and datasets supported.
 An evaluation pipleine for neural network methods, including model loading, inference and ca
   Typical usage example:
 
-
-  python evaluation_neural_method.py --data_path /mnt/data0/COHFACE/RawData --model_path store_model/physnet.pth --config_file=configs/PURE_PHYSNET_EVALUATION.yaml --preprocess
+  python evaluation_neural_method.py --data_path /mnt/data0/COHFACE/RawData --model_path store_model/physnet.pth --preprocess
   You should edit predict (model,data_loader,config) and add functions for definition,e.g, define_Physnet_model to support your models.
 """
 
@@ -22,6 +21,7 @@ from config import get_evaluate_config
 from dataset import data_loader
 from eval.post_process import *
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
+from eval.post_process import *
 
 
 def get_UBFC_data(config):
@@ -62,7 +62,7 @@ def get_PURE_data(config):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/COHFACE_PHYSNET_EVALUATION.yaml", type=str, help="The name of the model.")
+                        default="configs/PURE_PHYSNET_EVALUATION.yaml", type=str, help="The name of the model.")
     parser.add_argument(
         '--device',
         default=None,
@@ -124,7 +124,6 @@ def predict(model, data_loader, config):
             prediction, _, _, _ = model(data)
             predictions.extend(prediction.to("cpu").numpy())
             labels.extend(label.to("cpu").numpy())
-
     return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
 
 
@@ -171,7 +170,6 @@ def eval(data_files, loader, config):
         predictions.append(
             {'prediction': prediction_per_video, 'index': file['index']})
         labels.append({'prediction': label_per_video, 'index': file['index']})
-
     calculate_metrics(np.array(predictions), np.array(labels), config)
 
 
