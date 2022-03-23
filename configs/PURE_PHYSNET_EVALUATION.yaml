@@ -6,7 +6,7 @@ DATA:
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW
   PREPROCESS :
-    DATA_TYPE : ['Raw']
+    DATA_TYPE : ['Normalized']
     LABEL_TYPE : Normalized
     DO_CHUNK : True
     CLIP_LENGTH: 64

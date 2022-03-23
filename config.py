@@ -28,6 +28,7 @@ _C.DATA.CACHED_PATH = ''
 _C.DATA.DATASET = ''
 _C.DATA.DO_PREPROCESS = False
 _C.DATA.DATA_FORMAT = 'NDCHW'
+_C.DATA.VALID_SUBJ = 20
 # -----------------------------------------------------------------------------
 # Data preprocessing
 # TODO: add other preprocessing configs
@@ -85,10 +86,6 @@ _C.TRAIN.MODEL_FILE_NAME = ''
 # -----------------------------------------------------------------------------
 _C.TEST = CN()
 _C.TEST.METRICS = []
-_C.INFERENCE = CN()
-_C.INFERENCE.BATCH_SIZE = 4
-_C.INFERENCE.MODEL_PATH = ''
-
 
 # -----------------------------------------------------------------------------
 # Inference settings
@@ -96,7 +93,6 @@ _C.INFERENCE.MODEL_PATH = ''
 _C.INFERENCE = CN()
 _C.INFERENCE.BATCH_SIZE = 4
 _C.INFERENCE.MODEL_PATH = ''
-
 
 
 # -----------------------------------------------------------------------------

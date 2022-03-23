@@ -7,8 +7,6 @@ from signal_methods.POS_WANG import *
 from signal_methods.CHROME_DEHAAN import *
 
 
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str,default="pos",choices=["ica","pos","chrome"])
@@ -22,4 +20,4 @@ if __name__ == "__main__":
     elif(args.method == "chrome"):
         CHROME_DEHAAN(args.video_file,args.bvp_file,args.ppg_file,False)
     elif(args.method == "ica"):
-        ICA_POH(args.video_file,args.bvp_file,args.ppg_file,False)
+        ICA_POH(args.video_file,args.bvp_file,args.ppg_file,False
