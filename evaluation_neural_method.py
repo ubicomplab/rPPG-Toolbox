@@ -5,7 +5,7 @@ An evaluation pipleine for neural network methods, including model loading, infe
   Typical usage example:
 
 
-  python evaluation_neural_method.py --data_path /mnt/data0/COHFACE/RawData --model_path store_model/physnet.pth --preprocess
+  python evaluation_neural_method.py --data_path /mnt/data0/COHFACE/RawData --model_path store_model/physnet.pth --config_file=configs/PURE_PHYSNET_EVALUATION.yaml --preprocess
   You should edit predict (model,data_loader,config) and add functions for definition,e.g, define_Physnet_model to support your models.
 """
 
@@ -29,7 +29,7 @@ def get_UBFC_data(config):
     For the dataset structure, see dataset/dataloader/UBFC_dataloader.py """
     data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "subject*")
     dirs = [{"index": re.search(
-        'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
+        'subject(\d+)', data_dir).group(1), "path": data_dir} for data_dir in data_dirs]
     return dirs[:5]
 
 
@@ -56,7 +56,7 @@ def get_PURE_data(config):
         if subject[0] == '0':
             subject = subject[1:]
         dirs.append({"index": subject, "path": data_dir})
-    return dirs[:5]
+    return dirs[:20]
 
 
 def add_args(parser):
@@ -94,7 +94,8 @@ def load_model(model, config):
 def read_label(dataset):
     df = pd.read_csv("label/{0}_Comparison.csv".format(dataset))
     out_dict = df.to_dict(orient='index')
-    out_dict = {str(value['Sample']): value for key, value in out_dict.items()}
+    out_dict = {str(value['VideoID']): value for key,
+                value in out_dict.items()}
     return out_dict
 
 
