@@ -69,6 +69,7 @@ class PhysnetTrainer(BaseTrainer):
                 valid_loss), global_step=round)
             # saves the model according to the loss on valid sets.
             if(valid_loss < min_valid_loss):
+                min_valid_loss = valid_loss
                 print("update best model")
                 self.save_model()
 
