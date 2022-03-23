@@ -73,7 +73,7 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
 # Configuration
 TODO
 # Run
-## Deep Model
+## Deep Model Training
 
 python main.py --config_file  *[path for the config file]* --data_path *[path for dataset]*  --preprocess
 
@@ -81,11 +81,16 @@ You need to keep the preprocess arg unless this is not the first time you run th
 
 Here are some exemples. The data should be organized as mentioned.
 
-* Train **physnet** on **COHFACE** dataset using **cuda:1**
-    * python main_neural_methods.py --config_file configs/COHFACE_PHYSNET_BASIC.yaml --data_path /mnt/COHFACE/RawData --preprocess
-    * python main_neural_method.py --data_path=/mnt/data0/UBFC/UBFC --config_file configs/UBFC_PHYSNET_BASIC.yaml --preprocess
+## Evaluation
 
-
+* Test **physnet** on **COHFACE** dataset using **cuda:0**
+    * python evaluation_neural_method.py --config_file configs/COHFACE_PHYSNET_EVALUATION.yaml --data_path [YOUR DATA PATH] --preprocess 
+* Test **tscan** on **COHFACE** dataset using **cuda:0**
+    * python evaluation_neural_method.py --config_file configs/COHFACE_TSCAN_EVALUATION.yaml --data_path [YOUR DATA PATH] --preprocess 
+* Test **physnet** on **PURE** dataset using **cuda:0**
+    * python evaluation_neural_methods.py --config_file configs/PURE_PHYSNET_EVALUATION.yaml --data_path [YOUR DATA PATH] --preprocess 
+* Test **tscan** on **PURE** dataset using **cuda:0**
+    * python evaluation_neural_methods.py --config_file configs/PURE_TSCAN_EVALUATION.yaml --data_path [YOUR DATA PATH] --preprocess 
 
 ## Tensorboard
 command: tensorboard --logdir=runs/
