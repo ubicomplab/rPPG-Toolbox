@@ -57,7 +57,7 @@ class BaseLoader(Dataset):
 
     def __len__(self):
         """Returns the length of the dataset."""
-        return self.len
+        return len(self.inputs)
 
     def __getitem__(self, index):
         """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
@@ -71,7 +71,10 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
-
+        if(np.isnan(data).any()):
+            print(self.inputs[index])
+            print("line76")
+            exit(0)
         return data, label
 
     @staticmethod
@@ -84,13 +87,18 @@ class BaseLoader(Dataset):
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
             large_box(bool): Whether to use a large bounding box in face cropping, e.g. in moving situations.
         """
+        if(np.isnan(frames).any()):
+            print("line88")
+            exit(0)
         frames = BaseLoader.resize(
             frames,
             config_preprocess.W,
             config_preprocess.H,
             config_preprocess.CROP_FACE,
             large_box)
-
+        if(np.isnan(frames).any()):
+            print("line96")
+            exit(0)
         # data_type
         data = list()
         for data_type in config_preprocess.DATA_TYPE:
@@ -104,6 +112,9 @@ class BaseLoader(Dataset):
             else:
                 raise ValueError("Unsupported data type!")
         data = np.concatenate(data, axis=3)
+        if(np.isnan(data).any()):
+            print("line112")
+            exit(0)
 
         if config_preprocess.LABEL_TYPE == "Raw":
             bvps = bvps[:-1]
@@ -113,12 +124,16 @@ class BaseLoader(Dataset):
             bvps = BaseLoader.standardized_data(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
+
         if config_preprocess.DO_CHUNK:
             frames_clips, bvps_clips = BaseLoader.chunk(
                 data, bvps, config_preprocess.CLIP_LENGTH)
         else:
             frames_clips = np.array([data])
             bvps_clips = np.array([bvps])
+        if(np.isnan(frames_clips).any()):
+            print("line137")
+            exit(0)
 
         return frames_clips, bvps_clips
 
@@ -219,13 +234,16 @@ class BaseLoader(Dataset):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
                 data[j + 1, :, :, :] + data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
+        normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
 
     @staticmethod
     def diff_normalize_label(label):
         """Difference frames and normalization labels"""
         diff_label = np.diff(label, axis=0)
-        return diff_label / np.std(diff_label)
+        normalized_label = diff_label / np.std(diff_label)
+        normalized_label[np.isnan(normalized_label)] = 0
+        return normalized_label
 
     @staticmethod
     def standardized_data(data):
@@ -233,8 +251,11 @@ class BaseLoader(Dataset):
         # data[data < 1] = 1
         data = data - np.mean(data)
         data = data / np.std(data)
+        data[np.isnan(data)] = 0
         return data
 
     @staticmethod
     def standardized_label(label):
-        return label - np.mean(label) / np.std(label)
+        standardized_label = label - np.mean(label)/np.std(label)
+        standardized_label[np.nan(standardized_label)] = 0
+        return standardized_label

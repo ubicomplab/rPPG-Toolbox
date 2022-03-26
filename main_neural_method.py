@@ -96,10 +96,10 @@ if __name__ == "__main__":
     config = get_config(args)
 
     # logging.
-    utils.check_dir(args.log_file)
-    logging.basicConfig(filename=args.log_file, level=args.verbose)
-    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    logging.info(config)
+    # utils.check_dir(args.log_file)
+    # logging.basicConfig(filename=args.log_file, level=args.verbose)
+    # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    # logging.info(config)
 
     writer = SummaryWriter(config.LOG.PATH)
 
@@ -126,6 +126,7 @@ if __name__ == "__main__":
         name="valid",
         data_dirs=data_files[-config.DATA.VALID_SUBJ:],
         config_data=config.DATA)
+
     dataloader = {
         "train": DataLoader(
             dataset=train_data,

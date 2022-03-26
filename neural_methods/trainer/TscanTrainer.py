@@ -25,7 +25,6 @@ class TscanTrainer(BaseTrainer):
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.twriter = twriter
-        print(self.device)
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -50,6 +49,7 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
+                print(loss.item())
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')

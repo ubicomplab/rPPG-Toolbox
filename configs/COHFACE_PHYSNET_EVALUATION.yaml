@@ -1,7 +1,7 @@
 BASE: ['']
 DATA:
   FS: 20
-  CACHED_PATH: preprocessed
+  CACHED_PATH: preprocess
   DATASET: COHFACE  
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW
