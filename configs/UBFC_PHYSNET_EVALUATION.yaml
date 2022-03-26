@@ -1,7 +1,7 @@
 BASE: ['']
 DATA:
   FS: 30
-  CACHED_PATH: preprocessed
+  CACHED_PATH: preprocess
   DATASET: UBFC
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW

@@ -144,10 +144,15 @@ def update_config(config, args):
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
 
+    postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
+        str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
+        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format(str(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+    print(postfix)
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.LOG.PATH, postfix)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.DATA.CACHED_PATH, postfix)
+
     config.DATA.DATA_PATH = args.data_path
 
     config.freeze()
@@ -170,10 +175,14 @@ def update_evaluate_config(config, args):
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
 
+    postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
+        str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
+        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format(str(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+    print(postfix)
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.LOG.PATH, postfix)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.DATA.CACHED_PATH, postfix)
     config.DATA.DATA_PATH = args.data_path
     config.INFERENCE.MODEL_PATH = args.model_path
 

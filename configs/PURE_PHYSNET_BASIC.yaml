@@ -1,6 +1,6 @@
 BASE: ['']
 DATA:
-  CACHED_PATH: preprocessed
+  CACHED_PATH: preprocess
   DATASET: PURE
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW

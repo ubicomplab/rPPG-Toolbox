@@ -48,6 +48,10 @@ class PhysnetTrainer(BaseTrainer):
             self.model.train()
 
             for i, batch in enumerate(data_loader["train"]):
+                if(torch.isnan(batch[0]).any()):
+                    print("data has nan")
+                    print(i, batch)
+                    exit(0)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
                     Variable(batch[0]).to(torch.float32).to(self.device))
                 BVP_label = Variable(batch[1]).to(
