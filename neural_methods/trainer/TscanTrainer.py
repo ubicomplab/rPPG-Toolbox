@@ -59,8 +59,6 @@ class TscanTrainer(BaseTrainer):
                 #     loss.item()), global_step=round)
             # Model Validation
             valid_loss = self.validate(data_loader)
-            print('valid loss: ', valid_loss)
-            print('min_valid_loss: ', min_valid_loss)
             # self.twriter.add_scalar(
             #     "valid_loss",
             #     scalar_value=float(valid_loss),
@@ -68,7 +66,10 @@ class TscanTrainer(BaseTrainer):
             # Saving the best model checkpoint based on the validation loss.
             if valid_loss < min_valid_loss:
                 print("Updating the best ckpt")
+                min_valid_loss = valid_loss
                 self.save_model()
+            print('valid loss: ', valid_loss)
+            print('min_valid_loss: ', min_valid_loss)
 
     def validate(self, data_loader):
         """ Model evaluation on the validation dataset."""

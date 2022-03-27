@@ -146,7 +146,8 @@ def update_config(config, args):
 
     postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
         str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
-        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format(str(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format("".join(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+
     print(postfix)
     config.LOG.PATH = os.path.join(
         config.LOG.PATH, postfix)
