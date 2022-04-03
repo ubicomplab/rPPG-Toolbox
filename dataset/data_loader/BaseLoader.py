@@ -87,9 +87,6 @@ class BaseLoader(Dataset):
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
             large_box(bool): Whether to use a large bounding box in face cropping, e.g. in moving situations.
         """
-        if(np.isnan(frames).any()):
-            print("line88")
-            exit(0)
         frames = BaseLoader.resize(
             frames,
             config_preprocess.W,
@@ -112,9 +109,6 @@ class BaseLoader(Dataset):
             else:
                 raise ValueError("Unsupported data type!")
         data = np.concatenate(data, axis=3)
-        if(np.isnan(data).any()):
-            print("line112")
-            exit(0)
 
         if config_preprocess.LABEL_TYPE == "Raw":
             bvps = bvps[:-1]
@@ -181,8 +175,8 @@ class BaseLoader(Dataset):
             resize_frames[i] = cv2.resize(
                 frame, (w, h), interpolation=cv2.INTER_AREA)
         resize_frames = np.float32(resize_frames) / 255
-        frame[frame > 1] = 1
-        frame[frame < 1 / 255] = 1 / 255
+        resize_frames[resize_frames > 1] = 1
+        resize_frames[resize_frames < (1 / 255)] = 1 / 255
         return resize_frames
 
     @staticmethod
