@@ -80,6 +80,8 @@ def train(config, writer, data_loader):
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, writer)
     elif config.MODEL.NAME == "Tscan":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config, writer)
+    elif config.MODEL.NAME == "EfficientPhys":
+        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, writer)
 
     model_trainer.train(data_loader)
 

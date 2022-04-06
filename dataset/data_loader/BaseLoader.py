@@ -149,10 +149,15 @@ class BaseLoader(Dataset):
             result = face_zone[0]
         if larger_box:
             print("Larger Bounding Box")
-            result[0] = max(0, result[0] - 0.4 * result[2])
-            result[1] = max(0, result[1] - 0.1 * result[2])
-            result[2] = 1.8 * result[2]
-            result[3] = 1.2 * result[3]
+            # result[0] = max(0, result[0] - 0.4 * result[2])
+            # result[1] = max(0, result[1] - 0.1 * result[2])
+            # result[2] = 1.8 * result[2]
+            # result[3] = 1.2 * result[3]
+            # For PURE
+            result[0] = max(0, result[0] - 0.25 * result[2])
+            result[1] = max(0, result[1] - 0.25 * result[2])
+            result[2] = 1.5 * result[2]
+            result[3] = 1.5 * result[3]
         return result
 
     @staticmethod
@@ -228,7 +233,7 @@ class BaseLoader(Dataset):
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
-                data[j + 1, :, :, :] + data[j, :, :, :])
+                    data[j + 1, :, :, :] + data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
         normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
