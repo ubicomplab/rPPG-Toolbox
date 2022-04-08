@@ -14,6 +14,7 @@ import os
 import time
 import logging
 import re
+import sys
 from config import get_config
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
@@ -40,7 +41,7 @@ def get_COHFACE_data(config):
             subject = os.path.split(data_dir)[-1]
             dirs.append({"index": '{0}0{1}'.format(subject, i),
                         "path": os.path.join(data_dir, str(i))})
-    return dirs[:10]
+    return dirs
 
 
 def get_PURE_data(config):
@@ -79,21 +80,28 @@ def train(config, writer, data_loader):
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, writer)
     elif config.MODEL.NAME == "Tscan":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config, writer)
+    elif config.MODEL.NAME == "EfficientPhys":
+        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, writer)
 
     model_trainer.train(data_loader)
 
 
 if __name__ == "__main__":
-    # parses arguments.
+    # parse arguments.
     parser = argparse.ArgumentParser()
     parser = add_args(parser)
     parser = trainer.BaseTrainer.BaseTrainer.add_trainer_args(parser)
     parser = data_loader.BaseLoader.BaseLoader.add_data_loader_args(parser)
     args = parser.parse_args()
 
-    # forms configurations.
+    # configurations.
     config = get_config(args)
-    print(config)
+
+    # logging.
+    # utils.check_dir(args.log_file)
+    # logging.basicConfig(filename=args.log_file, level=args.verbose)
+    # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    # logging.info(config)
 
     writer = SummaryWriter(config.LOG.PATH)
 
@@ -114,16 +122,13 @@ if __name__ == "__main__":
     print(data_files)
     train_data = loader(
         name="train",
-        data_dirs=data_files,
+        data_dirs=data_files[:-config.DATA.VALID_SUBJ],
         config_data=config.DATA)
     valid_data = loader(
         name="valid",
-        data_dirs=data_files[:2],
+        data_dirs=data_files[-config.DATA.VALID_SUBJ:],
         config_data=config.DATA)
-    test_data = loader(
-        name="test",
-        data_dirs=data_files[:2],
-        config_data=config.DATA)
+
     dataloader = {
         "train": DataLoader(
             dataset=train_data,
@@ -135,7 +140,5 @@ if __name__ == "__main__":
             num_workers=2,
             batch_size=config.TRAIN.BATCH_SIZE,
             shuffle=True),
-        "test": DataLoader(dataset=test_data, num_workers=2,
-                           batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
     }
     train(config, writer, dataloader)

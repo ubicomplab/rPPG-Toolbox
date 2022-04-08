@@ -51,7 +51,6 @@ class UBFCLoader(BaseLoader):
                     "ground_truth.txt"))
             frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
             self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i]['index'])
-        print(self.len)
 
 
     @staticmethod

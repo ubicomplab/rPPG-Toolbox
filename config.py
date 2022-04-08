@@ -28,6 +28,7 @@ _C.DATA.CACHED_PATH = ''
 _C.DATA.DATASET = ''
 _C.DATA.DO_PREPROCESS = False
 _C.DATA.DATA_FORMAT = 'NDCHW'
+_C.DATA.VALID_SUBJ = 20
 # -----------------------------------------------------------------------------
 # Data preprocessing
 # TODO: add other preprocessing configs
@@ -64,6 +65,12 @@ _C.MODEL.TSCAN = CN()
 _C.MODEL.TSCAN.FRAME_DEPTH = 10
 
 # -----------------------------------------------------------------------------
+# Model Settings for EfficientPhys
+# -----------------------------------------------------------------------------
+_C.MODEL.EFFICIENTPHYS = CN()
+_C.MODEL.EFFICIENTPHYS.FRAME_DEPTH = 10
+
+# -----------------------------------------------------------------------------
 # Training settings
 # -----------------------------------------------------------------------------
 _C.TRAIN = CN()
@@ -85,19 +92,6 @@ _C.TRAIN.MODEL_FILE_NAME = ''
 # -----------------------------------------------------------------------------
 _C.TEST = CN()
 _C.TEST.METRICS = []
-_C.INFERENCE = CN()
-_C.INFERENCE.BATCH_SIZE = 4
-_C.INFERENCE.MODEL_PATH = ''
-
-
-# -----------------------------------------------------------------------------
-# Inference settings
-# -----------------------------------------------------------------------------
-_C.INFERENCE = CN()
-_C.INFERENCE.BATCH_SIZE = 4
-_C.INFERENCE.MODEL_PATH = ''
-
-
 
 # -----------------------------------------------------------------------------
 # Inference settings
@@ -156,10 +150,16 @@ def update_config(config, args):
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
 
+    postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
+        str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
+        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format("".join(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+
+    print(postfix)
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.LOG.PATH, postfix)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.DATA.CACHED_PATH, postfix)
+
     config.DATA.DATA_PATH = args.data_path
 
     config.freeze()
@@ -182,37 +182,14 @@ def update_evaluate_config(config, args):
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
 
+    postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
+        str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
+        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format(str(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+    print(postfix)
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.LOG.PATH, postfix)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
-    config.DATA.DATA_PATH = args.data_path
-    config.INFERENCE.MODEL_PATH = args.model_path
-
-    config.freeze()
-
-
-def update_evaluate_config(config, args):
-
-    _update_config_from_file(config, args.config_file)
-    config.defrost()
-
-    if args.device:
-        if args.device >= 0:
-            config.DEVICE = "cuda:" + str(args.device)
-        else:
-            config.DEVICE = "cpu"
-    if args.batch_size:
-        config.TRAIN.BATCH_SIZE = args.batch_size
-    if args.cached_path:
-        config.DATA.CACHED_PATH = args.cached_path
-    if args.preprocess:
-        config.DATA.DO_PREPROCESS = args.preprocess
-
-    config.LOG.PATH = os.path.join(
-        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
-    config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+        config.DATA.CACHED_PATH, postfix)
     config.DATA.DATA_PATH = args.data_path
     config.INFERENCE.MODEL_PATH = args.model_path
 
