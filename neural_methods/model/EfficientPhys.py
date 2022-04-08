@@ -44,7 +44,7 @@ class TSM(nn.Module):
 class EfficientPhys(nn.Module):
 
     def __init__(self, in_channels=3, nb_filters1=32, nb_filters2=64, kernel_size=3, dropout_rate1=0.25,
-                 dropout_rate2=0.5, pool_size=(2, 2), nb_dense=128, frame_depth=20, img_size=36, channel='Diff'):
+                 dropout_rate2=0.5, pool_size=(2, 2), nb_dense=128, frame_depth=20, img_size=36, channel='raw'):
         super(EfficientPhys, self).__init__()
         self.in_channels = in_channels
         self.kernel_size = kernel_size

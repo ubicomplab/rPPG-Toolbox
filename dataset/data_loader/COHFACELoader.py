@@ -47,7 +47,7 @@ class COHFACELoader(BaseLoader):
         """
         super().__init__(name, data_dirs, config_data)
 
-    def preprocess_dataset(self,config_preprocess):
+    def preprocess_dataset(self, config_preprocess):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
         for i in range(file_num):
@@ -60,8 +60,10 @@ class COHFACELoader(BaseLoader):
                     self.data_dirs[i]["path"],
                     "data.hdf5"))
             bvps = sample(bvps, frames.shape[0])
-            frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
-            self.len += self.save(frames_clips, bvps_clips,self.data_dirs[i]["index"])
+            frames_clips, bvps_clips = self.preprocess(
+                frames, bvps, config_preprocess, False)
+            self.len += self.save(frames_clips, bvps_clips,
+                                  self.data_dirs[i]["index"])
 
     @staticmethod
     def read_video(video_file):
@@ -69,12 +71,17 @@ class COHFACELoader(BaseLoader):
         VidObj = cv2.VideoCapture(video_file)
         VidObj.set(cv2.CAP_PROP_POS_MSEC, 0)
         success, frame = VidObj.read()
+
         frames = list()
+
+        # cv2.imwrite("temp/exemple.png", frame)
         while(success):
             frame = cv2.cvtColor(np.array(frame), cv2.COLOR_BGR2RGB)
             frame = np.asarray(frame)
+            frame[np.isnan(frame)] = 0  # TODO: maybe change into avg
             frames.append(frame)
             success, frame = VidObj.read()
+
         return np.asarray(frames)
 
     @staticmethod
