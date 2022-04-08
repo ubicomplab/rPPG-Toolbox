@@ -43,14 +43,14 @@ class UBFCLoader(BaseLoader):
         for i in range(file_num):
             frames = self.read_video(
                 os.path.join(
-                    self.data_dirs[i],
+                    self.data_dirs[i]['path'],
                     "vid.avi"))
             bvps = self.read_wave(
                 os.path.join(
-                    self.data_dirs[i],
+                    self.data_dirs[i]['path'],
                     "ground_truth.txt"))
             frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
-            self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i])
+            self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i]['index'])
         print(self.len)
 
 

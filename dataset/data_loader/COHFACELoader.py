@@ -47,43 +47,21 @@ class COHFACELoader(BaseLoader):
         """
         super().__init__(name, data_dirs, config_data)
 
-    def __len__(self):
-        """Returns the length of the dataset."""
-        return self.len
-
-    def __getitem__(self, index):
-        """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
-        data = np.load(self.inputs[index])
-        label = np.load(self.labels[index])
-        if self.data_format == 'NDCHW':
-            data = np.transpose(data, (0, 3, 1, 2))
-        elif self.data_format == 'NCDHW':
-            data = np.transpose(data, (3, 0, 1, 2))
-        else:
-            raise ValueError('Unsupported Data Format!')
-        data = np.float32(data)
-        label = np.float32(label)
-        return data, label
-
     def preprocess_dataset(self,config_preprocess):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
         for i in range(file_num):
-            for j in range(4):
-                frames = self.read_video(
-                    os.path.join(
-                        self.data_dirs[i],
-                        str(j),
-                        "data.avi"))
-                bvps = self.read_wave(
-                    os.path.join(
-                        self.data_dirs[i],
-                        str(j),
-                        "data.hdf5"))
-                bvps = sample(bvps, frames.shape[0])
-                frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
-                self.len += self.save(frames_clips, bvps_clips,
-                                      "{0}-{1}".format(self.data_dirs[i], str(j)))
+            frames = self.read_video(
+                os.path.join(
+                    self.data_dirs[i]["path"],
+                    "data.avi"))
+            bvps = self.read_wave(
+                os.path.join(
+                    self.data_dirs[i]["path"],
+                    "data.hdf5"))
+            bvps = sample(bvps, frames.shape[0])
+            frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
+            self.len += self.save(frames_clips, bvps_clips,self.data_dirs[i]["index"])
 
     @staticmethod
     def read_video(video_file):

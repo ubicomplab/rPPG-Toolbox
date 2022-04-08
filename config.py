@@ -19,6 +19,7 @@ _C.BASE = ['']
 # Data settings
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
+_C.DATA.FS = 0
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.DATA_PATH = ''
 # Path to preprocessing data, could be overwritten by command line argument
@@ -32,11 +33,12 @@ _C.DATA.DATA_FORMAT = 'NDCHW'
 # TODO: add other preprocessing configs
 # -----------------------------------------------------------------------------
 _C.DATA.PREPROCESS = CN()
+_C.DATA.PREPROCESS.DO_CHUNK = True
 _C.DATA.PREPROCESS.CROP_FACE = True
 _C.DATA.PREPROCESS.W = 128
 _C.DATA.PREPROCESS.H = 128
 _C.DATA.PREPROCESS.CLIP_LENGTH = 64
-_C.DATA.PREPROCESS.DATA_TYPE = ''
+_C.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.DATA.PREPROCESS.LABEL_TYPE = ''
 
 # -----------------------------------------------------------------------------
@@ -82,6 +84,20 @@ _C.TRAIN.MODEL_FILE_NAME = ''
 # Testing settings
 # -----------------------------------------------------------------------------
 _C.TEST = CN()
+_C.TEST.METRICS = []
+_C.INFERENCE = CN()
+_C.INFERENCE.BATCH_SIZE = 4
+_C.INFERENCE.MODEL_PATH = ''
+
+
+# -----------------------------------------------------------------------------
+# Inference settings
+# -----------------------------------------------------------------------------
+_C.INFERENCE = CN()
+_C.INFERENCE.BATCH_SIZE = 4
+_C.INFERENCE.MODEL_PATH = ''
+
+
 
 # -----------------------------------------------------------------------------
 # Inference settings
@@ -145,6 +161,60 @@ def update_config(config, args):
     config.DATA.CACHED_PATH = os.path.join(
         config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
     config.DATA.DATA_PATH = args.data_path
+
+    config.freeze()
+
+
+def update_evaluate_config(config, args):
+
+    _update_config_from_file(config, args.config_file)
+    config.defrost()
+
+    if args.device:
+        if args.device >= 0:
+            config.DEVICE = "cuda:" + str(args.device)
+        else:
+            config.DEVICE = "cpu"
+    if args.batch_size:
+        config.TRAIN.BATCH_SIZE = args.batch_size
+    if args.cached_path:
+        config.DATA.CACHED_PATH = args.cached_path
+    if args.preprocess:
+        config.DATA.DO_PREPROCESS = args.preprocess
+
+    config.LOG.PATH = os.path.join(
+        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+    config.DATA.CACHED_PATH = os.path.join(
+        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+    config.DATA.DATA_PATH = args.data_path
+    config.INFERENCE.MODEL_PATH = args.model_path
+
+    config.freeze()
+
+
+def update_evaluate_config(config, args):
+
+    _update_config_from_file(config, args.config_file)
+    config.defrost()
+
+    if args.device:
+        if args.device >= 0:
+            config.DEVICE = "cuda:" + str(args.device)
+        else:
+            config.DEVICE = "cpu"
+    if args.batch_size:
+        config.TRAIN.BATCH_SIZE = args.batch_size
+    if args.cached_path:
+        config.DATA.CACHED_PATH = args.cached_path
+    if args.preprocess:
+        config.DATA.DO_PREPROCESS = args.preprocess
+
+    config.LOG.PATH = os.path.join(
+        config.LOG.PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+    config.DATA.CACHED_PATH = os.path.join(
+        config.DATA.CACHED_PATH, "-".join([config.DATA.DATASET, config.MODEL.NAME]))
+    config.DATA.DATA_PATH = args.data_path
+    config.INFERENCE.MODEL_PATH = args.model_path
 
     config.freeze()
 
