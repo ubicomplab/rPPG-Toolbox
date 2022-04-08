@@ -1,12 +1,12 @@
 BASE: ['']
 DATA:
-  CACHED_PATH: preprocessed
+  CACHED_PATH: preprocess
   DATASET: COHFACE
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW
   PREPROCESS :
-    DATA_TYPE : ['Raw']
-    LABEL_TYPE : Raw
+    DATA_TYPE : ['Normalized']
+    LABEL_TYPE : Normalized
     CLIP_LENGTH: 64
     CROP_FACE: True
     H: 128

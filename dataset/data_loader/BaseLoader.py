@@ -57,7 +57,7 @@ class BaseLoader(Dataset):
 
     def __len__(self):
         """Returns the length of the dataset."""
-        return self.len
+        return len(self.inputs)
 
     def __getitem__(self, index):
         """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
@@ -71,7 +71,10 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
-
+        if(np.isnan(data).any()):
+            print(self.inputs[index])
+            print("line76")
+            exit(0)
         return data, label
 
     @staticmethod
@@ -90,7 +93,9 @@ class BaseLoader(Dataset):
             config_preprocess.H,
             config_preprocess.CROP_FACE,
             large_box)
-
+        if(np.isnan(frames).any()):
+            print("line96")
+            exit(0)
         # data_type
         data = list()
         for data_type in config_preprocess.DATA_TYPE:
@@ -113,12 +118,16 @@ class BaseLoader(Dataset):
             bvps = BaseLoader.standardized_data(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
+
         if config_preprocess.DO_CHUNK:
             frames_clips, bvps_clips = BaseLoader.chunk(
                 data, bvps, config_preprocess.CLIP_LENGTH)
         else:
             frames_clips = np.array([data])
             bvps_clips = np.array([bvps])
+        if(np.isnan(frames_clips).any()):
+            print("line137")
+            exit(0)
 
         return frames_clips, bvps_clips
 
@@ -140,10 +149,15 @@ class BaseLoader(Dataset):
             result = face_zone[0]
         if larger_box:
             print("Larger Bounding Box")
-            result[0] = max(0, result[0] - 0.4 * result[2])
-            result[1] = max(0, result[1] - 0.1 * result[2])
-            result[2] = 1.8 * result[2]
-            result[3] = 1.2 * result[3]
+            # result[0] = max(0, result[0] - 0.4 * result[2])
+            # result[1] = max(0, result[1] - 0.1 * result[2])
+            # result[2] = 1.8 * result[2]
+            # result[3] = 1.2 * result[3]
+            # For PURE
+            result[0] = max(0, result[0] - 0.25 * result[2])
+            result[1] = max(0, result[1] - 0.25 * result[2])
+            result[2] = 1.5 * result[2]
+            result[3] = 1.5 * result[3]
         return result
 
     @staticmethod
@@ -166,8 +180,8 @@ class BaseLoader(Dataset):
             resize_frames[i] = cv2.resize(
                 frame, (w, h), interpolation=cv2.INTER_AREA)
         resize_frames = np.float32(resize_frames) / 255
-        frame[frame > 1] = 1
-        frame[frame < 1 / 255] = 1 / 255
+        resize_frames[resize_frames > 1] = 1
+        resize_frames[resize_frames < (1 / 255)] = 1 / 255
         return resize_frames
 
     @staticmethod
@@ -203,7 +217,9 @@ class BaseLoader(Dataset):
     def load(self):
         """Loads the preprocessing data."""
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
-        labels = glob.glob(os.path.join(self.cached_path, "*label*.npy"))
+        print(self.cached_path)
+        labels = [input.replace("input", "label") for input in inputs]
+        print(labels[0])
         assert (len(inputs) == len(labels))
         self.inputs = inputs
         self.labels = labels
@@ -217,15 +233,18 @@ class BaseLoader(Dataset):
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
-                data[j + 1, :, :, :] + data[j, :, :, :])
+                    data[j + 1, :, :, :] + data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
+        normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
 
     @staticmethod
     def diff_normalize_label(label):
         """Difference frames and normalization labels"""
         diff_label = np.diff(label, axis=0)
-        return diff_label / np.std(diff_label)
+        normalized_label = diff_label / np.std(diff_label)
+        normalized_label[np.isnan(normalized_label)] = 0
+        return normalized_label
 
     @staticmethod
     def standardized_data(data):
@@ -233,8 +252,11 @@ class BaseLoader(Dataset):
         # data[data < 1] = 1
         data = data - np.mean(data)
         data = data / np.std(data)
+        data[np.isnan(data)] = 0
         return data
 
     @staticmethod
     def standardized_label(label):
-        return label - np.mean(label) / np.std(label)
+        standardized_label = label - np.mean(label)/np.std(label)
+        standardized_label[np.nan(standardized_label)] = 0
+        return standardized_label

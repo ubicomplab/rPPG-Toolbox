@@ -12,6 +12,7 @@ import json
 import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
 from utils.utils import sample
+import glob
 
 
 class PURELoader(BaseLoader):
@@ -56,12 +57,12 @@ class PURELoader(BaseLoader):
                     "{0}.json".format(filename)))
             bvps = sample(bvps, frames.shape[0])
             # Slow Translation and Fast Translation setups.
-            if (filename[-2:] == "03") or (filename[-2:] == "04"):
-                larger_box = True
-            else:
-                larger_box = False
+            # if (filename[-2:] == "03") or (filename[-2:] == "04"):
+            #     larger_box = True
+            # else:
+            #     larger_box = False
             frames_clips, bvps_clips = self.preprocess(
-                frames, bvps, config_preprocess, larger_box)
+                frames, bvps, config_preprocess, True)
             self.len += self.save(frames_clips, bvps_clips,
                                   self.data_dirs[i]['index'])
 
@@ -69,11 +70,11 @@ class PURELoader(BaseLoader):
     def read_video(video_file):
         """Reads a video file, returns frames(T,H,W,3) """
         frames = list()
-        for _, _, files in os.walk(video_file):
-            for file in files:
-                img = cv2.imread(os.path.join(video_file, file))
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                frames.append(img)
+        all_png = sorted(glob.glob(video_file + '*.png'))
+        for png_path in all_png:
+            img = cv2.imread(png_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            frames.append(img)
         return np.asarray(frames)
 
     @staticmethod
