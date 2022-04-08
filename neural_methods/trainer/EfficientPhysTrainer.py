@@ -2,21 +2,21 @@
 
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
-from neural_methods.model.ts_can import TSCAN
+from neural_methods.model.EfficientPhys import EfficientPhys
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
 import os
 
 
-class TscanTrainer(BaseTrainer):
+class EfficientPhysTrainer(BaseTrainer):
 
     def __init__(self, config, twriter):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
-        self.model = TSCAN(frame_depth=self.frame_depth,
+        self.model = EfficientPhys(frame_depth=self.frame_depth,
                            img_size=config.DATA.PREPROCESS.H).to(self.device)
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.Adam(
@@ -26,7 +26,7 @@ class TscanTrainer(BaseTrainer):
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.twriter = twriter
 
-    def train(self, data_loader, print_freq=100):
+    def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
@@ -49,9 +49,10 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                if idx % print_freq == (print_freq - 1):  # print every 100 mini-batches
+                print(loss.item())
+                if idx % 100 == 99:  # print every 100 mini-batches
                     print(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / print_freq:.3f}')
+                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 # self.twriter.add_scalar("train_loss", scalar_value=float(
