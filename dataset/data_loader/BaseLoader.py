@@ -78,7 +78,7 @@ class BaseLoader(Dataset):
         return data, label
 
     @staticmethod
-    def preprocess(frames, bvps, config_preprocess, large_box):
+    def preprocess(frames, bvps, config_preprocess):
         """Preprocesses a pair of data.
 
         Args:
@@ -91,8 +91,10 @@ class BaseLoader(Dataset):
             frames,
             config_preprocess.W,
             config_preprocess.H,
-            config_preprocess.CROP_FACE,
-            large_box)
+            config_preprocess.LARGE_FACE_BOX,
+            config_preprocess.FACE_DETECT,
+            config_preprocess.CROP_FACE)
+
         if(np.isnan(frames).any()):
             print("line96")
             exit(0)
@@ -161,9 +163,12 @@ class BaseLoader(Dataset):
         return result
 
     @staticmethod
-    def resize(frames, w, h, crop_face=True, larger_box=False):
+    def resize(frames, w, h, larger_box, face_detection, crop_face):
         """Resizes each frame, crops the face area if flag is true."""
-        face_region = BaseLoader.facial_detection(frames[0], larger_box)
+        if face_detection:
+            face_region = BaseLoader.facial_detection(frames[0], larger_box)
+        else:
+            face_region = frames[0]
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]

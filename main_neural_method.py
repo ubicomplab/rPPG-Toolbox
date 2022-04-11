@@ -55,6 +55,16 @@ def get_PURE_data(config):
     return dirs
 
 
+def get_SynProcessed_data(config):
+    """Returns directories for train sets, validation sets and test sets.
+    For the dataset structure, see dataset/dataloader/SyntheticProcessed_dataloader.py """
+    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "*.mat")
+    dirs = list()
+    for data_dir in data_dirs:
+        subject = os.path.split(data_dir)[-1]
+        dirs.append({"index": subject, "path": data_dir})
+    return dirs
+
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
@@ -115,6 +125,9 @@ if __name__ == "__main__":
     elif config.DATA.DATASET == "PURE":
         data_files = get_PURE_data(config)
         loader = data_loader.PURELoader.PURELoader
+    elif config.DATA.DATASET == "SYN_PROCESSED":
+        data_files = get_SynProcessed_data(config)
+        loader = data_loader.SyntheticsProcessedLoader.SyntheticsProcessedLoader
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
@@ -128,7 +141,6 @@ if __name__ == "__main__":
         name="valid",
         data_dirs=data_files[-config.DATA.VALID_SUBJ:],
         config_data=config.DATA)
-
     dataloader = {
         "train": DataLoader(
             dataset=train_data,
