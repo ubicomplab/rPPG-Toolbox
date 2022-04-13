@@ -173,20 +173,18 @@ class BaseLoader(Dataset):
         for i in range(0, frames.shape[0]):
             frame = frames[i]
             if crop_face:
+                print('cropping face!!!')
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
                               max(face_region[0],
                                   0):min(face_region[0] + face_region[2],
                                          frame.shape[1])]
-                # view the cropped area.
-                # cv2.imshow("frame",frame)
-                # cv2.waitKey(0)
             resize_frames[i] = cv2.resize(
                 frame, (w, h), interpolation=cv2.INTER_AREA)
-        resize_frames = np.float32(resize_frames) / 255
-        resize_frames[resize_frames > 1] = 1
-        resize_frames[resize_frames < (1 / 255)] = 1 / 255
+        # resize_frames = np.float32(resize_frames) / 255
+        # resize_frames[resize_frames > 1] = 1
+        # resize_frames[resize_frames < (1 / 255)] = 1 / 255
         return resize_frames
 
     @staticmethod
