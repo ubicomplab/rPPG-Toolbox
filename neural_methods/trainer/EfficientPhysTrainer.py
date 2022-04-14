@@ -11,7 +11,7 @@ import os
 
 class EfficientPhysTrainer(BaseTrainer):
 
-    def __init__(self, config, twriter):
+    def __init__(self, config):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
@@ -24,8 +24,7 @@ class EfficientPhysTrainer(BaseTrainer):
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
-        self.twriter = twriter
-
+   
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
@@ -55,15 +54,7 @@ class EfficientPhysTrainer(BaseTrainer):
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
-                # self.twriter.add_scalar("train_loss", scalar_value=float(
-                #     loss.item()), global_step=round)
-            # Model Validation
             valid_loss = self.validate(data_loader)
-            # self.twriter.add_scalar(
-            #     "valid_loss",
-            #     scalar_value=float(valid_loss),
-            #     global_step=round)
-            # Saving the best model checkpoint based on the validation loss.
             if valid_loss < min_valid_loss:
                 print("Updating the best ckpt")
                 min_valid_loss = valid_loss

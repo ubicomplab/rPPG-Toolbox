@@ -71,21 +71,27 @@ class TSCAN(nn.Module):
         # Motion branch convs
         self.motion_conv1 = nn.Conv2d(self.in_channels, self.nb_filters1, kernel_size=self.kernel_size, padding=(1, 1),
                                       bias=True)
-        self.motion_conv2 = nn.Conv2d(self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
+        self.motion_conv2 = nn.Conv2d(
+            self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
         self.motion_conv3 = nn.Conv2d(self.nb_filters1, self.nb_filters2, kernel_size=self.kernel_size, padding=(1, 1),
                                       bias=True)
-        self.motion_conv4 = nn.Conv2d(self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
+        self.motion_conv4 = nn.Conv2d(
+            self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
         # Apperance branch convs
         self.apperance_conv1 = nn.Conv2d(self.in_channels, self.nb_filters1, kernel_size=self.kernel_size,
                                          padding=(1, 1), bias=True)
-        self.apperance_conv2 = nn.Conv2d(self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
+        self.apperance_conv2 = nn.Conv2d(
+            self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
         self.apperance_conv3 = nn.Conv2d(self.nb_filters1, self.nb_filters2, kernel_size=self.kernel_size,
                                          padding=(1, 1), bias=True)
-        self.apperance_conv4 = nn.Conv2d(self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
+        self.apperance_conv4 = nn.Conv2d(
+            self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
         # Attention layers
-        self.apperance_att_conv1 = nn.Conv2d(self.nb_filters1, 1, kernel_size=1, padding=(0, 0), bias=True)
+        self.apperance_att_conv1 = nn.Conv2d(
+            self.nb_filters1, 1, kernel_size=1, padding=(0, 0), bias=True)
         self.attn_mask_1 = Attention_mask()
-        self.apperance_att_conv2 = nn.Conv2d(self.nb_filters2, 1, kernel_size=1, padding=(0, 0), bias=True)
+        self.apperance_att_conv2 = nn.Conv2d(
+            self.nb_filters2, 1, kernel_size=1, padding=(0, 0), bias=True)
         self.attn_mask_2 = Attention_mask()
         # Avg pooling
         self.avg_pooling_1 = nn.AvgPool2d(self.pool_size)
@@ -175,21 +181,27 @@ class MTTS_CAN(nn.Module):
         # Motion branch convs
         self.motion_conv1 = nn.Conv2d(self.in_channels, self.nb_filters1, kernel_size=self.kernel_size, padding=(1, 1),
                                       bias=True)
-        self.motion_conv2 = nn.Conv2d(self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
+        self.motion_conv2 = nn.Conv2d(
+            self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
         self.motion_conv3 = nn.Conv2d(self.nb_filters1, self.nb_filters2, kernel_size=self.kernel_size, padding=(1, 1),
                                       bias=True)
-        self.motion_conv4 = nn.Conv2d(self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
+        self.motion_conv4 = nn.Conv2d(
+            self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
         # Apperance branch convs
         self.apperance_conv1 = nn.Conv2d(self.in_channels, self.nb_filters1, kernel_size=self.kernel_size,
                                          padding=(1, 1), bias=True)
-        self.apperance_conv2 = nn.Conv2d(self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
+        self.apperance_conv2 = nn.Conv2d(
+            self.nb_filters1, self.nb_filters1, kernel_size=self.kernel_size, bias=True)
         self.apperance_conv3 = nn.Conv2d(self.nb_filters1, self.nb_filters2, kernel_size=self.kernel_size,
                                          padding=(1, 1), bias=True)
-        self.apperance_conv4 = nn.Conv2d(self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
+        self.apperance_conv4 = nn.Conv2d(
+            self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, bias=True)
         # Attention layers
-        self.apperance_att_conv1 = nn.Conv2d(self.nb_filters1, 1, kernel_size=1, padding=(0, 0), bias=True)
+        self.apperance_att_conv1 = nn.Conv2d(
+            self.nb_filters1, 1, kernel_size=1, padding=(0, 0), bias=True)
         self.attn_mask_1 = Attention_mask()
-        self.apperance_att_conv2 = nn.Conv2d(self.nb_filters2, 1, kernel_size=1, padding=(0, 0), bias=True)
+        self.apperance_att_conv2 = nn.Conv2d(
+            self.nb_filters2, 1, kernel_size=1, padding=(0, 0), bias=True)
         self.attn_mask_2 = Attention_mask()
         # Avg pooling
         self.avg_pooling_1 = nn.AvgPool2d(self.pool_size)
