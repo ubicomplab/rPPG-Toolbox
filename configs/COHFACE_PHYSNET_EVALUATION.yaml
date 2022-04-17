@@ -1,7 +1,6 @@
 BASE: ['']
 DATA:
   FS: 20
-  CACHED_PATH: preprocess
   DATASET: COHFACE  
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW
@@ -21,7 +20,6 @@ MODEL:
   PHYSNET:
     FRAME_NUM: 64
 INFERENCE:
-  MODEL_PATH: store_model/physnet.pth
   BATCH_SIZE: 1
 TEST:
   METRICS: ['MAE','RMSE']

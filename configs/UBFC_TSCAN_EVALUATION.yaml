@@ -1,6 +1,6 @@
 BASE: ['']
 DATA:
-  VALID_SUBJ: 5
+  FS: 30
   DATASET: UBFC
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
@@ -9,8 +9,8 @@ DATA:
     LABEL_TYPE : Normalized
     CLIP_LENGTH: 180
     CROP_FACE: True
-    H: 36
-    W: 36
+    H: 72
+    W: 72
 DEVICE: cuda:0
 LOG:
   PATH: runs/exp
@@ -19,9 +19,7 @@ MODEL:
   NAME: Tscan
   TSCAN:
     FRAME_DEPTH: 10
-TRAIN:
-  BATCH_SIZE: 4
-  EPOCHS: 30
-  LR: 0.0001
-  MODEL_FILE_NAME: tscan.pth
-  
+INFERENCE:
+  BATCH_SIZE: 1
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']

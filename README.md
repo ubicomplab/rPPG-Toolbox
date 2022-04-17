@@ -1,3 +1,10 @@
+RUN: 
+
+python main_neural_method.py --data_path /mnt/data0/PURE/RawData --config_file configs/PURE_TSCAN_BASIC.yaml --preprocess
+
+TEST:
+
+python evaluation_neural_method.py --data_path /mnt/data0/UBFC/UBFC --model_path PreTrainedModels/tscan.pth  --config_file configs/UBFC_TSCAN_EVALUATION.yaml --preprocess
 
 # Overview
 
