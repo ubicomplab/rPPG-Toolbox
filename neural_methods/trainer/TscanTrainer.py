@@ -11,7 +11,7 @@ import os
 
 class TscanTrainer(BaseTrainer):
 
-    def __init__(self, config, twriter):
+    def __init__(self, config):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
@@ -24,7 +24,6 @@ class TscanTrainer(BaseTrainer):
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
-        self.twriter = twriter
 
     def train(self, data_loader, print_freq=100):
         """ TODO:Docstring"""
@@ -49,29 +48,24 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                if idx % print_freq == (print_freq - 1):  # print every 100 mini-batches
+                # print every 100 mini-batches
+                if idx % print_freq == (print_freq - 1):
                     print(
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / print_freq:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
-                # self.twriter.add_scalar("train_loss", scalar_value=float(
-                #     loss.item()), global_step=round)
-            # Model Validation
             valid_loss = self.validate(data_loader)
-            # self.twriter.add_scalar(
-            #     "valid_loss",
-            #     scalar_value=float(valid_loss),
-            #     global_step=round)
-            # Saving the best model checkpoint based on the validation loss.
-            if valid_loss < min_valid_loss:
-                print("Updating the best ckpt")
+            if(valid_loss < min_valid_loss) or (valid_loss < 0):
                 min_valid_loss = valid_loss
+                print("update best model")
                 self.save_model()
-            print('valid loss: ', valid_loss)
-            print('min_valid_loss: ', min_valid_loss)
+                print(valid_loss)
 
     def validate(self, data_loader):
         """ Model evaluation on the validation dataset."""
+        if data_loader["valid"] == None:
+            print("No data for valid")
+            return -1
         print(" ====Validating===")
         valid_loss = []
         self.model.eval()
@@ -97,11 +91,11 @@ class TscanTrainer(BaseTrainer):
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
         print(" ====Testing===")
-        test_step = 0
-        test_loss = []
+        predictions = list()
+        labels = list()
         self.model.eval()
         with torch.no_grad():
-            for test_idx, test_batch in enumerate(data_loader["test"]):
+            for _, test_batch in enumerate(data_loader["test"]):
                 data_test, labels_test = test_batch[0].to(
                     self.device), test_batch[1].to(self.device)
                 N, D, C, H, W = data_test.shape
@@ -112,12 +106,9 @@ class TscanTrainer(BaseTrainer):
                 labels_test = labels_test[:(
                     N * D) // self.frame_depth * self.frame_depth]
                 pred_ppg_test = self.model(data_test)
-                loss = self.criterion(pred_ppg_test, labels_test)
-                test_loss.append(loss.item())
-                self.twriter.add_scalar("test_loss", scalar_value=float(
-                    loss), global_step=test_step)
-                test_step += 1
-        return np.mean(test_loss)
+                predictions.append(pred_ppg_test)
+                labels.append(labels_test)
+        return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
 
     def save_model(self):
         if not os.path.exists(self.model_dir):

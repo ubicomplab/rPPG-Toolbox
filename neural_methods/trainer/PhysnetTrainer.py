@@ -23,7 +23,7 @@ import os
 
 class PhysnetTrainer(BaseTrainer):
 
-    def __init__(self, config, twriter):
+    def __init__(self, config):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
@@ -36,7 +36,6 @@ class PhysnetTrainer(BaseTrainer):
         self.epochs = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
-        self.twriter = twriter
         print(self.device)
 
     def train(self, data_loader):
@@ -72,13 +71,16 @@ class PhysnetTrainer(BaseTrainer):
             self.twriter.add_scalar("valid_loss", scalar_value=float(
                 valid_loss), global_step=round)
             # saves the model according to the loss on valid sets.
-            if(valid_loss < min_valid_loss):
+            if(valid_loss < min_valid_loss) or (valid_loss < 0):
                 min_valid_loss = valid_loss
                 print("update best model")
                 self.save_model()
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
+        if data_loader["valid"] == None:
+            print("No data for valid")
+            return -1
         print(" ====validing===")
         valid_loss = []
         self.model.eval()
@@ -115,8 +117,6 @@ class PhysnetTrainer(BaseTrainer):
                 BVP_label = (BVP_label - torch.mean(BVP_label)) / \
                     torch.std(BVP_label)  # normalize
                 loss_ecg = self.loss_model(rPPG, BVP_label)
-                self.twriter.add_scalar("test_loss", scalar_value=float(
-                    loss_ecg), global_step=test_step)
                 test_step += 1
                 print(loss_ecg.item())
                 test_loss.append(test_loss)

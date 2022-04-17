@@ -111,7 +111,7 @@ def calculate_metric_peak_per_video(predictions, labels, signal='pulse', window_
     HR = np.mean(np.array(HR_pred))
     HR0 = np.mean(np.array(HR0_pred))
 
-    return HR0, HR, all_peaks, all_peaks0, pred_signal, label_signal
+    return HR0, HR
 
 
 def calculate_metric_per_video(predictions, labels, signal='pulse', fs=30, bpFlag=True):

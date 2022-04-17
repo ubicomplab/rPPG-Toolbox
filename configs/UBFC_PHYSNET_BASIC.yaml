@@ -1,6 +1,6 @@
 BASE: ['']
 DATA:
-  CACHED_PATH: preprocess
+  VALID_SUBJ: 5
   DATASET: UBFC
   DO_PREPROCESS: False
   DATA_FORMAT: NCDHW
@@ -16,7 +16,6 @@ LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  MODEL_DIR: store_model
   NAME: Physnet
   PHYSNET:
     FRAME_NUM: 64
