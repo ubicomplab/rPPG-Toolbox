@@ -43,43 +43,42 @@ class PhysnetTrainer(BaseTrainer):
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
-        with tqdm(total=self.epochs) as bar:
-            for round in range(self.epochs):
-                logging.debug(f"====training:ROUND{round}====")
-                bar.set_description('This is the {}epoch:'.format(round))
-                tqdm.update(1)
-                train_loss = []
-                self.model.train()
+        for round in tqdm(range(self.epochs)):
+            logging.debug(f"====training:ROUND{round}====")
+            bar.set_description('This is the {}epoch:'.format(round))
+            tqdm.update(1)
+            train_loss = []
+            self.model.train()
                 
-                for i, batch in enumerate(data_loader["train"]):
-                    if(torch.isnan(batch[0]).any()):
-                        logging.debug("data has nan")
-                        logging.debug(i, batch)
-                        exit(0)
-                    rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
-                        Variable(batch[0]).to(torch.float32).to(self.device))
-                    BVP_label = Variable(batch[1]).to(
-                        torch.float32).to(self.device)
-                    rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
-                    BVP_label = (BVP_label - torch.mean(BVP_label)) / \
-                        torch.std(BVP_label)  # normalize
-                    loss_ecg = self.loss_model(rPPG, BVP_label)
-                    loss_ecg.backward()
-                    train_loss.append(loss_ecg.item())
-                    self.optimizer.step()
-                    self.optimizer.zero_grad()
-                    train_loss = np.asarray(train_loss)
-                    self.twriter.add_scalar("train_loss", scalar_value=float(
-                        loss_ecg), global_step=round)
-                    logging.debug(np.mean(train_loss))
-                    valid_loss = self.valid(data_loader)
-                    self.twriter.add_scalar("valid_loss", scalar_value=float(
-                        valid_loss), global_step=round)
-                    # saves the model according to the loss on valid sets.
-                    if(valid_loss < min_valid_loss):
-                        min_valid_loss = valid_loss
-                        logging.debug("update best model")
-                        self.save_model()
+            for i, batch in enumerate(data_loader["train"]):
+                if(torch.isnan(batch[0]).any()):
+                    logging.debug("data has nan")
+                    logging.debug(i, batch)
+                    exit(0)
+                rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
+                    Variable(batch[0]).to(torch.float32).to(self.device))
+                BVP_label = Variable(batch[1]).to(
+                    torch.float32).to(self.device)
+                rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
+                BVP_label = (BVP_label - torch.mean(BVP_label)) / \
+                    torch.std(BVP_label)  # normalize
+                loss_ecg = self.loss_model(rPPG, BVP_label)
+                loss_ecg.backward()
+                train_loss.append(loss_ecg.item())
+                self.optimizer.step()
+                self.optimizer.zero_grad()
+                train_loss = np.asarray(train_loss)
+                self.twriter.add_scalar("train_loss", scalar_value=float(
+                    loss_ecg), global_step=round)
+                logging.debug(np.mean(train_loss))
+                valid_loss = self.valid(data_loader)
+                self.twriter.add_scalar("valid_loss", scalar_value=float(
+                    valid_loss), global_step=round)
+                # saves the model according to the loss on valid sets.
+                if(valid_loss < min_valid_loss):
+                    min_valid_loss = valid_loss
+                    logging.debug("update best model")
+                    self.save_model()
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
