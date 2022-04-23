@@ -7,6 +7,8 @@ from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
 import os
+from tqdm import tqdm
+import logging
 
 
 class TscanTrainer(BaseTrainer):
@@ -28,8 +30,9 @@ class TscanTrainer(BaseTrainer):
     def train(self, data_loader, print_freq=100):
         """ TODO:Docstring"""
         min_valid_loss = 1
-        for epoch in range(self.max_epoch_num):
-            print(f"====Training Epoch: {epoch}====")
+
+        for epoch in tqdm(range(self.max_epoch_num)):
+            logging.debug(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
             train_loss = []
             self.model.train()
@@ -50,23 +53,21 @@ class TscanTrainer(BaseTrainer):
                 running_loss += loss.item()
                 # print every 100 mini-batches
                 if idx % print_freq == (print_freq - 1):
-                    print(
+                    logging.debug(
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / print_freq:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
             valid_loss = self.validate(data_loader)
             if(valid_loss < min_valid_loss) or (valid_loss < 0):
+                logging.debug("Updating the best ckpt")
                 min_valid_loss = valid_loss
-                print("update best model")
                 self.save_model()
-                print(valid_loss)
+            logging.debug('valid loss: ', valid_loss)
+            logging.debug('min_valid_loss: ', min_valid_loss)
 
     def validate(self, data_loader):
         """ Model evaluation on the validation dataset."""
-        if data_loader["valid"] == None:
-            print("No data for valid")
-            return -1
-        print(" ====Validating===")
+        logging.debug(" ====Validating===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
@@ -90,9 +91,9 @@ class TscanTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
-        print(" ====Testing===")
-        predictions = list()
-        labels = list()
+        logging.debug(" ====Testing===")
+        test_step = 0
+        test_loss = []
         self.model.eval()
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader["test"]):
