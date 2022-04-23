@@ -45,8 +45,6 @@ class PhysnetTrainer(BaseTrainer):
         min_valid_loss = 1
         for round in tqdm(range(self.epochs)):
             logging.debug(f"====training:ROUND{round}====")
-            bar.set_description('This is the {}epoch:'.format(round))
-            tqdm.update(1)
             train_loss = []
             self.model.train()
                 
