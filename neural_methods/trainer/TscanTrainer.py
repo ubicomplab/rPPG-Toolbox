@@ -29,13 +29,17 @@ class TscanTrainer(BaseTrainer):
     def train(self, data_loader, print_freq=100):
         """ TODO:Docstring"""
         min_valid_loss = 1
-        for epoch in (range(self.max_epoch_num)):
-            print(f"====Training Epoch: {epoch}====")
+        
+        for epoch in range(self.max_epoch_num):
+            logging.debug(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
             train_loss = []
             self.model.train()
             # Model Training
-            for idx, batch in enumerate(data_loader["train"]):
+            tbar=tqdm(data_loader["train"])
+            tbar.set_description("Train epoch %s" % epoch)
+            for idx, batch in enumerate(tbar):
+                
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
@@ -72,7 +76,9 @@ class TscanTrainer(BaseTrainer):
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            for valid_idx, valid_batch in enumerate(data_loader["valid"]):
+            vbar=tqdm(data_loader["valid"])
+            for valid_idx, valid_batch in enumerate(vbar):
+                vbar.set_description("Validation")
                 data_valid, labels_valid = valid_batch[0].to(
                     self.device), valid_batch[1].to(self.device)
                 N, D, C, H, W = data_valid.shape

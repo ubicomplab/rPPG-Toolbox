@@ -42,12 +42,13 @@ class PhysnetTrainer(BaseTrainer):
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
-        for round in tqdm(range(self.epochs)):
+        for round in range(self.epochs):
             logging.debug(f"====training:ROUND{round}====")
             train_loss = []
             self.model.train()
-
-            for i, batch in enumerate(data_loader["train"]):
+            tbar=tqdm(data_loader["train"])
+            tbar.set_description("Train epoch %s" % round)    
+            for i, batch in enumerate(tbar): 
                 if(torch.isnan(batch[0]).any()):
                     logging.debug("data has nan")
                     logging.debug(i, batch)
@@ -80,7 +81,10 @@ class PhysnetTrainer(BaseTrainer):
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            for valid_i, valid_batch in enumerate(data_loader["valid"]):
+            vbar=tqdm(data_loader["valid"])
+            for valid_i, valid_batch in enumerate(vbar):
+                vbar.set_description("Validation")
+                #vbar.set_description("Valid %s" % valid_i)
                 BVP_label = Variable(valid_batch[1]).to(
                     torch.float32).to(self.device)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
