@@ -76,7 +76,7 @@ class PhysnetTrainer(BaseTrainer):
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
-        logging.debug(" ====validing===")
+        logging.debug(" ====Validing===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
