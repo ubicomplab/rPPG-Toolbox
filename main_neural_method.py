@@ -15,6 +15,7 @@ import time
 import logging
 import re
 import sys
+import tqdm
 from config import get_config
 from torch.utils.data import DataLoader
 from dataset import data_loader
@@ -144,3 +145,5 @@ if __name__ == "__main__":
     else:
         dataloader['valid'] = None
     train(config, dataloader)
+
+

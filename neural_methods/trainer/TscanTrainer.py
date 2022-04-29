@@ -7,6 +7,8 @@ from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
 import os
+from tqdm import tqdm
+import logging
 
 
 class TscanTrainer(BaseTrainer):
@@ -25,16 +27,19 @@ class TscanTrainer(BaseTrainer):
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
 
-    def train(self, data_loader, print_freq=100):
+    def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
-            print(f"====Training Epoch: {epoch}====")
+            logging.debug(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
             train_loss = []
             self.model.train()
             # Model Training
-            for idx, batch in enumerate(data_loader["train"]):
+            tbar=tqdm(data_loader["train"])
+            tbar.set_description("Epoch %s" % epoch)
+            for idx, batch in enumerate(tbar):
+                
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
@@ -48,30 +53,38 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                # print every 100 mini-batches
-                if idx % print_freq == (print_freq - 1):
-                    print(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / print_freq:.3f}')
+                logging.debug(loss.item())
+                if idx % 100 == 99:  # print every 100 mini-batches
+                    logging.debug(
+                            f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
+                # self.twriter.add_scalar("train_loss", scalar_value=float(
+                #     loss.item()), global_step=round)
+            # Model Validation
             valid_loss = self.validate(data_loader)
-            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+            # self.twriter.add_scalar(
+            #     "valid_loss",
+            #     scalar_value=float(valid_loss),
+            #     global_step=round)
+            # Saving the best model checkpoint based on the validation loss.
+            if valid_loss < min_valid_loss:
+                logging.debug("Updating the best ckpt")
                 min_valid_loss = valid_loss
-                print("update best model")
                 self.save_model()
-                print(valid_loss)
+            logging.debug('valid loss: ', valid_loss)
+            logging.debug('min_valid_loss: ', min_valid_loss)
 
     def validate(self, data_loader):
         """ Model evaluation on the validation dataset."""
-        if data_loader["valid"] == None:
-            print("No data for valid")
-            return -1
-        print(" ====Validating===")
+        logging.debug(" ====Validating===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            for valid_idx, valid_batch in enumerate(data_loader["valid"]):
+            vbar=tqdm(data_loader["valid"])
+            for valid_idx, valid_batch in enumerate(vbar):
+                vbar.set_description("Validation")                
                 data_valid, labels_valid = valid_batch[0].to(
                     self.device), valid_batch[1].to(self.device)
                 N, D, C, H, W = data_valid.shape
@@ -90,12 +103,12 @@ class TscanTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
-        print(" ====Testing===")
-        predictions = list()
-        labels = list()
+        logging.debug(" ====Testing===")
+        test_step = 0
+        test_loss = []
         self.model.eval()
         with torch.no_grad():
-            for _, test_batch in enumerate(data_loader["test"]):
+            for test_idx, test_batch in enumerate(data_loader["test"]):
                 data_test, labels_test = test_batch[0].to(
                     self.device), test_batch[1].to(self.device)
                 N, D, C, H, W = data_test.shape
@@ -106,9 +119,12 @@ class TscanTrainer(BaseTrainer):
                 labels_test = labels_test[:(
                     N * D) // self.frame_depth * self.frame_depth]
                 pred_ppg_test = self.model(data_test)
-                predictions.append(pred_ppg_test)
-                labels.append(labels_test)
-        return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
+                loss = self.criterion(pred_ppg_test, labels_test)
+                test_loss.append(loss.item())
+                self.twriter.add_scalar("test_loss", scalar_value=float(
+                    loss), global_step=test_step)
+                test_step += 1
+        return np.mean(test_loss)
 
     def save_model(self):
         if not os.path.exists(self.model_dir):
