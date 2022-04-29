@@ -92,9 +92,6 @@ class BaseLoader(Dataset):
             config_preprocess.H,
             config_preprocess.CROP_FACE,
             large_box)
-        if(np.isnan(frames).any()):
-            print("line96")
-            exit(0)
         # data_type
         data = list()
         for data_type in config_preprocess.DATA_TYPE:

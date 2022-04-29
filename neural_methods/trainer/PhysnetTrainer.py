@@ -19,6 +19,7 @@ from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
 import os
+from tqdm import tqdm
 
 
 class PhysnetTrainer(BaseTrainer):
@@ -27,7 +28,7 @@ class PhysnetTrainer(BaseTrainer):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
-        print(self.device)
+        logging.debug(self.device)
         self.model = PhysNet_padding_Encoder_Decoder_MAX(
             frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
         self.loss_model = Neg_Pearson()
@@ -36,20 +37,21 @@ class PhysnetTrainer(BaseTrainer):
         self.epochs = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
-        print(self.device)
+        logging.debug(self.device)
 
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
         for round in range(self.epochs):
-            print(f"====training:ROUND{round}====")
+            logging.debug(f"====training:ROUND{round}====")
             train_loss = []
             self.model.train()
-
-            for i, batch in enumerate(data_loader["train"]):
+            tbar=tqdm(data_loader["train"])
+            tbar.set_description("Train epoch %s" % round)    
+            for i, batch in enumerate(tbar): 
                 if(torch.isnan(batch[0]).any()):
-                    print("data has nan")
-                    print(i, batch)
+                    logging.debug("data has nan")
+                    logging.debug(i, batch)
                     exit(0)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
                     Variable(batch[0]).to(torch.float32).to(self.device))
@@ -63,30 +65,26 @@ class PhysnetTrainer(BaseTrainer):
                 train_loss.append(loss_ecg.item())
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-            train_loss = np.asarray(train_loss)
-            self.twriter.add_scalar("train_loss", scalar_value=float(
-                loss_ecg), global_step=round)
-            print(np.mean(train_loss))
-            valid_loss = self.valid(data_loader)
-            self.twriter.add_scalar("valid_loss", scalar_value=float(
-                valid_loss), global_step=round)
-            # saves the model according to the loss on valid sets.
-            if(valid_loss < min_valid_loss) or (valid_loss < 0):
-                min_valid_loss = valid_loss
-                print("update best model")
-                self.save_model()
+                train_loss = np.asarray(train_loss)
+                logging.debug(np.mean(train_loss))
+                valid_loss = self.valid(data_loader)
+                # saves the model according to the loss on valid sets.
+                if(valid_loss < min_valid_loss):
+                    min_valid_loss = valid_loss
+                    logging.debug("update best model")
+                    self.save_model()
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
-        if data_loader["valid"] == None:
-            print("No data for valid")
-            return -1
-        print(" ====validing===")
+        logging.debug(" ====Validing===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            for valid_i, valid_batch in enumerate(data_loader["valid"]):
+            vbar=tqdm(data_loader["valid"])
+            for valid_i, valid_batch in enumerate(vbar):
+                vbar.set_description("Validation")
+                #vbar.set_description("Valid %s" % valid_i)
                 BVP_label = Variable(valid_batch[1]).to(
                     torch.float32).to(self.device)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
@@ -98,12 +96,12 @@ class PhysnetTrainer(BaseTrainer):
                 valid_loss.append(loss_ecg.item())
                 valid_step += 1
             valid_loss = np.asarray(valid_loss)
-            print(np.mean(valid_loss))
+            logging.debug(np.mean(valid_loss))
         return np.mean(valid_loss)
 
     def test(self, data_loader):
         """ Runs the model on test sets."""
-        print(" ====testing===")
+        logging.debug(" ====testing===")
         test_step = 0
         test_loss = []
         self.model.eval()
@@ -118,7 +116,7 @@ class PhysnetTrainer(BaseTrainer):
                     torch.std(BVP_label)  # normalize
                 loss_ecg = self.loss_model(rPPG, BVP_label)
                 test_step += 1
-                print(loss_ecg.item())
+                logging.debug(loss_ecg.item())
                 test_loss.append(test_loss)
         return np.mean(test_loss)
 
