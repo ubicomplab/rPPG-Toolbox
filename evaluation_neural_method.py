@@ -21,6 +21,7 @@ from config import get_evaluate_config
 from dataset import data_loader
 from eval.post_process import *
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
+from neural_methods.model.ts_can import TSCAN
 from eval.post_process import *
 
 
@@ -30,7 +31,7 @@ def get_UBFC_data(config):
     data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "subject*")
     dirs = [{"index": re.search(
         'subject(\d+)', data_dir).group(1), "path": data_dir} for data_dir in data_dirs]
-    return dirs[:5]
+    return dirs
 
 
 def get_COHFACE_data(config):
@@ -56,7 +57,7 @@ def get_PURE_data(config):
         if subject[0] == '0':
             subject = subject[1:]
         dirs.append({"index": subject, "path": data_dir})
-    return dirs[:20]
+    return dirs[:2]
 
 
 def add_args(parser):
@@ -83,6 +84,12 @@ def define_Physnet_model(config):
     return model
 
 
+def define_TSCAN_model(config):
+    model = TSCAN(frame_depth=config.MODEL.TSCAN.FRAME_DEPTH,
+                  img_size=config.DATA.PREPROCESS.H)
+    return model
+
+
 def load_model(model, config):
     model.load_state_dict(torch.load(
         config.INFERENCE.MODEL_PATH))
@@ -101,16 +108,17 @@ def read_label(dataset):
 
 def read_hr_label(feed_dict, index):
     dict = feed_dict[index]
+    print(dict['Peak Detection'], dict['FFT'], dict['Sensor'])
     if dict['Preferred'] == 'Peak Detection':
         hr = dict['Peak Detection']
     elif dict['Preferred'] == 'FFT':
         hr = dict['FFT']
     else:
         hr = dict['Peak Detection']
-    return hr
+    return dict['Peak Detection']
 
 
-def predict(model, data_loader, config):
+def physnet_predict(model, data_loader, config):
     """
 
     """
@@ -127,19 +135,50 @@ def predict(model, data_loader, config):
     return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
 
 
+def tscan_predict(model, data_loader, config):
+    """ Model evaluation on the testing dataset."""
+    print(" ====Testing===")
+    predictions = list()
+    labels = list()
+    model.eval()
+    with torch.no_grad():
+        for _, test_batch in enumerate(data_loader):
+            data_test, labels_test = test_batch[0].to(
+                config.DEVICE), test_batch[1].to(config.DEVICE)
+            N, D, C, H, W = data_test.shape
+            data_test = data_test.view(N * D, C, H, W)
+            labels_test = labels_test.view(-1, 1)
+            data_test = data_test[:(
+                N * D) // config.MODEL.TSCAN.FRAME_DEPTH * config.MODEL.TSCAN.FRAME_DEPTH]
+            labels_test = labels_test[:(
+                N * D) // config.MODEL.TSCAN.FRAME_DEPTH * config.MODEL.TSCAN.FRAME_DEPTH]
+            pred_ppg_test = model(data_test)
+            predictions.extend(pred_ppg_test.to("cpu").numpy())
+            labels.extend(labels_test.to("cpu").numpy())
+    return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
+
+
 def calculate_metrics(predictions, labels, config):
-    predict_hr = list()
-    rppg_hr = list()
+    predict_hr_fft = list()
+    rppg_hr_fft = list()
+    rppg_hr_peak = list()
+    predict_hr_peak = list()
     label_hr = list()
     label_dict = read_label(config.DATA.DATASET)
     for i in range(predictions.shape[0]):
-        gt_hr, p_hr = calculate_metric_per_video(
+        gt_hr_fft, p_hr_fft = calculate_metric_per_video(
             predictions[i]['prediction'], labels[i]['prediction'], fs=config.DATA.FS)
-        rppg_hr.append(gt_hr)
-        predict_hr.append(p_hr)
+        print(predictions[i]['prediction'], labels[i]['prediction'])
+        gt_hr_peak, p_hr_peak = calculate_metric_peak_per_video(
+            predictions[i]['prediction'], labels[i]['prediction'], fs=config.DATA.FS)
+        rppg_hr_fft.append(gt_hr_fft)
+        predict_hr_fft.append(p_hr_fft)
+        rppg_hr_peak.append(p_hr_peak)
+        predict_hr_peak.append(gt_hr_peak)
+
         label_hr.append(read_hr_label(label_dict, predictions[i]['index']))
-    predict_hr = np.array(predict_hr)
-    rppg_hr = np.array(rppg_hr)
+    predict_hr = np.array(predict_hr_peak)
+    rppg_hr = np.array(rppg_hr_peak)
     label_hr = np.array(label_hr)
     print("predict_hr:", predict_hr)
     print("label_hr:", label_hr)
@@ -150,11 +189,22 @@ def calculate_metrics(predictions, labels, config):
         elif metric == "RMSE":
             RMSE = np.sqrt(np.mean(np.square(predict_hr - label_hr)))
             print("RMSE:{0}".format(RMSE))
+        elif metric == "MAPE":
+            MAPE = np.mean(np.abs((predict_hr - label_hr)/label_hr))*100
+            print("MAPE:{0}".format(MAPE))
+        elif metric == "Pearson":
+            Pearson = np.corrcoef(predict_hr, label_hr)
+            print("Pearson:{0}".format(Pearson[0][1]))
+        else:
+            raise ValueError("Wrong Test Metric Type")
 
 
 def eval(data_files, loader, config):
-    physnet_model = define_Physnet_model(config)
-    physnet_model = load_model(physnet_model, config)
+    if config.MODEL.NAME == "Physnet":
+        model = define_Physnet_model(config)
+    elif config.MODEL.NAME == "Tscan":
+        model = define_TSCAN_model(config)
+    model = load_model(model, config)
     predictions = list()
     labels = list()
     for file in data_files:
@@ -162,11 +212,10 @@ def eval(data_files, loader, config):
             name="inference{0}".format(file['index']),
             data_dirs=[file],
             config_data=config.DATA)
-        # TODO: add num_works to config
         data_loader = DataLoader(
-            dataset=data, num_workers=2, batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
-        prediction_per_video, label_per_video = predict(
-            physnet_model, data_loader, config)
+            dataset=data, num_workers=2, batch_size=config.INFERENCE.BATCH_SIZE, shuffle=True)
+        prediction_per_video, label_per_video = tscan_predict(
+            model, data_loader, config)
         predictions.append(
             {'prediction': prediction_per_video, 'index': file['index']})
         labels.append({'prediction': label_per_video, 'index': file['index']})

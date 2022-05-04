@@ -7,11 +7,13 @@ from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
 import os
+from tqdm import tqdm
+import logging
 
 
 class TscanTrainer(BaseTrainer):
 
-    def __init__(self, config, twriter):
+    def __init__(self, config):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
@@ -24,18 +26,20 @@ class TscanTrainer(BaseTrainer):
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
-        self.twriter = twriter
 
-    def train(self, data_loader, print_freq=100):
+    def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
-            print(f"====Training Epoch: {epoch}====")
+            logging.debug(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
             train_loss = []
             self.model.train()
             # Model Training
-            for idx, batch in enumerate(data_loader["train"]):
+            tbar=tqdm(data_loader["train"])
+            tbar.set_description("Epoch %s" % epoch)
+            for idx, batch in enumerate(tbar):
+                
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
@@ -49,9 +53,10 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                if idx % print_freq == (print_freq - 1):  # print every 100 mini-batches
-                    print(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / print_freq:.3f}')
+                logging.debug(loss.item())
+                if idx % 100 == 99:  # print every 100 mini-batches
+                    logging.debug(
+                            f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 # self.twriter.add_scalar("train_loss", scalar_value=float(
@@ -64,20 +69,22 @@ class TscanTrainer(BaseTrainer):
             #     global_step=round)
             # Saving the best model checkpoint based on the validation loss.
             if valid_loss < min_valid_loss:
-                print("Updating the best ckpt")
+                logging.debug("Updating the best ckpt")
                 min_valid_loss = valid_loss
                 self.save_model()
-            print('valid loss: ', valid_loss)
-            print('min_valid_loss: ', min_valid_loss)
+            logging.debug('valid loss: ', valid_loss)
+            logging.debug('min_valid_loss: ', min_valid_loss)
 
     def validate(self, data_loader):
         """ Model evaluation on the validation dataset."""
-        print(" ====Validating===")
+        logging.debug(" ====Validating===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            for valid_idx, valid_batch in enumerate(data_loader["valid"]):
+            vbar=tqdm(data_loader["valid"])
+            for valid_idx, valid_batch in enumerate(vbar):
+                vbar.set_description("Validation")                
                 data_valid, labels_valid = valid_batch[0].to(
                     self.device), valid_batch[1].to(self.device)
                 N, D, C, H, W = data_valid.shape
@@ -96,7 +103,7 @@ class TscanTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
-        print(" ====Testing===")
+        logging.debug(" ====Testing===")
         test_step = 0
         test_loss = []
         self.model.eval()

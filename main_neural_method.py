@@ -15,9 +15,9 @@ import time
 import logging
 import re
 import sys
+import tqdm
 from config import get_config
 from torch.utils.data import DataLoader
-from tensorboardX import SummaryWriter
 from dataset import data_loader
 from neural_methods import trainer
 
@@ -84,14 +84,15 @@ def add_args(parser):
     return parser
 
 
-def train(config, writer, data_loader):
+def train(config, data_loader):
     """Trains the model."""
     if config.MODEL.NAME == "Physnet":
-        model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, writer)
+        model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config)
     elif config.MODEL.NAME == "Tscan":
-        model_trainer = trainer.TscanTrainer.TscanTrainer(config, writer)
+        model_trainer = trainer.TscanTrainer.TscanTrainer(config)
     elif config.MODEL.NAME == "EfficientPhys":
-        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, writer)
+        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(
+            config)
 
     model_trainer.train(data_loader)
 
@@ -112,8 +113,6 @@ if __name__ == "__main__":
     # logging.basicConfig(filename=args.log_file, level=args.verbose)
     # logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     # logging.info(config)
-
-    writer = SummaryWriter(config.LOG.PATH)
 
     # loads data
     if config.DATA.DATASET == "COHFACE":
@@ -147,10 +146,20 @@ if __name__ == "__main__":
             num_workers=2,
             batch_size=config.TRAIN.BATCH_SIZE,
             shuffle=True),
-        "valid": DataLoader(
+    }
+
+    if config.DATA.VALID_SUBJ:
+        valid_data = loader(
+            name="valid",
+            data_dirs=data_files[-config.DATA.VALID_SUBJ:],
+            config_data=config.DATA)
+        dataloader["valid"] = DataLoader(
             dataset=valid_data,
             num_workers=2,
             batch_size=config.TRAIN.BATCH_SIZE,
-            shuffle=True),
-    }
-    train(config, writer, dataloader)
+            shuffle=True)
+    else:
+        dataloader['valid'] = None
+    train(config, dataloader)
+
+

@@ -5,5 +5,8 @@ __pycache__/
 preprocess
 preprocessed
 store_model
+store_physnet_model
+PreprocessedData
+PreTrainedModels
 runs
 temp

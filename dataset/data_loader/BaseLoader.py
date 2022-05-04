@@ -2,7 +2,7 @@
 
 Provides a pytorch-style data-loader for end-to-end training pipelines.
 Extend the class to support specific datasets.
-Dataset already supported:UBFC(TODO: add more dataset)
+Dataset already supported:UBFC,PURE and COHFACE
 """
 import numpy as np
 import os
@@ -77,8 +77,8 @@ class BaseLoader(Dataset):
             exit(0)
         return data, label
 
-    @staticmethod
-    def preprocess(frames, bvps, config_preprocess):
+
+    def preprocess(self, frames, bvps, config_preprocess, large_box):
         """Preprocesses a pair of data.
 
         Args:
@@ -87,17 +87,13 @@ class BaseLoader(Dataset):
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
             large_box(bool): Whether to use a large bounding box in face cropping, e.g. in moving situations.
         """
-        frames = BaseLoader.resize(
+        frames = self.resize(
             frames,
             config_preprocess.W,
             config_preprocess.H,
             config_preprocess.LARGE_FACE_BOX,
             config_preprocess.FACE_DETECT,
             config_preprocess.CROP_FACE)
-
-        if(np.isnan(frames).any()):
-            print("line96")
-            exit(0)
         # data_type
         data = list()
         for data_type in config_preprocess.DATA_TYPE:
@@ -122,19 +118,15 @@ class BaseLoader(Dataset):
             raise ValueError("Unsupported label type!")
 
         if config_preprocess.DO_CHUNK:
-            frames_clips, bvps_clips = BaseLoader.chunk(
+            frames_clips, bvps_clips = self.chunk(
                 data, bvps, config_preprocess.CLIP_LENGTH)
         else:
             frames_clips = np.array([data])
             bvps_clips = np.array([bvps])
-        if(np.isnan(frames_clips).any()):
-            print("line137")
-            exit(0)
 
         return frames_clips, bvps_clips
 
-    @staticmethod
-    def facial_detection(frame, larger_box=False):
+    def facial_detection(self, frame, larger_box=False):
         """Conducts face detection on a single frame.
         Sets larger_box=True for larger bounding box, e.g. moving trials."""
         detector = cv2.CascadeClassifier(
@@ -151,19 +143,13 @@ class BaseLoader(Dataset):
             result = face_zone[0]
         if larger_box:
             print("Larger Bounding Box")
-            # result[0] = max(0, result[0] - 0.4 * result[2])
-            # result[1] = max(0, result[1] - 0.1 * result[2])
-            # result[2] = 1.8 * result[2]
-            # result[3] = 1.2 * result[3]
-            # For PURE
             result[0] = max(0, result[0] - 0.25 * result[2])
             result[1] = max(0, result[1] - 0.25 * result[2])
             result[2] = 1.5 * result[2]
             result[3] = 1.5 * result[3]
         return result
 
-    @staticmethod
-    def resize(frames, w, h, larger_box, face_detection, crop_face):
+    def resize(self, frames, w, h, larger_box, face_detection, crop_face):
         """Resizes each frame, crops the face area if flag is true."""
         if face_detection:
             face_region = BaseLoader.facial_detection(frames[0], larger_box)
@@ -187,8 +173,7 @@ class BaseLoader(Dataset):
         # resize_frames[resize_frames < (1 / 255)] = 1 / 255
         return resize_frames
 
-    @staticmethod
-    def chunk(frames, bvps, clip_length):
+    def chunk(self, frames, bvps, clip_length):
         """Chunks the data into clips."""
         # assert (frames.shape[0] == bvps.shape[0])
         clip_num = frames.shape[0] // clip_length
@@ -202,6 +187,7 @@ class BaseLoader(Dataset):
         """Saves the preprocessing data."""
         if (not os.path.exists(self.cached_path)):
             os.makedirs(self.cached_path)
+            print(self.cached_path)
         count = 0
         filename = os.path.split(filename)[-1]
         for i in range(len(bvps_clips)):
@@ -236,7 +222,7 @@ class BaseLoader(Dataset):
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
-                    data[j + 1, :, :, :] + data[j, :, :, :])
+                data[j + 1, :, :, :] + data[j, :, :, :])
         normalized_data = normalized_data / np.std(normalized_data)
         normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
