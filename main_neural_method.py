@@ -130,15 +130,9 @@ if __name__ == "__main__":
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
-
-    print(data_files)
     train_data = loader(
         name="train",
-        data_dirs=data_files[:-config.DATA.VALID_SUBJ],
-        config_data=config.DATA)
-    valid_data = loader(
-        name="valid",
-        data_dirs=data_files[-config.DATA.VALID_SUBJ:],
+        data_dirs=data_files[:-config.DATA.VALID_SUBJ],  ## THIS IS A BUG!!!! If there is not validation dataset.
         config_data=config.DATA)
     dataloader = {
         "train": DataLoader(

@@ -71,14 +71,9 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
-        if(np.isnan(data).any()):
-            print(self.inputs[index])
-            print("line76")
-            exit(0)
         return data, label
 
-
-    def preprocess(self, frames, bvps, config_preprocess, large_box):
+    def preprocess(self, frames, bvps, config_preprocess, large_box=False):
         """Preprocesses a pair of data.
 
         Args:
