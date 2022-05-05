@@ -21,14 +21,14 @@ _C.BASE = ['']
 _C.DATA = CN()
 _C.DATA.FS = 0
 # Path to dataset, could be overwritten by command line argument
-_C.DATA.DATA_PATH = ''
+_C.DATA.TRAIN_DATA_PATH = ''
+_C.DATA.VAL_DATA_PATH = ''
 # Path to preprocessing data, could be overwritten by command line argument
 _C.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
 _C.DATA.DATASET = ''
 _C.DATA.DO_PREPROCESS = False
 _C.DATA.DATA_FORMAT = 'NDCHW'
-_C.DATA.VALID_SUBJ = 0
 # -----------------------------------------------------------------------------
 # Data preprocessing
 # TODO: add other preprocessing configs
@@ -162,7 +162,8 @@ def update_config(config, args):
     config.DATA.CACHED_PATH = os.path.join(
         config.DATA.CACHED_PATH, postfix)
 
-    config.DATA.DATA_PATH = args.data_path
+    config.DATA.TRAIN_DATA_PATH = args.data_path
+    # config.DATA.VAL_DATA_PATH = args.val_data_path
 
     config.freeze()
     return
@@ -193,7 +194,8 @@ def update_evaluate_config(config, args):
         config.LOG.PATH, postfix)
     config.DATA.CACHED_PATH = os.path.join(
         config.DATA.CACHED_PATH, postfix)
-    config.DATA.DATA_PATH = args.data_path
+    config.DATA.TRAIN_DATA_PATH = args.data_path
+    # config.DATA.VAL_DATA_PATH = args.val_data_path
     config.INFERENCE.MODEL_PATH = args.model_path
 
     config.freeze()
