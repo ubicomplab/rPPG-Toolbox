@@ -7,6 +7,8 @@ from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
 import os
+from tqdm import tqdm
+import logging
 
 
 class TscanTrainer(BaseTrainer):
@@ -25,7 +27,7 @@ class TscanTrainer(BaseTrainer):
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
 
-    def train(self, data_loader, print_freq=100):
+    def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
@@ -34,7 +36,10 @@ class TscanTrainer(BaseTrainer):
             train_loss = []
             self.model.train()
             # Model Training
-            for idx, batch in enumerate(data_loader["train"]):
+            tbar=tqdm(data_loader["train"])
+            tbar.set_description("Epoch %s" % epoch)
+            for idx, batch in enumerate(tbar):
+                
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
@@ -48,10 +53,10 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                # print every 100 mini-batches
-                if idx % print_freq == (print_freq - 1):
+                print('train loss: ', loss.item())
+                if idx % 100 == 99:  # print every 100 mini-batches
                     print(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / print_freq:.3f}')
+                            f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
             valid_loss = self.validate(data_loader)
@@ -71,7 +76,9 @@ class TscanTrainer(BaseTrainer):
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            for valid_idx, valid_batch in enumerate(data_loader["valid"]):
+            vbar=tqdm(data_loader["valid"])
+            for valid_idx, valid_batch in enumerate(vbar):
+                vbar.set_description("Validation")                
                 data_valid, labels_valid = valid_batch[0].to(
                     self.device), valid_batch[1].to(self.device)
                 N, D, C, H, W = data_valid.shape

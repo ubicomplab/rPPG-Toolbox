@@ -15,6 +15,7 @@ import time
 import logging
 import re
 import sys
+import tqdm
 from config import get_config
 from torch.utils.data import DataLoader
 from dataset import data_loader
@@ -53,6 +54,16 @@ def get_PURE_data(config):
         dirs.append({"index": subject, "path": data_dir})
     return dirs
 
+
+def get_Synthetics_data(config):
+    """Returns directories for train sets, validation sets and test sets.
+    For the dataset structure, see dataset/dataloader/SyntheticProcessed_dataloader.py """
+    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "*.mat")
+    dirs = list()
+    for data_dir in data_dirs:
+        subject = os.path.split(data_dir)[-1]
+        dirs.append({"index": subject, "path": data_dir})
+    return dirs
 
 def add_args(parser):
     """Adds arguments for parser."""
@@ -113,16 +124,16 @@ if __name__ == "__main__":
     elif config.DATA.DATASET == "PURE":
         data_files = get_PURE_data(config)
         loader = data_loader.PURELoader.PURELoader
+    elif config.DATA.DATASET == "SYNTHETICS":
+        data_files = get_Synthetics_data(config)
+        loader = data_loader.SyntheticsLoader.SyntheticsLoader
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
-
-    print(data_files)
     train_data = loader(
         name="train",
-        data_dirs=data_files[:-config.DATA.VALID_SUBJ],
+        data_dirs=data_files[:-config.DATA.VALID_SUBJ],  ## THIS IS A BUG!!!! If there is not validation dataset.
         config_data=config.DATA)
-
     dataloader = {
         "train": DataLoader(
             dataset=train_data,
@@ -144,3 +155,5 @@ if __name__ == "__main__":
     else:
         dataloader['valid'] = None
     train(config, dataloader)
+
+

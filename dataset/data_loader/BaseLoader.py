@@ -71,13 +71,9 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
-        if(np.isnan(data).any()):
-            print(self.inputs[index])
-            print("line76")
-            exit(0)
         return data, label
 
-    def preprocess(self, frames, bvps, config_preprocess, large_box):
+    def preprocess(self, frames, bvps, config_preprocess, large_box=False):
         """Preprocesses a pair of data.
 
         Args:
@@ -90,11 +86,9 @@ class BaseLoader(Dataset):
             frames,
             config_preprocess.W,
             config_preprocess.H,
-            config_preprocess.CROP_FACE,
-            large_box)
-        if(np.isnan(frames).any()):
-            print("line96")
-            exit(0)
+            config_preprocess.LARGE_FACE_BOX,
+            config_preprocess.FACE_DETECT,
+            config_preprocess.CROP_FACE)
         # data_type
         data = list()
         for data_type in config_preprocess.DATA_TYPE:
@@ -150,27 +144,28 @@ class BaseLoader(Dataset):
             result[3] = 1.5 * result[3]
         return result
 
-    def resize(self, frames, w, h, crop_face=True, larger_box=False):
+    def resize(self, frames, w, h, larger_box, face_detection, crop_face):
         """Resizes each frame, crops the face area if flag is true."""
-        face_region = self.facial_detection(frames[0], larger_box)
+        if face_detection:
+            face_region = BaseLoader.facial_detection(frames[0], larger_box)
+        else:
+            face_region = frames[0]
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]
             if crop_face:
+                print('cropping face!!!')
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
                               max(face_region[0],
                                   0):min(face_region[0] + face_region[2],
                                          frame.shape[1])]
-                # view the cropped area.
-                # cv2.imshow("frame",frame)
-                # cv2.waitKey(0)
             resize_frames[i] = cv2.resize(
                 frame, (w, h), interpolation=cv2.INTER_AREA)
-        resize_frames = np.float32(resize_frames) / 255
-        resize_frames[resize_frames > 1] = 1
-        resize_frames[resize_frames < (1 / 255)] = 1 / 255
+        # resize_frames = np.float32(resize_frames) / 255
+        # resize_frames[resize_frames > 1] = 1
+        # resize_frames[resize_frames < (1 / 255)] = 1 / 255
         return resize_frames
 
     def chunk(self, frames, bvps, clip_length):
