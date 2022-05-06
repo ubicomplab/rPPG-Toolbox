@@ -1,8 +1,9 @@
 BASE: ['']
 DATA:
-  CACHED_PATH: preprocess
+  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/train"
+  VAL_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/val"
   DATASET: SYNTHETICS
-  DO_PREPROCESS: True
+  DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
@@ -13,7 +14,6 @@ DATA:
     FACE_DETECT: False
     H: 36
     W: 36
-  VALID_SUBJ: 3
 DEVICE: cuda:0
 LOG:
   PATH: runs/exp
