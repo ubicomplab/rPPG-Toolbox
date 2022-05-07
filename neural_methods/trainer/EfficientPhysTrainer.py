@@ -35,10 +35,10 @@ class EfficientPhysTrainer(BaseTrainer):
             train_loss = []
             self.model.train()
             # Model Training
-            tbar=tqdm(data_loader["train"])
-            tbar.set_description("Epoch %s" % epoch)
+            tbar=tqdm(data_loader["train"],ncols=80)
+            
             for idx, batch in enumerate(tbar):
-                
+                tbar.set_description("Epoch %s" % epoch)
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
@@ -58,6 +58,7 @@ class EfficientPhysTrainer(BaseTrainer):
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                 running_loss = 0.0
                 train_loss.append(loss.item())
+                tbar.set_postfix(loss=loss.item())
             valid_loss = self.validate(data_loader)
             if valid_loss < min_valid_loss:
                 logging.debug("Updating the best ckpt")
@@ -73,7 +74,7 @@ class EfficientPhysTrainer(BaseTrainer):
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            vbar=tqdm(data_loader["valid"])
+            vbar=tqdm(data_loader["valid"],ncols=80)
             for valid_idx, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")                
                 data_valid, labels_valid = valid_batch[0].to(
@@ -89,6 +90,7 @@ class EfficientPhysTrainer(BaseTrainer):
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
                 valid_step += 1
+                vbar.set_postfix(loss=loss.item())
             valid_loss = np.asarray(valid_loss)
         return np.mean(valid_loss)
 
