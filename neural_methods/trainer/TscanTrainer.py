@@ -39,7 +39,6 @@ class TscanTrainer(BaseTrainer):
             tbar=tqdm(data_loader["train"])
             tbar.set_description("Epoch %s" % epoch)
             for idx, batch in enumerate(tbar):
-                
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape

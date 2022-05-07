@@ -13,6 +13,7 @@ import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
 from utils.utils import sample
 import glob
+import re
 import scipy.io
 import mat73
 
@@ -20,10 +21,10 @@ import mat73
 class SyntheticsLoader(BaseLoader):
     """The data loader for the SyntheticsProcessed dataset."""
 
-    def __init__(self, name, data_dirs, config_data):
+    def __init__(self, name, data_path, config_data):
         """Initializes an Synthetics Processed dataloader.
             Args:
-                data_dirs(list): A list of paths storing raw video and ground truth biosignal in mat files.
+                data_path(string): path of a folder which stores raw video and ground truth biosignal in mat files.
                 Each mat file contains a video sequence of resolution of 72x72 and various ground trugh signal.
                 e.g., dXsub -> raw/normalized data; d_ppg -> pulse signal, d_br -> resp signal
                 -----------------
@@ -36,19 +37,31 @@ class SyntheticsLoader(BaseLoader):
                 name(str): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(name, data_dirs, config_data)
+        super().__init__(name, data_path, config_data)
 
-    def preprocess_dataset(self, config_preprocess):
+    def get_data(self, data_path):
+        """Returns data directories under the path(For COHFACE dataset)."""
+        data_dirs = glob.glob(data_path + os.sep + "*.mat")
+        dirs = list()
+        for data_dir in data_dirs:
+            subject = os.path.split(data_dir)[-1]
+            dirs.append({"index": subject, "path": data_dir})
+        return dirs
+
+    def preprocess_dataset(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""
-        file_num = len(self.data_dirs)
+        print(data_dirs)
+        file_num = len(data_dirs)
         for i in range(file_num):
             # filename = os.path.split(self.data_dirs[i]['path'])[-1]
-            matfile_path = self.data_dirs[i]['path']
+            matfile_path = data_dirs[i]['path']
             print('matfile_path: ', matfile_path)
             frames = self.read_video(matfile_path)
             bvps = self.read_wave(matfile_path)
-            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-            self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i]['index'])
+            frames_clips, bvps_clips = self.preprocess(
+                frames, bvps, config_preprocess)
+            self.len += self.save(frames_clips, bvps_clips,
+                                  data_dirs[i]['index'])
 
     @staticmethod
     def read_video(video_file):

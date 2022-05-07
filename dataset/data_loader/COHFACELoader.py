@@ -7,8 +7,10 @@ http://publications.idiap.ch/index.php/publications/show/3688
 """
 import os
 import cv2
+import glob
 import numpy as np
 import h5py
+import re
 from dataset.data_loader.BaseLoader import BaseLoader
 from utils.utils import sample
 
@@ -16,12 +18,11 @@ from utils.utils import sample
 class COHFACELoader(BaseLoader):
     """The data loader for the COHFACE dataset."""
 
-    def __init__(self, name, data_dirs, config_data):
+    def __init__(self, name, data_path, config_data):
         """Initializes an COHFACE dataloader.
             Args:
-                data_dirs(list): A list of paths storing raw video and bvp data.
-                Each contains 4 one-minute videos for one subject.
-                e.g. [RawData/1,RawData/2,...,RawData/n] for below dataset structure:
+                data_path(str): path of a folder which stores raw video and bvp data.
+                e.g. data_path should be "RawData" for below dataset structure:
                 -----------------
                      RawData/
                      |   |-- 1/
@@ -45,25 +46,36 @@ class COHFACELoader(BaseLoader):
                 name(str): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(name, data_dirs, config_data)
+        super().__init__(name, data_path, config_data)
 
-    def preprocess_dataset(self, config_preprocess):
+    def get_data(self, data_path):
+        """Returns data directories under the path(For COHFACE dataset)."""
+        data_dirs = glob.glob(data_path + os.sep + "*")
+        dirs = list()
+        for data_dir in data_dirs:
+            for i in range(4):
+                subject = os.path.split(data_dir)[-1]
+                dirs.append({"index": '{0}0{1}'.format(subject, i),
+                            "path": os.path.join(data_dir, str(i))})
+        return dirs
+
+    def preprocess_dataset(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""
-        file_num = len(self.data_dirs)
+        file_num = len(data_dirs)
         for i in range(file_num):
             frames = self.read_video(
                 os.path.join(
-                    self.data_dirs[i]["path"],
+                    data_dirs[i]["path"],
                     "data.avi"))
             bvps = self.read_wave(
                 os.path.join(
-                    self.data_dirs[i]["path"],
+                    data_dirs[i]["path"],
                     "data.hdf5"))
             bvps = sample(bvps, frames.shape[0])
             frames_clips, bvps_clips = self.preprocess(
                 frames, bvps, config_preprocess, False)
             self.len += self.save(frames_clips, bvps_clips,
-                                  self.data_dirs[i]["index"])
+                                  data_dirs[i]["index"])
 
     @staticmethod
     def read_video(video_file):

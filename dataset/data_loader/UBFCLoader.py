@@ -6,20 +6,22 @@ S. Bobbia, R. Macwan, Y. Benezeth, A. Mansouri, J. Dubois, "Unsupervised skin ti
 """
 import os
 import cv2
+import glob
 import numpy as np
+import re
 from dataset.data_loader.BaseLoader import BaseLoader
 
 
 class UBFCLoader(BaseLoader):
     """The data loader for the UBFC dataset."""
 
-    def __init__(self, name,data_dirs,config_data):
+    def __init__(self, name, data_path, config_data):
         """Initializes an UBFC dataloader.
             Args:
-                data_dirs(list): A list of paths storing raw video and bvp data.
-                e.g. [UBFC/subject1,UBFC/subject2,...,UBFC/subjectn] for below dataset structure:
+                data_path(str): path of a folder which stores raw video and bvp data.
+                e.g. data_path should be "RawData" for below dataset structure:
                 -----------------
-                     UBFC/
+                     RawData/
                      |   |-- subject1/
                      |       |-- vid.avi
                      |       |-- ground_truth.txt
@@ -34,24 +36,31 @@ class UBFCLoader(BaseLoader):
                 name(string): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(name,data_dirs,config_data)
+        super().__init__(name, data_path, config_data)
 
+    def get_data(self, data_path):
+        """Returns data directories under the path(For UBFC dataset)."""
+        data_dirs = glob.glob(data_path + os.sep + "subject*")
+        dirs = [{"index": re.search(
+            'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
+        return dirs
 
-    def preprocess_dataset(self, config_preprocess):
+    def preprocess_dataset(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""
-        file_num = len(self.data_dirs)
+        file_num = len(data_dirs)
         for i in range(file_num):
             frames = self.read_video(
                 os.path.join(
-                    self.data_dirs[i]['path'],
+                    data_dirs[i]['path'],
                     "vid.avi"))
             bvps = self.read_wave(
                 os.path.join(
-                    self.data_dirs[i]['path'],
+                    data_dirs[i]['path'],
                     "ground_truth.txt"))
-            frames_clips,bvps_clips = self.preprocess(frames,bvps,config_preprocess,False)
-            self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i]['index'])
-
+            frames_clips, bvps_clips = self.preprocess(
+                frames, bvps, config_preprocess, False)
+            self.len += self.save(frames_clips, bvps_clips,
+                                  self.data_dirs[i]['index'])
 
     @staticmethod
     def read_video(video_file):
