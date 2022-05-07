@@ -1,7 +1,6 @@
 BASE: ['']
 DATA:
   TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/train"
-  VAL_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/val"
   DATASET: SYNTHETICS
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW

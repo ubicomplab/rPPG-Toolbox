@@ -46,14 +46,10 @@ class PhysnetTrainer(BaseTrainer):
             logging.debug(f"====training:ROUND{round}====")
             train_loss = []
             self.model.train()
-            tbar=tqdm(data_loader["train"],ncols=80)
-            
-            for i, batch in enumerate(tbar): 
-                tbar.set_description("Train epoch %s" % round)    
-                if(torch.isnan(batch[0]).any()):
-                    logging.debug("data has nan")
-                    logging.debug(i, batch)
-                    exit(0)
+            tbar = tqdm(data_loader["train"], ncols=80)
+
+            for i, batch in enumerate(tbar):
+                tbar.set_description("Train epoch %s" % epoch)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
                     Variable(batch[0]).to(torch.float32).to(self.device))
                 BVP_label = Variable(batch[1]).to(
@@ -66,14 +62,16 @@ class PhysnetTrainer(BaseTrainer):
                 train_loss.append(loss_ecg.item())
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-                train_loss = np.asarray(train_loss)
-                logging.debug(np.mean(train_loss))
-                valid_loss = self.valid(data_loader)
-                # saves the model according to the loss on valid sets.
-                if(valid_loss < min_valid_loss):
-                    min_valid_loss = valid_loss
-                    logging.debug("update best model")
-                    self.save_model()
+                vbar.set_postfix(loss=loss_ecg.item())
+            train_loss = np.asarray(train_loss)
+            logging.debug(np.mean(train_loss))
+
+            valid_loss = self.valid(data_loader)
+            # saves the model according to the loss on valid sets.
+            if(valid_loss < min_valid_loss):
+                min_valid_loss = valid_loss
+                logging.debug("update best model")
+                self.save_model()
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
@@ -82,8 +80,8 @@ class PhysnetTrainer(BaseTrainer):
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            vbar=tqdm(data_loader["valid"],ncols=80)
-            
+            vbar = tqdm(data_loader["valid"], ncols=80)
+
             for valid_i, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")
                 #vbar.set_description("Valid %s" % valid_i)
@@ -97,7 +95,8 @@ class PhysnetTrainer(BaseTrainer):
                 loss_ecg = self.loss_model(rPPG, BVP_label)
                 valid_loss.append(loss_ecg.item())
                 valid_step += 1
-                vbar.set_postfix(loss=loss_ecg)
+                train_loss.append(loss.item())
+                vbar.set_postfix(loss=loss_ecg.item())
             valid_loss = np.asarray(valid_loss.item())
             print(np.mean(valid_loss))
         return np.mean(valid_loss)

@@ -22,7 +22,7 @@ _C.DATA = CN()
 _C.DATA.FS = 0
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.TRAIN_DATA_PATH = ''
-_C.DATA.VAL_DATA_PATH = ''
+_C.DATA.VALID_DATA_PATH = ''
 # Path to preprocessing data, could be overwritten by command line argument
 _C.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
@@ -151,6 +151,10 @@ def update_config(config, args):
         config.MODEL.MODEL_DIR = args.model_dir
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
+    if args.train_data_path:
+        config.DATA.TRAIN_DATA_PATH = args.train_data_path
+    if args.valid_data_path:
+        config.DATA.VALID_DATA_PATH = args.valid_data_path
 
     postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
         str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
@@ -161,9 +165,6 @@ def update_config(config, args):
         config.LOG.PATH, postfix)
     config.DATA.CACHED_PATH = os.path.join(
         config.DATA.CACHED_PATH, postfix)
-
-    config.DATA.TRAIN_DATA_PATH = args.data_path
-    # config.DATA.VAL_DATA_PATH = args.val_data_path
 
     config.freeze()
     return
@@ -185,6 +186,10 @@ def update_evaluate_config(config, args):
         config.DATA.CACHED_PATH = args.cached_path
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
+    if args.train_data_path:
+        config.DATA.TRAIN_DATA_PATH = args.train_data_path
+    if args.valid_data_path:
+        config.DATA.VALID_DATA_PATH = args.valid_data_path
 
     postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
         str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
@@ -194,8 +199,6 @@ def update_evaluate_config(config, args):
         config.LOG.PATH, postfix)
     config.DATA.CACHED_PATH = os.path.join(
         config.DATA.CACHED_PATH, postfix)
-    config.DATA.TRAIN_DATA_PATH = args.data_path
-    # config.DATA.VAL_DATA_PATH = args.val_data_path
     config.INFERENCE.MODEL_PATH = args.model_path
 
     config.freeze()

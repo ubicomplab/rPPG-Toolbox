@@ -27,26 +27,32 @@ class BaseLoader(Dataset):
             "--preprocess", default=None, action='store_true')
         return parser
 
-    def __init__(self, name, data_dirs, config_data):
+    def __init__(self, name, data_path, config_data):
         """Inits dataloader with lists of files.
 
         Args:
             name(str): name of the dataloader.
+            data_path(string): path to the folder containing all data.
             config_data(CfgNode): data settings(ref:config.py).
         """
         self.name = name
-        self.data_dirs = data_dirs
+        self.data_path = data_path
         self.cached_path = os.path.join(config_data.CACHED_PATH, name)
         self.inputs = list()
         self.labels = list()
         self.len = 0
         self.data_format = config_data.DATA_FORMAT
+        data_dirs = self.get_data(self.data_path)
         if config_data.DO_PREPROCESS:
-            self.preprocess_dataset(config_data.PREPROCESS)
+            self.preprocess_dataset(data_dirs, config_data.PREPROCESS)
         else:
             self.load()
 
-    def preprocess_dataset(self, config_preprocess):
+    def get_data(self, data_path):
+        """Returns data directories under the path."""
+        return None
+
+    def preprocess_dataset(self, data_dirs, config_preprocess):
         """Parses and preprocesses all data.
 
         Args:
@@ -147,7 +153,8 @@ class BaseLoader(Dataset):
     def resize(self, frames, w, h, larger_box, face_detection, crop_face):
         """Resizes each frame, crops the face area if flag is true."""
         if face_detection:
-            face_region = BaseLoader.facial_detection(frames[0], larger_box)
+            print(frames.shape)
+            face_region = self.facial_detection(frames[0], larger_box)
         else:
             face_region = frames[0]
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
