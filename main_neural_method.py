@@ -55,6 +55,23 @@ def get_PURE_data(config):
     return dirs
 
 
+def get_Synthetics_data(config):
+    """Returns directories for train sets, validation sets and test sets.
+    For the dataset structure, see dataset/dataloader/SyntheticProcessed_dataloader.py """
+    train_data_dirs = glob.glob(config.DATA.TRAIN_DATA_PATH + os.sep + "*.mat")
+    train_dirs = list()
+    for data_dir in train_data_dirs:
+        subject = os.path.split(data_dir)[-1]
+        train_dirs.append({"index": subject, "path": data_dir})
+
+    val_data_dirs = glob.glob(config.DATA.VAL_DATA_PATH + os.sep + "*.mat")
+    val_dirs = list()
+    for data_dir in val_data_dirs:
+        subject = os.path.split(data_dir)[-1]
+        val_dirs.append({"index": subject, "path": data_dir})
+    data_dict = {"train": train_dirs, "val": val_dirs}
+    return data_dict
+
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
@@ -114,16 +131,16 @@ if __name__ == "__main__":
     elif config.DATA.DATASET == "PURE":
         data_files = get_PURE_data(config)
         loader = data_loader.PURELoader.PURELoader
+    elif config.DATA.DATASET == "SYNTHETICS":
+        data_dict = get_Synthetics_data(config)
+        loader = data_loader.SyntheticsLoader.SyntheticsLoader
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
-
-    print(data_files)
     train_data = loader(
         name="train",
-        data_dirs=data_files[:-config.DATA.VALID_SUBJ],
+        data_dirs=data_dict["train"],
         config_data=config.DATA)
-
     dataloader = {
         "train": DataLoader(
             dataset=train_data,
@@ -132,10 +149,10 @@ if __name__ == "__main__":
             shuffle=True),
     }
 
-    if config.DATA.VALID_SUBJ:
+    if True: # TODO: This requires supporting if users don't want to have validation at all. 
         valid_data = loader(
             name="valid",
-            data_dirs=data_files[-config.DATA.VALID_SUBJ:],
+            data_dirs=data_dict["val"],
             config_data=config.DATA)
         dataloader["valid"] = DataLoader(
             dataset=valid_data,

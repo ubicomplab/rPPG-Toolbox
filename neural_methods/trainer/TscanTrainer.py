@@ -53,7 +53,6 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                #print(loss.item())
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
                             f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
@@ -62,7 +61,6 @@ class TscanTrainer(BaseTrainer):
                 # self.twriter.add_scalar("train_loss", scalar_value=float(
                 #     loss.item()), global_step=round)
                 tbar.set_postfix(loss=loss.item())
-            
             # Model Validation
             valid_loss = self.validate(data_loader)
             # self.twriter.add_scalar(
@@ -86,8 +84,7 @@ class TscanTrainer(BaseTrainer):
         with torch.no_grad():
             vbar=tqdm(data_loader["valid"],ncols=80)            
             for valid_idx, valid_batch in enumerate(vbar):
-                vbar.set_description("Validation")  
-                              
+                vbar.set_description("Validation")                         
                 data_valid, labels_valid = valid_batch[0].to(
                     self.device), valid_batch[1].to(self.device)
                 N, D, C, H, W = data_valid.shape

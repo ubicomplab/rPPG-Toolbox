@@ -30,7 +30,7 @@ class EfficientPhysTrainer(BaseTrainer):
         """ TODO:Docstring"""
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
-            print(f"====Training Epoch: {epoch}====")
+            logging.debug(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
             train_loss = []
             self.model.train()
@@ -52,30 +52,29 @@ class EfficientPhysTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                print(loss.item())
+                logging.debug(loss.item())
                 if idx % 100 == 99:  # print every 100 mini-batches
-                print(
+                logging.debug(
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                 running_loss = 0.0
                 train_loss.append(loss.item())
                 tbar.set_postfix(loss=loss.item())
             valid_loss = self.validate(data_loader)
             if valid_loss < min_valid_loss:
-                print("Updating the best ckpt")
+                logging.debug("Updating the best ckpt")
                 min_valid_loss = valid_loss
                 self.save_model()
-            print('valid loss: ', valid_loss)
-            print('min_valid_loss: ', min_valid_loss)
+            logging.debug('valid loss: ', valid_loss)
+            logging.debug('min_valid_loss: ', min_valid_loss)
 
     def validate(self, data_loader):
         """ Model evaluation on the validation dataset."""
-        print(" ====Validating===")
+        logging.debug(" ====Validating===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
             vbar=tqdm(data_loader["valid"],ncols=80)
-            
             for valid_idx, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")                
                 data_valid, labels_valid = valid_batch[0].to(
@@ -97,7 +96,7 @@ class EfficientPhysTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
-        print(" ====Testing===")
+        logging.debug(" ====Testing===")
         test_step = 0
         test_loss = []
         self.model.eval()
