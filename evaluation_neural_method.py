@@ -60,6 +60,17 @@ def get_PURE_data(config):
     return dirs[:2]
 
 
+def get_Synthetics_data(config):
+    """Returns directories for train sets, validation sets and test sets.
+    For the dataset structure, see dataset/dataloader/SyntheticProcessed_dataloader.py """
+    train_data_dirs = glob.glob(config.DATA.TRAIN_DATA_PATH + os.sep + "*.mat")
+    train_dirs = list()
+    for data_dir in train_data_dirs:
+        subject = os.path.split(data_dir)[-1]
+        train_dirs.append({"index": subject, "path": data_dir})
+    return data_dict
+
+
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,

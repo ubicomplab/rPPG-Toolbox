@@ -41,14 +41,27 @@ class SyntheticsLoader(BaseLoader):
     def preprocess_dataset(self, config_preprocess):
         """Preprocesses the raw data."""
         file_num = len(self.data_dirs)
+        import glob
+        temp_train_path = glob.glob('/gscratch/ubicomp/xliu0/rPPG-Toolbox/PreprocessedData/SYNTHETICS-Tscan-size_w72-size_h72-clip_l180-data_typeNormalizedStandardized-label_typeNormalized/valid/*.npy')
+        temp_train_path = list(set([path.split('/')[-1].split('_')[0] for path in temp_train_path]))
         for i in range(file_num):
-            # filename = os.path.split(self.data_dirs[i]['path'])[-1]
             matfile_path = self.data_dirs[i]['path']
-            print('matfile_path: ', matfile_path)
-            frames = self.read_video(matfile_path)
-            bvps = self.read_wave(matfile_path)
-            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-            self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i]['index'])
+            mat_filename = self.data_dirs[i]['index']
+            if mat_filename in temp_train_path:
+                print('Skipped File: ', mat_filename)
+                continue
+            try:
+                frames = self.read_video(matfile_path)
+                bvps = self.read_wave(matfile_path)
+                frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
+                self.len += self.save(frames_clips, bvps_clips, self.data_dirs[i]['index'])
+                print('Processed matfile_path: ', matfile_path)
+            except Exception as e:
+                print('*******************')
+                print('Broken matfile_path: ', matfile_path)
+                print('*******************')
+                continue
+
 
     @staticmethod
     def read_video(video_file):

@@ -1,7 +1,7 @@
 BASE: ['']
 DATA:
-  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/train"
-  VAL_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/val"
+  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/train"
+  VAL_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/val"
   DATASET: SYNTHETICS
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
@@ -12,8 +12,8 @@ DATA:
     CROP_FACE: False
     LARGE_FACE_BOX: False
     FACE_DETECT: False
-    H: 36
-    W: 36
+    H: 72
+    W: 72
 DEVICE: cuda:0
 LOG:
   PATH: runs/exp

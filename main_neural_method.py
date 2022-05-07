@@ -161,6 +161,6 @@ if __name__ == "__main__":
             shuffle=True)
     else:
         dataloader['valid'] = None
-    train(config, dataloader)
+    # train(config, dataloader)
 
 

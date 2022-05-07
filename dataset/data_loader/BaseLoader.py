@@ -180,7 +180,7 @@ class BaseLoader(Dataset):
 
     def save(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
-        if (not os.path.exists(self.cached_path)):
+        if not os.path.exists(self.cached_path):
             os.makedirs(self.cached_path)
             print(self.cached_path)
         count = 0
