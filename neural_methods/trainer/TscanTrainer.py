@@ -36,9 +36,10 @@ class TscanTrainer(BaseTrainer):
             train_loss = []
             self.model.train()
             # Model Training
-            tbar=tqdm(data_loader["train"])
-            tbar.set_description("Epoch %s" % epoch)
+            tbar = tqdm(data_loader["train"], ncols=80)
+
             for idx, batch in enumerate(tbar):
+                tbar.set_description("Train epoch %s" % epoch)
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
@@ -52,20 +53,20 @@ class TscanTrainer(BaseTrainer):
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
-                print('train loss: ', loss.item())
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
-                            f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
+                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
-            valid_loss = self.validate(data_loader)
+                tbar.set_postfix(loss=loss.item())
+            valid_loss = self.valid(data_loader)
             if(valid_loss < min_valid_loss) or (valid_loss < 0):
                 min_valid_loss = valid_loss
                 print("update best model")
                 self.save_model()
                 print(valid_loss)
 
-    def validate(self, data_loader):
+    def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
         if data_loader["valid"] == None:
             print("No data for valid")
@@ -75,9 +76,9 @@ class TscanTrainer(BaseTrainer):
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            vbar=tqdm(data_loader["valid"])
+            vbar = tqdm(data_loader["valid"], ncols=80)
             for valid_idx, valid_batch in enumerate(vbar):
-                vbar.set_description("Validation")                
+                vbar.set_description("Validation")
                 data_valid, labels_valid = valid_batch[0].to(
                     self.device), valid_batch[1].to(self.device)
                 N, D, C, H, W = data_valid.shape
@@ -91,6 +92,7 @@ class TscanTrainer(BaseTrainer):
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
                 valid_step += 1
+                vbar.set_postfix(loss=loss.item())
             valid_loss = np.asarray(valid_loss)
         return np.mean(valid_loss)
 

@@ -152,7 +152,6 @@ class BaseLoader(Dataset):
 
     def resize(self, frames, w, h, larger_box, face_detection, crop_face):
         """Resizes each frame, crops the face area if flag is true."""
-        print("111")
         if face_detection:
             print(frames.shape)
             face_region = self.facial_detection(frames[0], larger_box)

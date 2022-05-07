@@ -10,6 +10,7 @@ import os
 from tqdm import tqdm
 import logging
 
+
 class EfficientPhysTrainer(BaseTrainer):
 
     def __init__(self, config):
@@ -18,14 +19,14 @@ class EfficientPhysTrainer(BaseTrainer):
         self.device = torch.device(config.DEVICE)
         self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
         self.model = EfficientPhys(frame_depth=self.frame_depth,
-                           img_size=config.DATA.PREPROCESS.H).to(self.device)
+                                   img_size=config.DATA.PREPROCESS.H).to(self.device)
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=config.TRAIN.LR)
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
-   
+
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
@@ -35,10 +36,10 @@ class EfficientPhysTrainer(BaseTrainer):
             train_loss = []
             self.model.train()
             # Model Training
-            tbar=tqdm(data_loader["train"])
-            tbar.set_description("Epoch %s" % epoch)
+            tbar = tqdm(data_loader["train"], ncols=80)
+
             for idx, batch in enumerate(tbar):
-                
+                tbar.set_description("Epoch %s" % epoch)
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
@@ -55,10 +56,11 @@ class EfficientPhysTrainer(BaseTrainer):
                 logging.debug(loss.item())
                 if idx % 100 == 99:  # print every 100 mini-batches
                 logging.debug(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
+                    f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
                 running_loss = 0.0
                 train_loss.append(loss.item())
-            valid_loss = self.validate(data_loader)
+                tbar.set_postfix(loss=loss.item())
+            valid_loss = self.valid(data_loader)
             if valid_loss < min_valid_loss:
                 logging.debug("Updating the best ckpt")
                 min_valid_loss = valid_loss
@@ -66,16 +68,16 @@ class EfficientPhysTrainer(BaseTrainer):
             logging.debug('valid loss: ', valid_loss)
             logging.debug('min_valid_loss: ', min_valid_loss)
 
-    def validate(self, data_loader):
+    def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
         logging.debug(" ====Validating===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
         with torch.no_grad():
-            vbar=tqdm(data_loader["valid"])
+            vbar = tqdm(data_loader["valid"], ncols=80)
             for valid_idx, valid_batch in enumerate(vbar):
-                vbar.set_description("Validation")                
+                vbar.set_description("Validation")
                 data_valid, labels_valid = valid_batch[0].to(
                     self.device), valid_batch[1].to(self.device)
                 N, D, C, H, W = data_valid.shape
@@ -89,6 +91,7 @@ class EfficientPhysTrainer(BaseTrainer):
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
                 valid_step += 1
+                vbar.set_postfix(loss=loss.item())
             valid_loss = np.asarray(valid_loss)
         return np.mean(valid_loss)
 
