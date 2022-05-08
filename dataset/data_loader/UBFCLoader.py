@@ -43,7 +43,7 @@ class UBFCLoader(BaseLoader):
         data_dirs = glob.glob(data_path + os.sep + "subject*")
         dirs = [{"index": re.search(
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
-        return dirs
+        return dirs[:5]
 
     def preprocess_dataset(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""
@@ -60,7 +60,7 @@ class UBFCLoader(BaseLoader):
             frames_clips, bvps_clips = self.preprocess(
                 frames, bvps, config_preprocess, False)
             self.len += self.save(frames_clips, bvps_clips,
-                                  self.data_dirs[i]['index'])
+                                  data_dirs[i]['index'])
 
     @staticmethod
     def read_video(video_file):
