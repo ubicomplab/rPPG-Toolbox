@@ -80,7 +80,6 @@ class BaseLoader(Dataset):
         label = np.float32(label)
         str_index = re.search(
             '(\d+)_', self.inputs[index]).group(0)[:-1]
-        print(index, self.inputs[index], str_index)
         return data, label, str_index
 
     def preprocess(self, frames, bvps, config_preprocess, large_box=False):
