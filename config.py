@@ -23,7 +23,10 @@ _C.DATA.FS = 0
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.TRAIN_DATA_PATH = ''
 _C.DATA.VALID_DATA_PATH = ''
+<<<<<<< HEAD
 _C.DATA.TEST_DATA_PATH = ''
+=======
+>>>>>>> a48e0035e4339a76770b1d7437b2d0c8a866d5d7
 # Path to preprocessing data, could be overwritten by command line argument
 _C.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
