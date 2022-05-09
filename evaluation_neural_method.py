@@ -24,42 +24,6 @@ from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 from neural_methods.model.ts_can import TSCAN
 from eval.post_process import *
 
-
-def get_UBFC_data(config):
-    """Returns directories for train sets, validation sets and test sets.
-    For the dataset structure, see dataset/dataloader/UBFC_dataloader.py """
-    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "subject*")
-    dirs = [{"index": re.search(
-        'subject(\d+)', data_dir).group(1), "path": data_dir} for data_dir in data_dirs]
-    return dirs
-
-
-def get_COHFACE_data(config):
-    """Returns directories for train sets, validation sets and test sets.
-    For the dataset structure, see dataset/dataloader/COHFACE_dataloader.py """
-    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "*")
-    dirs = list()
-    for data_dir in data_dirs:
-        for i in range(4):
-            subject = os.path.split(data_dir)[-1]
-            dirs.append({"index": '{0}0{1}'.format(subject, i),
-                        "path": os.path.join(data_dir, str(i))})
-    return dirs[:5]
-
-
-def get_PURE_data(config):
-    """Returns directories for train sets, validation sets and test sets.
-    For the dataset structure, see dataset/dataloader/PURE_dataloader.py """
-    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "*-*")
-    dirs = list()
-    for data_dir in data_dirs:
-        subject = os.path.split(data_dir)[-1].replace('-', '')
-        if subject[0] == '0':
-            subject = subject[1:]
-        dirs.append({"index": subject, "path": data_dir})
-    return dirs[:2]
-
-
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,

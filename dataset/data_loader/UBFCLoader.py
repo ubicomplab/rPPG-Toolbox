@@ -43,7 +43,7 @@ class UBFCLoader(BaseLoader):
         data_dirs = glob.glob(data_path + os.sep + "subject*")
         dirs = [{"index": re.search(
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
-        return dirs[:5]
+        return dirs
 
     def preprocess_dataset(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""
