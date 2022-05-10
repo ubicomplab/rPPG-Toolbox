@@ -39,7 +39,7 @@ def add_args(parser):
                         type=str, help='The path of the data directory.')
     parser.add_argument('--epochs', default=None, type=int)
     parser.add_argument('--log_level', default="DEBUG", type=str)
-    parser.add_argument('--log_path', default="cmd", type=str)
+    parser.add_argument('--log_path', default="terminal", type=str)
     parser.add_argument('--model_dir', default=None, type=str)
     return parser
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     # configurations.
     config = get_config(args)
     #logging
-    if args.log_path=="cmd":
+    if args.log_path=="terminal":
         if args.log_level=="DEBUG" :
             logging.basicConfig(level=logging.DEBUG)
         elif args.log_level=="INFO":
