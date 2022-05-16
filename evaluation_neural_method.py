@@ -204,6 +204,8 @@ if __name__ == "__main__":
         loader = data_loader.UBFCLoader.UBFCLoader
     elif config.DATA.DATASET == "PURE":
         loader = data_loader.PURELoader.PURELoader
+    elif config.DATA.DATASET == "SYNTHETICS":
+        loader = data_loader.SyntheticsLoader.SyntheticsLoader
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
