@@ -8,6 +8,7 @@ import numpy as np
 import os
 import cv2
 import glob
+import re
 from torch.utils.data import Dataset
 
 
@@ -77,7 +78,9 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
-        return data, label
+        str_index = re.search(
+            '(\d+)_', self.inputs[index]).group(0)[:-1]
+        return data, label, str_index
 
     def preprocess(self, frames, bvps, config_preprocess, large_box=False):
         """Preprocesses a pair of data.
@@ -161,7 +164,7 @@ class BaseLoader(Dataset):
         for i in range(0, frames.shape[0]):
             frame = frames[i]
             if crop_face:
-                print('cropping face!!!')
+                # print('cropping face!!!')
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
@@ -191,7 +194,7 @@ class BaseLoader(Dataset):
             os.makedirs(self.cached_path)
             print(self.cached_path)
         count = 0
-        filename = os.path.split(filename)[-1]
+        print(filename)
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \

@@ -23,6 +23,7 @@ _C.DATA.FS = 0
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.TRAIN_DATA_PATH = ''
 _C.DATA.VALID_DATA_PATH = ''
+_C.DATA.TEST_DATA_PATH = ''
 # Path to preprocessing data, could be overwritten by command line argument
 _C.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
@@ -186,10 +187,8 @@ def update_evaluate_config(config, args):
         config.DATA.CACHED_PATH = args.cached_path
     if args.preprocess:
         config.DATA.DO_PREPROCESS = args.preprocess
-    if args.train_data_path:
-        config.DATA.TRAIN_DATA_PATH = args.train_data_path
-    if args.valid_data_path:
-        config.DATA.VALID_DATA_PATH = args.valid_data_path
+    if args.test_data_path:
+        config.DATA.TEST_DATA_PATH = args.test_data_path
 
     postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
         str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(

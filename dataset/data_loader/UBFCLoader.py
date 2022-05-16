@@ -60,7 +60,7 @@ class UBFCLoader(BaseLoader):
             frames_clips, bvps_clips = self.preprocess(
                 frames, bvps, config_preprocess, False)
             self.len += self.save(frames_clips, bvps_clips,
-                                  self.data_dirs[i]['index'])
+                                  data_dirs[i]['index'])
 
     @staticmethod
     def read_video(video_file):

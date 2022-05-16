@@ -24,42 +24,6 @@ from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 from neural_methods.model.ts_can import TSCAN
 from eval.post_process import *
 
-
-def get_UBFC_data(config):
-    """Returns directories for train sets, validation sets and test sets.
-    For the dataset structure, see dataset/dataloader/UBFC_dataloader.py """
-    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "subject*")
-    dirs = [{"index": re.search(
-        'subject(\d+)', data_dir).group(1), "path": data_dir} for data_dir in data_dirs]
-    return dirs
-
-
-def get_COHFACE_data(config):
-    """Returns directories for train sets, validation sets and test sets.
-    For the dataset structure, see dataset/dataloader/COHFACE_dataloader.py """
-    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "*")
-    dirs = list()
-    for data_dir in data_dirs:
-        for i in range(4):
-            subject = os.path.split(data_dir)[-1]
-            dirs.append({"index": '{0}0{1}'.format(subject, i),
-                        "path": os.path.join(data_dir, str(i))})
-    return dirs[:5]
-
-
-def get_PURE_data(config):
-    """Returns directories for train sets, validation sets and test sets.
-    For the dataset structure, see dataset/dataloader/PURE_dataloader.py """
-    data_dirs = glob.glob(config.DATA.DATA_PATH + os.sep + "*-*")
-    dirs = list()
-    for data_dir in data_dirs:
-        subject = os.path.split(data_dir)[-1].replace('-', '')
-        if subject[0] == '0':
-            subject = subject[1:]
-        dirs.append({"index": subject, "path": data_dir})
-    return dirs[:2]
-
-
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
@@ -72,7 +36,7 @@ def add_args(parser):
     parser.add_argument(
         '--model_path', required=True, type=str)
     parser.add_argument('--batch_size', default=None, type=int)
-    parser.add_argument('--data_path', default="G:\\COHFACE\\RawData", required=False,
+    parser.add_argument('--test_data_path', default=None, required=False,
                         type=str, help='The path of the data directory.')
     parser.add_argument('--log_path', default=None, type=str)
     return parser
@@ -138,11 +102,12 @@ def physnet_predict(model, data_loader, config):
 def tscan_predict(model, data_loader, config):
     """ Model evaluation on the testing dataset."""
     print(" ====Testing===")
-    predictions = list()
-    labels = list()
+    predictions = dict()
+    labels = dict()
     model.eval()
     with torch.no_grad():
         for _, test_batch in enumerate(data_loader):
+            index = test_batch[2][0]
             data_test, labels_test = test_batch[0].to(
                 config.DEVICE), test_batch[1].to(config.DEVICE)
             N, D, C, H, W = data_test.shape
@@ -153,9 +118,13 @@ def tscan_predict(model, data_loader, config):
             labels_test = labels_test[:(
                 N * D) // config.MODEL.TSCAN.FRAME_DEPTH * config.MODEL.TSCAN.FRAME_DEPTH]
             pred_ppg_test = model(data_test)
-            predictions.extend(pred_ppg_test.to("cpu").numpy())
-            labels.extend(labels_test.to("cpu").numpy())
-    return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
+            if index not in predictions.keys():
+                predictions[index] = list()
+                labels[index] = list()
+            predictions[index].extend(pred_ppg_test.to("cpu").numpy())
+            labels[index].extend(labels_test.to("cpu").numpy())
+    # return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
+    return predictions, labels
 
 
 def calculate_metrics(predictions, labels, config):
@@ -165,18 +134,19 @@ def calculate_metrics(predictions, labels, config):
     predict_hr_peak = list()
     label_hr = list()
     label_dict = read_label(config.DATA.DATASET)
-    for i in range(predictions.shape[0]):
+    for index in predictions.keys():
+        prediction = np.reshape(np.array(predictions[index]), (-1))
+        label = np.reshape(np.array(labels[index]), (-1))
         gt_hr_fft, p_hr_fft = calculate_metric_per_video(
-            predictions[i]['prediction'], labels[i]['prediction'], fs=config.DATA.FS)
-        print(predictions[i]['prediction'], labels[i]['prediction'])
+            prediction, label, fs=config.DATA.FS)
+        # print(predictions[i]['prediction'], labels[i]['prediction'])
         gt_hr_peak, p_hr_peak = calculate_metric_peak_per_video(
-            predictions[i]['prediction'], labels[i]['prediction'], fs=config.DATA.FS)
+            prediction, label, fs=config.DATA.FS)
         rppg_hr_fft.append(gt_hr_fft)
         predict_hr_fft.append(p_hr_fft)
         rppg_hr_peak.append(p_hr_peak)
         predict_hr_peak.append(gt_hr_peak)
-
-        label_hr.append(read_hr_label(label_dict, predictions[i]['index']))
+        label_hr.append(read_hr_label(label_dict, index))
     predict_hr = np.array(predict_hr_peak)
     rppg_hr = np.array(rppg_hr_peak)
     label_hr = np.array(label_hr)
@@ -199,27 +169,19 @@ def calculate_metrics(predictions, labels, config):
             raise ValueError("Wrong Test Metric Type")
 
 
-def eval(data_files, loader, config):
+def eval(loader, config):
     if config.MODEL.NAME == "Physnet":
         model = define_Physnet_model(config)
     elif config.MODEL.NAME == "Tscan":
         model = define_TSCAN_model(config)
     model = load_model(model, config)
-    predictions = list()
-    labels = list()
-    for file in data_files:
-        data = loader(
-            name="inference{0}".format(file['index']),
-            data_dirs=[file],
-            config_data=config.DATA)
-        data_loader = DataLoader(
-            dataset=data, num_workers=2, batch_size=config.INFERENCE.BATCH_SIZE, shuffle=True)
-        prediction_per_video, label_per_video = tscan_predict(
-            model, data_loader, config)
-        predictions.append(
-            {'prediction': prediction_per_video, 'index': file['index']})
-        labels.append({'prediction': label_per_video, 'index': file['index']})
-    calculate_metrics(np.array(predictions), np.array(labels), config)
+    data = loader(name="inference",
+                  data_path=config.DATA.TEST_DATA_PATH, config_data=config.DATA)
+    data_loader = DataLoader(
+        dataset=data, num_workers=2, batch_size=config.INFERENCE.BATCH_SIZE, shuffle=False)
+    predictions, labels = tscan_predict(
+        model, data_loader, config)
+    calculate_metrics(predictions, labels, config)
 
 
 if __name__ == "__main__":
@@ -237,15 +199,14 @@ if __name__ == "__main__":
 
     # loads data
     if config.DATA.DATASET == "COHFACE":
-        data_files = get_COHFACE_data(config)
         loader = data_loader.COHFACELoader.COHFACELoader
     elif config.DATA.DATASET == "UBFC":
-        data_files = get_UBFC_data(config)
         loader = data_loader.UBFCLoader.UBFCLoader
     elif config.DATA.DATASET == "PURE":
-        data_files = get_PURE_data(config)
         loader = data_loader.PURELoader.PURELoader
+    elif config.DATA.DATASET == "SYNTHETICS":
+        loader = data_loader.SyntheticsLoader.SyntheticsLoader
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
-    eval(data_files, loader, config)
+    eval(loader, config)
