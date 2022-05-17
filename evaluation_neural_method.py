@@ -81,7 +81,6 @@ def read_hr_label(feed_dict, index):
         hr = dict['Peak Detection']
     return dict['Peak Detection']
 
-
 def physnet_predict(model, data_loader, config):
     """
 
@@ -107,7 +106,8 @@ def tscan_predict(model, data_loader, config):
     model.eval()
     with torch.no_grad():
         for _, test_batch in enumerate(data_loader):
-            index = test_batch[2][0]
+            subj_index = test_batch[2][0]
+            sort_index = int(test_batch[3][0])
             data_test, labels_test = test_batch[0].to(
                 config.DEVICE), test_batch[1].to(config.DEVICE)
             N, D, C, H, W = data_test.shape
@@ -118,13 +118,19 @@ def tscan_predict(model, data_loader, config):
             labels_test = labels_test[:(
                 N * D) // config.MODEL.TSCAN.FRAME_DEPTH * config.MODEL.TSCAN.FRAME_DEPTH]
             pred_ppg_test = model(data_test)
-            if index not in predictions.keys():
-                predictions[index] = list()
-                labels[index] = list()
-            predictions[index].extend(pred_ppg_test.to("cpu").numpy())
-            labels[index].extend(labels_test.to("cpu").numpy())
+            if subj_index not in predictions.keys():
+                predictions[subj_index] = dict()
+                labels[subj_index] = dict()
+            predictions[subj_index][sort_index] = pred_ppg_test
+            labels[subj_index][sort_index] = labels_test
     # return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
     return predictions, labels
+
+def reform_data_from_dict(data):
+    sort_data = sorted(data.items(),key=lambda x:x[0])
+    sort_data = [i[1] for i in sort_data]
+    sort_data = torch.cat(sort_data,dim=0)
+    return np.reshape(sort_data.cpu(),(-1))
 
 
 def calculate_metrics(predictions, labels, config):
@@ -135,8 +141,9 @@ def calculate_metrics(predictions, labels, config):
     label_hr = list()
     label_dict = read_label(config.DATA.DATASET)
     for index in predictions.keys():
-        prediction = np.reshape(np.array(predictions[index]), (-1))
-        label = np.reshape(np.array(labels[index]), (-1))
+        prediction = reform_data_from_dict(predictions[index])
+        print(prediction.shape)
+        label = reform_data_from_dict(labels[index])
         gt_hr_fft, p_hr_fft = calculate_metric_per_video(
             prediction, label, fs=config.DATA.FS)
         # print(predictions[i]['prediction'], labels[i]['prediction'])
