@@ -15,6 +15,8 @@ _C = CN()
 # Base config files
 _C.BASE = ['']
 
+_C.TRAIL_NAME = ''
+
 # -----------------------------------------------------------------------------
 # Data settings
 # -----------------------------------------------------------------------------
@@ -157,16 +159,16 @@ def update_config(config, args):
     if args.valid_data_path:
         config.DATA.VALID_DATA_PATH = args.valid_data_path
 
-    postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
-        str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
-        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format("".join(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+    if config.TRAIL_NAME == '':
+        config.TRAIL_NAME= "_".join([config.DATA.DATASET, config.MODEL.NAME, "SizeW{0}".format(
+        str(config.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)), "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
 
-    print(postfix)
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, postfix)
+        config.LOG.PATH, config.TRAIL_NAME)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, postfix)
-
+        config.DATA.CACHED_PATH, config.TRAIL_NAME)
+    config.MODEL.MODEL_DIR = os.path.join(config.MODEL.MODEL_DIR, config.TRAIL_NAME)
     config.freeze()
     return
 
@@ -189,16 +191,12 @@ def update_evaluate_config(config, args):
         config.DATA.DO_PREPROCESS = args.preprocess
     if args.test_data_path:
         config.DATA.TEST_DATA_PATH = args.test_data_path
-
-    postfix = "-".join([config.DATA.DATASET, config.MODEL.NAME, "size_w{0}".format(
-        str(config.DATA.PREPROCESS.W)), "size_h{0}".format(str(config.DATA.PREPROCESS.W)), "clip_l{0}".format(
-        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "data_type{0}".format("".join(config.DATA.PREPROCESS.DATA_TYPE)), "label_type{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
-    print(postfix)
+    if args.model_path:
+        config.INFERENCE_MODEL_PATH = args.model_path
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, postfix)
+        config.LOG.PATH, config.TRAIL_NAME)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, postfix)
-    config.INFERENCE.MODEL_PATH = args.model_path
+        config.DATA.CACHED_PATH, config.TRAIL_NAME)
 
     config.freeze()
     return

@@ -122,6 +122,6 @@ class EfficientPhysTrainer(BaseTrainer):
 
     def save_model(self):
         if not os.path.exists(self.model_dir):
-            os.mkdir(self.model_dir)
+            os.makedirs(self.model_dir)
         torch.save(self.model.state_dict(), os.path.join(
             self.model_dir, self.model_file_name))
