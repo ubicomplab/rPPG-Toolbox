@@ -49,7 +49,7 @@ class PURELoader(BaseLoader):
         dirs = list()
         for data_dir in data_dirs:
             subject = os.path.split(data_dir)[-1].replace('-', '')
-            dirs.append({"index": subject, "path": data_dir})
+            dirs.append({"index": int(subject), "path": data_dir})
         return dirs
 
     def preprocess_dataset(self, data_dirs, config_preprocess):

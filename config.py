@@ -192,12 +192,21 @@ def update_evaluate_config(config, args):
     if args.test_data_path:
         config.DATA.TEST_DATA_PATH = args.test_data_path
     if args.model_path:
-        config.INFERENCE_MODEL_PATH = args.model_path
+        config.INFERENCE.MODEL_PATH = args.model_path
     config.LOG.PATH = os.path.join(
         config.LOG.PATH, config.TRAIL_NAME)
     config.DATA.CACHED_PATH = os.path.join(
         config.DATA.CACHED_PATH, config.TRAIL_NAME)
 
+    if config.TRAIL_NAME == '':
+        config.TRAIL_NAME= "_".join(["test",config.DATA.DATASET, config.MODEL.NAME, "SizeW{0}".format(
+        str(config.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)), "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+
+    config.LOG.PATH = os.path.join(
+        config.LOG.PATH, config.TRAIL_NAME)
+    config.DATA.CACHED_PATH = os.path.join(
+        config.DATA.CACHED_PATH, config.TRAIL_NAME)
     config.freeze()
     return
 
