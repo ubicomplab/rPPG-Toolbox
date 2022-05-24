@@ -9,8 +9,8 @@ DATA:
     LABEL_TYPE : Normalized
     CLIP_LENGTH: 180
     CROP_FACE: True
-    H: 36
-    W: 36
+    H: 72
+    W: 72
 DEVICE: cuda:0
 LOG:
   PATH: runs/exp

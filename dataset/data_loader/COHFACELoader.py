@@ -55,7 +55,7 @@ class COHFACELoader(BaseLoader):
         for data_dir in data_dirs:
             for i in range(4):
                 subject = os.path.split(data_dir)[-1]
-                dirs.append({"index": '{0}0{1}'.format(subject, i),
+                dirs.append({"index": int('{0}0{1}'.format(subject, i)),
                             "path": os.path.join(data_dir, str(i))})
         return dirs
 
