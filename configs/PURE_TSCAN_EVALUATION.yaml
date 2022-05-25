@@ -4,6 +4,7 @@ DATA:
   DATASET: PURE
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
+  TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -21,5 +22,6 @@ MODEL:
     FRAME_DEPTH: 10
 INFERENCE:
   BATCH_SIZE: 1
+  MODEL_PATH: '/gscratch/ubicomp/xliu0/rPPG-Toolbox/store_model/tscan.pth'
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']

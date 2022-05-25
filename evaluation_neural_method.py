@@ -34,7 +34,7 @@ def add_args(parser):
         type=int,
         help="An integer to specify which gpu to use, -1 for cpu.")
     parser.add_argument(
-        '--model_path', required=True, type=str)
+        '--model_path', required=False, type=str)
     parser.add_argument('--batch_size', default=None, type=int)
     parser.add_argument('--test_data_path', default=None, required=False,
                         type=str, help='The path of the data directory.')
