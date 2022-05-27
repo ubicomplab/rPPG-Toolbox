@@ -162,6 +162,24 @@ def calculate_metrics(predictions, labels, config):
     predict_hr_fft_all = np.array(predict_hr_fft_all)
     gt_hr_peak_all = np.array(gt_hr_peak_all)
     gt_hr_fft_all = np.array(gt_hr_fft_all)
+    label_hr_all_manual = np.array(label_hr)
+    for metric in config.TEST.METRICS:
+        if metric == "MAE":
+            MAE_FFT = np.mean(np.abs(predict_hr_fft_all - label_hr_all_manual))
+            MAE_PEAK = np.mean(np.abs(predict_hr_peak_all - label_hr_all_manual))
+            print("FFT MAE:{0}".format(MAE_FFT))
+            print("Peak MAE:{0}".format(MAE_PEAK))
+
+            MAE_FFT = np.mean(np.abs(predict_hr_fft_all - gt_hr_peak_all))
+            MAE_PEAK = np.mean(np.abs(predict_hr_peak_all - gt_hr_peak_all))
+            print("FFT MAE (Peak Label):{0}".format(MAE_FFT))
+            print("Peak MAE (Peak Label):{0}".format(MAE_PEAK))
+
+            MAE_FFT = np.mean(np.abs(predict_hr_fft_all - gt_hr_fft_all))
+            MAE_PEAK = np.mean(np.abs(predict_hr_peak_all - gt_hr_fft_all))
+            print("FFT MAE (FFT Label):{0}".format(MAE_FFT))
+            print("Peak MAE (FFT Label):{0}".format(MAE_PEAK))
+
     label_hr_all = gt_hr_fft_all #np.array(label_hr)
     for metric in config.TEST.METRICS:
         if metric == "MAE":
@@ -174,16 +192,49 @@ def calculate_metrics(predictions, labels, config):
             RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - label_hr_all)))
             print("FFT RMSE:{0}".format(RMSE_FFT))
             print("PEAK RMSE:{0}".format(RMSE_PEAK))
+
+            RMSE_FFT = np.sqrt(np.mean(np.square(predict_hr_fft_all - gt_hr_peak_all)))
+            RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - gt_hr_peak_all)))
+            print("FFT RMSE (Peak Label):{0}".format(RMSE_FFT))
+            print("PEAK RMSE (Peak Label):{0}".format(RMSE_PEAK))
+
+            RMSE_FFT = np.sqrt(np.mean(np.square(predict_hr_fft_all - gt_hr_fft_all)))
+            RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - gt_hr_fft_all)))
+            print("FFT RMSE (FFT Label):{0}".format(RMSE_FFT))
+            print("PEAK RMSE (FFT Label):{0}".format(RMSE_PEAK))
+
         elif metric == "MAPE":
             MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all) / label_hr_all)) * 100
             MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / label_hr_all)) * 100
             print("FFT MAPE:{0}".format(MAPE_FFT))
             print("PEAK MAPE:{0}".format(MAPE_PEAK))
+            
+            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all) / gt_hr_peak_all)) * 100
+            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / gt_hr_peak_all)) * 100
+            print("FFT MAPE (Peak Label):{0}".format(MAPE_FFT))
+            print("PEAK MAPE (Peak Label):{0}".format(MAPE_PEAK))
+
+            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all) / gt_hr_fft_all)) * 100
+            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / gt_hr_fft_all)) * 100
+            print("FFT MAPE (FFT Label):{0}".format(MAPE_FFT))
+            print("PEAK MAPE (FFT Label):{0}".format(MAPE_PEAK))
+            
         elif metric == "Pearson":
             Pearson_FFT = np.corrcoef(predict_hr_fft_all, label_hr_all)
             Pearson_PEAK = np.corrcoef(predict_hr_peak_all, label_hr_all)
             print("FFT Pearson:{0}".format(Pearson_FFT[0][1]))
             print("PEAK Pearson:{0}".format(Pearson_PEAK[0][1]))
+
+            Pearson_FFT = np.corrcoef(predict_hr_fft_all, gt_hr_peak_all)
+            Pearson_PEAK = np.corrcoef(predict_hr_peak_all, gt_hr_peak_all)
+            print("FFT Pearson (Peak Label):{0}".format(Pearson_FFT[0][1]))
+            print("PEAK Pearson  (Peak Label):{0}".format(Pearson_PEAK[0][1]))
+
+            Pearson_FFT = np.corrcoef(predict_hr_fft_all, gt_hr_fft_all)
+            Pearson_PEAK = np.corrcoef(predict_hr_peak_all, gt_hr_fft_all)
+            print("FFT Pearson (FFT Label):{0}".format(Pearson_FFT[0][1]))
+            print("PEAK Pearson (FFT Label):{0}".format(Pearson_PEAK[0][1]))
+
         else:
             raise ValueError("Wrong Test Metric Type")
 
