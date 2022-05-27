@@ -180,6 +180,13 @@ def calculate_metrics(predictions, labels, config):
             print("FFT MAE (FFT Label):{0}".format(MAE_FFT))
             print("Peak MAE (FFT Label):{0}".format(MAE_PEAK))
 
+    label_hr_all = gt_hr_fft_all #np.array(label_hr)
+    for metric in config.TEST.METRICS:
+        if metric == "MAE":
+            MAE_FFT = np.mean(np.abs(predict_hr_fft_all - label_hr_all))
+            MAE_PEAK = np.mean(np.abs(predict_hr_peak_all - label_hr_all))
+            print("FFT MAE:{0}".format(MAE_FFT))
+            print("Peak MAE:{0}".format(MAE_PEAK))
         elif metric == "RMSE":
             RMSE_FFT = np.sqrt(np.mean(np.square(predict_hr_fft_all - label_hr_all)))
             RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - label_hr_all)))
@@ -201,7 +208,7 @@ def calculate_metrics(predictions, labels, config):
             MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / label_hr_all)) * 100
             print("FFT MAPE:{0}".format(MAPE_FFT))
             print("PEAK MAPE:{0}".format(MAPE_PEAK))
-
+            
             MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all) / gt_hr_peak_all)) * 100
             MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / gt_hr_peak_all)) * 100
             print("FFT MAPE (Peak Label):{0}".format(MAPE_FFT))
@@ -211,7 +218,7 @@ def calculate_metrics(predictions, labels, config):
             MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / gt_hr_fft_all)) * 100
             print("FFT MAPE (FFT Label):{0}".format(MAPE_FFT))
             print("PEAK MAPE (FFT Label):{0}".format(MAPE_PEAK))
-
+            
         elif metric == "Pearson":
             Pearson_FFT = np.corrcoef(predict_hr_fft_all, label_hr_all)
             Pearson_PEAK = np.corrcoef(predict_hr_peak_all, label_hr_all)
