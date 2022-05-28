@@ -23,7 +23,7 @@ from eval.post_process import *
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 from neural_methods.model.ts_can import TSCAN
 from eval.post_process import *
-
+from collections import OrderedDict
 
 def add_args(parser):
     """Adds arguments for parser."""
@@ -56,10 +56,17 @@ def define_TSCAN_model(config):
 
 
 def load_model(model, config):
-    model.load_state_dict(torch.load(
-        config.INFERENCE.MODEL_PATH))
+    if config.NUM_OF_GPU_TRAIN > 1:
+        checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
+        state_dict = checkpoint
+        new_state_dict = OrderedDict()
+        for k, v in state_dict.items():
+            name = k[7:]  # remove 'module.' of dataparallel
+            new_state_dict[name] = v
+        model.load_state_dict(new_state_dict)
+    else:
+        model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
     model = model.to(config.DEVICE)
-
     return model
 
 
@@ -72,6 +79,9 @@ def read_label(dataset):
 
 
 def read_hr_label(feed_dict, index):
+    # For UBFC only
+    if index[:7] == 'subject':
+        index = index[7:]
     video_dict = feed_dict[index]
     if video_dict['Preferred'] == 'Peak Detection':
         hr = video_dict['Peak Detection']
@@ -181,8 +191,8 @@ def calculate_metrics(predictions, labels, config):
             print("Peak MAE (FFT Label):{0}".format(MAE_PEAK))
 
         elif metric == "RMSE":
-            RMSE_FFT = np.sqrt(np.mean(np.square(predict_hr_fft_all - label_hr_all)))
-            RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - label_hr_all)))
+            RMSE_FFT = np.sqrt(np.mean(np.square(predict_hr_fft_all - label_hr_all_manual)))
+            RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - label_hr_all_manual)))
             print("FFT RMSE:{0}".format(RMSE_FFT))
             print("PEAK RMSE:{0}".format(RMSE_PEAK))
 
@@ -197,24 +207,24 @@ def calculate_metrics(predictions, labels, config):
             print("PEAK RMSE (FFT Label):{0}".format(RMSE_PEAK))
 
         elif metric == "MAPE":
-            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all) / label_hr_all)) * 100
-            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / label_hr_all)) * 100
+            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all_manual) / label_hr_all_manual)) * 100
+            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all_manual) / label_hr_all_manual)) * 100
             print("FFT MAPE:{0}".format(MAPE_FFT))
             print("PEAK MAPE:{0}".format(MAPE_PEAK))
 
-            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all) / gt_hr_peak_all)) * 100
-            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / gt_hr_peak_all)) * 100
+            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - gt_hr_peak_all) / gt_hr_peak_all)) * 100
+            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - gt_hr_peak_all) / gt_hr_peak_all)) * 100
             print("FFT MAPE (Peak Label):{0}".format(MAPE_FFT))
             print("PEAK MAPE (Peak Label):{0}".format(MAPE_PEAK))
 
-            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - label_hr_all) / gt_hr_fft_all)) * 100
-            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - label_hr_all) / gt_hr_fft_all)) * 100
+            MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - gt_hr_fft_all) / gt_hr_fft_all)) * 100
+            MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - gt_hr_fft_all) / gt_hr_fft_all)) * 100
             print("FFT MAPE (FFT Label):{0}".format(MAPE_FFT))
             print("PEAK MAPE (FFT Label):{0}".format(MAPE_PEAK))
 
         elif metric == "Pearson":
-            Pearson_FFT = np.corrcoef(predict_hr_fft_all, label_hr_all)
-            Pearson_PEAK = np.corrcoef(predict_hr_peak_all, label_hr_all)
+            Pearson_FFT = np.corrcoef(predict_hr_fft_all, label_hr_all_manual)
+            Pearson_PEAK = np.corrcoef(predict_hr_peak_all, label_hr_all_manual)
             print("FFT Pearson:{0}".format(Pearson_FFT[0][1]))
             print("PEAK Pearson:{0}".format(Pearson_PEAK[0][1]))
 

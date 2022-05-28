@@ -78,9 +78,12 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
-        str_index = re.search(
-            '(\d+)_input(\d+)', self.inputs[index])
-        return data, label, str_index.group(1),str_index.group(2)
+        item_path = self.inputs[index]
+        item_path_filename = item_path.split('/')[-1]
+        split_idx = item_path_filename.index('_')
+        filename = item_path_filename[:split_idx]
+        chunk_id = item_path_filename[split_idx+6:].split('.')[0]
+        return data, label, filename, chunk_id
 
     def preprocess(self, frames, bvps, config_preprocess, large_box=False):
         """Preprocesses a pair of data.

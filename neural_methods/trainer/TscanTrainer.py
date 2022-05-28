@@ -20,12 +20,14 @@ class TscanTrainer(BaseTrainer):
         self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
         self.model = TSCAN(frame_depth=self.frame_depth,
                            img_size=config.DATA.PREPROCESS.H).to(self.device)
+        self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=config.TRAIN.LR)
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
+        self.batch_size = config.TRAIN.BATCH_SIZE
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -37,7 +39,6 @@ class TscanTrainer(BaseTrainer):
             self.model.train()
             # Model Training
             tbar = tqdm(data_loader["train"], ncols=80)
-
             for idx, batch in enumerate(tbar):
                 tbar.set_description("Train epoch %s" % epoch)
                 data, labels = batch[0].to(
@@ -55,7 +56,7 @@ class TscanTrainer(BaseTrainer):
                 running_loss += loss.item()
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 2000:.3f}')
+                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 tbar.set_postfix(loss=loss.item())

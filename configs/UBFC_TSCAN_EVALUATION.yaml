@@ -13,15 +13,16 @@ DATA:
     H: 72
     W: 72
 DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 2
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
   NAME: Tscan
   TSCAN:
-    FRAME_DEPTH: 10
+    FRAME_DEPTH: 20
 INFERENCE:
   BATCH_SIZE: 1
-  MODEL_PATH: '/gscratch/ubicomp/xliu0/rPPG-Toolbox/store_model/tscan.pth'
+  MODEL_PATH: './PreTrainedModels/SYNTHETICS_Tscan_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/tscan_synthetics.pth'
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
