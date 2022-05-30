@@ -2,9 +2,10 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: UBFC
-  DO_PREPROCESS: False
+  DO_PREPROCESS: True
   DATA_FORMAT: NDCHW
   TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"
+  PROCESSED_DATA_PATH: "./PreTrainedModels/UBFC_72x72"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -23,6 +24,6 @@ MODEL:
     FRAME_DEPTH: 20
 INFERENCE:
   BATCH_SIZE: 1
-  MODEL_PATH: './PreTrainedModels/SYNTHETICS_Tscan_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/tscan_synthetics.pth'
+  MODEL_PATH: './PreTrainedModels/SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/tscan_synthetics.pth'
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']

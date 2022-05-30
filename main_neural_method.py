@@ -51,9 +51,11 @@ def train(config, data_loader):
     elif config.MODEL.NAME == "Tscan":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config)
     elif config.MODEL.NAME == "EfficientPhys":
-        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(
-            config)
-
+        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config)
+    elif config.MODEL.NAME == 'DeepPhys':
+        model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config)
+    else:
+        raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.train(data_loader)
 
 
@@ -67,29 +69,29 @@ if __name__ == "__main__":
 
     # configurations.
     config = get_config(args)
-    #logging
-    if args.log_path=="terminal":
-        if args.log_level=="DEBUG" :
+    # logging
+    if args.log_path == "terminal":
+        if args.log_level == "DEBUG":
             logging.basicConfig(level=logging.DEBUG)
-        elif args.log_level=="INFO":
+        elif args.log_level == "INFO":
             logging.basicConfig(level=logging.INFO)
-        elif args.log_level=="WARNING":
+        elif args.log_level == "WARNING":
             logging.basicConfig(level=logging.WARNING)
-        elif args.log_level=="ERROR":
+        elif args.log_level == "ERROR":
             logging.basicConfig(level=logging.ERROR)
-        elif args.log_level=="CRITICAL":
+        elif args.log_level == "CRITICAL":
             logging.basicConfig(level=logging.CRITICAL)
     else:
-        if args.log_level=="DEBUG" :
-            logging.basicConfig(level=logging.DUBUG,filemode='w',filename=args.log_path)
-        elif args.log_level=="INFO":
-            logging.basicConfig(level=logging.INFO,filemode='w',filename=args.log_path)
-        elif args.log_level=="WARNING":
-            logging.basicConfig(level=logging.WARNING,filemode='w',filename=args.log_path)
-        elif args.log_level=="ERROR":
-            logging.basicConfig(level=logging.ERROR,filemode='w',filename=args.log_path)
-        elif args.log_level=="CRITICAL":
-            logging.basicConfig(level=logging.CRITICAL,filemode='w',filename=args.log_path)
+        if args.log_level == "DEBUG":
+            logging.basicConfig(level=logging.DUBUG, filemode='w', filename=args.log_path)
+        elif args.log_level == "INFO":
+            logging.basicConfig(level=logging.INFO, filemode='w', filename=args.log_path)
+        elif args.log_level == "WARNING":
+            logging.basicConfig(level=logging.WARNING, filemode='w', filename=args.log_path)
+        elif args.log_level == "ERROR":
+            logging.basicConfig(level=logging.ERROR, filemode='w', filename=args.log_path)
+        elif args.log_level == "CRITICAL":
+            logging.basicConfig(level=logging.CRITICAL, filemode='w', filename=args.log_path)
     # loads data
     if config.DATA.DATASET == "COHFACE":
         loader = data_loader.COHFACELoader.COHFACELoader

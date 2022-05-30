@@ -68,10 +68,10 @@ class TscanTrainer(BaseTrainer):
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
-        if data_loader["valid"] == None:
+        if data_loader["valid"] is None:
             print("No data for valid")
             return -1
-        print(" ====Validating===")
+        print("===Validating===")
         valid_loss = []
         self.model.eval()
         valid_step = 0
@@ -98,7 +98,7 @@ class TscanTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
-        print(" ====Testing===")
+        print("===Testing===")
         predictions = list()
         labels = list()
         self.model.eval()

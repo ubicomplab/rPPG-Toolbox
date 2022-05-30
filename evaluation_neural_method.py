@@ -5,7 +5,7 @@ An evaluation pipleine for neural network methods, including model loading, infe
   Typical usage example:
 
   python evaluation_neural_method.py --data_path /mnt/data0/COHFACE/RawData --model_path store_model/physnet.pth --preprocess
-  You should edit predict (model,data_loader,config) and add functions for definition,e.g, define_Physnet_model to support your models.
+  You should edit predict (model,data_loader,config) and add functions for definition,e.g, define_physnet_model to support your models.
 """
 
 import argparse
@@ -21,7 +21,8 @@ from config import get_evaluate_config
 from dataset import data_loader
 from eval.post_process import *
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
-from neural_methods.model.ts_can import TSCAN
+from neural_methods.model.TS_CAN import TSCAN
+from neural_methods.model.DeepPhys import DeepPhys
 from eval.post_process import *
 from collections import OrderedDict
 
@@ -43,18 +44,6 @@ def add_args(parser):
     return parser
 
 
-def define_Physnet_model(config):
-    model = PhysNet_padding_Encoder_Decoder_MAX(
-        frames=config.MODEL.PHYSNET.FRAME_NUM).to(config.DEVICE)  # [3, T, 128,128]
-    return model
-
-
-def define_TSCAN_model(config):
-    model = TSCAN(frame_depth=config.MODEL.TSCAN.FRAME_DEPTH,
-                  img_size=config.DATA.PREPROCESS.H)
-    return model
-
-
 def load_model(model, config):
     if config.NUM_OF_GPU_TRAIN > 1:
         checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
@@ -68,6 +57,22 @@ def load_model(model, config):
         model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
     model = model.to(config.DEVICE)
     return model
+
+
+def define_physnet_model(config):
+    model = PhysNet_padding_Encoder_Decoder_MAX(
+        frames=config.MODEL.PHYSNET.FRAME_NUM).to(config.DEVICE)  # [3, T, 128,128]
+    return load_model(model, config)
+
+
+def define_tscan_model(config):
+    model = TSCAN(frame_depth=config.MODEL.TSCAN.FRAME_DEPTH, img_size=config.DATA.PREPROCESS.H)
+    return load_model(model, config)
+
+
+def define_deepphys_model(config):
+    model = DeepPhys(img_size=config.DATA.PREPROCESS.H)
+    return load_model(model, config)
 
 
 def read_label(dataset):
@@ -136,6 +141,34 @@ def tscan_predict(model, data_loader, config):
             labels[subj_index][sort_index] = labels_test
     # return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
     return predictions, labels
+
+def deepphys_predict(model, data_loader, config):
+    """ Model evaluation on the testing dataset."""
+    print(" ====Testing===")
+    predictions = dict()
+    labels = dict()
+    model.eval()
+    with torch.no_grad():
+        for _, test_batch in enumerate(data_loader):
+            subj_index = test_batch[2][0]
+            sort_index = int(test_batch[3][0])
+            data_test, labels_test = test_batch[0].to(
+                config.DEVICE), test_batch[1].to(config.DEVICE)
+            N, D, C, H, W = data_test.shape
+            data_test = data_test.view(N * D, C, H, W)
+            labels_test = labels_test.view(-1, 1)
+            pred_ppg_test = model(data_test)
+            if subj_index not in predictions.keys():
+                predictions[subj_index] = dict()
+                labels[subj_index] = dict()
+            predictions[subj_index][sort_index] = pred_ppg_test
+            labels[subj_index][sort_index] = labels_test
+    # return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
+    return predictions, labels
+
+
+def physnet_predict(model, data_loader, config):
+    raise ValueError('Unimplemented Yet')
 
 
 def reform_data_from_dict(data):
@@ -242,18 +275,25 @@ def calculate_metrics(predictions, labels, config):
             raise ValueError("Wrong Test Metric Type")
 
 
-def eval(loader, config):
-    if config.MODEL.NAME == "Physnet":
-        model = define_Physnet_model(config)
-    elif config.MODEL.NAME == "Tscan":
-        model = define_TSCAN_model(config)
-    model = load_model(model, config)
-    data = loader(name="inference",
-                  data_path=config.DATA.TEST_DATA_PATH, config_data=config.DATA)
+def test(loader, config):
     data_loader = DataLoader(
-        dataset=data, num_workers=2, batch_size=config.INFERENCE.BATCH_SIZE, shuffle=False)
-    predictions, labels = tscan_predict(
-        model, data_loader, config)
+        dataset=loader(name="test", data_path=config.DATA.TEST_DATA_PATH, config_data=config.DATA),
+        num_workers=2, batch_size=config.INFERENCE.BATCH_SIZE, shuffle=False)
+    if config.MODEL.NAME == "Physnet":
+        model = define_physnet_model(config)
+        predictions, labels = physnet_predict(
+            model, data_loader, config)
+    elif config.MODEL.NAME == "Tscan":
+        model = define_tscan_model(config)
+        predictions, labels = tscan_predict(
+            model, data_loader, config)
+    elif config.MODEL.NAME == 'DeepPhys':
+        model = define_deepphys_model(config)
+        predictions, labels = deepphys_predict(
+            model, data_loader, config)
+    else:
+        raise ValueError('Your Model is not Supported!')
+
     calculate_metrics(predictions, labels, config)
 
 
@@ -266,6 +306,7 @@ if __name__ == "__main__":
 
     # forms configurations.
     config = get_evaluate_config(args)
+    print('=== Printing Config ===')
     print(config)
 
     writer = SummaryWriter(config.LOG.PATH)
@@ -281,5 +322,5 @@ if __name__ == "__main__":
         loader = data_loader.SyntheticsLoader.SyntheticsLoader
     else:
         raise ValueError(
-            "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
-    eval(loader, config)
+            "Unsupported dataset! Currently only support COHFACE, UBFC and PURE.")
+    test(loader, config)
