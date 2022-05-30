@@ -1,0 +1,29 @@
+BASE: ['']
+DATA:
+  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Train"
+  VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Val"
+  DATASET: SYNTHETICS
+  DO_PREPROCESS: False
+  DATA_FORMAT: NDCHW
+  PROCESSED_DATA_PATH: "SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized"
+  PREPROCESS :
+    DATA_TYPE: ['Normalized','Standardized']
+    LABEL_TYPE : Normalized
+    CLIP_LENGTH: 180
+    CROP_FACE: False
+    LARGE_FACE_BOX: False
+    FACE_DETECT: False
+    H: 72
+    W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 4
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: DeepPhys
+TRAIN:
+  BATCH_SIZE: 8
+  EPOCHS: 3
+  LR: 0.001
+  MODEL_FILE_NAME: deepphys_synthetics.pth
