@@ -1,8 +1,8 @@
-"""Trainer for TSCAN, but also applies to 3D-CAN, Hybrid-CAN, and DeepPhys."""
+"""Trainer for DeepPhys."""
 
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
-from neural_methods.model.TS_CAN import TSCAN
+from neural_methods.model.DeepPhys import DeepPhys
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
@@ -11,18 +11,17 @@ from tqdm import tqdm
 import logging
 
 
-class TscanTrainer(BaseTrainer):
+class DeepPhysTrainer(BaseTrainer):
 
     def __init__(self, config):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
-        self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
-        self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.DATA.PREPROCESS.H).to(self.device)
+        self.model = DeepPhys(img_size=config.DATA.PREPROCESS.H).to(self.device)
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
-            self.model.parameters(), lr=config.TRAIN.LR, weight_decay=10)
+            self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
@@ -45,8 +44,6 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data.shape
                 data = data.view(N*D, C, H, W)
                 labels = labels.view(-1, 1)
-                data = data[:(N*D)//self.frame_depth*self.frame_depth]
-                labels = labels[:(N*D)//self.frame_depth*self.frame_depth]
                 self.optimizer.zero_grad()
                 pred_ppg = self.model(data)
                 loss = self.criterion(pred_ppg, labels)
@@ -84,10 +81,6 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data_valid.shape
                 data_valid = data_valid.view(N * D, C, H, W)
                 labels_valid = labels_valid.view(-1, 1)
-                data_valid = data_valid[:(
-                    N * D) // self.frame_depth * self.frame_depth]
-                labels_valid = labels_valid[:(
-                    N * D) // self.frame_depth * self.frame_depth]
                 pred_ppg_valid = self.model(data_valid)
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
@@ -109,10 +102,6 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data_test.shape
                 data_test = data_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
-                data_test = data_test[:(
-                    N * D) // self.frame_depth * self.frame_depth]
-                labels_test = labels_test[:(
-                    N * D) // self.frame_depth * self.frame_depth]
                 pred_ppg_test = self.model(data_test)
                 predictions.append(pred_ppg_test)
                 labels.append(labels_test)

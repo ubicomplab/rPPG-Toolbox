@@ -25,6 +25,6 @@ MODEL:
     FRAME_DEPTH: 20
 TRAIN:
   BATCH_SIZE: 8
-  EPOCHS: 20
+  EPOCHS: 1
   LR: 0.001
   MODEL_FILE_NAME: tscan_synthetics.pth
