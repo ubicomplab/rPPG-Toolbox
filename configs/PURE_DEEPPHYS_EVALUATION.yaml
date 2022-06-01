@@ -1,11 +1,11 @@
 BASE: ['']
 DATA:
   FS: 30
-  DATASET: UBFC
+  DATASET: PURE
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
-  TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"
-#  EXP_DATA_NAME: "UBFC_72x72"
+  TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"
+  EXP_DATA_NAME: "PURE_72x72/test"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized

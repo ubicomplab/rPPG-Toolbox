@@ -5,7 +5,7 @@ DATA:
   DATASET: SYNTHETICS
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
-  PROCESSED_DATA_PATH: "SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized"
+  EXP_DATA_NAME: "SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -24,6 +24,6 @@ MODEL:
   NAME: DeepPhys
 TRAIN:
   BATCH_SIZE: 8
-  EPOCHS: 3
+  EPOCHS: 30
   LR: 0.001
   MODEL_FILE_NAME: deepphys_synthetics.pth

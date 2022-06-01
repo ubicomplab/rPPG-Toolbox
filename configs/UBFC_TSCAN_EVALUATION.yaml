@@ -5,7 +5,7 @@ DATA:
   DO_PREPROCESS: True
   DATA_FORMAT: NDCHW
   TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"
-  PROCESSED_DATA_PATH: "./PreTrainedModels/UBFC_72x72"
+  EXP_DATA_NAME: "UBFC_72x72"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
