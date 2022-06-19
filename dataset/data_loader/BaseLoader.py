@@ -152,14 +152,14 @@ class BaseLoader(Dataset):
             print("Larger Bounding Box")
             result[0] = max(0, result[0] - 0.25 * result[2])
             result[1] = max(0, result[1] - 0.25 * result[2])
-            result[2] = 1.5 * result[2]
-            result[3] = 1.5 * result[3]
+            result[2] = 2.0 * result[2]
+            result[3] = 2.0 * result[3]
         return result
 
     def resize(self, frames, w, h, larger_box, face_detection, crop_face):
         """Resizes each frame, crops the face area if flag is true."""
         if face_detection:
-            print(frames.shape)
+            print('Frames Shape: ', frames.shape)
             face_region = self.facial_detection(frames[0], larger_box)
         else:
             face_region = frames[0]
@@ -197,7 +197,7 @@ class BaseLoader(Dataset):
             os.makedirs(self.cached_path)
             print(self.cached_path)
         count = 0
-        print(filename)
+        print('Saved Filename: ', filename)
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \

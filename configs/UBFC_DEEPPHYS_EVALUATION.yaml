@@ -22,6 +22,6 @@ MODEL:
   NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 1
-  MODEL_PATH: './PreTrainedModels/SYNTHETICS_Tscan_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/deepphys_synthetics.pth'
+  MODEL_PATH: './PreTrainedModels/SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/deepphys_synthetics_10epoch_geforce2080ti_Epoch8.pth'
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']

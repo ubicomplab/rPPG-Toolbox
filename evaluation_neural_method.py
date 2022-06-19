@@ -25,6 +25,25 @@ from neural_methods.model.TS_CAN import TSCAN
 from neural_methods.model.DeepPhys import DeepPhys
 from eval.post_process import *
 from collections import OrderedDict
+import random
+import numpy as np
+
+RANDOM_SEED = 100
+torch.manual_seed(RANDOM_SEED)
+torch.cuda.manual_seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+random.seed(RANDOM_SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+g = torch.Generator()
+g.manual_seed(RANDOM_SEED)
+
+
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+
 
 def add_args(parser):
     """Adds arguments for parser."""
@@ -94,7 +113,7 @@ def read_hr_label(feed_dict, index):
         hr = video_dict['FFT']
     else:
         hr = video_dict['Peak Detection']
-    return hr
+    return index, hr
 
 
 def physnet_predict(model, data_loader, config):
@@ -142,6 +161,7 @@ def tscan_predict(model, data_loader, config):
     # return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
     return predictions, labels
 
+
 def deepphys_predict(model, data_loader, config):
     """ Model evaluation on the testing dataset."""
     print(" ====Testing===")
@@ -185,8 +205,10 @@ def calculate_metrics(predictions, labels, config):
     gt_hr_peak_all = list()
     label_hr = list()
     label_dict = read_label(config.DATA.DATASET)
-    white_list = ['601']
+    # white_list = ['subject20', 'subject41']
+    white_list = []
     for index in predictions.keys():
+        print(index)
         if index in white_list:
             continue
         prediction = reform_data_from_dict(predictions[index])
@@ -196,11 +218,18 @@ def calculate_metrics(predictions, labels, config):
         # print(predictions[i]['prediction'], labels[i]['prediction'])
         gt_hr_peak, pred_hr_peak = calculate_metric_peak_per_video(
             prediction, label, fs=config.DATA.FS)
+        np.save('./debug_tensor/label_pure_' + str(index) + '.npy', label)
+        np.save('./debug_tensor/pred_pure_' + str(index) + '.npy', prediction)
         gt_hr_fft_all.append(gt_hr_fft)
         predict_hr_fft_all.append(pred_hr_fft)
         predict_hr_peak_all.append(pred_hr_peak)
         gt_hr_peak_all.append(gt_hr_peak)
-        label_hr.append(read_hr_label(label_dict, index))
+        video_index, GT_HR = read_hr_label(label_dict, index)
+        label_hr.append(GT_HR)
+        if abs(GT_HR - pred_hr_fft) > 10:
+            print('Video Index: ', video_index)
+            print('GT HR: ', GT_HR)
+            print('Pred HR: ', pred_hr_fft)
     predict_hr_peak_all = np.array(predict_hr_peak_all)
     predict_hr_fft_all = np.array(predict_hr_fft_all)
     gt_hr_peak_all = np.array(gt_hr_peak_all)
@@ -278,7 +307,7 @@ def calculate_metrics(predictions, labels, config):
 def test(loader, config):
     data_loader = DataLoader(
         dataset=loader(name="test", data_path=config.DATA.TEST_DATA_PATH, config_data=config.DATA),
-        num_workers=2, batch_size=config.INFERENCE.BATCH_SIZE, shuffle=False)
+        num_workers=2, batch_size=config.INFERENCE.BATCH_SIZE, shuffle=False, worker_init_fn=seed_worker, generator=g)
     if config.MODEL.NAME == "Physnet":
         model = define_physnet_model(config)
         predictions, labels = physnet_predict(

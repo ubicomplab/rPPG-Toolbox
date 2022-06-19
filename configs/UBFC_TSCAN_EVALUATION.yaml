@@ -2,10 +2,10 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: UBFC
-  DO_PREPROCESS: True
+  DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
   TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"
-  EXP_DATA_NAME: "UBFC_72x72"
+#  EXP_DATA_NAME: "UBFC_72x72"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -13,8 +13,9 @@ DATA:
     CROP_FACE: True
     H: 72
     W: 72
+  EXP_DATA_NAME: "test_UBFC_DeepPhys_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized"
 DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 2
+NUM_OF_GPU_TRAIN: 1
 LOG:
   PATH: runs/exp
 MODEL:
@@ -24,6 +25,7 @@ MODEL:
     FRAME_DEPTH: 20
 INFERENCE:
   BATCH_SIZE: 1
-  MODEL_PATH: './PreTrainedModels/SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/tscan_synthetics.pth'
+  MODEL_PATH: /gscratch/ubicomp/xliu0/rPPG-Toolbox/PreTrainedModels/PURE_Tscan_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/tscan_train_pure.pth
+#  MODEL_PATH: './PreTrainedModels/SYNTHETICS_Tscan_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/tscan_synthetics.pth'
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']

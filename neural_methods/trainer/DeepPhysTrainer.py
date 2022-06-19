@@ -30,6 +30,9 @@ class DeepPhysTrainer(BaseTrainer):
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
+        # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer,
+        #                                                        T_max=len(data_loader["train"]) * self.max_epoch_num,
+        #                                                        eta_min=0)
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
@@ -49,19 +52,23 @@ class DeepPhysTrainer(BaseTrainer):
                 loss = self.criterion(pred_ppg, labels)
                 loss.backward()
                 self.optimizer.step()
+                # scheduler.step()
                 running_loss += loss.item()
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
                         f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
-                tbar.set_postfix(loss=loss.item())
+                tbar.set_postfix({"loss": loss.item(), "lr": self.optimizer.param_groups[0]["lr"]})
             valid_loss = self.valid(data_loader)
-            if(valid_loss < min_valid_loss) or (valid_loss < 0):
-                min_valid_loss = valid_loss
-                print("update best model")
-                self.save_model()
-                print(valid_loss)
+            self.save_model(epoch)
+            print('validation loss: ', valid_loss)
+            print('Saving Model Epoch ', str(epoch))
+            # if(valid_loss < min_valid_loss) or (valid_loss < 0):
+            #     min_valid_loss = valid_loss
+            #     print("update best model")
+            #     self.save_model()
+            #     print(valid_loss)
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
@@ -107,8 +114,10 @@ class DeepPhysTrainer(BaseTrainer):
                 labels.append(labels_test)
         return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
 
-    def save_model(self):
+    def save_model(self, index):
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
-        torch.save(self.model.state_dict(), os.path.join(
-            self.model_dir, self.model_file_name))
+        model_path = os.path.join(
+            self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
+        torch.save(self.model.state_dict(), model_path)
+        print('Saved Model Path: ', model_path)

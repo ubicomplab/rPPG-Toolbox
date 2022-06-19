@@ -24,6 +24,6 @@ MODEL:
   NAME: DeepPhys
 TRAIN:
   BATCH_SIZE: 8
-  EPOCHS: 30
-  LR: 0.001
-  MODEL_FILE_NAME: deepphys_synthetics.pth
+  EPOCHS: 10
+  LR: 0.0001
+  MODEL_FILE_NAME: deepphys_synthetics_10epoch_geforce2080ti

@@ -20,6 +20,25 @@ from config import get_config
 from torch.utils.data import DataLoader
 from dataset import data_loader
 from neural_methods import trainer
+import torch
+import random
+import numpy as np
+
+RANDOM_SEED = 100
+torch.manual_seed(RANDOM_SEED)
+torch.cuda.manual_seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+random.seed(RANDOM_SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+g = torch.Generator()
+g.manual_seed(RANDOM_SEED)
+
+
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
 
 def add_args(parser):
@@ -69,6 +88,7 @@ if __name__ == "__main__":
 
     # configurations.
     config = get_config(args)
+    print(config)
     # logging
     if args.log_path == "terminal":
         if args.log_level == "DEBUG":
@@ -112,9 +132,11 @@ if __name__ == "__main__":
         config_data=config.DATA)
     data_loader['train'] = DataLoader(
         dataset=train_data_loader,
-        num_workers=2,
+        num_workers=4,
         batch_size=config.TRAIN.BATCH_SIZE,
-        shuffle=True
+        shuffle=True,
+        worker_init_fn=seed_worker,
+        generator=g
     )
     if config.DATA.VALID_DATA_PATH:
         valid_data = loader(
@@ -123,9 +145,12 @@ if __name__ == "__main__":
             config_data=config.DATA)
         data_loader["valid"] = DataLoader(
             dataset=valid_data,
-            num_workers=2,
+            num_workers=4,
             batch_size=config.TRAIN.BATCH_SIZE,
-            shuffle=True)
+            shuffle=True,
+            worker_init_fn=seed_worker,
+            generator=g
+            )
     else:
         data_loader['valid'] = None
     train(config, data_loader)

@@ -5,7 +5,7 @@ DATA:
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
   TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"
-  EXP_DATA_NAME: "PURE_72x72/test"
+  EXP_DATA_NAME: "PURE_72x72/test_larger_box"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -22,6 +22,6 @@ MODEL:
   NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 1
-  MODEL_PATH: './PreTrainedModels/SYNTHETICS_Tscan_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/deepphys_synthetics.pth'
+  MODEL_PATH: './PreTrainedModels/SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/deepphys_synthetics_10epoch_geforce2080ti_Epoch4.pth'
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']

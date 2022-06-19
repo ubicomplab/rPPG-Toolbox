@@ -58,6 +58,9 @@ class PURELoader(BaseLoader):
         file_num = len(data_dirs)
         for i in range(file_num):
             filename = os.path.split(data_dirs[i]['path'])[-1]
+            saved_filename = data_dirs[i]['index']
+            if saved_filename not in [204, 705, 704, 501, 703, 904, 404, 702, 502, 706]:
+                continue
             frames = self.read_video(
                 os.path.join(
                     data_dirs[i]['path'],
@@ -68,14 +71,16 @@ class PURELoader(BaseLoader):
                     "{0}.json".format(filename)))
             bvps = sample(bvps, frames.shape[0])
             # Slow Translation and Fast Translation setups.
-            if (filename[-2:] == "03") or (filename[-2:] == "04"):
-                larger_box = True
-            else:
-                larger_box = False
+            # if (filename[-2:] == "03") or (filename[-2:] == "04") or (filename[-3:] == "705") \
+            #         or (filename[-3:] == "705")  :
+            larger_box = True
+            # else:
+            #     larger_box = False
             frames_clips, bvps_clips = self.preprocess(
                 frames, bvps, config_preprocess, larger_box)
+
             self.len += self.save(frames_clips, bvps_clips,
-                                  data_dirs[i]['index'])
+                                  saved_filename)
 
     @staticmethod
     def read_video(video_file):
