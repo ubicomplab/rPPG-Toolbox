@@ -15,8 +15,6 @@ _C = CN()
 # Base config files
 _C.BASE = ['']
 
-_C.TRAIL_NAME = ''
-
 # -----------------------------------------------------------------------------
 # Data settings
 # -----------------------------------------------------------------------------
@@ -26,6 +24,7 @@ _C.DATA.FS = 0
 _C.DATA.TRAIN_DATA_PATH = ''
 _C.DATA.VALID_DATA_PATH = ''
 _C.DATA.TEST_DATA_PATH = ''
+_C.DATA.EXP_DATA_NAME = ''
 # Path to preprocessing data, could be overwritten by command line argument
 _C.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
@@ -105,11 +104,11 @@ _C.INFERENCE = CN()
 _C.INFERENCE.BATCH_SIZE = 4
 _C.INFERENCE.MODEL_PATH = ''
 
-
 # -----------------------------------------------------------------------------
 # Device settings
 # -----------------------------------------------------------------------------
 _C.DEVICE = "cuda:0"
+_C.NUM_OF_GPU_TRAIN = 1
 
 # -----------------------------------------------------------------------------
 # Log settings
@@ -128,7 +127,7 @@ def _update_config_from_file(config, cfg_file):
             _update_config_from_file(
                 config, os.path.join(os.path.dirname(cfg_file), cfg)
             )
-    print('=> merge config from {}'.format(cfg_file))
+    print('=> Merging a config file from {}'.format(cfg_file))
     config.merge_from_file(cfg_file)
     config.freeze()
 
@@ -159,22 +158,22 @@ def update_config(config, args):
     if args.valid_data_path:
         config.DATA.VALID_DATA_PATH = args.valid_data_path
 
-    if config.TRAIL_NAME == '':
-        config.TRAIL_NAME= "_".join([config.DATA.DATASET, config.MODEL.NAME, "SizeW{0}".format(
-        str(config.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.DATA.PREPROCESS.W)), "ClipLength{0}".format(
-        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)), "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+    if config.DATA.EXP_DATA_NAME == '':
+        config.DATA.EXP_DATA_NAME = "_".join([config.DATA.DATASET, "SizeW{0}".format(
+            str(config.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+            str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)),
+                                      "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
 
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, config.TRAIL_NAME)
+        config.LOG.PATH, config.DATA.EXP_DATA_NAME)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, config.TRAIL_NAME)
-    config.MODEL.MODEL_DIR = os.path.join(config.MODEL.MODEL_DIR, config.TRAIL_NAME)
+        config.DATA.CACHED_PATH, config.DATA.EXP_DATA_NAME)
+    config.MODEL.MODEL_DIR = os.path.join(config.MODEL.MODEL_DIR, config.DATA.EXP_DATA_NAME)
     config.freeze()
     return
 
 
 def update_evaluate_config(config, args):
-
     _update_config_from_file(config, args.config_file)
     config.defrost()
 
@@ -193,20 +192,23 @@ def update_evaluate_config(config, args):
         config.DATA.TEST_DATA_PATH = args.test_data_path
     if args.model_path:
         config.INFERENCE.MODEL_PATH = args.model_path
-    config.LOG.PATH = os.path.join(
-        config.LOG.PATH, config.TRAIL_NAME)
-    config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, config.TRAIL_NAME)
 
-    if config.TRAIL_NAME == '':
-        config.TRAIL_NAME= "_".join(["test",config.DATA.DATASET, config.MODEL.NAME, "SizeW{0}".format(
-        str(config.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.DATA.PREPROCESS.W)), "ClipLength{0}".format(
-        str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)), "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
+    if config.DATA.EXP_DATA_NAME == '':
+        # config.LOG.PATH = os.path.join(
+        #     config.LOG.PATH, config.DATA.EXP_DATA_NAME)
+        # config.DATA.CACHED_PATH = os.path.join(
+        #     config.DATA.CACHED_PATH, config.DATA.EXP_DATA_NAME)
+        config.DATA.EXP_DATA_NAME = "_".join(["test", config.DATA.DATASET, "SizeW{0}".format(
+            str(config.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+            str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)),
+                                      "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE)])
 
     config.LOG.PATH = os.path.join(
-        config.LOG.PATH, config.TRAIL_NAME)
+        config.LOG.PATH, config.DATA.EXP_DATA_NAME)
     config.DATA.CACHED_PATH = os.path.join(
-        config.DATA.CACHED_PATH, config.TRAIL_NAME)
+        config.DATA.CACHED_PATH, config.DATA.EXP_DATA_NAME)
+    print('config.LOG.PATH: ', config.LOG.PATH)
+    print('config.DATA.CACHED_PATH: ', config.DATA.CACHED_PATH)
     config.freeze()
     return
 
