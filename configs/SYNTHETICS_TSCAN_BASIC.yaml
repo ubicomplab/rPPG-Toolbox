@@ -3,7 +3,7 @@ DATA:
   TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Train"
   VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Val"
   DATASET: SYNTHETICS
-  DO_PREPROCESS: False
+  DO_PREPROCESS: True
   DATA_FORMAT: NDCHW
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
@@ -25,6 +25,6 @@ MODEL:
     FRAME_DEPTH: 20
 TRAIN:
   BATCH_SIZE: 8
-  EPOCHS: 1
-  LR: 0.001
+  EPOCHS: 20
+  LR: 0.0001
   MODEL_FILE_NAME: tscan_synthetics.pth

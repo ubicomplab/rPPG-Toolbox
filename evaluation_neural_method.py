@@ -45,6 +45,7 @@ def seed_worker(worker_id):
     random.seed(worker_seed)
 
 
+
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
@@ -190,7 +191,6 @@ def deepphys_predict(model, data_loader, config):
 def physnet_predict(model, data_loader, config):
     raise ValueError('Unimplemented Yet')
 
-
 def reform_data_from_dict(data):
     sort_data = sorted(data.items(), key=lambda x: x[0])
     sort_data = [i[1] for i in sort_data]
@@ -205,10 +205,8 @@ def calculate_metrics(predictions, labels, config):
     gt_hr_peak_all = list()
     label_hr = list()
     label_dict = read_label(config.DATA.DATASET)
-    # white_list = ['subject20', 'subject41']
     white_list = []
     for index in predictions.keys():
-        print(index)
         if index in white_list:
             continue
         prediction = reform_data_from_dict(predictions[index])
@@ -218,8 +216,6 @@ def calculate_metrics(predictions, labels, config):
         # print(predictions[i]['prediction'], labels[i]['prediction'])
         gt_hr_peak, pred_hr_peak = calculate_metric_peak_per_video(
             prediction, label, fs=config.DATA.FS)
-        np.save('./debug_tensor/label_pure_' + str(index) + '.npy', label)
-        np.save('./debug_tensor/pred_pure_' + str(index) + '.npy', prediction)
         gt_hr_fft_all.append(gt_hr_fft)
         predict_hr_fft_all.append(pred_hr_fft)
         predict_hr_peak_all.append(pred_hr_peak)

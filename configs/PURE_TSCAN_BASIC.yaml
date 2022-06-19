@@ -2,9 +2,10 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: PURE
-  DO_PREPROCESS: False
+  DO_PREPROCESS: True
   DATA_FORMAT: NDCHW
-  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"
+  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData/"
+  VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData/"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -23,5 +24,5 @@ MODEL:
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
-  LR: 0.001
+  LR: 0.0001
   MODEL_FILE_NAME: tscan_train_pure.pth
