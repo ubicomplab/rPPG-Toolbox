@@ -5,6 +5,7 @@ DATA:
   DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
   TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"
+#  EXP_DATA_NAME: "UBFC_72x72"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -12,18 +13,15 @@ DATA:
     CROP_FACE: True
     H: 72
     W: 72
-  EXP_DATA_NAME: "test_UBFC_DeepPhys_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized"
 DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 1
+NUM_OF_GPU_TRAIN: 2
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: Tscan
-  TSCAN:
-    FRAME_DEPTH: 20
+  NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 1
-  MODEL_PATH: /gscratch/ubicomp/xliu0/rPPG-Toolbox/PreTrainedModels/PURE_Tscan_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/tscan_train_pure.pth
+  MODEL_PATH: './PreTrainedModels/SYNTHETICS_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized/deepphys_synthetics_10epoch_geforce2080ti_Epoch8.pth'
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']

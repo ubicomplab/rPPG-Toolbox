@@ -78,9 +78,12 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
-        str_index = re.search(
-            '(\d+)_input(\d+)', self.inputs[index])
-        return data, label, str_index.group(1),str_index.group(2)
+        item_path = self.inputs[index]
+        item_path_filename = item_path.split('/')[-1]
+        split_idx = item_path_filename.index('_')
+        filename = item_path_filename[:split_idx]
+        chunk_id = item_path_filename[split_idx+6:].split('.')[0]
+        return data, label, filename, chunk_id
 
     def preprocess(self, frames, bvps, config_preprocess, large_box=False):
         """Preprocesses a pair of data.
@@ -149,14 +152,14 @@ class BaseLoader(Dataset):
             print("Larger Bounding Box")
             result[0] = max(0, result[0] - 0.25 * result[2])
             result[1] = max(0, result[1] - 0.25 * result[2])
-            result[2] = 1.5 * result[2]
-            result[3] = 1.5 * result[3]
+            result[2] = 2.0 * result[2]
+            result[3] = 2.0 * result[3]
         return result
 
     def resize(self, frames, w, h, larger_box, face_detection, crop_face):
         """Resizes each frame, crops the face area if flag is true."""
         if face_detection:
-            print(frames.shape)
+            print('Frames Shape: ', frames.shape)
             face_region = self.facial_detection(frames[0], larger_box)
         else:
             face_region = frames[0]
@@ -194,7 +197,7 @@ class BaseLoader(Dataset):
             os.makedirs(self.cached_path)
             print(self.cached_path)
         count = 0
-        print(filename)
+        print('Saved Filename: ', filename)
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
