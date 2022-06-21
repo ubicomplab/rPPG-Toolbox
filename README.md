@@ -9,7 +9,7 @@ STEP3: `pip install -r requirements.txt`
 
 # Training on SCAMPS
 
-STEP1: Download the SCAMPS via this [link](https://github.com/danmcduff/scampsdataset) 
+STEP1: Download the SCAMPS via this [link](https://github.com/danmcduff/scampsdataset) and split it into train/val/test folders.
 
 STEP2: Modify `./configs/SYNTHETICS_DEEPPHYS_BASIC.yaml` 
 
