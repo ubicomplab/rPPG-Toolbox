@@ -15,7 +15,7 @@ STEP2: Modify `./configs/SYNTHETICS_DEEPPHYS_BASIC.yaml`
 
 STEP2: Run `python main_neural_method.py --config_file ./configs/SYNTHETICS_DEEPPHYS_BASIC.yaml` 
 
-Note: Preprocessing requires only once, thus turn it on on the yaml file when you train the network after the first time. 
+Note: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
 
 # Dataset
 The toolbox supports three datasets, which are UBFC, PURE and COHFACE. Cite corresponding papers when using.
