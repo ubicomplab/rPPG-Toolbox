@@ -197,7 +197,6 @@ class BaseLoader(Dataset):
             os.makedirs(self.cached_path)
             print(self.cached_path)
         count = 0
-        print('Saved Filename: ', filename)
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
@@ -214,9 +213,7 @@ class BaseLoader(Dataset):
     def load(self):
         """Loads the preprocessing data."""
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
-        print(self.cached_path)
         labels = [input.replace("input", "label") for input in inputs]
-        print(labels[0])
         assert (len(inputs) == len(labels))
         self.inputs = inputs
         self.labels = labels

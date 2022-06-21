@@ -1,11 +1,11 @@
 BASE: ['']
 DATA:
-  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Train"
-  VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Val"
+  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/train" # To be updated
+  VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/val" # To be updated
   DATASET: SYNTHETICS
   DO_PREPROCESS: True
   DATA_FORMAT: NDCHW
-  EXP_DATA_NAME: "SYNTHETICS_72x72_Normalized_Standardized"
+  EXP_DATA_NAME: "SYNTHETICS_72x72_Normalized_Standardized_Pilot" # To be updated
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -16,7 +16,7 @@ DATA:
     H: 72
     W: 72
 DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 4
+NUM_OF_GPU_TRAIN: 4 # To be updated
 LOG:
   PATH: runs/exp
 MODEL:
@@ -26,4 +26,4 @@ TRAIN:
   BATCH_SIZE: 8
   EPOCHS: 10
   LR: 0.0001
-  MODEL_FILE_NAME: deepphys_synthetics_10epoch_geforce2080ti
+  MODEL_FILE_NAME: deepphys_synthetics_10epoch_geforce2080ti_pilot # To be updated 

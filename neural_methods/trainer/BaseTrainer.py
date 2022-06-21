@@ -1,6 +1,5 @@
 import torch
 from torch.autograd import Variable
-from tensorboardX import SummaryWriter
 import matplotlib.pyplot as plt
 
 

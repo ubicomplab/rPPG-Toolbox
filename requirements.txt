@@ -9,3 +9,5 @@ opencv_python==4.5.2.54
 PyYAML==6.0
 scikit_learn==1.0.2
 tensorboardX==2.4.1
+tqdm==4.64.0
+mat73==0.59
