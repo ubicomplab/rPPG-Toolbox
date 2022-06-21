@@ -1,10 +1,11 @@
 BASE: ['']
 DATA:
+  FS: 30
+  DATASET: SYNTHETICS
+  DO_PREPROCESS: True # This can be False after first time preprocessing.
+  DATA_FORMAT: NDCHW
   TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/train" # To be updated
   VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/val" # To be updated
-  DATASET: SYNTHETICS
-  DO_PREPROCESS: True # This can be False after first time preprocessing. 
-  DATA_FORMAT: NDCHW
   EXP_DATA_NAME: "SYNTHETICS_72x72_Normalized_Standardized_Pilot" # To be updated
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']

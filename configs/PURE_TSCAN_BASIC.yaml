@@ -2,10 +2,11 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: PURE
-  DO_PREPROCESS: True
+  DO_PREPROCESS: True # This can be False after first time preprocessing.
   DATA_FORMAT: NDCHW
-  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData/"
-  VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData/"
+  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData/" # To be updated
+  # Note: This config does not need a validation data
+  EXP_DATA_NAME: "PURE_72x72_Normalized_Standardized_Pilot" # To be updated
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -14,6 +15,7 @@ DATA:
     H: 72
     W: 72
 DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 4 # To be updated
 LOG:
   PATH: runs/exp
 MODEL:
@@ -22,7 +24,7 @@ MODEL:
   TSCAN:
     FRAME_DEPTH: 20
 TRAIN:
-  BATCH_SIZE: 4
-  EPOCHS: 30
-  LR: 0.0001
-  MODEL_FILE_NAME: tscan_train_pure.pth
+  BATCH_SIZE: 8
+  EPOCHS: 10
+  LR: 0.001
+  MODEL_FILE_NAME: tscan_pure_10epoch_geforce2080ti_pilot # To be updated
