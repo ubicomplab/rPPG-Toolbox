@@ -194,10 +194,6 @@ def update_evaluate_config(config, args):
         config.INFERENCE.MODEL_PATH = args.model_path
 
     if config.DATA.EXP_DATA_NAME == '':
-        # config.LOG.PATH = os.path.join(
-        #     config.LOG.PATH, config.DATA.EXP_DATA_NAME)
-        # config.DATA.CACHED_PATH = os.path.join(
-        #     config.DATA.CACHED_PATH, config.DATA.EXP_DATA_NAME)
         config.DATA.EXP_DATA_NAME = "_".join(["test", config.DATA.DATASET, "SizeW{0}".format(
             str(config.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.DATA.PREPROCESS.W)), "ClipLength{0}".format(
             str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)),
@@ -207,8 +203,6 @@ def update_evaluate_config(config, args):
         config.LOG.PATH, config.DATA.EXP_DATA_NAME)
     config.DATA.CACHED_PATH = os.path.join(
         config.DATA.CACHED_PATH, config.DATA.EXP_DATA_NAME)
-    print('config.LOG.PATH: ', config.LOG.PATH)
-    print('config.DATA.CACHED_PATH: ', config.DATA.CACHED_PATH)
     config.freeze()
     return
 
