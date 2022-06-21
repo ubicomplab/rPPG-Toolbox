@@ -6,6 +6,8 @@ STEP2: `conda activate rppg-toolbox`
 
 STEP3: `pip install -r requirements.txt` 
 
+#### Note: Evaluation/Testing Pipeline is not ready yet. Please use training pipeline and trained checkpoints for your own evaluation. 
+
 # Training on PURE with TSCAN 
 
 STEP1: Download the PURE raw data by asking the [paper authors](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure).
