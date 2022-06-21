@@ -3,7 +3,7 @@ DATA:
   TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/train" # To be updated
   VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/pilot/val" # To be updated
   DATASET: SYNTHETICS
-  DO_PREPROCESS: True
+  DO_PREPROCESS: True # This can be False after first time preprocessing. 
   DATA_FORMAT: NDCHW
   EXP_DATA_NAME: "SYNTHETICS_72x72_Normalized_Standardized_Pilot" # To be updated
   PREPROCESS :
@@ -26,4 +26,4 @@ TRAIN:
   BATCH_SIZE: 8
   EPOCHS: 10
   LR: 0.0001
-  MODEL_FILE_NAME: deepphys_synthetics_10epoch_geforce2080ti_pilot # To be updated 
+  MODEL_FILE_NAME: deepphys_synthetics_10epoch_geforce2080ti_pilot # To be updated
