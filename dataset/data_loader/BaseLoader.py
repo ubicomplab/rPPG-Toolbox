@@ -152,8 +152,8 @@ class BaseLoader(Dataset):
             print("Larger Bounding Box")
             result[0] = max(0, result[0] - 0.25 * result[2])
             result[1] = max(0, result[1] - 0.25 * result[2])
-            result[2] = 2.0 * result[2]
-            result[3] = 2.0 * result[3]
+            result[2] = 1.5 * result[2]
+            result[3] = 1.5 * result[3]
         return result
 
     def resize(self, frames, w, h, larger_box, face_detection, crop_face):

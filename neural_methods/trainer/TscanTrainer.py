@@ -22,11 +22,13 @@ class TscanTrainer(BaseTrainer):
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
-            self.model.parameters(), lr=config.TRAIN.LR, weight_decay=10)
+            self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
+        self.num_of_gpu = config.NUM_OF_GPU_TRAIN
+        self.base_len = self.num_of_gpu * self.frame_depth
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -45,8 +47,8 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data.shape
                 data = data.view(N*D, C, H, W)
                 labels = labels.view(-1, 1)
-                data = data[:(N*D)//self.frame_depth*self.frame_depth]
-                labels = labels[:(N*D)//self.frame_depth*self.frame_depth]
+                data = data[:(N*D)//self.base_len*self.base_len]
+                labels = labels[:(N*D)//self.base_len*self.base_len]
                 self.optimizer.zero_grad()
                 pred_ppg = self.model(data)
                 loss = self.criterion(pred_ppg, labels)
@@ -60,11 +62,14 @@ class TscanTrainer(BaseTrainer):
                 train_loss.append(loss.item())
                 tbar.set_postfix(loss=loss.item())
             valid_loss = self.valid(data_loader)
-            if(valid_loss < min_valid_loss) or (valid_loss < 0):
-                min_valid_loss = valid_loss
-                print("update best model")
-                self.save_model()
-                print(valid_loss)
+            self.save_model(epoch)
+            print('validation loss: ', valid_loss)
+            print('Saving Model Epoch ', str(epoch))
+            # if(valid_loss < min_valid_loss) or (valid_loss < 0):
+            #     min_valid_loss = valid_loss
+            #     print("update best model")
+            #     self.save_model()
+            #     print(valid_loss)
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
@@ -118,8 +123,10 @@ class TscanTrainer(BaseTrainer):
                 labels.append(labels_test)
         return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
 
-    def save_model(self):
+    def save_model(self, index):
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
-        torch.save(self.model.state_dict(), os.path.join(
-            self.model_dir, self.model_file_name))
+        model_path = os.path.join(
+            self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
+        torch.save(self.model.state_dict(), model_path)
+        print('Saved Model Path: ', model_path)

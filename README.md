@@ -6,6 +6,17 @@ STEP2: `conda activate rppg-toolbox`
 
 STEP3: `pip install -r requirements.txt` 
 
+# Training on PURE with TSCAN 
+
+STEP1: Download the PURE raw data by asking the [paper authors](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure).
+
+STEP2: Modify `./configs/PURE_TSCAN_BASIC.yaml` 
+
+STEP2: Run `python main_neural_method.py --config_file ./configs/PURE_TSCAN_BASIC.yaml` 
+
+Note: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
+Note: Our framework currently deos not support multi-dataset validation. E.g., training on dataset A and validating on dataset B. 
+In this example, we just train TS-CAN for 5 epochs without a validation dataset and use the last one for testing purpose. 
 
 # Training on SCAMPS with DeepPhys
 
