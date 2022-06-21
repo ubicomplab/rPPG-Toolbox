@@ -2,7 +2,7 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: PURE
-  DO_PREPROCESS: False # This can be False after first time preprocessing.
+  DO_PREPROCESS: True # This can be False after first time preprocessing.
   DATA_FORMAT: NDCHW
   TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData/" # To be updated
   # Note: This config does not need a validation data
