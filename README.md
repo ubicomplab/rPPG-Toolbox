@@ -1,27 +1,16 @@
 # Setup
 
-`bash setup.sh`
-`conda activate rppg-toolbox`
-`pip install -r requirements.txt`
+`bash setup.sh` \
+`conda activate rppg-toolbox` \
+`pip install -r requirements.txt` \
 
-# Overview
 
-xxx is a python toolbox aiming for rPPG signal extraction supporting bothe deep-learning
-and signal processing methods. #TODO: Adds more description.
-RUN: 
+# Training on SCAMPS
 
-python main_neural_method.py --data_path /mnt/data0/PURE/RawData --config_file configs/PURE_TSCAN_BASIC.yaml --preprocess
+STEP1: Download the SCAMPS via this [link](https://github.com/danmcduff/scampsdataset) \
+STEP2: Modify `./configs/SYNTHETICS_DEEPPHYS_BASIC.yaml`
+STEP2: Run `python main_neural_method.py --config_file ./configs/SYNTHETICS_DEEPPHYS_BASIC.yaml` \
 
-TEST:
-
-python evaluation_neural_method.py --data_path /mnt/data0/UBFC/UBFC --model_path PreTrainedModels/tscan.pth  --config_file configs/UBFC_TSCAN_EVALUATION.yaml --preprocess
-
-# Overview
-
-xxx is a python toolbox aiming for rPPG signal extraction supporting bothe deep-learning
-and signal processing methods. #TODO: Adds more description.
-
-# Requirments
 
 # Dataset
 The toolbox supports three datasets, which are UBFC, PURE and COHFACE. Cite corresponding papers when using.
