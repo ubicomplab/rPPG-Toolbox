@@ -5,15 +5,26 @@ An evaluation pipleine for neural network methods, including model loading, infe
   Typical usage example:
 
   python evaluation_neural_method.py --data_path /mnt/data0/COHFACE/RawData --model_path store_model/physnet.pth --preprocess
+<<<<<<< HEAD
   You should edit predict (model,data_loader,config) and add functions for definition,e.g, define_physnet_model to support your models.
+=======
+  You should edit predict (model,data_loader,config) and add functions for definition,e.g, define_Physnet_model to support your models.
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
 """
 
 import argparse
 import glob
 import os
+<<<<<<< HEAD
 import torch
 import re
 import pandas as pd
+=======
+import numpy as np
+import torch
+from config import get_evaluate_config
+from torch.utils.data import DataLoader
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
 from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 
@@ -319,7 +330,15 @@ def test(loader, config):
     else:
         raise ValueError('Your Model is not Supported!')
 
+<<<<<<< HEAD
     calculate_metrics(predictions, labels, config)
+=======
+def eval(config):
+    physnet_model = define_Physnet_model(config)
+    physnet_model = load_model(physnet_model, config)
+    predictions, labels = predict(physnet_model, dataloader["test"], config)
+    calculate_metrics(predictions,labels)
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
 
 
 if __name__ == "__main__":
@@ -347,5 +366,37 @@ if __name__ == "__main__":
         loader = data_loader.SyntheticsLoader.SyntheticsLoader
     else:
         raise ValueError(
+<<<<<<< HEAD
             "Unsupported dataset! Currently only support COHFACE, UBFC and PURE.")
     test(loader, config)
+=======
+            "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
+
+    train_data = loader(
+        name="train",
+        data_dirs=data_files["train"],
+        config_data=config.DATA)
+    valid_data = loader(
+        name="valid",
+        data_dirs=data_files["valid"],
+        config_data=config.DATA)
+    test_data = loader(
+        name="test",
+        data_dirs=data_files["test"],
+        config_data=config.DATA)
+    dataloader = {
+        "train": DataLoader(
+            dataset=train_data,
+            num_workers=2,
+            batch_size=config.TRAIN.BATCH_SIZE,
+            shuffle=True),
+        "valid": DataLoader(
+            dataset=valid_data,
+            num_workers=2,
+            batch_size=config.TRAIN.BATCH_SIZE,
+            shuffle=True),
+        "test": DataLoader(dataset=test_data, num_workers=2,
+                           batch_size=config.TRAIN.BATCH_SIZE, shuffle=True)
+    }
+    eval(config)
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1

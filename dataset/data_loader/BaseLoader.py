@@ -114,6 +114,10 @@ class BaseLoader(Dataset):
             else:
                 raise ValueError("Unsupported data type!")
         data = np.concatenate(data, axis=3)
+<<<<<<< HEAD
+=======
+        print(data.shape)
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
 
         if config_preprocess.LABEL_TYPE == "Raw":
             bvps = bvps[:-1]
@@ -123,7 +127,9 @@ class BaseLoader(Dataset):
             bvps = BaseLoader.standardized_data(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
+        print(bvps.shape)
 
+<<<<<<< HEAD
         if config_preprocess.DO_CHUNK:
             frames_clips, bvps_clips = self.chunk(
                 data, bvps, config_preprocess.CLIP_LENGTH)
@@ -131,6 +137,10 @@ class BaseLoader(Dataset):
             frames_clips = np.array([data])
             bvps_clips = np.array([bvps])
 
+=======
+        frames_clips, bvps_clips = BaseLoader.chunk(
+            data, bvps, config_preprocess.CLIP_LENGTH)
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
         return frames_clips, bvps_clips
 
     def facial_detection(self, frame, larger_box=False):
@@ -171,6 +181,7 @@ class BaseLoader(Dataset):
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
                                          frame.shape[0]),
+<<<<<<< HEAD
                               max(face_region[0],
                                   0):min(face_region[0] + face_region[2],
                                          frame.shape[1])]
@@ -179,6 +190,15 @@ class BaseLoader(Dataset):
         # resize_frames = np.float32(resize_frames) / 255
         # resize_frames[resize_frames > 1] = 1
         # resize_frames[resize_frames < (1 / 255)] = 1 / 255
+=======
+                        max(face_region[0],
+                            0):min(face_region[0] + face_region[2],
+                                   frame.shape[1])]
+                # view the cropped area.
+                # cv2.imshow("frame",frame)
+                # cv2.waitKey(0)
+            resize_frames[i] = cv2.resize(frame, (w, h))
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
         return resize_frames
 
     def chunk(self, frames, bvps, clip_length):
@@ -200,9 +220,9 @@ class BaseLoader(Dataset):
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
-                "{0}_input{1}.npy".format(filename, str(count))
+                              "{0}_input{1}.npy".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + \
-                "{0}_label{1}.npy".format(filename, str(count))
+                              "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
@@ -227,7 +247,11 @@ class BaseLoader(Dataset):
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
+<<<<<<< HEAD
                 data[j + 1, :, :, :] + data[j, :, :, :])
+=======
+                        data[j + 1, :, :, :] + data[j, :, :, :])
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
         normalized_data = normalized_data / np.std(normalized_data)
         normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
@@ -236,13 +260,18 @@ class BaseLoader(Dataset):
     def diff_normalize_label(label):
         """Difference frames and normalization labels"""
         diff_label = np.diff(label, axis=0)
+<<<<<<< HEAD
         normalized_label = diff_label / np.std(diff_label)
         normalized_label[np.isnan(normalized_label)] = 0
         return normalized_label
+=======
+        return diff_label / np.std(diff_label)
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
 
     @staticmethod
     def standardized_data(data):
         """Difference frames and normalization data"""
+<<<<<<< HEAD
         # data[data < 1] = 1
         data = data - np.mean(data)
         data = data / np.std(data)
@@ -254,3 +283,11 @@ class BaseLoader(Dataset):
         standardized_label = label - np.mean(label)/np.std(label)
         standardized_label[np.nan(standardized_label)] = 0
         return standardized_label
+=======
+        data[data < 1] = 1
+        return data - np.mean(data) / np.std(data)
+
+    @staticmethod
+    def standardized_label(label):
+        return label - np.mean(label) / np.std(label)
+>>>>>>> 9ed03d194213f534a82aa2551e59632cc810d4b1
