@@ -35,7 +35,7 @@ The toolbox supports four datasets, which are SCAMPS, UBFC, PURE and COHFACE. Ci
 For now, we only recommend training with PURE or SCAMPS due to the level of synchronization and volume of the dataset.
 * [SCAMPS](https://arxiv.org/abs/2206.04197)
   
-    * D. Mcudff, M. Wander, X. Liu, B. Hill, J. Hernandez, J. Lester, T. Baltrusaitis, "SCAMPS: Synthetics for Camera Measurement of Physiological Signals", Arxiv, 2022
+    * D. McDuff, M. Wander, X. Liu, B. Hill, J. Hernandez, J. Lester, T. Baltrusaitis, "SCAMPS: Synthetics for Camera Measurement of Physiological Signals", Arxiv, 2022
     * In order to use this dataset in a deep model, you should organize the files as follows:
     -----------------
          data/SCAMPS/Train/
