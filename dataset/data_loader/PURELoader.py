@@ -59,8 +59,6 @@ class PURELoader(BaseLoader):
         for i in range(file_num):
             filename = os.path.split(data_dirs[i]['path'])[-1]
             saved_filename = data_dirs[i]['index']
-            if saved_filename not in [204, 705, 704, 501, 703, 904, 404, 702, 502, 706]:
-                continue
             frames = self.read_video(
                 os.path.join(
                     data_dirs[i]['path'],
