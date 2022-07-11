@@ -2,7 +2,7 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: UBFC
-  DO_PREPROCESS: False
+  DO_PREPROCESS: True
   DATA_FORMAT: NDCHW
   TEST_DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
   EXP_DATA_NAME: ""
@@ -13,6 +13,7 @@ DATA:
     CROP_FACE: True
     H: 72
     W: 72
+    LARGER_BOX_SIZE: 2.0
 DEVICE: cuda:0
 NUM_OF_GPU_TRAIN: 4
 LOG:
