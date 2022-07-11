@@ -120,7 +120,7 @@ class BaseLoader(Dataset):
         elif config_preprocess.LABEL_TYPE == "Normalized":
             bvps = BaseLoader.diff_normalize_label(bvps)
         elif config_preprocess.LABEL_TYPE == "Standardized":
-            bvps = BaseLoader.standardized_data(bvps)[:-1]
+            bvps = BaseLoader.standardized_label(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
 
@@ -152,8 +152,8 @@ class BaseLoader(Dataset):
             print("Larger Bounding Box")
             result[0] = max(0, result[0] - 0.25 * result[2])
             result[1] = max(0, result[1] - 0.25 * result[2])
-            result[2] = 1.5 * result[2]
-            result[3] = 1.5 * result[3]
+            result[2] = 2.0 * result[2]
+            result[3] = 2.0 * result[3]
         return result
 
     def resize(self, frames, w, h, larger_box, face_detection, crop_face):
@@ -251,6 +251,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def standardized_label(label):
-        standardized_label = label - np.mean(label)/np.std(label)
-        standardized_label[np.nan(standardized_label)] = 0
-        return standardized_label
+        label = label - np.mean(label)
+        label = label / np.std(label)
+        label[np.isnan(label)] = 0
+        return label

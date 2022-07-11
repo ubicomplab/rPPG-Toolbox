@@ -1,0 +1,26 @@
+BASE: ['']
+DATA:
+  VALID_SUBJ: 5
+  DATASET: UBFC
+  DO_PREPROCESS: False
+  DATA_FORMAT: NCDHW
+  PREPROCESS :
+    DATA_TYPE : ['Normalized']
+    LABEL_TYPE : Normalized
+    CLIP_LENGTH: 64
+    CROP_FACE: True
+    H: 128
+    W: 128
+DEVICE: cuda:0
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: Physnet
+  PHYSNET:
+    FRAME_NUM: 64
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 30
+  LR: 1e-5
+  MODEL_FILE_NAME: physnet.pth

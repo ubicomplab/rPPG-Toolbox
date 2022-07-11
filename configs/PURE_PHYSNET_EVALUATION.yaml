@@ -1,0 +1,25 @@
+QBASE: ['']
+DATA:
+  DATASET: PURE
+  DO_PREPROCESS: False
+  DATA_FORMAT: NCDHW
+  PREPROCESS :
+    DATA_TYPE : ['Normalized']
+    LABEL_TYPE : Normalized
+    DO_CHUNK : True
+    CLIP_LENGTH: 64
+    CROP_FACE: True
+    H: 128
+    W: 128
+DEVICE: cuda:0
+LOG:
+  PATH: runs/exp
+MODEL:
+  NAME : Physnet
+  PHYSNET:
+    FRAME_NUM: 64
+INFERENCE:
+  BATCH_SIZE: 1
+TEST:
+  METRICS: ['MAE','RMSE']
+

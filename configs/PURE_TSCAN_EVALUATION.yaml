@@ -2,10 +2,9 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: PURE
-  DO_PREPROCESS: True
+  DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
-  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData/"
-  VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData/"
+  TEST_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
@@ -20,9 +19,9 @@ MODEL:
   DROP_RATE: 0.2
   NAME: Tscan
   TSCAN:
-    FRAME_DEPTH: 20
-TRAIN:
-  BATCH_SIZE: 4
-  EPOCHS: 30
-  LR: 0.0001
-  MODEL_FILE_NAME: tscan_train_pure.pth
+    FRAME_DEPTH: 10
+INFERENCE:
+  BATCH_SIZE: 1
+  MODEL_PATH: '/gscratch/ubicomp/xliu0/rPPG-Toolbox/store_model/tscan.pth'
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']

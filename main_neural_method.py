@@ -44,7 +44,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/UBFC_DEEPPHYS_EVALUATION.yaml", type=str, help="The name of the model.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
@@ -76,6 +76,21 @@ def train(config, data_loader):
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.train(data_loader)
+
+def test(config, data_loader):
+    """Tests the model."""
+    if config.MODEL.NAME == "Physnet":
+        model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config)
+    elif config.MODEL.NAME == "Tscan":
+        model_trainer = trainer.TscanTrainer.TscanTrainer(config)
+    elif config.MODEL.NAME == "EfficientPhys":
+        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config)
+    elif config.MODEL.NAME == 'DeepPhys':
+        model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config)
+    else:
+        raise ValueError('Your Model is Not Supported  Yet!')
+    model_trainer.test(data_loader)
+
 
 
 if __name__ == "__main__":
@@ -126,18 +141,22 @@ if __name__ == "__main__":
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
 
     data_loader = dict()
-    train_data_loader = loader(
-        name="train",
-        data_path=config.DATA.TRAIN_DATA_PATH,
-        config_data=config.DATA)
-    data_loader['train'] = DataLoader(
-        dataset=train_data_loader,
-        num_workers=4,
-        batch_size=config.TRAIN.BATCH_SIZE,
-        shuffle=True,
-        worker_init_fn=seed_worker,
-        generator=g
-    )
+    if config.DATA.TRAIN_DATA_PATH:
+        train_data_loader = loader(
+            name="train",
+            data_path=config.DATA.TRAIN_DATA_PATH,
+            config_data=config.DATA)
+        data_loader['train'] = DataLoader(
+            dataset=train_data_loader,
+            num_workers=4,
+            batch_size=config.TRAIN.BATCH_SIZE,
+            shuffle=True,
+            worker_init_fn=seed_worker,
+            generator=g
+        )
+    else:
+        data_loader['train'] = None
+
     if config.DATA.VALID_DATA_PATH:
         valid_data = loader(
             name="valid",
@@ -150,7 +169,24 @@ if __name__ == "__main__":
             shuffle=True,
             worker_init_fn=seed_worker,
             generator=g
-            )
+        )
     else:
         data_loader['valid'] = None
+
+    if config.DATA.TEST_DATA_PATH:
+        test_data = loader(
+            name="test",
+            data_path=config.DATA.TEST_DATA_PATH,
+            config_data=config.DATA)
+        data_loader["test"] = DataLoader(
+            dataset=test_data,
+            num_workers=4,
+            batch_size=config.INFERENCE.BATCH_SIZE,
+            shuffle=False,
+            worker_init_fn=seed_worker,
+            generator=g
+        )
+    else:
+        data_loader['test'] = None
+    test(config, data_loader)
     train(config, data_loader)
