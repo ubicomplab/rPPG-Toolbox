@@ -2,15 +2,20 @@ BASE: ['']
 DATA:
   FS: 30
   DATASET: UBFC
-  DO_PREPROCESS: False
+  DO_PREPROCESS: True
   DATA_FORMAT: NDCHW
   TEST_DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
   EXP_DATA_NAME: ""
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
-    LABEL_TYPE : Normalized
+    LABEL_TYPE: Normalized
+    DO_CHUNK: True
     CLIP_LENGTH: 180
+    DYNAMIC_DETECTION: False
+    DETECTION_LENGTH: 180
     CROP_FACE: True
+    LARGE_FACE_BOX: True
+    LARGER_BOX_SIZE: 1.5
     H: 72
     W: 72
 DEVICE: cuda:0
