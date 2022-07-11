@@ -1,0 +1,26 @@
+BASE: ['']
+DATA:
+  VALID_SUBJ: 30
+  DATASET: PURE
+  DO_PREPROCESS: False
+  DATA_FORMAT: NDCHW
+  PREPROCESS :
+    DATA_TYPE: ['Standardized']
+    LABEL_TYPE : Normalized
+    CLIP_LENGTH: 180
+    CROP_FACE: True
+    H: 36
+    W: 36
+DEVICE: cuda:0
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: EfficientPhys
+  EFFICIENTPHYS:
+    FRAME_DEPTH: 10
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 30
+  LR: 0.0001
+  MODEL_FILE_NAME: EfficientPhys.pth

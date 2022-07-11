@@ -100,7 +100,8 @@ class BaseLoader(Dataset):
             config_preprocess.H,
             config_preprocess.LARGE_FACE_BOX,
             config_preprocess.FACE_DETECT,
-            config_preprocess.CROP_FACE)
+            config_preprocess.CROP_FACE,
+            config_preprocess.LARGER_BOX_SIZE)
         # data_type
         data = list()
         for data_type in config_preprocess.DATA_TYPE:
@@ -120,7 +121,7 @@ class BaseLoader(Dataset):
         elif config_preprocess.LABEL_TYPE == "Normalized":
             bvps = BaseLoader.diff_normalize_label(bvps)
         elif config_preprocess.LABEL_TYPE == "Standardized":
-            bvps = BaseLoader.standardized_data(bvps)[:-1]
+            bvps = BaseLoader.standardized_label(bvps)[:-1]
         else:
             raise ValueError("Unsupported label type!")
 
@@ -133,7 +134,7 @@ class BaseLoader(Dataset):
 
         return frames_clips, bvps_clips
 
-    def facial_detection(self, frame, larger_box=False):
+    def facial_detection(self, frame, larger_box=False, larger_box_size=1.0):
         """Conducts face detection on a single frame.
         Sets larger_box=True for larger bounding box, e.g. moving trials."""
         detector = cv2.CascadeClassifier(
@@ -150,17 +151,17 @@ class BaseLoader(Dataset):
             result = face_zone[0]
         if larger_box:
             print("Larger Bounding Box")
-            result[0] = max(0, result[0] - 0.25 * result[2])
-            result[1] = max(0, result[1] - 0.25 * result[2])
-            result[2] = 1.5 * result[2]
-            result[3] = 1.5 * result[3]
+            result[0] = max(0, result[0] - (larger_box_size-1.0) / 2 * result[2])
+            result[1] = max(0, result[1] - (larger_box_size-1.0) / 2 * result[3])
+            result[2] = larger_box_size * result[2]
+            result[3] = larger_box_size * result[3]
         return result
 
-    def resize(self, frames, w, h, larger_box, face_detection, crop_face):
+    def resize(self, frames, w, h, larger_box, face_detection, crop_face,larger_box_size):
         """Resizes each frame, crops the face area if flag is true."""
         if face_detection:
             print('Frames Shape: ', frames.shape)
-            face_region = self.facial_detection(frames[0], larger_box)
+            face_region = self.facial_detection(frames[0], larger_box, larger_box_size)
         else:
             face_region = frames[0]
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
@@ -251,6 +252,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def standardized_label(label):
-        standardized_label = label - np.mean(label)/np.std(label)
-        standardized_label[np.nan(standardized_label)] = 0
-        return standardized_label
+        label = label - np.mean(label)
+        label = label / np.std(label)
+        label[np.isnan(label)] = 0
+        return label

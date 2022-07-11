@@ -1,0 +1,26 @@
+BASE: ['']
+DATA:
+  VALID_SUBJ: 20
+  DATASET: COHFACE
+  DO_PREPROCESS: False
+  DATA_FORMAT: NDCHW
+  PREPROCESS:
+    DATA_TYPE: ['Normalized','Standardized']
+    LABEL_TYPE: Normalized
+    CLIP_LENGTH: 64
+    CROP_FACE: True
+    H: 128
+    W: 128
+DEVICE: cpu
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: Tscan
+  TSCAN:
+    FRAME_DEPTH: 10
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 50
+  LR: 0.0001
+  MODEL_FILE_NAME: tscan_pretrained.pth
