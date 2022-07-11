@@ -1,0 +1,27 @@
+BASE: ['']
+DATA:
+  FS: 30
+  DATASET: UBFC
+  DO_PREPROCESS: False
+  DATA_FORMAT: NDCHW
+  TEST_DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
+  EXP_DATA_NAME: ""
+  PREPROCESS :
+    DATA_TYPE: ['Normalized','Standardized']
+    LABEL_TYPE : Normalized
+    CLIP_LENGTH: 180
+    CROP_FACE: True
+    H: 72
+    W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 4
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: DeepPhys
+INFERENCE:
+  BATCH_SIZE: 16
+  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PretrainedModels/deepphys_synthetics_10epoch_geforce2080ti_Epoch9.pth"
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']

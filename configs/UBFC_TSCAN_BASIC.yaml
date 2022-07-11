@@ -1,18 +1,15 @@
 BASE: ['']
 DATA:
-  FS: 30
-  DATASET: PURE
-  DO_PREPROCESS: True
+  DATASET: UBFC
+  DO_PREPROCESS: False
   DATA_FORMAT: NDCHW
-  TRAIN_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData/"
-  VALID_DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData/"
   PREPROCESS :
     DATA_TYPE: ['Normalized','Standardized']
     LABEL_TYPE : Normalized
     CLIP_LENGTH: 180
     CROP_FACE: True
-    H: 72
-    W: 72
+    H: 36
+    W: 36
 DEVICE: cuda:0
 LOG:
   PATH: runs/exp
@@ -20,9 +17,10 @@ MODEL:
   DROP_RATE: 0.2
   NAME: Tscan
   TSCAN:
-    FRAME_DEPTH: 20
+    FRAME_DEPTH: 10
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
   LR: 0.0001
-  MODEL_FILE_NAME: tscan_train_pure.pth
+  MODEL_FILE_NAME: tscan.pth
+  

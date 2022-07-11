@@ -9,7 +9,8 @@ import numpy as np
 import os
 from tqdm import tqdm
 import logging
-
+from metrics.metrics import calculate_metrics
+from collections import OrderedDict
 
 class DeepPhysTrainer(BaseTrainer):
 
@@ -18,7 +19,7 @@ class DeepPhysTrainer(BaseTrainer):
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.model = DeepPhys(img_size=config.DATA.PREPROCESS.H).to(self.device)
-        self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+        # self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
@@ -26,6 +27,7 @@ class DeepPhysTrainer(BaseTrainer):
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
+        self.config = config
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -98,21 +100,53 @@ class DeepPhysTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
+        config = self.config
         print("===Testing===")
-        predictions = list()
-        labels = list()
+        predictions = dict()
+        labels = dict()
+        if config.INFERENCE.MODEL_PATH:
+            # self.model = load_model(self.model, config)
+            if config.NUM_OF_GPU_TRAIN > 1:
+                checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
+                state_dict = checkpoint
+                new_state_dict = OrderedDict()
+                for k, v in state_dict.items():
+                    name = k[7:]  # remove 'module.' of dataparallel
+                    new_state_dict[name] = v
+                self.model.load_state_dict(new_state_dict)
+            else:
+                self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
+            self.model = self.model.to(config.DEVICE)
+            print("Testing uses pretrained model!")
+
         self.model.eval()
         with torch.no_grad():
-            for _, test_batch in enumerate(data_loader["test"]):
+            for _, test_batch in enumerate(data_loader['test']):
+                batch_size = test_batch[0].shape[0]
                 data_test, labels_test = test_batch[0].to(
-                    self.device), test_batch[1].to(self.device)
+                    config.DEVICE), test_batch[1].to(config.DEVICE)
                 N, D, C, H, W = data_test.shape
                 data_test = data_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
                 pred_ppg_test = self.model(data_test)
-                predictions.append(pred_ppg_test)
-                labels.append(labels_test)
-        return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
+                for idx in range(batch_size):
+                    subj_index = test_batch[2][idx]
+                    sort_index = int(test_batch[3][idx])
+                    if subj_index not in predictions.keys():
+                        predictions[subj_index] = dict()
+                        labels[subj_index] = dict()
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx*config.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.DATA.PREPROCESS.CLIP_LENGTH]
+                    labels[subj_index][sort_index] = labels_test[idx*config.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.DATA.PREPROCESS.CLIP_LENGTH]
+
+        calculate_metrics(predictions, labels, config)
+
+        return
+
+
+
+
+
+
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
