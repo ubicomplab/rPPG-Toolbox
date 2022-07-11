@@ -62,7 +62,7 @@ def add_args(parser):
     parser.add_argument('--model_dir', default=None, type=str)
     return parser
 
-## train
+
 def train(config, data_loader):
     """Trains the model."""
     if config.MODEL.NAME == "Physnet":

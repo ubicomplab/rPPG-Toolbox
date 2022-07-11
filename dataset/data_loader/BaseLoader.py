@@ -10,7 +10,7 @@ import cv2
 import glob
 import re
 from torch.utils.data import Dataset
-
+from math import ceil
 
 class BaseLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
@@ -96,10 +96,11 @@ class BaseLoader(Dataset):
         """
         frames = self.resize(
             frames,
+            config_preprocess.DYNAMIC_DETECTION,
+            config_preprocess.DETECTION_LENGTH,
             config_preprocess.W,
             config_preprocess.H,
             config_preprocess.LARGE_FACE_BOX,
-            config_preprocess.FACE_DETECT,
             config_preprocess.CROP_FACE,
             config_preprocess.LARGER_BOX_SIZE)
         # data_type
@@ -157,17 +158,30 @@ class BaseLoader(Dataset):
             result[3] = larger_box_size * result[3]
         return result
 
-    def resize(self, frames, w, h, larger_box, face_detection, crop_face,larger_box_size):
+    def resize(self, frames, danymic_det, det_length,
+               w, h, larger_box, crop_face, larger_box_size):
         """Resizes each frame, crops the face area if flag is true."""
-        if face_detection:
-            print('Frames Shape: ', frames.shape)
-            face_region = self.facial_detection(frames[0], larger_box, larger_box_size)
+        if danymic_det:
+            det_num = ceil(frames.shape[0] / det_length)
         else:
-            face_region = frames[0]
+            det_num = 1
+        face_region = list()
+
+        for idx in range(det_num):
+            if crop_face:
+                face_region.append(self.facial_detection(frames[det_length*idx], larger_box,larger_box_size))
+            else:
+                face_region.append(frames[0])
+        face_region_all = np.asarray(face_region, dtype='int')
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]
+            if danymic_det:
+                reference_index = i // det_length
+            else:
+                reference_index = 0
             if crop_face:
+                face_region = face_region_all[reference_index]
                 # print('cropping face!!!')
                 frame = frame[max(face_region[1],
                                   0):min(face_region[1] + face_region[3],
