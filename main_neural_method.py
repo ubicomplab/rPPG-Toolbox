@@ -34,7 +34,7 @@ torch.backends.cudnn.benchmark = False
 g = torch.Generator()
 g.manual_seed(RANDOM_SEED)
 
-#test
+
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
     np.random.seed(worker_seed)
@@ -44,7 +44,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/UBFC_DEEPPHYS_EVALUATION.yaml", type=str, help="The name of the model.")
+                        default="configs/UBFC_DEEPPHYS_BASIC.yaml", type=str, help="The name of the model.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
@@ -127,25 +127,50 @@ if __name__ == "__main__":
             logging.basicConfig(level=logging.ERROR, filemode='w', filename=args.log_path)
         elif args.log_level == "CRITICAL":
             logging.basicConfig(level=logging.CRITICAL, filemode='w', filename=args.log_path)
-    # loads data
-    if config.DATA.DATASET == "COHFACE":
-        loader = data_loader.COHFACELoader.COHFACELoader
-    elif config.DATA.DATASET == "UBFC":
-        loader = data_loader.UBFCLoader.UBFCLoader
-    elif config.DATA.DATASET == "PURE":
-        loader = data_loader.PURELoader.PURELoader
-    elif config.DATA.DATASET == "SYNTHETICS":
-        loader = data_loader.SyntheticsLoader.SyntheticsLoader
+    # train_loader
+    if config.TRAIN.DATA.DATASET == "COHFACE":
+        train_loader = data_loader.COHFACELoader.COHFACELoader
+    elif config.TRAIN.DATA.DATASET == "UBFC":
+        train_loader = data_loader.UBFCLoader.UBFCLoader
+    elif config.TRAIN.DATA.DATASET == "PURE":
+        train_loader = data_loader.PURELoader.PURELoader
+    elif config.TRAIN.DATA.DATASET == "SYNTHETICS":
+        train_loader = data_loader.SyntheticsLoader.SyntheticsLoader
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
 
+    # valid_loader
+    if config.VALID.DATA.DATASET == "COHFACE":
+        valid_loader = data_loader.COHFACELoader.COHFACELoader
+    elif config.VALID.DATA.DATASET == "UBFC":
+        valid_loader = data_loader.UBFCLoader.UBFCLoader
+    elif config.VALID.DATA.DATASET == "PURE":
+        valid_loader = data_loader.PURELoader.PURELoader
+    elif config.VALID.DATA.DATASET == "SYNTHETICS":
+        valid_loader = data_loader.SyntheticsLoader.SyntheticsLoader
+    else:
+        raise ValueError(
+            "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
+
+    # test_loader
+    if config.TEST.DATA.DATASET == "COHFACE":
+        test_loader = data_loader.COHFACELoader.COHFACELoader
+    elif config.TEST.DATA.DATASET == "UBFC":
+        test_loader = data_loader.UBFCLoader.UBFCLoader
+    elif config.TEST.DATA.DATASET == "PURE":
+        test_loader = data_loader.PURELoader.PURELoader
+    elif config.TEST.DATA.DATASET == "SYNTHETICS":
+        test_loader = data_loader.SyntheticsLoader.SyntheticsLoader
+    else:
+        raise ValueError(
+            "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
     data_loader = dict()
-    if config.DATA.TRAIN_DATA_PATH:
-        train_data_loader = loader(
+    if config.TRAIN.DATA.DATA_PATH:
+        train_data_loader = train_loader(
             name="train",
-            data_path=config.DATA.TRAIN_DATA_PATH,
-            config_data=config.DATA)
+            data_path=config.TRAIN.DATA.DATA_PATH,
+            config_data=config.TRAIN.DATA)
         data_loader['train'] = DataLoader(
             dataset=train_data_loader,
             num_workers=4,
@@ -157,11 +182,11 @@ if __name__ == "__main__":
     else:
         data_loader['train'] = None
 
-    if config.DATA.VALID_DATA_PATH:
-        valid_data = loader(
+    if config.TRAIN.DATA.DATA_PATH:
+        valid_data = valid_loader(
             name="valid",
-            data_path=config.DATA.VALID_DATA_PATH,
-            config_data=config.DATA)
+            data_path=config.VALID.DATA.DATA_PATH,
+            config_data=config.VALID.DATA)
         data_loader["valid"] = DataLoader(
             dataset=valid_data,
             num_workers=4,
@@ -173,11 +198,11 @@ if __name__ == "__main__":
     else:
         data_loader['valid'] = None
 
-    if config.DATA.TEST_DATA_PATH:
-        test_data = loader(
+    if config.TEST.DATA.DATA_PATH:
+        test_data = test_loader(
             name="test",
-            data_path=config.DATA.TEST_DATA_PATH,
-            config_data=config.DATA)
+            data_path=config.TEST.DATA.DATA_PATH,
+            config_data=config.TEST.DATA)
         data_loader["test"] = DataLoader(
             dataset=test_data,
             num_workers=4,
@@ -188,5 +213,5 @@ if __name__ == "__main__":
         )
     else:
         data_loader['test'] = None
-    test(config, data_loader)
     train(config, data_loader)
+    test(config, data_loader)

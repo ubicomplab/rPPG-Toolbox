@@ -7,7 +7,6 @@ import pandas as pd
 from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 
-from config import get_evaluate_config
 from dataset import data_loader
 from eval.post_process import *
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
@@ -52,7 +51,7 @@ def calculate_metrics(predictions, labels, config):
     predict_hr_peak_all = list()
     gt_hr_peak_all = list()
     label_hr = list()
-    label_dict = read_label(config.DATA.DATASET)
+    label_dict = read_label(config.TEST.DATA.DATASET)
     white_list = []
     for index in predictions.keys():
         if index in white_list:
@@ -60,10 +59,10 @@ def calculate_metrics(predictions, labels, config):
         prediction = reform_data_from_dict(predictions[index])
         label = reform_data_from_dict(labels[index])
         gt_hr_fft, pred_hr_fft = calculate_metric_per_video(
-            prediction, label, fs=config.DATA.FS)
+            prediction, label, fs=config.TEST.DATA.FS)
         # print(predictions[i]['prediction'], labels[i]['prediction'])
         gt_hr_peak, pred_hr_peak = calculate_metric_peak_per_video(
-            prediction, label, fs=config.DATA.FS)
+            prediction, label, fs=config.TEST.DATA.FS)
         gt_hr_fft_all.append(gt_hr_fft)
         predict_hr_fft_all.append(pred_hr_fft)
         predict_hr_peak_all.append(pred_hr_peak)

@@ -18,7 +18,7 @@ class DeepPhysTrainer(BaseTrainer):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
-        self.model = DeepPhys(img_size=config.DATA.PREPROCESS.H).to(self.device)
+        self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
         # self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
@@ -118,7 +118,8 @@ class DeepPhysTrainer(BaseTrainer):
                 self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             self.model = self.model.to(config.DEVICE)
             print("Testing uses pretrained model!")
-
+        else:
+            print("Testing uses non-pretrained model!")
         self.model.eval()
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader['test']):
@@ -135,8 +136,8 @@ class DeepPhysTrainer(BaseTrainer):
                     if subj_index not in predictions.keys():
                         predictions[subj_index] = dict()
                         labels[subj_index] = dict()
-                    predictions[subj_index][sort_index] = pred_ppg_test[idx*config.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.DATA.PREPROCESS.CLIP_LENGTH]
-                    labels[subj_index][sort_index] = labels_test[idx*config.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.DATA.PREPROCESS.CLIP_LENGTH]
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
+                    labels[subj_index][sort_index] = labels_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
 
         calculate_metrics(predictions, labels, config)
 

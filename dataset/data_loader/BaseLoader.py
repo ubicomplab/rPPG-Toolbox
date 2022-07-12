@@ -38,7 +38,8 @@ class BaseLoader(Dataset):
         """
         self.name = name
         self.data_path = data_path
-        self.cached_path = os.path.join(config_data.CACHED_PATH, name)
+        # self.cached_path = os.path.join(config_data.CACHED_PATH, name)
+        self.cached_path = config_data.CACHED_PATH
         self.inputs = list()
         self.labels = list()
         self.len = 0
@@ -227,6 +228,7 @@ class BaseLoader(Dataset):
 
     def load(self):
         """Loads the preprocessing data."""
+        print(self.cached_path)
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
         labels = [input.replace("input", "label") for input in inputs]
         assert (len(inputs) == len(labels))

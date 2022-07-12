@@ -1,0 +1,77 @@
+BASE: ['']
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 30
+  LR: 1e-5
+  MODEL_FILE_NAME: UBFC_deepphys.pth
+  DATA:
+    FS: 30
+    DATASET: UBFC
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
+    EXP_DATA_NAME: ""
+    PREPROCESS :
+      DATA_TYPE: ['Normalized','Standardized']
+      LABEL_TYPE: Normalized
+      DO_CHUNK: True
+      CLIP_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DETECTION_LENGTH: 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGER_BOX_SIZE: 1.5
+      H: 72
+      W: 72
+VALID:
+  DATA:
+    FS: 30
+    DATASET: UBFC
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"
+    EXP_DATA_NAME: ""
+    PREPROCESS:
+      DATA_TYPE: [ 'Normalized','Standardized' ]
+      LABEL_TYPE: Normalized
+      DO_CHUNK: True
+      CLIP_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DETECTION_LENGTH: 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGER_BOX_SIZE: 1.5
+      H: 72
+      W: 72
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  DATA:
+    FS: 30
+    DATASET: UBFC
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"
+    EXP_DATA_NAME: ""
+    PREPROCESS:
+      DATA_TYPE: [ 'Normalized','Standardized' ]
+      LABEL_TYPE: Normalized
+      DO_CHUNK: True
+      CLIP_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DETECTION_LENGTH: 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGER_BOX_SIZE: 1.5
+      H: 72
+      W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 4
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: DeepPhys
+INFERENCE:
+  BATCH_SIZE: 16
+  MODEL_PATH:   ""
+#  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PretrainedModels/deepphys_synthetics_10epoch_geforce2080ti_Epoch9.pth"
