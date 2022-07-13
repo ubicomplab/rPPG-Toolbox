@@ -29,7 +29,7 @@ _C.DATA.EXP_DATA_NAME = ''
 _C.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
 _C.DATA.DATASET = ''
-_C.DATA.DO_PREPROCESS = False
+_C.DATA.DO_PREPROCESS = True
 _C.DATA.DATA_FORMAT = 'NDCHW'
 # -----------------------------------------------------------------------------
 # Data preprocessing
@@ -41,6 +41,7 @@ _C.DATA.PREPROCESS.CLIP_LENGTH = 180
 _C.DATA.PREPROCESS.DYNAMIC_DETECTION = True
 _C.DATA.PREPROCESS.DETECTION_LENGTH = 180
 _C.DATA.PREPROCESS.CROP_FACE = True
+_C.DATA.PREPROCESS.FACE_DETECT = True
 _C.DATA.PREPROCESS.LARGE_FACE_BOX = True
 _C.DATA.PREPROCESS.LARGER_BOX_SIZE = 1.5
 _C.DATA.PREPROCESS.W = 128
