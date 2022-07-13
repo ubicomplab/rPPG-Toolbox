@@ -49,7 +49,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True
+    DO_PREPROCESS: False
     DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"
     EXP_DATA_NAME: ""
