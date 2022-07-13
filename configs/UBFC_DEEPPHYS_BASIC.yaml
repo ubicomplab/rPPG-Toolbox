@@ -1,15 +1,16 @@
 BASE: ['']
 TRAIN:
-  BATCH_SIZE: 4
+  BATCH_SIZE: 16
   EPOCHS: 30
-  LR: 1e-5
-  MODEL_FILE_NAME: UBFC_deepphys.pth
+  LR: 1e-4
+  MODEL_FILE_NAME: UBFC_tscan.pth
   DATA:
     FS: 30
-    DATASET: UBFC
-    DO_PREPROCESS: False
+    DATASET: PURE
+    DO_PREPROCESS: True
     DATA_FORMAT: NDCHW
-    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
+#    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
+    DATA_PATH:   "/data1/toolbox_data/PURE/RawData"
     EXP_DATA_NAME: ""
     PREPROCESS :
       DATA_TYPE: ['Normalized','Standardized']
@@ -20,7 +21,7 @@ TRAIN:
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 1.5
+      LARGER_BOX_SIZE: 2.0
       H: 72
       W: 72
 VALID:
@@ -48,7 +49,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: False
+    DO_PREPROCESS: True
     DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"
     EXP_DATA_NAME: ""
@@ -60,7 +61,7 @@ TEST:
       DYNAMIC_DETECTION: False
       DETECTION_LENGTH: 180
       CROP_FACE: True
-      LARGE_FACE_BOX: True
+      LARGE_FACE_BOX: False
       LARGER_BOX_SIZE: 1.5
       H: 72
       W: 72
@@ -73,5 +74,5 @@ MODEL:
   NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 16
-  MODEL_PATH:   ""
-#  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PretrainedModels/deepphys_synthetics_10epoch_geforce2080ti_Epoch9.pth"
+#  MODEL_PATH:   ""
+  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PretrainedModels/deepphys_synthetics_10epoch_geforce2080ti_Epoch9.pth"
