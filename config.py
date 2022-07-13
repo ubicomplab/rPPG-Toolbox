@@ -29,7 +29,7 @@ _C.DATA.EXP_DATA_NAME = ''
 _C.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
 _C.DATA.DATASET = ''
-_C.DATA.DO_PREPROCESS = False
+_C.DATA.DO_PREPROCESS = True
 _C.DATA.DATA_FORMAT = 'NDCHW'
 # -----------------------------------------------------------------------------
 # Data preprocessing
@@ -37,13 +37,15 @@ _C.DATA.DATA_FORMAT = 'NDCHW'
 # -----------------------------------------------------------------------------
 _C.DATA.PREPROCESS = CN()
 _C.DATA.PREPROCESS.DO_CHUNK = True
+_C.DATA.PREPROCESS.CLIP_LENGTH = 180
+_C.DATA.PREPROCESS.DYNAMIC_DETECTION = True
+_C.DATA.PREPROCESS.DETECTION_LENGTH = 180
 _C.DATA.PREPROCESS.CROP_FACE = True
+_C.DATA.PREPROCESS.FACE_DETECT = True
 _C.DATA.PREPROCESS.LARGE_FACE_BOX = True
 _C.DATA.PREPROCESS.LARGER_BOX_SIZE = 1.5
-_C.DATA.PREPROCESS.FACE_DETECT = True
 _C.DATA.PREPROCESS.W = 128
 _C.DATA.PREPROCESS.H = 128
-_C.DATA.PREPROCESS.CLIP_LENGTH = 64
 _C.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.DATA.PREPROCESS.LABEL_TYPE = ''
 
@@ -165,7 +167,9 @@ def update_config(config, args):
             str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE),
                                       "Large_box{0}".format(config.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.DATA.PREPROCESS.LARGER_BOX_SIZE)
+                                      "Large_size{0}".format(config.DATA.PREPROCESS.LARGER_BOX_SIZE),
+                                      "Dyamic_Det{0}".format(config.DATA.PREPROCESS.DYNAMIC_DETECTION),
+                                        "det_len{0}".format(config.DATA.PREPROCESS.DETECTION_LENGTH)
                                               ])
 
     config.LOG.PATH = os.path.join(
@@ -203,7 +207,9 @@ def update_evaluate_config(config, args):
             str(config.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.DATA.PREPROCESS.LABEL_TYPE),
                                       "Large_box{0}".format(config.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.DATA.PREPROCESS.LARGER_BOX_SIZE)
+                                      "Large_size{0}".format(config.DATA.PREPROCESS.LARGER_BOX_SIZE),
+                                      "Dyamic_Det{0}".format(config.DATA.PREPROCESS.DYNAMIC_DETECTION),
+                                      "det_len{0}".format(config.DATA.PREPROCESS.DETECTION_LENGTH)
                                               ])
 
     config.LOG.PATH = os.path.join(
