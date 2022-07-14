@@ -2,7 +2,7 @@ BASE: ['']
 TRAIN_OR_TEST: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
-  EPOCHS: 50
+  EPOCHS: 10
   LR: 1e-3
   MODEL_FILE_NAME: PURE_UBFC_tscan.pth
   DATA:
