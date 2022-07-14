@@ -44,7 +44,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/UBFC_DEEPPHYS_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/PURE_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
@@ -63,7 +63,7 @@ def add_args(parser):
     return parser
 
 
-def train(config, data_loader):
+def train_and_test(config, data_loader):
     """Trains the model."""
     if config.MODEL.NAME == "Physnet":
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config)
@@ -76,6 +76,7 @@ def train(config, data_loader):
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.train(data_loader)
+    model_trainer.test(data_loader)
 
 def test(config, data_loader):
     """Tests the model."""
@@ -213,5 +214,5 @@ if __name__ == "__main__":
         )
     else:
         data_loader['test'] = None
-    train(config, data_loader)
-    test(config, data_loader)
+    train_and_test(config, data_loader)
+    # test(config, data_loader)

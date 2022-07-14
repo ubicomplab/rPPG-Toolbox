@@ -1,9 +1,10 @@
 BASE: ['']
+
 TRAIN:
-  BATCH_SIZE: 4
-  EPOCHS: 50
+  BATCH_SIZE: 16
+  EPOCHS: 10
   LR: 1e-5
-  MODEL_FILE_NAME: PURE_UBFC_tscan.pth
+  MODEL_FILE_NAME: PURE_UBFC_deepphys.pth
   DATA:
     FS: 30
     DATASET: PURE
@@ -65,16 +66,13 @@ TEST:
       H: 72
       W: 72
 DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 1
+NUM_OF_GPU_TRAIN: 4
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: Tscan
-  TSCAN:
-    FRAME_DEPTH: 10
+  NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 16
-#  MODEL_PATH:   ""
-  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_UBFC_tscan.pth_Epoch18.pth"
+  MODEL_PATH:   ""
 #  MODEL_PATH:  "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_UBFC_deepphys.pth_Epoch0.pth"

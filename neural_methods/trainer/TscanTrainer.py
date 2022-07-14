@@ -9,6 +9,8 @@ import numpy as np
 import os
 from tqdm import tqdm
 import logging
+from metrics.metrics import calculate_metrics
+from collections import OrderedDict
 
 
 class TscanTrainer(BaseTrainer):
@@ -18,7 +20,7 @@ class TscanTrainer(BaseTrainer):
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
-        self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.DATA.PREPROCESS.H).to(self.device)
+        self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
@@ -29,6 +31,8 @@ class TscanTrainer(BaseTrainer):
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.num_of_gpu = config.NUM_OF_GPU_TRAIN
         self.base_len = self.num_of_gpu * self.frame_depth
+        self.config = config
+        self.best_epoch = 0
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -64,12 +68,11 @@ class TscanTrainer(BaseTrainer):
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
-            print('Saving Model Epoch ', str(epoch))
-            # if(valid_loss < min_valid_loss) or (valid_loss < 0):
-            #     min_valid_loss = valid_loss
-            #     print("update best model")
-            #     self.save_model()
-            #     print(valid_loss)
+            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+                min_valid_loss = valid_loss
+                self.best_epoch = epoch
+                print("update best model,best epoch :{}".format(self.best_epoch))
+                self.save_model(epoch)
         return 0
 
     def valid(self, data_loader):
@@ -111,21 +114,16 @@ class TscanTrainer(BaseTrainer):
         predictions = dict()
         labels = dict()
         if config.INFERENCE.MODEL_PATH:
-            # self.model = load_model(self.model, config)
-            if config.NUM_OF_GPU_TRAIN > 1:
-                checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
-                state_dict = checkpoint
-                new_state_dict = OrderedDict()
-                for k, v in state_dict.items():
-                    name = k[7:]  # remove 'module.' of dataparallel
-                    new_state_dict[name] = v
-                self.model.load_state_dict(new_state_dict)
-            else:
-                self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
-            self.model = self.model.to(config.DEVICE)
+            self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
         else:
+            best_model_path = os.path.join(
+                self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
             print("Testing uses non-pretrained model!")
+            print("best trained epoch:{}".format(self.best_epoch))
+            print(best_model_path)
+            self.model.load_state_dict(torch.load(best_model_path))
+        self.model = self.model.to(config.DEVICE)
         self.model.eval()
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader['test']):

@@ -19,7 +19,7 @@ class DeepPhysTrainer(BaseTrainer):
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
-        # self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+        self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
@@ -28,6 +28,7 @@ class DeepPhysTrainer(BaseTrainer):
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.config = config
+        self.best_epoch = 0
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -65,12 +66,11 @@ class DeepPhysTrainer(BaseTrainer):
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
-            print('Saving Model Epoch ', str(epoch))
-            # if(valid_loss < min_valid_loss) or (valid_loss < 0):
-            #     min_valid_loss = valid_loss
-            #     print("update best model")
-            #     self.save_model()
-            #     print(valid_loss)
+            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+                min_valid_loss = valid_loss
+                self.best_epoch = epoch
+                print("update best model,best epoch :{}".format(self.best_epoch))
+                self.save_model(epoch)
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
@@ -106,20 +106,27 @@ class DeepPhysTrainer(BaseTrainer):
         labels = dict()
         if config.INFERENCE.MODEL_PATH:
             # self.model = load_model(self.model, config)
-            if config.NUM_OF_GPU_TRAIN > 1:
-                checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
-                state_dict = checkpoint
-                new_state_dict = OrderedDict()
-                for k, v in state_dict.items():
-                    name = k[7:]  # remove 'module.' of dataparallel
-                    new_state_dict[name] = v
-                self.model.load_state_dict(new_state_dict)
-            else:
-                self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
-            self.model = self.model.to(config.DEVICE)
+            # if config.NUM_OF_GPU_TRAIN > 1:
+            #     checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
+            #     state_dict = checkpoint
+            #     new_state_dict = OrderedDict()
+            #     for k, v in state_dict.items():
+            #         name = k[7:]  # remove 'module.' of dataparallel
+            #         new_state_dict[name] = v
+            #     self.model.load_state_dict(new_state_dict)
+            # else:
+            #     self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
+            self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
         else:
+            best_model_path = os.path.join(
+                self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
             print("Testing uses non-pretrained model!")
+            print("best trained epoch:{}".format(self.best_epoch))
+            print(best_model_path)
+            self.model.load_state_dict(torch.load(best_model_path))
+
+        self.model = self.model.to(config.DEVICE)
         self.model.eval()
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader['test']):
@@ -155,4 +162,3 @@ class DeepPhysTrainer(BaseTrainer):
         model_path = os.path.join(
             self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
         torch.save(self.model.state_dict(), model_path)
-        print('Saved Model Path: ', model_path)

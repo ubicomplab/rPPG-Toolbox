@@ -1,16 +1,15 @@
 BASE: ['']
 TRAIN:
   BATCH_SIZE: 16
-  EPOCHS: 30
-  LR: 1e-4
-  MODEL_FILE_NAME: UBFC_tscan.pth
+  EPOCHS: 10
+  LR: 1e-5
+  MODEL_FILE_NAME: UBFC_PURE_deepphys
   DATA:
     FS: 30
-    DATASET: PURE
-    DO_PREPROCESS: True
+    DATASET: UBFC
+    DO_PREPROCESS: False
     DATA_FORMAT: NDCHW
-#    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
-    DATA_PATH:   "/data1/toolbox_data/PURE/RawData"
+    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"
     EXP_DATA_NAME: ""
     PREPROCESS :
       DATA_TYPE: ['Normalized','Standardized']
@@ -21,16 +20,16 @@ TRAIN:
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 2.0
+      LARGER_BOX_SIZE: 1.5
       H: 72
       W: 72
 VALID:
   DATA:
     FS: 30
-    DATASET: UBFC
+    DATASET: PURE
     DO_PREPROCESS: False
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"
+    DATA_PATH: "/data1/toolbox_data/PURE/RawData"
     EXP_DATA_NAME: ""
     PREPROCESS:
       DATA_TYPE: [ 'Normalized','Standardized' ]
@@ -48,10 +47,10 @@ TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   DATA:
     FS: 30
-    DATASET: UBFC
+    DATASET: PURE
     DO_PREPROCESS: False
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"
+    DATA_PATH: "/data1/toolbox_data/PURE/RawData"
     EXP_DATA_NAME: ""
     PREPROCESS:
       DATA_TYPE: [ 'Normalized','Standardized' ]
@@ -61,7 +60,7 @@ TEST:
       DYNAMIC_DETECTION: False
       DETECTION_LENGTH: 180
       CROP_FACE: True
-      LARGE_FACE_BOX: False
+      LARGE_FACE_BOX: True
       LARGER_BOX_SIZE: 1.5
       H: 72
       W: 72
@@ -74,5 +73,8 @@ MODEL:
   NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 16
-#  MODEL_PATH:   ""
-  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PretrainedModels/deepphys_synthetics_10epoch_geforce2080ti_Epoch9.pth"
+  MODEL_PATH:   ""
+#  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PretrainedM
+#  odels/deepphys_synthetics_10epoch_geforce2080ti_Epoch9.pth"
+#  MODEL_PATH: "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/UBFC_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/UBFC_deepphys_Epoch29.pth"
+  
