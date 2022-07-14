@@ -2,7 +2,7 @@ BASE: ['']
 TRAIN_OR_TEST: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
-  EPOCHS: 3
+  EPOCHS: 50
   LR: 1e-3
   MODEL_FILE_NAME: PURE_UBFC_tscan.pth
   DATA:
@@ -61,7 +61,7 @@ TEST:
       DYNAMIC_DETECTION: False
       DETECTION_LENGTH: 180
       CROP_FACE: True
-      LARGE_FACE_BOX: False
+      LARGE_FACE_BOX: True
       LARGER_BOX_SIZE: 1.5
       H: 72
       W: 72
