@@ -71,8 +71,9 @@ class TscanTrainer(BaseTrainer):
             if(valid_loss < min_valid_loss) or (valid_loss < 0):
                 min_valid_loss = valid_loss
                 self.best_epoch = epoch
-                print("update best model,best epoch :{}".format(self.best_epoch))
+                print("Update best model! Best epoch: {}".format(self.best_epoch))
                 self.save_model(epoch)
+        print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
         return 0
 
     def valid(self, data_loader):
@@ -113,7 +114,7 @@ class TscanTrainer(BaseTrainer):
         print("===Testing===")
         predictions = dict()
         labels = dict()
-        if config.INFERENCE.MODEL_PATH:
+        if config.TRAIN_OR_TEST == "only_test":
             self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
         else:

@@ -214,5 +214,9 @@ if __name__ == "__main__":
         )
     else:
         data_loader['test'] = None
-    train_and_test(config, data_loader)
-    # test(config, data_loader)
+    if config.TRAIN_OR_TEST == "train_and_test":
+        train_and_test(config, data_loader)
+    elif config.TRAIN_OR_TEST == "only_test":
+        test(config, data_loader)
+    else:
+        print("TRAIN_OR_TEST only support train_and_test or only_test !")
