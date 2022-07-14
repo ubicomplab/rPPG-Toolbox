@@ -40,6 +40,7 @@ _C.TRAIN.DATA.EXP_DATA_NAME = ''
 # Path to preprocessing data, could be overwritten by command line argument
 _C.TRAIN.DATA.CACHED_PATH = 'PreprocessedData'
 # Dataset name, coule be overwritten by command line argument
+
 _C.TRAIN.DATA.DATASET = ''
 _C.TRAIN.DATA.DO_PREPROCESS = False
 _C.TRAIN.DATA.DATA_FORMAT = 'NDCHW'
@@ -59,7 +60,6 @@ _C.TRAIN.DATA.PREPROCESS.W = 128
 _C.TRAIN.DATA.PREPROCESS.H = 128
 _C.TRAIN.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TRAIN.DATA.PREPROCESS.LABEL_TYPE = ''
-
 # -----------------------------------------------------------------------------
 # Valid settings
 # -----------------------------------------------------------------------------\
@@ -267,6 +267,7 @@ def update_config(config, args):
                                       "Large_size{0}".format(config.VALID.DATA.PREPROCESS.LARGER_BOX_SIZE),
                                       "Dyamic_Det{0}".format(config.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION),
                                         "det_len{0}".format(config.VALID.DATA.PREPROCESS.DETECTION_LENGTH)
+
                                               ])
     config.VALID.DATA.CACHED_PATH = os.path.join(config.VALID.DATA.CACHED_PATH, config.VALID.DATA.EXP_DATA_NAME)
 

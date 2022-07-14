@@ -160,20 +160,24 @@ class BaseLoader(Dataset):
         return result
 
     def resize(self, frames, danymic_det, det_length,
-               w, h, larger_box, crop_face, larger_box_size):
-        """Resizes each frame, crops the face area if flag is true."""
-        if danymic_det:
-            det_num = ceil(frames.shape[0] / det_length)
-        else:
-            det_num = 1
-        face_region = list()
 
-        for idx in range(det_num):
-            if crop_face:
-                face_region.append(self.facial_detection(frames[det_length*idx], larger_box,larger_box_size))
+               w, h, larger_box, face_detection, crop_face, larger_box_size):
+        """Resizes each frame, crops the face area if flag is true."""
+        if face_detection:
+            if danymic_det:
+                det_num = ceil(frames.shape[0] / det_length)
             else:
-                face_region.append(frames[0])
-        face_region_all = np.asarray(face_region, dtype='int')
+                det_num = 1
+            face_region = list()
+            for idx in range(det_num):
+                if crop_face:
+                    face_region.append(self.facial_detection(frames[det_length*idx], larger_box,larger_box_size))
+                else:
+                    face_region.append(frames[0])
+            face_region_all = np.asarray(face_region, dtype='int')
+        else:
+            assert (danymic_det == False)           # danymic_det can be True only when face_detection is True.
+            face_region_all = [0, 0, frames[0].shape[0], frames[0].shape[1]]
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]
