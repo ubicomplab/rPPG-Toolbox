@@ -74,6 +74,6 @@ MODEL:
   NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 4
-  MODEL_PATH: "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/deepphys_synthetics_10epoch_geforce2080ti_Epoch9.pth"
+  MODEL_PATH: ""
                     # if TRAIN_OR_TEST:"train_and_test", should be "" or anything, it will use currently trained model.
                     # if TRAIN_OR_TEST:"only_test", should be "path"

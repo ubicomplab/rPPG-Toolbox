@@ -77,7 +77,5 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 16
   MODEL_PATH:   ""
-        #MODEL_PATH: # if TRAIN_OR_TEST:"train_and_test", should be "" or anything, it will use currently trained model.
-                     # if TRAIN_OR_TEST:"only_test", should be "path"
-#  MODEL_PATH:   "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_UBFC_tscan.pth_Epoch18.pth"
-#  MODEL_PATH:  "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW72_SizeH72_ClipLength180_DataTypeNormalized_Standardized_LabelTypeNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_UBFC_deepphys.pth_Epoch0.pth"
+             #MODEL_PATH: # if TRAIN_OR_TEST:"train_and_test", should be "" or anything, it will use currently trained model.
+                          # if TRAIN_OR_TEST:"only_test", should be "path"

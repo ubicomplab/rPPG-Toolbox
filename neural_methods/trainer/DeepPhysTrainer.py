@@ -33,9 +33,6 @@ class DeepPhysTrainer(BaseTrainer):
     def train(self, data_loader):
         """ TODO:Docstring"""
         min_valid_loss = 1
-        # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer,
-        #                                                        T_max=len(data_loader["train"]) * self.max_epoch_num,
-        #                                                        eta_min=0)
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
@@ -55,7 +52,6 @@ class DeepPhysTrainer(BaseTrainer):
                 loss = self.criterion(pred_ppg, labels)
                 loss.backward()
                 self.optimizer.step()
-                # scheduler.step()
                 running_loss += loss.item()
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
@@ -105,17 +101,6 @@ class DeepPhysTrainer(BaseTrainer):
         predictions = dict()
         labels = dict()
         if config.INFERENCE.MODEL_PATH:
-            # self.model = load_model(self.model, config)
-            # if config.NUM_OF_GPU_TRAIN > 1:
-            #     checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
-            #     state_dict = checkpoint
-            #     new_state_dict = OrderedDict()
-            #     for k, v in state_dict.items():
-            #         name = k[7:]  # remove 'module.' of dataparallel
-            #         new_state_dict[name] = v
-            #     self.model.load_state_dict(new_state_dict)
-            # else:
-            #     self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
         else:
@@ -149,12 +134,6 @@ class DeepPhysTrainer(BaseTrainer):
         calculate_metrics(predictions, labels, config)
 
         return
-
-
-
-
-
-
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):

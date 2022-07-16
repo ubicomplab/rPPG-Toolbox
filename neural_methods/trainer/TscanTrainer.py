@@ -149,37 +149,7 @@ class TscanTrainer(BaseTrainer):
                                                     idx + 1) * config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
 
         calculate_metrics(predictions, labels, config)
-
         return 0
-
-
-
-
-    # def test(self, data_loader):
-    #     """ Model evaluation on the testing dataset."""
-    #     print("===Testing===")
-    #     predictions = list()
-    #     labels = list()
-    #     self.model.eval()
-    #     with torch.no_grad():
-    #         for _, test_batch in enumerate(data_loader["test"]):
-    #             data_test, labels_test = test_batch[0].to(
-    #                 self.device), test_batch[1].to(self.device)
-    #             N, D, C, H, W = data_test.shape
-    #             data_test = data_test.view(N * D, C, H, W)
-    #             labels_test = labels_test.view(-1, 1)
-    #             data_test = data_test[:(
-    #                 N * D) // self.frame_depth * self.frame_depth]
-    #             labels_test = labels_test[:(
-    #                 N * D) // self.frame_depth * self.frame_depth]
-    #             pred_ppg_test = self.model(data_test)
-    #             predictions.append(pred_ppg_test)
-    #             labels.append(labels_test)
-    #     return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
-
-
-
-
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):

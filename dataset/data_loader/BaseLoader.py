@@ -38,7 +38,6 @@ class BaseLoader(Dataset):
         """
         self.name = name
         self.data_path = data_path
-        # self.cached_path = os.path.join(config_data.CACHED_PATH, name)
         self.cached_path = config_data.CACHED_PATH
         self.inputs = list()
         self.labels = list()
@@ -159,47 +158,53 @@ class BaseLoader(Dataset):
             result[3] = larger_box_size * result[3]
         return result
 
-    def resize(self, frames, danymic_det, det_length,
+    def resize(self, frames, dynamic_det, det_length,
                w, h, larger_box, crop_face, larger_box_size):
-        """Resizes each frame, crops the face area if flag is true."""
-        if danymic_det:
+        """
+
+        :param dynamic_det: If False, it will use the only first frame to do facial detection and
+                            the detected result will be used for all frames to do cropping and resizing.
+                            If True, it will implement facial detection every "det_length" frames,
+                            [i*det_length, (i+1)*det_length] of frames will use the i-th detected region to do cropping.
+        :param det_length: the interval of dynamic detection
+        :param larger_box: whether enlarge the detected region.
+        :param crop_face:  whether crop the frames.
+        :param larger_box_size: the coefficient of the larger region(height and weight),
+                            the middle point of the detected region will stay still during the process of enlarging.
+        """
+        if dynamic_det:
             det_num = ceil(frames.shape[0] / det_length)
         else:
             det_num = 1
         face_region = list()
 
+        # obtain detection region. it will do facial detection every "det_length" frames, totally "det_num" times.
         for idx in range(det_num):
             if crop_face:
                 face_region.append(self.facial_detection(frames[det_length*idx], larger_box,larger_box_size))
             else:
+                # if crop_face:False, the face_region will be the whole frame, namely cropping nothing.
                 face_region.append([0,0,frames.shape[1],frames.shape[2]])
         face_region_all = np.asarray(face_region, dtype='int')
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
+
+        # if dynamic_det: True, the frame under processing will use the (i // det_length)-th facial region.
+        # if dynamic_det: False, the frame will only use the first region obtrained from the first frame.
         for i in range(0, frames.shape[0]):
             frame = frames[i]
-            if danymic_det:
+            if dynamic_det:
                 reference_index = i // det_length
             else:
                 reference_index = 0
             if crop_face:
                 face_region = face_region_all[reference_index]
-                # print('cropping face!!!')
-                frame = frame[max(face_region[1],
-                                  0):min(face_region[1] + face_region[3],
-                                         frame.shape[0]),
-                              max(face_region[0],
-                                  0):min(face_region[0] + face_region[2],
-                                         frame.shape[1])]
-            resize_frames[i] = cv2.resize(
-                frame, (w, h), interpolation=cv2.INTER_AREA)
-        # resize_frames = np.float32(resize_frames) / 255
-        # resize_frames[resize_frames > 1] = 1
-        # resize_frames[resize_frames < (1 / 255)] = 1 / 255
+                frame = frame[max(face_region[1],0):min(face_region[1] + face_region[3],frame.shape[0]),
+                              max(face_region[0],0):min(face_region[0] + face_region[2],frame.shape[1])]
+            resize_frames[i] = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
         return resize_frames
 
     def chunk(self, frames, bvps, clip_length):
         """Chunks the data into clips."""
-        # assert (frames.shape[0] == bvps.shape[0])
         clip_num = frames.shape[0] // clip_length
         frames_clips = [
             frames[i * clip_length:(i + 1) * clip_length] for i in range(clip_num)]
@@ -211,7 +216,6 @@ class BaseLoader(Dataset):
         """Saves the preprocessing data."""
         if (not os.path.exists(self.cached_path)):
             os.makedirs(self.cached_path)
-            print(self.cached_path)
         count = 0
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
@@ -228,7 +232,6 @@ class BaseLoader(Dataset):
 
     def load(self):
         """Loads the preprocessing data."""
-        print(self.cached_path)
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
         labels = [input.replace("input", "label") for input in inputs]
         assert (len(inputs) == len(labels))
@@ -260,7 +263,6 @@ class BaseLoader(Dataset):
     @staticmethod
     def standardized_data(data):
         """Difference frames and normalization data"""
-        # data[data < 1] = 1
         data = data - np.mean(data)
         data = data / np.std(data)
         data[np.isnan(data)] = 0

@@ -122,42 +122,7 @@ _C.TEST.DATA.PREPROCESS.H = 128
 _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
 
-
-#
-# # -----------------------------------------------------------------------------
-# # Data settings
-# # -----------------------------------------------------------------------------
-# _C.DATA = CN()
-# _C.DATA.FS = 0
-# # Path to dataset, could be overwritten by command line argument
-# _C.DATA.TRAIN_DATA_PATH = ''
-# _C.DATA.VALID_DATA_PATH = ''
-# _C.DATA.TEST_DATA_PATH = ''
-# _C.DATA.EXP_DATA_NAME = ''
-# # Path to preprocessing data, could be overwritten by command line argument
-# _C.DATA.CACHED_PATH = 'PreprocessedData'
-# # Dataset name, coule be overwritten by command line argument
-# _C.DATA.DATASET = ''
-# _C.DATA.DO_PREPROCESS = False
-# _C.DATA.DATA_FORMAT = 'NDCHW'
-# # -----------------------------------------------------------------------------
-# # Data preprocessing
-# # TODO: add other preprocessing configs
-# # -----------------------------------------------------------------------------
-# _C.DATA.PREPROCESS = CN()
-# _C.DATA.PREPROCESS.DO_CHUNK = True
-# _C.DATA.PREPROCESS.CLIP_LENGTH = 180
-# _C.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-# _C.DATA.PREPROCESS.DETECTION_LENGTH = 180
-# _C.DATA.PREPROCESS.CROP_FACE = True
-# _C.DATA.PREPROCESS.LARGE_FACE_BOX = True
-# _C.DATA.PREPROCESS.LARGER_BOX_SIZE = 1.5
-# _C.DATA.PREPROCESS.W = 128
-# _C.DATA.PREPROCESS.H = 128
-# _C.DATA.PREPROCESS.DATA_TYPE = ['']
-# _C.DATA.PREPROCESS.LABEL_TYPE = ''
-#
-# # -----------------------------------------------------------------------------
+### -----------------------------------------------------------------------------
 # Model settings
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
@@ -233,14 +198,10 @@ def update_config(config, args):
         config.TRAIN.BATCH_SIZE = args.batch_size
     if args.epochs:
         config.TRAIN.EPOCHS = args.epochs
-    # if args.cached_path:
-    #     config.DATA.CACHED_PATH = args.cached_path
     if args.lr:
         config.TRAIN.LR = args.lr
     if args.model_dir:
         config.MODEL.MODEL_DIR = args.model_dir
-    # if args.preprocess:
-    #     config.DATA.DO_PREPROCESS = args.preprocess
     if args.train_data_path:
         config.TRAIN.DATA.DATA_PATH = args.train_data_path
     if args.valid_data_path:
