@@ -41,6 +41,8 @@ class UBFCLoader(BaseLoader):
     def get_data(self, data_path):
         """Returns data directories under the path(For UBFC dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "subject*")
+        if (data_dirs == []):
+            raise ValueError(self.name+ " dataset get data error!")
         dirs = [{"index": re.search(
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
         return dirs

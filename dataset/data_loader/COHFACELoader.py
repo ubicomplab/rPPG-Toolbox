@@ -51,6 +51,8 @@ class COHFACELoader(BaseLoader):
     def get_data(self, data_path):
         """Returns data directories under the path(For COHFACE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*")
+        if (data_dirs == []):
+            raise ValueError(self.name+ " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             for i in range(4):
