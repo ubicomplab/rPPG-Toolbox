@@ -28,7 +28,7 @@ VALID:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: False                  # if first time, should be true
+    DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"   # need to be updated
     EXP_DATA_NAME: ""
@@ -41,7 +41,7 @@ VALID:
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 1.5
+      LARGER_BOX_SIZE: 2.0
       H: 72
       W: 72
 TEST:
