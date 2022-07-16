@@ -36,6 +36,8 @@ class TscanTrainer(BaseTrainer):
 
     def train(self, data_loader):
         """ TODO:Docstring"""
+        if data_loader["train"] is None:
+            assert ValueError("No data for train")
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -79,8 +81,7 @@ class TscanTrainer(BaseTrainer):
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
         if data_loader["valid"] is None:
-            print("No data for valid")
-            return -1
+            assert ValueError("No data for valid")
         print("===Validating===")
         valid_loss = []
         self.model.eval()
@@ -94,10 +95,8 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data_valid.shape
                 data_valid = data_valid.view(N * D, C, H, W)
                 labels_valid = labels_valid.view(-1, 1)
-                data_valid = data_valid[:(
-                    N * D) // self.frame_depth * self.frame_depth]
-                labels_valid = labels_valid[:(
-                    N * D) // self.frame_depth * self.frame_depth]
+                data_valid = data_valid[:(N * D) // self.frame_depth * self.frame_depth]
+                labels_valid = labels_valid[:(N * D) // self.frame_depth * self.frame_depth]
                 pred_ppg_valid = self.model(data_valid)
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
@@ -110,6 +109,8 @@ class TscanTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
+        if data_loader["test"] is None:
+            assert ValueError("No data for test")
         config = self.config
         print("===Testing===")
         predictions = dict()
@@ -121,7 +122,6 @@ class TscanTrainer(BaseTrainer):
             best_model_path = os.path.join(
                 self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
             print("Testing uses non-pretrained model!")
-            print("best trained epoch:{}".format(self.best_epoch))
             print(best_model_path)
             self.model.load_state_dict(torch.load(best_model_path))
         self.model = self.model.to(config.DEVICE)
