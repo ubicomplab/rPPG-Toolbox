@@ -13,3 +13,4 @@ runs
 temp
 facial_region_test.py
 interp_test.py
+debug_utils.py
