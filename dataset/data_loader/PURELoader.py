@@ -45,8 +45,10 @@ class PURELoader(BaseLoader):
         super().__init__(name, data_path, config_data)
 
     def get_data(self, data_path):
-        """Returns data directories under the path(For COHFACE dataset)."""
+        """Returns data directories under the path(For PURE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*-*")
+        if (data_dirs == []):
+            raise ValueError(self.name+ " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             subject = os.path.split(data_dir)[-1].replace('-', '')

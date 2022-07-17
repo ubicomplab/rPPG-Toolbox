@@ -18,8 +18,8 @@ class DeepPhysTrainer(BaseTrainer):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
-        self.model = DeepPhys(img_size=config.DATA.PREPROCESS.H).to(self.device)
-        # self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+        self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
+        self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
@@ -28,13 +28,13 @@ class DeepPhysTrainer(BaseTrainer):
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.config = config
+        self.best_epoch = 0
 
     def train(self, data_loader):
         """ TODO:Docstring"""
+        if data_loader["train"] is None:
+            assert ValueError("No data for train")
         min_valid_loss = 1
-        # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer,
-        #                                                        T_max=len(data_loader["train"]) * self.max_epoch_num,
-        #                                                        eta_min=0)
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
@@ -54,7 +54,6 @@ class DeepPhysTrainer(BaseTrainer):
                 loss = self.criterion(pred_ppg, labels)
                 loss.backward()
                 self.optimizer.step()
-                # scheduler.step()
                 running_loss += loss.item()
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
@@ -65,18 +64,18 @@ class DeepPhysTrainer(BaseTrainer):
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
-            print('Saving Model Epoch ', str(epoch))
-            # if(valid_loss < min_valid_loss) or (valid_loss < 0):
-            #     min_valid_loss = valid_loss
-            #     print("update best model")
-            #     self.save_model()
-            #     print(valid_loss)
+            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+                min_valid_loss = valid_loss
+                self.best_epoch = epoch
+                print("update best model,best epoch :{}".format(self.best_epoch))
+                self.save_model(epoch)
+        print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
+        return 0
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
         if data_loader["valid"] is None:
-            print("No data for valid")
-            return -1
+            assert ValueError("No data for valid")
         print("===Validating===")
         valid_loss = []
         self.model.eval()
@@ -100,25 +99,23 @@ class DeepPhysTrainer(BaseTrainer):
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
+        if data_loader["test"] is None:
+            assert ValueError("No data for test")
         config = self.config
         print("===Testing===")
         predictions = dict()
         labels = dict()
         if config.INFERENCE.MODEL_PATH:
-            # self.model = load_model(self.model, config)
-            if config.NUM_OF_GPU_TRAIN > 1:
-                checkpoint = torch.load(config.INFERENCE.MODEL_PATH)
-                state_dict = checkpoint
-                new_state_dict = OrderedDict()
-                for k, v in state_dict.items():
-                    name = k[7:]  # remove 'module.' of dataparallel
-                    new_state_dict[name] = v
-                self.model.load_state_dict(new_state_dict)
-            else:
-                self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
-            self.model = self.model.to(config.DEVICE)
+            self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
+        else:
+            best_model_path = os.path.join(
+                self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
+            print("Testing uses non-pretrained model!")
+            print(best_model_path)
+            self.model.load_state_dict(torch.load(best_model_path))
 
+        self.model = self.model.to(config.DEVICE)
         self.model.eval()
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader['test']):
@@ -135,18 +132,12 @@ class DeepPhysTrainer(BaseTrainer):
                     if subj_index not in predictions.keys():
                         predictions[subj_index] = dict()
                         labels[subj_index] = dict()
-                    predictions[subj_index][sort_index] = pred_ppg_test[idx*config.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.DATA.PREPROCESS.CLIP_LENGTH]
-                    labels[subj_index][sort_index] = labels_test[idx*config.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.DATA.PREPROCESS.CLIP_LENGTH]
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
+                    labels[subj_index][sort_index] = labels_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
 
         calculate_metrics(predictions, labels, config)
 
         return
-
-
-
-
-
-
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
@@ -154,4 +145,3 @@ class DeepPhysTrainer(BaseTrainer):
         model_path = os.path.join(
             self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
         torch.save(self.model.state_dict(), model_path)
-        print('Saved Model Path: ', model_path)

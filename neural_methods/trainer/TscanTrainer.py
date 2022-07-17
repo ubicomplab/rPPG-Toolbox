@@ -9,6 +9,8 @@ import numpy as np
 import os
 from tqdm import tqdm
 import logging
+from metrics.metrics import calculate_metrics
+from collections import OrderedDict
 
 
 class TscanTrainer(BaseTrainer):
@@ -18,7 +20,7 @@ class TscanTrainer(BaseTrainer):
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
-        self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.DATA.PREPROCESS.H).to(self.device)
+        self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
@@ -29,9 +31,13 @@ class TscanTrainer(BaseTrainer):
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.num_of_gpu = config.NUM_OF_GPU_TRAIN
         self.base_len = self.num_of_gpu * self.frame_depth
+        self.config = config
+        self.best_epoch = 0
 
     def train(self, data_loader):
         """ TODO:Docstring"""
+        if data_loader["train"] is None:
+            assert ValueError("No data for train")
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -64,18 +70,18 @@ class TscanTrainer(BaseTrainer):
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
-            print('Saving Model Epoch ', str(epoch))
-            # if(valid_loss < min_valid_loss) or (valid_loss < 0):
-            #     min_valid_loss = valid_loss
-            #     print("update best model")
-            #     self.save_model()
-            #     print(valid_loss)
+            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+                min_valid_loss = valid_loss
+                self.best_epoch = epoch
+                print("Update best model! Best epoch: {}".format(self.best_epoch))
+                self.save_model(epoch)
+        print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
+        return 0
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
         if data_loader["valid"] is None:
-            print("No data for valid")
-            return -1
+            assert ValueError("No data for valid")
         print("===Validating===")
         valid_loss = []
         self.model.eval()
@@ -89,10 +95,8 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data_valid.shape
                 data_valid = data_valid.view(N * D, C, H, W)
                 labels_valid = labels_valid.view(-1, 1)
-                data_valid = data_valid[:(
-                    N * D) // self.frame_depth * self.frame_depth]
-                labels_valid = labels_valid[:(
-                    N * D) // self.frame_depth * self.frame_depth]
+                data_valid = data_valid[:(N * D) // self.frame_depth * self.frame_depth]
+                labels_valid = labels_valid[:(N * D) // self.frame_depth * self.frame_depth]
                 pred_ppg_valid = self.model(data_valid)
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
@@ -101,27 +105,51 @@ class TscanTrainer(BaseTrainer):
             valid_loss = np.asarray(valid_loss)
         return np.mean(valid_loss)
 
+
+
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
+        if data_loader["test"] is None:
+            assert ValueError("No data for test")
+        config = self.config
         print("===Testing===")
-        predictions = list()
-        labels = list()
+        predictions = dict()
+        labels = dict()
+        if config.TRAIN_OR_TEST == "only_test":
+            self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
+            print("Testing uses pretrained model!")
+        else:
+            best_model_path = os.path.join(
+                self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
+            print("Testing uses non-pretrained model!")
+            print(best_model_path)
+            self.model.load_state_dict(torch.load(best_model_path))
+        self.model = self.model.to(config.DEVICE)
         self.model.eval()
         with torch.no_grad():
-            for _, test_batch in enumerate(data_loader["test"]):
+            for _, test_batch in enumerate(data_loader['test']):
+                batch_size = test_batch[0].shape[0]
                 data_test, labels_test = test_batch[0].to(
-                    self.device), test_batch[1].to(self.device)
+                    config.DEVICE), test_batch[1].to(config.DEVICE)
                 N, D, C, H, W = data_test.shape
                 data_test = data_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
-                data_test = data_test[:(
-                    N * D) // self.frame_depth * self.frame_depth]
-                labels_test = labels_test[:(
-                    N * D) // self.frame_depth * self.frame_depth]
+                data_test = data_test[:(N * D) // self.frame_depth * self.frame_depth]
+                labels_test = labels_test[:(N * D) // self.frame_depth * self.frame_depth]
                 pred_ppg_test = self.model(data_test)
-                predictions.append(pred_ppg_test)
-                labels.append(labels_test)
-        return np.reshape(np.array(predictions), (-1)), np.reshape(np.array(labels), (-1))
+                for idx in range(batch_size):
+                    subj_index = test_batch[2][idx]
+                    sort_index = int(test_batch[3][idx])
+                    if subj_index not in predictions.keys():
+                        predictions[subj_index] = dict()
+                        labels[subj_index] = dict()
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx * config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(
+                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
+                    labels[subj_index][sort_index] = labels_test[idx * config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(
+                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
+
+        calculate_metrics(predictions, labels, config)
+        return 0
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
