@@ -44,7 +44,7 @@ class BaseLoader(Dataset):
         assert (config_data.END < 1 or config_data.END==1)
         if (config_data.BEGIN != 0 or config_data.END !=1):
             self.cached_path = config_data.CACHED_PATH +"_"+ str(config_data.BEGIN) + '_'+str(config_data.END)
-
+        print(self.cached_path)
         self.inputs = list()
         self.labels = list()
         self.len = 0

@@ -59,10 +59,9 @@ class PURELoader(BaseLoader):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
         print("file_num:",file_num)
-        print(range(file_num))
-        choose_range = (0,file_num)
+        choose_range = range(0,file_num)
         if (begin !=0 or end !=1):
-            choose_range = (int(begin*file_num), int(end * file_num))
+            choose_range = range(int(begin*file_num), int(end * file_num))
             print(choose_range)
         for i in choose_range:
             filename = os.path.split(data_dirs[i]['path'])[-1]

@@ -4,7 +4,7 @@ TRAIN:
   BATCH_SIZE: 16
   EPOCHS: 10
   LR: 1e-3
-  MODEL_FILE_NAME: PURE_UBFC_tscan.pth
+  MODEL_FILE_NAME: PURE_PURE_UBFC_tscan.pth
   DATA:
     FS: 30
     DATASET: PURE
@@ -12,6 +12,8 @@ TRAIN:
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data1/toolbox_data/PURE/RawData"       # need to be updated
     EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 0.8
     PREPROCESS :
       DATA_TYPE: ['Normalized','Standardized']
       LABEL_TYPE: Normalized
@@ -27,11 +29,13 @@ TRAIN:
 VALID:
   DATA:
     FS: 30
-    DATASET: UBFC
+    DATASET: PURE
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"   # need to be updated
+    DATA_PATH: "/data1/toolbox_data/PURE/RawData"   # need to be updated
     EXP_DATA_NAME: ""
+    BEGIN: 0.8
+    END: 1.0
     PREPROCESS:
       DATA_TYPE: [ 'Normalized','Standardized' ]
       LABEL_TYPE: Normalized
@@ -41,7 +45,7 @@ VALID:
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 2.0
+      LARGER_BOX_SIZE: 1.5
       H: 72
       W: 72
 TEST:
@@ -53,6 +57,8 @@ TEST:
     DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"     # need to be updated
     EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
     PREPROCESS:
       DATA_TYPE: [ 'Normalized','Standardized' ]
       LABEL_TYPE: Normalized
