@@ -55,10 +55,15 @@ class PURELoader(BaseLoader):
             dirs.append({"index": int(subject), "path": data_dir})
         return dirs
 
-    def preprocess_dataset(self, data_dirs, config_preprocess):
+    def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
-        for i in range(file_num):
+        print("file_num:",file_num)
+        choose_range = range(0,file_num)
+        if (begin !=0 or end !=1):
+            choose_range = range(int(begin*file_num), int(end * file_num))
+            print(choose_range)
+        for i in choose_range:
             filename = os.path.split(data_dirs[i]['path'])[-1]
             saved_filename = data_dirs[i]['index']
             frames = self.read_video(
