@@ -44,6 +44,8 @@ _C.TRAIN.DATA.CACHED_PATH = 'PreprocessedData'
 _C.TRAIN.DATA.DATASET = ''
 _C.TRAIN.DATA.DO_PREPROCESS = False
 _C.TRAIN.DATA.DATA_FORMAT = 'NDCHW'
+_C.TRAIN.DATA.BEGIN = 0.0
+_C.TRAIN.DATA.END = 1.0
 # -----------------------------------------------------------------------------
 # Data preprocessing
 # TODO: add other preprocessing configs
@@ -76,6 +78,8 @@ _C.VALID.DATA.CACHED_PATH = 'PreprocessedData'
 _C.VALID.DATA.DATASET = ''
 _C.VALID.DATA.DO_PREPROCESS = False
 _C.VALID.DATA.DATA_FORMAT = 'NDCHW'
+_C.VALID.DATA.BEGIN = 0.0
+_C.VALID.DATA.END = 1.0
 # Valid Data preprocessing
 _C.VALID.DATA.PREPROCESS = CN()
 _C.VALID.DATA.PREPROCESS.DO_CHUNK = True
@@ -108,6 +112,8 @@ _C.TEST.DATA.CACHED_PATH = 'PreprocessedData'
 _C.TEST.DATA.DATASET = ''
 _C.TEST.DATA.DO_PREPROCESS = False
 _C.TEST.DATA.DATA_FORMAT = 'NDCHW'
+_C.TEST.DATA.BEGIN = 0.0
+_C.TEST.DATA.END = 1.0
 # Valid Data preprocessing
 _C.TEST.DATA.PREPROCESS = CN()
 _C.TEST.DATA.PREPROCESS.DO_CHUNK = True
