@@ -40,7 +40,7 @@ def seed_worker(worker_id):
     np.random.seed(worker_seed)
     random.seed(worker_seed)
 
-#test
+
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
