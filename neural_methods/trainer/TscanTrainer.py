@@ -149,7 +149,6 @@ class TscanTrainer(BaseTrainer):
                                                     idx + 1) * config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
 
         calculate_metrics(predictions, labels, config)
-        return 0
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):

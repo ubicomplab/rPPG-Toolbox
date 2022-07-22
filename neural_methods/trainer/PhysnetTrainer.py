@@ -97,10 +97,8 @@ class PhysnetTrainer(BaseTrainer):
         valid_step = 0
         with torch.no_grad():
             vbar = tqdm(data_loader["valid"], ncols=80)
-
             for valid_idx, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")
-                # vbar.set_description("Valid %s" % valid_i)
                 BVP_label = Variable(valid_batch[1]).to(
                     torch.float32).to(self.device)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
@@ -149,7 +147,6 @@ class PhysnetTrainer(BaseTrainer):
                     predictions[subj_index][sort_index] = prediction
                     labels[subj_index][sort_index] = label
         calculate_metrics(predictions, labels, config)
-        return 0
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
@@ -158,5 +155,3 @@ class PhysnetTrainer(BaseTrainer):
             self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
         torch.save(self.model.state_dict(), model_path)
         print('Saved Model Path: ', model_path)
-
-    # def load_model(self):
