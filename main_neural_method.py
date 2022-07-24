@@ -23,6 +23,7 @@ from neural_methods import trainer
 import torch
 import random
 import numpy as np
+import time
 
 RANDOM_SEED = 100
 torch.manual_seed(RANDOM_SEED)
@@ -167,6 +168,8 @@ if __name__ == "__main__":
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
     data_loader = dict()
+    time1 = time.time()
+    print("time1:",time1)
     if config.TRAIN.DATA.DATA_PATH:
         train_data_loader = train_loader(
             name="train",
@@ -182,7 +185,8 @@ if __name__ == "__main__":
         )
     else:
         data_loader['train'] = None
-
+    time2 = time.time()
+    print("pure 80% process cost time:{}s".format(time2-time1))
     if config.TRAIN.DATA.DATA_PATH:
         valid_data = valid_loader(
             name="valid",
