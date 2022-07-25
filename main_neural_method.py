@@ -45,7 +45,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/UBFC_UBFC_PURE_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',

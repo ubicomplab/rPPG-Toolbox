@@ -71,10 +71,10 @@ class PURELoader(BaseLoader):
         frames_clips, bvps_clips = self.preprocess(
             frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
 
-        count, input_name, label_name = self.save_multi_process(frames_clips, bvps_clips,
+        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips,
                               saved_filename)
-        inputs[i] = input_name
-        labels[i] = label_name
+        inputs[i] = input_name_list
+        labels[i] = label_name_list
         len_num.value = len_num.value + count
 
     def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
@@ -100,8 +100,10 @@ class PURELoader(BaseLoader):
                 p_.join()
             # append all data path and update the length of data
             for index in choose_range:
-                self.inputs.append(inputs_share[index])
-                self.labels.append(labels_share[index])
+                for input in inputs_share[index]:
+                    self.inputs.append(input)
+                for label in labels_share[index]:
+                    self.labels.append(label)
             self.len = len_num.value
 
 
