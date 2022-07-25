@@ -45,7 +45,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/UBFC_UBFC_PURE_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument(
         '--device',
@@ -168,8 +168,6 @@ if __name__ == "__main__":
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
     data_loader = dict()
-    time1 = time.time()
-    print("time1:",time1)
     if config.TRAIN.DATA.DATA_PATH:
         train_data_loader = train_loader(
             name="train",
@@ -185,8 +183,6 @@ if __name__ == "__main__":
         )
     else:
         data_loader['train'] = None
-    time2 = time.time()
-    print("pure 80% process cost time:{}s".format(time2-time1))
     if config.TRAIN.DATA.DATA_PATH:
         valid_data = valid_loader(
             name="valid",

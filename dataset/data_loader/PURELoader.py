@@ -76,7 +76,6 @@ class PURELoader(BaseLoader):
         inputs[i] = input_name
         labels[i] = label_name
         len_num.value = len_num.value + count
-        print("process len:",len_num.value)
 
     def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
         """Preprocesses the raw data."""
@@ -104,23 +103,6 @@ class PURELoader(BaseLoader):
                 self.inputs.append(inputs_share[index])
                 self.labels.append(labels_share[index])
             self.len = len_num.value
-
-            # filename = os.path.split(data_dirs[i]['path'])[-1]
-            # saved_filename = data_dirs[i]['index']
-            # frames = self.read_video(
-            #     os.path.join(
-            #         data_dirs[i]['path'],
-            #         filename, ""))
-            # bvps = self.read_wave(
-            #     os.path.join(
-            #         data_dirs[i]['path'],
-            #         "{0}.json".format(filename)))
-            # bvps = sample(bvps, frames.shape[0])
-            # frames_clips, bvps_clips = self.preprocess(
-            #     frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
-            #
-            # self.len += self.save(frames_clips, bvps_clips,
-            #                       saved_filename)
 
 
     @staticmethod
