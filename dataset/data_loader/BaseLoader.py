@@ -266,6 +266,7 @@ class BaseLoader(Dataset):
         self.inputs = inputs
         self.labels = labels
         self.len = len(inputs)
+        print("loaded data len:",self.len)
 
     @staticmethod
     def diff_normalize_data(data):

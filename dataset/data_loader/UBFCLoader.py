@@ -79,7 +79,6 @@ class UBFCLoader(BaseLoader):
         if (begin !=0 or end !=1):
             choose_range = range(int(begin*file_num), int(end * file_num))
             print(choose_range)
-
         # multi_process
         p_list = []
         with Manager() as manager:
@@ -101,7 +100,6 @@ class UBFCLoader(BaseLoader):
                 for label in labels_share[index]:
                     self.labels.append(label)
             self.len = len_num.value
-
 
 
     @staticmethod

@@ -55,6 +55,7 @@ class PURELoader(BaseLoader):
             dirs.append({"index": int(subject), "path": data_dir})
         return dirs
 
+
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, inputs, labels, len_num):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]
@@ -85,6 +86,7 @@ class PURELoader(BaseLoader):
         if (begin !=0 or end !=1):
             choose_range = range(int(begin*file_num), int(end * file_num))
             print(choose_range)
+
         # multi_process
         p_list = []
         with Manager() as manager:
@@ -105,7 +107,6 @@ class PURELoader(BaseLoader):
                 for label in labels_share[index]:
                     self.labels.append(label)
             self.len = len_num.value
-
 
     @staticmethod
     def read_video(video_file):
