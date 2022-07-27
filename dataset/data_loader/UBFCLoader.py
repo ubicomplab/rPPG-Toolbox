@@ -10,7 +10,7 @@ import glob
 import numpy as np
 import re
 from dataset.data_loader.BaseLoader import BaseLoader
-
+from multiprocessing import Pool, Process, Value, Array, Manager
 
 class UBFCLoader(BaseLoader):
     """The data loader for the UBFC dataset."""
@@ -54,12 +54,11 @@ class UBFCLoader(BaseLoader):
         frames = self.read_video(
             os.path.join(
                 data_dirs[i]['path'],
-                filename, ""))
+                "vid.avi"))
         bvps = self.read_wave(
             os.path.join(
                 data_dirs[i]['path'],
-                "{0}.json".format(filename)))
-        bvps = sample(bvps, frames.shape[0])
+                "ground_truth.txt"))
         frames_clips, bvps_clips = self.preprocess(
             frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
 
