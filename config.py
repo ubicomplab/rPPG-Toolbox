@@ -195,23 +195,7 @@ def update_config(config, args):
     _update_config_from_file(config, args.config_file)
 
     config.defrost()
-    if args.device:
-        if args.device >= 0:
-            config.DEVICE = "cuda:" + str(args.device)
-        else:
-            config.DEVICE = "cpu"
-    if args.batch_size:
-        config.TRAIN.BATCH_SIZE = args.batch_size
-    if args.epochs:
-        config.TRAIN.EPOCHS = args.epochs
-    if args.lr:
-        config.TRAIN.LR = args.lr
-    if args.model_dir:
-        config.MODEL.MODEL_DIR = args.model_dir
-    if args.train_data_path:
-        config.TRAIN.DATA.DATA_PATH = args.train_data_path
-    if args.valid_data_path:
-        config.VALID.DATA.DATA_PATH = args.valid_data_path
+
 
     if config.TRAIN.DATA.EXP_DATA_NAME == '':
         config.TRAIN.DATA.EXP_DATA_NAME = "_".join([config.TRAIN.DATA.DATASET, "SizeW{0}".format(

@@ -11,6 +11,7 @@ import numpy as np
 import re
 from dataset.data_loader.BaseLoader import BaseLoader
 from multiprocessing import Pool, Process, Value, Array, Manager
+from tqdm import tqdm
 
 class UBFCLoader(BaseLoader):
     """The data loader for the UBFC dataset."""
@@ -78,20 +79,35 @@ class UBFCLoader(BaseLoader):
         if (begin !=0 or end !=1):
             choose_range = range(int(begin*file_num), int(end * file_num))
             print(choose_range)
+        pbar = tqdm(list(choose_range))
         # multi_process
         p_list = []
+        running_num = 0
         with Manager() as manager:
             inputs_share = manager.dict()
             labels_share = manager.dict()
             len_num = Value('i', 0)
             for i in choose_range:
-                p = Process(target=self.preprocess_dataset_subprocess,
-                            args=(data_dirs, config_preprocess, i, inputs_share, labels_share, len_num))
-                p.start()
-                p_list.append(p)
+                process_flag = True
+                while (process_flag):
+                    if running_num <16:
+                        p = Process(target=self.preprocess_dataset_subprocess,
+                                    args=(data_dirs, config_preprocess, i, inputs_share, labels_share, len_num))
+                        p.start()
+                        p_list.append(p)
+                        running_num +=1
+                        process_flag = False
+                    for p_ in p_list:
+                        if (not p_.is_alive() ):
+                            p_list.remove(p_)
+                            p_.join()
+                            running_num -= 1
+                            pbar.update(1)
             # join all processes
             for p_ in p_list:
                 p_.join()
+                pbar.update(1)
+            pbar.close()
             # append all data path and update the length of data
             for index in choose_range:
                 for input in inputs_share[index]:

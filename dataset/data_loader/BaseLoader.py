@@ -122,7 +122,6 @@ class BaseLoader(Dataset):
             else:
                 raise ValueError("Unsupported data type!")
         data = np.concatenate(data, axis=3)
-
         if config_preprocess.LABEL_TYPE == "Raw":
             bvps = bvps[:-1]
         elif config_preprocess.LABEL_TYPE == "Normalized":

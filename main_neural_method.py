@@ -45,22 +45,9 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
-    parser.add_argument('--do_train', action='store_true')
-    parser.add_argument(
-        '--device',
-        default=None,
-        type=int,
-        help="An integer to specify which gpu to use, -1 for cpu.")
-    parser.add_argument('--batch_size', default=None, type=int)
-    parser.add_argument('--train_data_path', default=None, required=False,
-                        type=str, help='The path of the data directory.')
-    parser.add_argument('--valid_data_path', default=None, required=False,
-                        type=str, help='The path of the data directory.')
-    parser.add_argument('--epochs', default=None, type=int)
-    parser.add_argument('--log_level', default="DEBUG", type=str)
-    parser.add_argument('--log_path', default="terminal", type=str)
-    parser.add_argument('--model_dir', default=None, type=str)
+                        default="configs/SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
+    # SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
+    # PURE_PURE_UBFC_TSCAN_BASIC.yaml
     return parser
 
 
@@ -106,29 +93,7 @@ if __name__ == "__main__":
     # configurations.
     config = get_config(args)
     print(config)
-    # logging
-    if args.log_path == "terminal":
-        if args.log_level == "DEBUG":
-            logging.basicConfig(level=logging.DEBUG)
-        elif args.log_level == "INFO":
-            logging.basicConfig(level=logging.INFO)
-        elif args.log_level == "WARNING":
-            logging.basicConfig(level=logging.WARNING)
-        elif args.log_level == "ERROR":
-            logging.basicConfig(level=logging.ERROR)
-        elif args.log_level == "CRITICAL":
-            logging.basicConfig(level=logging.CRITICAL)
-    else:
-        if args.log_level == "DEBUG":
-            logging.basicConfig(level=logging.DUBUG, filemode='w', filename=args.log_path)
-        elif args.log_level == "INFO":
-            logging.basicConfig(level=logging.INFO, filemode='w', filename=args.log_path)
-        elif args.log_level == "WARNING":
-            logging.basicConfig(level=logging.WARNING, filemode='w', filename=args.log_path)
-        elif args.log_level == "ERROR":
-            logging.basicConfig(level=logging.ERROR, filemode='w', filename=args.log_path)
-        elif args.log_level == "CRITICAL":
-            logging.basicConfig(level=logging.CRITICAL, filemode='w', filename=args.log_path)
+
     # train_loader
     if config.TRAIN.DATA.DATASET == "COHFACE":
         train_loader = data_loader.COHFACELoader.COHFACELoader
