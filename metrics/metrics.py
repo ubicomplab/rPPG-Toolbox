@@ -69,10 +69,10 @@ def calculate_metrics(predictions, labels, config):
         gt_hr_peak_all.append(gt_hr_peak)
         video_index, GT_HR = read_hr_label(label_dict, index)
         label_hr.append(GT_HR)
-        if abs(GT_HR - pred_hr_fft) > 10:
+        if abs(gt_hr_fft - pred_hr_fft) > 10:
             print('Video Index: ', video_index)
-            print('GT HR: ', GT_HR)
-            print('Pred HR: ', pred_hr_fft)
+            print('GT HR fft: ', gt_hr_fft)
+            print('Pred HR fft: ', pred_hr_fft)
     predict_hr_peak_all = np.array(predict_hr_peak_all)
     predict_hr_fft_all = np.array(predict_hr_fft_all)
     gt_hr_peak_all = np.array(gt_hr_peak_all)

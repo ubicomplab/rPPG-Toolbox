@@ -15,7 +15,7 @@ import re
 from dataset.data_loader.BaseLoader import BaseLoader
 from utils.utils import sample
 import glob
-from multiprocessing import Pool
+from multiprocessing import Pool, Process, Value, Array, Manager
 
 
 class PURELoader(BaseLoader):
@@ -55,6 +55,29 @@ class PURELoader(BaseLoader):
             dirs.append({"index": int(subject), "path": data_dir})
         return dirs
 
+
+    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, inputs, labels, len_num):
+        """   invoked by preprocess_dataset for multi_process.   """
+        filename = os.path.split(data_dirs[i]['path'])[-1]
+        saved_filename = data_dirs[i]['index']
+        frames = self.read_video(
+            os.path.join(
+                data_dirs[i]['path'],
+                filename, ""))
+        bvps = self.read_wave(
+            os.path.join(
+                data_dirs[i]['path'],
+                "{0}.json".format(filename)))
+        bvps = sample(bvps, frames.shape[0])
+        frames_clips, bvps_clips = self.preprocess(
+            frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
+
+        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips,
+                              saved_filename)
+        inputs[i] = input_name_list
+        labels[i] = label_name_list
+        len_num.value = len_num.value + count
+
     def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
@@ -63,29 +86,27 @@ class PURELoader(BaseLoader):
         if (begin !=0 or end !=1):
             choose_range = range(int(begin*file_num), int(end * file_num))
             print(choose_range)
-        for i in choose_range:
-            filename = os.path.split(data_dirs[i]['path'])[-1]
-            saved_filename = data_dirs[i]['index']
-            frames = self.read_video(
-                os.path.join(
-                    data_dirs[i]['path'],
-                    filename, ""))
-            bvps = self.read_wave(
-                os.path.join(
-                    data_dirs[i]['path'],
-                    "{0}.json".format(filename)))
-            bvps = sample(bvps, frames.shape[0])
-            # Slow Translation and Fast Translation setups.
-            # if (filename[-2:] == "03") or (filename[-2:] == "04") or (filename[-3:] == "705") \
-            #         or (filename[-3:] == "705")  :
-            larger_box = True
-            # else:
-            #     larger_box = False
-            frames_clips, bvps_clips = self.preprocess(
-                frames, bvps, config_preprocess, larger_box)
 
-            self.len += self.save(frames_clips, bvps_clips,
-                                  saved_filename)
+        # multi_process
+        p_list = []
+        with Manager() as manager:
+            inputs_share = manager.dict()
+            labels_share = manager.dict()
+            len_num = Value('i', 0)
+            for i in choose_range:
+                p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i,inputs_share,labels_share,len_num))
+                p.start()
+                p_list.append(p)
+            # join all processes
+            for p_ in p_list:
+                p_.join()
+            # append all data path and update the length of data
+            for index in choose_range:
+                for input in inputs_share[index]:
+                    self.inputs.append(input)
+                for label in labels_share[index]:
+                    self.labels.append(label)
+            self.len = len_num.value
 
     @staticmethod
     def read_video(video_file):

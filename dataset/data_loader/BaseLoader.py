@@ -54,7 +54,7 @@ class BaseLoader(Dataset):
             self.preprocess_dataset(data_dirs, config_data.PREPROCESS,config_data.BEGIN,config_data.END)
         else:
             self.load()
-
+        print(self.name + " dataset len:",self.len)
     def get_data(self, data_path):
         """Returns data directories under the path."""
         return None
@@ -236,6 +236,26 @@ class BaseLoader(Dataset):
             count += 1
         return count
 
+    def save_multi_process(self, frames_clips, bvps_clips, filename):
+        """Saves the preprocessing data."""
+        if (not os.path.exists(self.cached_path)):
+            os.makedirs(self.cached_path)
+        count = 0
+        input_path_name_list = []
+        label_path_name_list = []
+        for i in range(len(bvps_clips)):
+            assert (len(self.inputs) == len(self.labels))
+            input_path_name = self.cached_path + os.sep + \
+                "{0}_input{1}.npy".format(filename, str(count))
+            label_path_name = self.cached_path + os.sep + \
+                "{0}_label{1}.npy".format(filename, str(count))
+            input_path_name_list.append(input_path_name)
+            label_path_name_list.append(label_path_name)
+            np.save(input_path_name, frames_clips[i])
+            np.save(label_path_name, bvps_clips[i])
+            count += 1
+        return count, input_path_name_list, label_path_name_list
+
     def load(self):
         """Loads the preprocessing data."""
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
@@ -256,7 +276,7 @@ class BaseLoader(Dataset):
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
-                data[j + 1, :, :, :] + data[j, :, :, :])
+                    data[j + 1, :, :, :] + data[j, :, :, :] + 1e-7)
         normalized_data = normalized_data / np.std(normalized_data)
         normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
