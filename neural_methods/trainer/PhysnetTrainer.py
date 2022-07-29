@@ -58,8 +58,8 @@ class PhysnetTrainer(BaseTrainer):
             for idx, batch in enumerate(tbar):
                 tbar.set_description("Train epoch %s" % epoch)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
-                    Variable(batch[0]).to(torch.float32).to(self.device))
-                BVP_label = Variable(batch[1]).to(
+                    batch[0].to(torch.float32).to(self.device))
+                BVP_label = batch[1].to(
                     torch.float32).to(self.device)
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
                 BVP_label = (BVP_label - torch.mean(BVP_label)) / \
@@ -99,10 +99,10 @@ class PhysnetTrainer(BaseTrainer):
             vbar = tqdm(data_loader["valid"], ncols=80)
             for valid_idx, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")
-                BVP_label = Variable(valid_batch[1]).to(
+                BVP_label = valid_batch[1].to(
                     torch.float32).to(self.device)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
-                    Variable(valid_batch[0]).to(torch.float32).to(self.device))
+                    valid_batch[0].to(torch.float32).to(self.device))
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
                 BVP_label = (BVP_label - torch.mean(BVP_label)) / \
                     torch.std(BVP_label)  # normalize
