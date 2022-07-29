@@ -76,7 +76,7 @@ class TscanTrainer(BaseTrainer):
                 print("Update best model! Best epoch: {}".format(self.best_epoch))
                 self.save_model(epoch)
         print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
-        return 0
+
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
@@ -95,8 +95,8 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data_valid.shape
                 data_valid = data_valid.view(N * D, C, H, W)
                 labels_valid = labels_valid.view(-1, 1)
-                data_valid = data_valid[:(N * D) // self.frame_depth * self.frame_depth]
-                labels_valid = labels_valid[:(N * D) // self.frame_depth * self.frame_depth]
+                data_valid = data_valid[:(N * D) // self.base_len * self.base_len]
+                labels_valid = labels_valid[:(N * D) // self.base_len * self.base_len]
                 pred_ppg_valid = self.model(data_valid)
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
@@ -134,8 +134,8 @@ class TscanTrainer(BaseTrainer):
                 N, D, C, H, W = data_test.shape
                 data_test = data_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
-                data_test = data_test[:(N * D) // self.frame_depth * self.frame_depth]
-                labels_test = labels_test[:(N * D) // self.frame_depth * self.frame_depth]
+                data_test = data_test[:(N * D) // self.base_len * self.base_len]
+                labels_test = labels_test[:(N * D) // self.base_len * self.base_len]
                 pred_ppg_test = self.model(data_test)
                 for idx in range(batch_size):
                     subj_index = test_batch[2][idx]
@@ -149,7 +149,7 @@ class TscanTrainer(BaseTrainer):
                                                     idx + 1) * config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
 
         calculate_metrics(predictions, labels, config)
-        return 0
+
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):

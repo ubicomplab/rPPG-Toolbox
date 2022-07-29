@@ -53,7 +53,7 @@ class SyntheticsLoader(BaseLoader):
         return dirs
 
 
-    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, inputs, labels, len_num):
+    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """
 
         matfile_path = data_dirs[i]['path']
@@ -65,9 +65,6 @@ class SyntheticsLoader(BaseLoader):
             frames, bvps, config_preprocess)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips,
                               data_dirs[i]['index'])
-        inputs[i] = input_name_list
-        labels[i] = label_name_list
-        len_num.value = len_num.value + count
 
 
     def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
@@ -82,37 +79,35 @@ class SyntheticsLoader(BaseLoader):
         # multi_process
         p_list = []
         running_num = 0
-        with Manager() as manager:
-            inputs_share = manager.dict()
-            labels_share = manager.dict()
-            len_num = Value('i', 0)
-            for i in choose_range:
-                process_flag = True
-                while (process_flag):       # ensure that every i creates a process
-                    if running_num <16:          # in case of too many processes
-                        p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i,inputs_share,labels_share,len_num))
-                        p.start()
-                        p_list.append(p)
-                        running_num +=1
-                        process_flag = False
-                    for p_ in p_list:
-                        if (not p_.is_alive() ):
-                            p_list.remove(p_)
-                            p_.join()
-                            running_num -= 1
-                            pbar.update(1)
-            # join all processes
-            for p_ in p_list:
-                p_.join()
-                pbar.update(1)
-            pbar.close()
-            # append all data path and update the length of data
-            for index in choose_range:
-                for input in inputs_share[index]:
-                    self.inputs.append(input)
-                for label in labels_share[index]:
-                    self.labels.append(label)
-            self.len = len_num.value
+        for i in choose_range:
+            process_flag = True
+            while (process_flag):       # ensure that every i creates a process
+                if running_num <16:          # in case of too many processes
+                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i))
+                    p.start()
+                    p_list.append(p)
+                    running_num +=1
+                    process_flag = False
+                for p_ in p_list:
+                    if (not p_.is_alive() ):
+                        p_list.remove(p_)
+                        p_.join()
+                        running_num -= 1
+                        pbar.update(1)
+        # join all processes
+        for p_ in p_list:
+            p_.join()
+            pbar.update(1)
+        pbar.close()
+        # append all data path and update the length of data
+        inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
+        if inputs == []:
+            raise ValueError(self.name + ' dataset loading data error!')
+        labels = [input.replace("input", "label") for input in inputs]
+        assert (len(inputs) == len(labels))
+        self.inputs = inputs
+        self.labels = labels
+        self.len = len(inputs)
 
 
     def preprocess_dataset_backup(self, data_dirs, config_preprocess):

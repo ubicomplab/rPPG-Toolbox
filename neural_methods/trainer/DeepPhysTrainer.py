@@ -70,7 +70,7 @@ class DeepPhysTrainer(BaseTrainer):
                 print("update best model,best epoch :{}".format(self.best_epoch))
                 self.save_model(epoch)
         print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
-        return 0
+
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
@@ -137,7 +137,7 @@ class DeepPhysTrainer(BaseTrainer):
 
         calculate_metrics(predictions, labels, config)
 
-        return
+
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
