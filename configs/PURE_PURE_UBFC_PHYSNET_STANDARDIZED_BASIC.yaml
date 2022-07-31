@@ -1,5 +1,6 @@
 BASE: ['']
-TRAIN_OR_TEST: "train_and_test"
+#TRAIN_OR_TEST: "train_and_test"
+TRAIN_OR_TEST: "only_test"
 TRAIN:
   BATCH_SIZE: 2
   EPOCHS: 10
@@ -8,7 +9,7 @@ TRAIN:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True            # if first time, should be true
+    DO_PREPROCESS: False            # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH:   "/data1/toolbox_data/PURE/RawData"       # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -16,12 +17,12 @@ TRAIN:
     BEGIN: 0.0
     END: 0.8
     PREPROCESS :
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+#      DATA_TYPE: [ 'Normalized' ]
+#      LABEL_TYPE: Normalized
 #      DATA_TYPE: [ 'Raw' ]
 #      LABEL_TYPE: Raw
-#      DATA_TYPE: [ 'Standardized' ]
-#      LABEL_TYPE: Standardized
+      DATA_TYPE: [ 'Standardized' ]
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -35,7 +36,7 @@ VALID:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True                # if first time, should be true
+    DO_PREPROCESS: False                # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/PURE/RawData"   # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -43,8 +44,8 @@ VALID:
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Standardized' ]
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -59,7 +60,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True                  # if first time, should be true
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"     # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -67,8 +68,8 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Standardized' ]
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -88,5 +89,6 @@ MODEL:
   PHYSNET:
     FRAME_NUM: 128
 INFERENCE:
-  BATCH_SIZE: 4
-  MODEL_PATH: ""
+  BATCH_SIZE: 1
+  MODEL_PATH: "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW128_SizeH128_ClipLength128_DataTypeStandardized_LabelTypeStandardized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_PURE_UBFC_physnet.pth_Epoch9.pth"
+#  "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW128_SizeH128_ClipLength128_DataTypeStandardized_LabelTypeStandardized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_PURE_UBFC_physnet.pth_Epoch11.pth"

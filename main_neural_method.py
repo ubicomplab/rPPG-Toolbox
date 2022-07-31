@@ -45,13 +45,15 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PURE_UBFC_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/PURE_PURE_UBFC_PHYSNET_NORMARLIZED_BASIC.yaml", type=str, help="The name of the model.")
     # SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
     # SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
     # PURE_PURE_UBFC_TSCAN_BASIC.yaml
-    # PURE_PURE_UBFC_DEEPPHYS_BASIC
+    # PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
     # PURE_PURE_UBFC_PHYSNET_BASIC.yaml
     # UBFC_UBFC_PURE_TSCAN_BASIC.yaml
+    # UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
+    # PURE_PURE_UBFC_PHYSNET_STANDARDIZED_BASIC.yaml
     return parser
 
 

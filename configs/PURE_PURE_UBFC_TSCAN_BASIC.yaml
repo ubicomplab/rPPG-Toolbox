@@ -86,5 +86,6 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   MODEL_PATH:   ""
+
                     # if TRAIN_OR_TEST:"train_and_test", should be "" or anything, it will use currently trained model.
                     # if TRAIN_OR_TEST:"only_test", should be "path"
