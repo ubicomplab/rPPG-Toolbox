@@ -136,7 +136,6 @@ class DeepPhysTrainer(BaseTrainer):
                     labels[subj_index][sort_index] = labels_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
 
         calculate_metrics(predictions, labels, config)
-
         return
 
     def save_model(self, index):
