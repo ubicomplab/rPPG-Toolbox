@@ -2,21 +2,21 @@ BASE: ['']
 TRAIN_OR_TEST: "train_and_test" 
 TRAIN:
   BATCH_SIZE: 16
-  EPOCHS: 20
+  EPOCHS: 100
   LR: 1e-4
   MODEL_FILE_NAME: PURE_PURE_UBFC_physnet.pth
   DATA:
     FS: 30
     DATASET: PURE
     DO_PREPROCESS: False            # if first time, should be true
-    DATA_FORMAT: NCDHW
+    DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/toolbox_data/PURE/RawData"       # need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Raw']
-      LABEL_TYPE: Raw
+      DATA_TYPE: ['Normalized','Standardized']
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -31,14 +31,14 @@ VALID:
     FS: 30
     DATASET: UBFC
     DO_PREPROCESS: False                # if first time, should be true
-    DATA_FORMAT: NCDHW
+    DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"   # need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+      DATA_TYPE: ['Normalized','Standardized']
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -53,15 +53,15 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True                  # if first time, should be true
-    DATA_FORMAT: NCDHW
+    DO_PREPROCESS: False                  # if first time, should be true
+    DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"     # need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+      DATA_TYPE: ['Normalized','Standardized']
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -75,10 +75,10 @@ DEVICE: cuda:0
 LOG:
   PATH: runs/exp
 MODEL:
-  DROP_RATE: 0.0
-  NAME: Physnet
-  PHYSNET:
-    FRAME_NUM: 128
+  DROP_RATE: 0.2
+  NAME: Can3D
+  CAN3D:
+    FRAME_DEPTH: 20
 INFERENCE:
   BATCH_SIZE: 4
   MODEL_PATH: ""

@@ -3,6 +3,7 @@
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
 from neural_methods.model.TS_CAN import TSCAN
+from neural_methods.model.CAN_3D import CAN_3D
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 import torch.optim as optim
 import numpy as np
@@ -19,8 +20,12 @@ class TscanTrainer(BaseTrainer):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
-        self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
-        self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
+        if config.NODEL.NAME == "Tscan":
+            self.frame_depth = config.MODEL.TSCAN.FRAME_DEPTH
+            self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
+        elif config.MODEL.NAME == 'Can3D':
+            self.frame_depth = config.MODEL.CAN_3D.FRAME_DEPTH
+            self.model = CAN_3D(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
@@ -104,8 +109,6 @@ class TscanTrainer(BaseTrainer):
                 vbar.set_postfix(loss=loss.item())
             valid_loss = np.asarray(valid_loss)
         return np.mean(valid_loss)
-
-
 
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""

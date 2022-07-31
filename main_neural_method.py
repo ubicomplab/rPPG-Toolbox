@@ -67,7 +67,7 @@ def train_and_test(config, data_loader):
     """Trains the model."""
     if config.MODEL.NAME == "Physnet":
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config)
-    elif config.MODEL.NAME == "Tscan":
+    elif config.MODEL.NAME == "Tscan" or config.MODEL.NAME == "Can3D":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config)
     elif config.MODEL.NAME == "EfficientPhys":
         model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config)

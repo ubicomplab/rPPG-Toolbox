@@ -77,7 +77,7 @@ LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: Tscan
+  NAME: Can
   TSCAN:
     FRAME_DEPTH: 10
 INFERENCE:
