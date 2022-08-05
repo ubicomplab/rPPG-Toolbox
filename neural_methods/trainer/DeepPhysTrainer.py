@@ -138,7 +138,6 @@ class DeepPhysTrainer(BaseTrainer):
         calculate_metrics(predictions, labels, config)
 
 
-
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)

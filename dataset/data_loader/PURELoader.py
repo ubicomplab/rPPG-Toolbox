@@ -56,6 +56,7 @@ class PURELoader(BaseLoader):
         return dirs
 
 
+
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]
@@ -82,6 +83,7 @@ class PURELoader(BaseLoader):
         if (begin !=0 or end !=1):
             choose_range = range(int(begin*file_num), int(end * file_num))
             print(choose_range)
+
         pbar = tqdm(list(choose_range))
         # multi_process
         p_list = []
