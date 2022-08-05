@@ -1,5 +1,5 @@
 BASE: ['']
-TRAIN_OR_TEST: "only_test"
+TRAIN_OR_TEST: "train_and_test"
 TRAIN:
   BATCH_SIZE: 2
   EPOCHS: 10

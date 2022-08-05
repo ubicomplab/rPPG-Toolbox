@@ -83,7 +83,7 @@ class UBFCLoader(BaseLoader):
         for i in choose_range:
             process_flag = True
             while (process_flag):
-                if running_num <16:
+                if running_num < 64:
                     p = Process(target=self.preprocess_dataset_subprocess,
                                 args=(data_dirs, config_preprocess, i))
                     p.start()

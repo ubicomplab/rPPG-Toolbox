@@ -86,4 +86,4 @@ MODEL:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4
-  MODEL_PATH: "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW128_SizeH128_ClipLength128_DataTypeNormalized_LabelTypeNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_PURE_UBFC_STANDARDIZED_physnet.pth_Epoch9.pth"
+  MODEL_PATH: "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW128_SizeH128_ClipLength128_DataTypeStandardized_LabelTypeStandardized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_PURE_UBFC_physnet.pth_Epoch6.pth"

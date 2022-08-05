@@ -4,11 +4,11 @@ TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 10
   LR: 1e-3
-  MODEL_FILE_NAME: SCAMPS_SCAMPS_UBFC_tscan
+  MODEL_FILE_NAME: SCAMPS_SCAMPS_UBFC_physnet
   DATA:
     FS: 30
     DATASET: SYNTHETICS
-    DO_PREPROCESS: False               # if first time, should be true
+    DO_PREPROCESS: True               # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Train"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data3/acsp_zyz/PreprocessdData/"    # Processed dataset save path, need to be updated
@@ -16,22 +16,22 @@ TRAIN:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Normalized','Standardized']
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
-      CLIP_LENGTH: 180
+      CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGER_BOX_SIZE: 1.5
-      H: 72
-      W: 72
+      H: 128
+      W: 128
 VALID:
   DATA:
     FS: 30
     DATASET: SYNTHETICS
-    DO_PREPROCESS: False                  # if first time, should be true
+    DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Val"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data3/acsp_zyz/PreprocessdData/"    # Processed dataset save path, need to be updated
@@ -39,23 +39,23 @@ VALID:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized','Standardized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
-      CLIP_LENGTH: 180
+      CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGER_BOX_SIZE: 1.5
-      H: 72
-      W: 72
+      H: 128
+      W: 128
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: False                    # if first time, should be true
+    DO_PREPROCESS: True                    # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -63,26 +63,26 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized','Standardized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
-      CLIP_LENGTH: 180
+      CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGER_BOX_SIZE: 1.5
-      H: 72
-      W: 72
+      H: 128
+      W: 128
 DEVICE: cuda:0
 NUM_OF_GPU_TRAIN: 1
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: Tscan
-  TSCAN:
-    FRAME_DEPTH: 10
+  NAME: Physnet
+  PHYSNET:
+    FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4
   MODEL_PATH:   ""
