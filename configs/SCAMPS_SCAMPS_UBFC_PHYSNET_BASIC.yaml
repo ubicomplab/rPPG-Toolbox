@@ -9,7 +9,7 @@ TRAIN:
     FS: 30
     DATASET: SYNTHETICS
     DO_PREPROCESS: True               # if first time, should be true
-    DATA_FORMAT: NDCHW
+    DATA_FORMAT: NCDHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Train"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
@@ -32,7 +32,7 @@ VALID:
     FS: 30
     DATASET: SYNTHETICS
     DO_PREPROCESS: True                  # if first time, should be true
-    DATA_FORMAT: NDCHW
+    DATA_FORMAT: NCDHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Val"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
@@ -56,7 +56,7 @@ TEST:
     FS: 30
     DATASET: UBFC
     DO_PREPROCESS: True                    # if first time, should be true
-    DATA_FORMAT: NDCHW
+    DATA_FORMAT: NCDHW
     DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""

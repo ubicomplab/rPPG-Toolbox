@@ -8,27 +8,62 @@ STEP3: `pip install -r requirements.txt`
 
 #### Note: Evaluation/Testing Pipeline is not ready yet. Please use training pipeline and trained checkpoints for your own evaluation. 
 
-# Training on PURE with TSCAN 
+# Training on PURE and testing on UBFC with TSCAN 
 
 STEP1: Download the PURE raw data by asking the [paper authors](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure).
 
-STEP2: Modify `./configs/PURE_TSCAN_BASIC.yaml` 
+STEP2: Download the UBFC raw data via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP2: Run `python main_neural_method.py --config_file ./configs/PURE_TSCAN_BASIC.yaml` 
+STEP3: Modify `./configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
 
-Note: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
-Note: Our framework currently deos not support multi-dataset validation. E.g., training on dataset A and validating on dataset B. 
-In this example, we just train TS-CAN for 5 epochs without a validation dataset and use the last one for testing purpose. 
+STEP4: Run `python main_neural_method.py --config_file ./configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
 
-# Training on SCAMPS with DeepPhys
+Note1: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
+
+Note2: The example yaml setting will allow 80% of PURE to train and 20% of PURE to valid. 
+After training, it will use the best model(with the least validation loss) to test on UBFC.
+
+# Training on SCAMPS and testing on UBFC with DeepPhys
 
 STEP1: Download the SCAMPS via this [link](https://github.com/danmcduff/scampsdataset) and split it into train/val/test folders.
 
-STEP2: Modify `./configs/SYNTHETICS_DEEPPHYS_BASIC.yaml` 
+STEP2: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP2: Run `python main_neural_method.py --config_file ./configs/SYNTHETICS_DEEPPHYS_BASIC.yaml` 
+STEP3: Modify `./configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml` 
 
-Note: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
+STEP4: Run `python main_neural_method.py --config_file ./configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
+
+Note1: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
+
+Note2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
+After training, it will use the best model(with the least validation loss) to test on UBFC.
+
+# Yaml File Setting
+The rPPG-Toolbox uses yaml file to control all parameters. 
+You can modify anyone of the existing yaml files to meet your own training and testing requirements.
+
+Here are some explanation of parameters:
+* #### TRAIN_OR_TEST: 
+
+  * `train_and_test`: train on dataset and used the newly trained model to test.
+  * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
+
+* #### Train / Valid / Test Dataset: You need to set them individually but their parameters follow the same pattern. 
+  * `DATA_PATH`: The path of raw data
+  * `CACHED_PATH`: The path to save preprocessed data
+  * `EXP_DATA_NAME` If it is "", the toolbox will use other parameters and `CACHED_PATH` to automatically generate loading path. If you set it personally, it will directly use your path ignoring the above two parameters
+  * `BEGIN" & "END`: Which part of your raw dataset are used, helpful when internal validating
+  * `DATA_TYPE`: How to preprocess the video data
+  * `LABEL_TYPE`: How to preprocess the label data
+  * `DO_CHUNK`: Whether clip the video and label to smaller length
+  * `CLIP_LENGTH`: The length of clipping
+  * `CROP_FACE`: Whether crop the video to smaller ones
+  * `LARGE_FACE_BOX`: Whether enlarge the rectangle of the detected face region
+  * `LARGER_BOX_SIZE`: The coefficient of enlarging
+  * `DYNAMIC_DETECTION`: Whether use some middle frames to do face detection and crop the video
+  * `DETECTION_LENGTH`: The interval of used frames if DYNAMIC_DETECTION is True
+  
+* #### Model : Use which model (support Deepphys / TSCAN / Physnet right now) and their parameters.
 
 # Dataset
 The toolbox supports four datasets, which are SCAMPS, UBFC, PURE and COHFACE. Cite corresponding papers when using.
