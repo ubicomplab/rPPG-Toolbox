@@ -42,13 +42,13 @@ After training, it will use the best model(with the least validation loss) to te
 The rPPG-Toolbox uses yaml file to control all parameters. 
 You can modify anyone of the existing yaml files to meet your own training and testing requirements.
 
-Here are some explanation of some parameters:
+Here are some explanation of parameters:
 * TRAIN_OR_TEST: 
 
   * "train_and_test": train on dataset and used the newly trained model to test.
   * "only_test": you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
 
-* Train / Valid / Test Dataset: You need to set them individually but their parameters are the same. 
+* Train / Valid / Test Dataset: You need to set them individually but their parameters follow the same pattern. 
   * "DATA_PATH": The path of raw data
   * "CACHED_PATH": The path to save preprocessed data
   * "EXP_DATA_NAME" If "": it will use other parameters and "CACHED_PATH" to automatically generate loading path. If you set it personally, it will directly use your path ignoring the above two parameters
