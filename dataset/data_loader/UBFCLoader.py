@@ -11,6 +11,8 @@ import numpy as np
 import re
 from dataset.data_loader.BaseLoader import BaseLoader
 from multiprocessing import Pool, Process, Value, Array, Manager
+from tqdm import tqdm
+
 
 class UBFCLoader(BaseLoader):
     """The data loader for the UBFC dataset."""
@@ -47,7 +49,8 @@ class UBFCLoader(BaseLoader):
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
         return dirs
 
-    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, inputs, labels, len_num):
+
+    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
@@ -64,10 +67,6 @@ class UBFCLoader(BaseLoader):
 
         count,input_name_list, label_name_list= self.save_multi_process(frames_clips, bvps_clips,
                               saved_filename)
-        inputs[i] = input_name_list
-        labels[i] = label_name_list
-        len_num.value = len_num.value + count
-
 
 
     def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
@@ -78,27 +77,41 @@ class UBFCLoader(BaseLoader):
         if (begin !=0 or end !=1):
             choose_range = range(int(begin*file_num), int(end * file_num))
             print(choose_range)
+        pbar = tqdm(list(choose_range))
         # multi_process
         p_list = []
-        with Manager() as manager:
-            inputs_share = manager.dict()
-            labels_share = manager.dict()
-            len_num = Value('i', 0)
-            for i in choose_range:
-                p = Process(target=self.preprocess_dataset_subprocess,
-                            args=(data_dirs, config_preprocess, i, inputs_share, labels_share, len_num))
-                p.start()
-                p_list.append(p)
-            # join all processes
-            for p_ in p_list:
-                p_.join()
-            # append all data path and update the length of data
-            for index in choose_range:
-                for input in inputs_share[index]:
-                    self.inputs.append(input)
-                for label in labels_share[index]:
-                    self.labels.append(label)
-            self.len = len_num.value
+        running_num = 0
+        for i in choose_range:
+            process_flag = True
+            while (process_flag):
+                if running_num < 64:
+                    p = Process(target=self.preprocess_dataset_subprocess,
+                                args=(data_dirs, config_preprocess, i))
+                    p.start()
+                    p_list.append(p)
+                    running_num +=1
+                    process_flag = False
+                for p_ in p_list:
+                    if (not p_.is_alive() ):
+                        p_list.remove(p_)
+                        p_.join()
+                        running_num -= 1
+                        pbar.update(1)
+        # join all processes
+        for p_ in p_list:
+            p_.join()
+            pbar.update(1)
+        pbar.close()
+        # append all data path and update the length of data
+        inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
+        if inputs == []:
+            raise ValueError(self.name + ' dataset loading data error!')
+        labels = [input.replace("input", "label") for input in inputs]
+        assert (len(inputs) == len(labels))
+        self.inputs = inputs
+        self.labels = labels
+        self.len = len(inputs)
+
 
 
     @staticmethod

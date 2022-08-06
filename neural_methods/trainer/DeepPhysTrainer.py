@@ -33,7 +33,7 @@ class DeepPhysTrainer(BaseTrainer):
     def train(self, data_loader):
         """ TODO:Docstring"""
         if data_loader["train"] is None:
-            assert ValueError("No data for train")
+            raise ValueError("No data for train")
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -70,12 +70,12 @@ class DeepPhysTrainer(BaseTrainer):
                 print("update best model,best epoch :{}".format(self.best_epoch))
                 self.save_model(epoch)
         print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
-        return 0
+
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
         if data_loader["valid"] is None:
-            assert ValueError("No data for valid")
+            raise ValueError("No data for valid")
         print("===Validating===")
         valid_loss = []
         self.model.eval()
@@ -100,7 +100,7 @@ class DeepPhysTrainer(BaseTrainer):
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
         if data_loader["test"] is None:
-            assert ValueError("No data for test")
+            raise ValueError("No data for test")
         config = self.config
         print("===Testing===")
         predictions = dict()
@@ -136,7 +136,7 @@ class DeepPhysTrainer(BaseTrainer):
                     labels[subj_index][sort_index] = labels_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
 
         calculate_metrics(predictions, labels, config)
-        return
+
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):

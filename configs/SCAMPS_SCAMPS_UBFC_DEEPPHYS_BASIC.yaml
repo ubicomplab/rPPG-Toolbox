@@ -1,17 +1,20 @@
 BASE: ['']
 TRAIN_OR_TEST: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
-  BATCH_SIZE: 2
+  BATCH_SIZE: 4
   EPOCHS: 10
   LR: 1e-3
-  MODEL_FILE_NAME: PURE_PURE_UBFC_tscan.pth
+  MODEL_FILE_NAME: SCAMPS_SCAMPS_UBFC_deepphys
   DATA:
     FS: 30
-    DATASET: PURE
+    DATASET: SYNTHETICS
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH:   "/data1/toolbox_data/PURE/RawData"       # need to be updated
+    DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Train"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
     PREPROCESS :
       DATA_TYPE: ['Normalized','Standardized']
       LABEL_TYPE: Normalized
@@ -27,11 +30,14 @@ TRAIN:
 VALID:
   DATA:
     FS: 30
-    DATASET: UBFC
+    DATASET: SYNTHETICS
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"   # need to be updated
+    DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Val"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
     PREPROCESS:
       DATA_TYPE: [ 'Normalized','Standardized' ]
       LABEL_TYPE: Normalized
@@ -41,7 +47,7 @@ VALID:
       DETECTION_LENGTH: 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 2.0
+      LARGER_BOX_SIZE: 1.5
       H: 72
       W: 72
 TEST:
@@ -51,8 +57,11 @@ TEST:
     DATASET: UBFC
     DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"     # need to be updated
+    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
     PREPROCESS:
       DATA_TYPE: [ 'Normalized','Standardized' ]
       LABEL_TYPE: Normalized
@@ -71,11 +80,8 @@ LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: Tscan
-  TSCAN:
-    FRAME_DEPTH: 10
+  NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 4
   MODEL_PATH:   ""
-                    # if TRAIN_OR_TEST:"train_and_test", should be "" or anything, it will use currently trained model.
-                    # if TRAIN_OR_TEST:"only_test", should be "path"
+                  

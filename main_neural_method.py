@@ -7,10 +7,9 @@ An end-to-end training pipleine for neural network methods.
 
   python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
 """
-
+import os
 import argparse
 import glob
-import os
 import time
 import logging
 import re
@@ -45,22 +44,19 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
-    parser.add_argument('--do_train', action='store_true')
-    parser.add_argument(
-        '--device',
-        default=None,
-        type=int,
-        help="An integer to specify which gpu to use, -1 for cpu.")
-    parser.add_argument('--batch_size', default=None, type=int)
-    parser.add_argument('--train_data_path', default=None, required=False,
-                        type=str, help='The path of the data directory.')
-    parser.add_argument('--valid_data_path', default=None, required=False,
-                        type=str, help='The path of the data directory.')
-    parser.add_argument('--epochs', default=None, type=int)
-    parser.add_argument('--log_level', default="DEBUG", type=str)
-    parser.add_argument('--log_path', default="terminal", type=str)
-    parser.add_argument('--model_dir', default=None, type=str)
+                        default="configs/PURE_PURE_UBFC_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+    # Sample YAMSL LIST:
+    #   SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
+    #   SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
+    #   SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
+    #   PURE_PURE_UBFC_TSCAN_BASIC.yaml
+    #   PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
+    #   PURE_PURE_UBFC_PHYSNET_BASIC.yaml
+    #   UBFC_UBFC_PURE_TSCAN_BASIC.yaml
+    #   UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
+    #   UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
     return parser
 
 
@@ -106,29 +102,7 @@ if __name__ == "__main__":
     # configurations.
     config = get_config(args)
     print(config)
-    # logging
-    if args.log_path == "terminal":
-        if args.log_level == "DEBUG":
-            logging.basicConfig(level=logging.DEBUG)
-        elif args.log_level == "INFO":
-            logging.basicConfig(level=logging.INFO)
-        elif args.log_level == "WARNING":
-            logging.basicConfig(level=logging.WARNING)
-        elif args.log_level == "ERROR":
-            logging.basicConfig(level=logging.ERROR)
-        elif args.log_level == "CRITICAL":
-            logging.basicConfig(level=logging.CRITICAL)
-    else:
-        if args.log_level == "DEBUG":
-            logging.basicConfig(level=logging.DUBUG, filemode='w', filename=args.log_path)
-        elif args.log_level == "INFO":
-            logging.basicConfig(level=logging.INFO, filemode='w', filename=args.log_path)
-        elif args.log_level == "WARNING":
-            logging.basicConfig(level=logging.WARNING, filemode='w', filename=args.log_path)
-        elif args.log_level == "ERROR":
-            logging.basicConfig(level=logging.ERROR, filemode='w', filename=args.log_path)
-        elif args.log_level == "CRITICAL":
-            logging.basicConfig(level=logging.CRITICAL, filemode='w', filename=args.log_path)
+
     # train_loader
     if config.TRAIN.DATA.DATASET == "COHFACE":
         train_loader = data_loader.COHFACELoader.COHFACELoader
@@ -167,56 +141,56 @@ if __name__ == "__main__":
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
-    data_loader = dict()
+    data_loader_dict = dict()
     if config.TRAIN.DATA.DATA_PATH:
         train_data_loader = train_loader(
             name="train",
             data_path=config.TRAIN.DATA.DATA_PATH,
             config_data=config.TRAIN.DATA)
-        data_loader['train'] = DataLoader(
+        data_loader_dict['train'] = DataLoader(
             dataset=train_data_loader,
-            num_workers=4,
+            num_workers=16,
             batch_size=config.TRAIN.BATCH_SIZE,
             shuffle=True,
             worker_init_fn=seed_worker,
             generator=g
         )
     else:
-        data_loader['train'] = None
+        data_loader_dict['train'] = None
     if config.TRAIN.DATA.DATA_PATH:
         valid_data = valid_loader(
             name="valid",
             data_path=config.VALID.DATA.DATA_PATH,
             config_data=config.VALID.DATA)
-        data_loader["valid"] = DataLoader(
+        data_loader_dict["valid"] = DataLoader(
             dataset=valid_data,
-            num_workers=4,
+            num_workers=16,
             batch_size=config.TRAIN.BATCH_SIZE,
             shuffle=True,
             worker_init_fn=seed_worker,
             generator=g
         )
     else:
-        data_loader['valid'] = None
+        data_loader_dict['valid'] = None
 
     if config.TEST.DATA.DATA_PATH:
         test_data = test_loader(
             name="test",
             data_path=config.TEST.DATA.DATA_PATH,
             config_data=config.TEST.DATA)
-        data_loader["test"] = DataLoader(
+        data_loader_dict["test"] = DataLoader(
             dataset=test_data,
-            num_workers=4,
+            num_workers=16,
             batch_size=config.INFERENCE.BATCH_SIZE,
             shuffle=False,
             worker_init_fn=seed_worker,
             generator=g
         )
     else:
-        data_loader['test'] = None
+        data_loader_dict['test'] = None
     if config.TRAIN_OR_TEST == "train_and_test":
-        train_and_test(config, data_loader)
+        train_and_test(config, data_loader_dict)
     elif config.TRAIN_OR_TEST == "only_test":
-        test(config, data_loader)
+        test(config, data_loader_dict)
     else:
         print("TRAIN_OR_TEST only support train_and_test or only_test !")

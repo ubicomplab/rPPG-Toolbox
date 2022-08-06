@@ -44,6 +44,8 @@ class BaseLoader(Dataset):
         assert (config_data.END < 1 or config_data.END==1)
         if (config_data.BEGIN != 0 or config_data.END !=1):
             self.cached_path = config_data.CACHED_PATH +"_"+ str(config_data.BEGIN) + '_'+str(config_data.END)
+        elif (config_data.DATASET == "SYNTHETICS"):
+            self.cached_path = config_data.CACHED_PATH + "_" + self.name
         print(self.cached_path)
         self.inputs = list()
         self.labels = list()
@@ -122,7 +124,6 @@ class BaseLoader(Dataset):
             else:
                 raise ValueError("Unsupported data type!")
         data = np.concatenate(data, axis=3)
-
         if config_preprocess.LABEL_TYPE == "Raw":
             bvps = bvps[:-1]
         elif config_preprocess.LABEL_TYPE == "Normalized":

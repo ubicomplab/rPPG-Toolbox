@@ -16,8 +16,8 @@ TRAIN:
     BEGIN: 0.0
     END: 0.8
     PREPROCESS :
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -39,8 +39,8 @@ VALID:
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -63,8 +63,8 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -85,4 +85,4 @@ MODEL:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4
-  MODEL_PATH: ""
+  MODEL_PATH: "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrainedModels/PURE_SizeW128_SizeH128_ClipLength128_DataTypeRaw_LabelTypeRaw_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/PURE_PURE_UBFC_physnet.pth_Epoch9.pth"

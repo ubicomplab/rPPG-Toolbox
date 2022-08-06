@@ -47,7 +47,7 @@ class PhysnetTrainer(BaseTrainer):
     def train(self, data_loader):
         """ TODO:Docstring"""
         if data_loader["train"] is None:
-            assert ValueError("No data for train")
+            raise ValueError("No data for train")
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -58,8 +58,8 @@ class PhysnetTrainer(BaseTrainer):
             for idx, batch in enumerate(tbar):
                 tbar.set_description("Train epoch %s" % epoch)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
-                    batch[0].to(torch.float32).to(self.device))
-                BVP_label = batch[1].to(
+                    Variable(batch[0]).to(torch.float32).to(self.device))
+                BVP_label = Variable(batch[1]).to(
                     torch.float32).to(self.device)
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
                 BVP_label = (BVP_label - torch.mean(BVP_label)) / \
@@ -85,12 +85,12 @@ class PhysnetTrainer(BaseTrainer):
                 self.save_model(epoch)
         print("best trained epoch:{}, min_val_loss:{}".format(
             self.best_epoch, min_valid_loss))
-        return 0
+
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
         if data_loader["valid"] is None:
-            assert ValueError("No data for valid")
+            raise ValueError("No data for valid")
         print(" ====Validing===")
         valid_loss = []
         self.model.eval()
@@ -99,10 +99,10 @@ class PhysnetTrainer(BaseTrainer):
             vbar = tqdm(data_loader["valid"], ncols=80)
             for valid_idx, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")
-                BVP_label = valid_batch[1].to(
+                BVP_label = Variable(valid_batch[1]).to(
                     torch.float32).to(self.device)
                 rPPG, x_visual, x_visual3232, x_visual1616 = self.model(
-                    valid_batch[0].to(torch.float32).to(self.device))
+                    Variable(valid_batch[0]).to(torch.float32).to(self.device))
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
                 BVP_label = (BVP_label - torch.mean(BVP_label)) / \
                     torch.std(BVP_label)  # normalize
@@ -112,6 +112,50 @@ class PhysnetTrainer(BaseTrainer):
                 vbar.set_postfix(loss=loss_ecg.item())
             valid_loss = np.asarray(valid_loss)
         return np.mean(valid_loss)
+
+    def test_(self, data_loader):
+        """ Runs the model on test sets."""
+        if data_loader["test"] is None:
+            raise ValueError("No data for test")
+        config = self.config
+        print("===Testing===")
+        predictions = dict()
+        labels = dict()
+
+        model = PhysNet_padding_Encoder_Decoder_MAX(
+            frames=128).to("cuda")  # [3, T, 128,128]
+        # model = torch.nn.DataParallel(model, device_ids=list(range(1)))
+        person_model_paths = "/data1/acsp/Yuzhe_Zhang/Toolbox_master_2/rPPG-Toolbox/PreTrai" \
+                             "nedModels/PURE_SizeW128_SizeH128_ClipLength128_DataTypeStandardi" \
+                             "zed_LabelTypeStandardized_Large_boxTrue_Large_size1.5_Dyamic_DetFa" \
+                             "lse_det_len180/PURE_PURE_UBFC_physnet.pth_Epoch11.pth"
+        model.load_state_dict(torch.load(person_model_paths, map_location=torch.device('cuda')))
+        with torch.no_grad():
+            for _, test_batch in enumerate(data_loader['test']):
+                batch_size = test_batch[0].shape[0]
+                data, label = test_batch[0].to(
+                    config.DEVICE), test_batch[1].to(config.DEVICE)
+                pred_ppg_test, _, _, _ = model(data)
+                for idx in range(batch_size):
+                    subj_index = test_batch[2][idx]
+                    sort_index = int(test_batch[3][idx])
+                    if subj_index not in predictions.keys():
+                        predictions[subj_index] = dict()
+                        labels[subj_index] = dict()
+                    # predictions[subj_index][sort_index] = prediction
+                    # labels[subj_index][sort_index] = label
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx]
+                    # print("p:",predictions[subj_index][sort_index].shape)
+                    labels[subj_index][sort_index] = label[idx]
+                    # print(labels[subj_index][sort_index].shape)
+        calculate_metrics(predictions, labels, config)
+
+
+
+
+
+
+
 
     def test(self, data_loader):
         """ Runs the model on test sets."""
@@ -124,6 +168,7 @@ class PhysnetTrainer(BaseTrainer):
         if config.TRAIN_OR_TEST == "only_test":
             self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
+            print(config.INFERENCE.MODEL_PATH)
         else:
             best_model_path = os.path.join(
                 self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
@@ -131,21 +176,24 @@ class PhysnetTrainer(BaseTrainer):
             print(best_model_path)
             self.model.load_state_dict(torch.load(best_model_path))
         self.model = self.model.to(config.DEVICE)
-        self.model.eval()
+        # self.model.eval()
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader['test']):
                 batch_size = test_batch[0].shape[0]
                 data, label = test_batch[0].to(
                     config.DEVICE), test_batch[1].to(config.DEVICE)
-                prediction, _, _, _ = self.model(data)
+                pred_ppg_test, _, _, _ = self.model(data)
                 for idx in range(batch_size):
                     subj_index = test_batch[2][idx]
                     sort_index = int(test_batch[3][idx])
                     if subj_index not in predictions.keys():
                         predictions[subj_index] = dict()
                         labels[subj_index] = dict()
-                    predictions[subj_index][sort_index] = prediction
-                    labels[subj_index][sort_index] = label
+                    # predictions[subj_index][sort_index] = prediction
+                    # labels[subj_index][sort_index] = label
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx]
+                    labels[subj_index][sort_index] = label[idx]
+                    # print(labels[subj_index][sort_index].shape)
         calculate_metrics(predictions, labels, config)
 
     def save_model(self, index):
