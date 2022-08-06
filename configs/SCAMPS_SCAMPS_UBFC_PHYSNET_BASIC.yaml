@@ -11,13 +11,13 @@ TRAIN:
     DO_PREPROCESS: True               # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Train"          # Raw dataset path, need to be updated
-    CACHED_PATH: "/data3/acsp_zyz/PreprocessdData/"    # Processed dataset save path, need to be updated
+    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+      DATA_TYPE: [ 'Normalized' ]
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -34,13 +34,13 @@ VALID:
     DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Val"          # Raw dataset path, need to be updated
-    CACHED_PATH: "/data3/acsp_zyz/PreprocessdData/"    # Processed dataset save path, need to be updated
+    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+      DATA_TYPE: [ 'Normalized' ]
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -63,8 +63,8 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+      DATA_TYPE: [ 'Normalized' ]
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -86,5 +86,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   MODEL_PATH:   ""
-                    # if TRAIN_OR_TEST:"train_and_test", should be "" or anything, it will use currently trained model.
-                    # if TRAIN_OR_TEST:"only_test", should be "path"
+                  

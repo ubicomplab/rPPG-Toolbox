@@ -1,10 +1,10 @@
 BASE: ['']
 TRAIN_OR_TEST: "train_and_test"
 TRAIN:
-  BATCH_SIZE: 2
+  BATCH_SIZE: 4
   EPOCHS: 10
   LR: 1e-3
-  MODEL_FILE_NAME: PURE_PURE_UBFC_physnet.pth
+  MODEL_FILE_NAME: PURE_PURE_UBFC_physnet
   DATA:
     FS: 30
     DATASET: PURE

@@ -47,7 +47,7 @@ class PhysnetTrainer(BaseTrainer):
     def train(self, data_loader):
         """ TODO:Docstring"""
         if data_loader["train"] is None:
-            assert ValueError("No data for train")
+            raise ValueError("No data for train")
         min_valid_loss = 1
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -90,7 +90,7 @@ class PhysnetTrainer(BaseTrainer):
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
         if data_loader["valid"] is None:
-            assert ValueError("No data for valid")
+            raise ValueError("No data for valid")
         print(" ====Validing===")
         valid_loss = []
         self.model.eval()
@@ -116,7 +116,7 @@ class PhysnetTrainer(BaseTrainer):
     def test_(self, data_loader):
         """ Runs the model on test sets."""
         if data_loader["test"] is None:
-            assert ValueError("No data for test")
+            raise ValueError("No data for test")
         config = self.config
         print("===Testing===")
         predictions = dict()

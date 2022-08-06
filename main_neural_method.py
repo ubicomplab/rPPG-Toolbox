@@ -7,11 +7,9 @@ An end-to-end training pipleine for neural network methods.
 
   python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
 """
-
+import os
 import argparse
 import glob
-import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 import time
 import logging
 import re
@@ -46,20 +44,19 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/SCAMPS_SCAMPS_UBFC_PHYSNET_STANDARDIZED_BASIC.yaml", type=str, help="The name of the model.")
-    # SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
-    # SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
-    # SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
-    # SCAMPS_SCAMPS_UBFC_PHYSNET_STANDARDIZED_BASIC.yaml
-    # SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
-    # SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
-    # PURE_PURE_UBFC_TSCAN_BASIC.yaml
-    # PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
-    # PURE_PURE_UBFC_PHYSNET_BASIC.yaml
-    # UBFC_UBFC_PURE_TSCAN_BASIC.yaml
-    # UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
-    # PURE_PURE_UBFC_PHYSNET_STANDARDIZED_BASIC.yaml
-    # PURE_PURE_UBFC_PHYSNET_NORMARLIZED_BASIC.yaml
+                        default="configs/PURE_PURE_UBFC_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+    # Sample YAMSL LIST:
+    #   SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
+    #   SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
+    #   SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
+    #   PURE_PURE_UBFC_TSCAN_BASIC.yaml
+    #   PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
+    #   PURE_PURE_UBFC_PHYSNET_BASIC.yaml
+    #   UBFC_UBFC_PURE_TSCAN_BASIC.yaml
+    #   UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
+    #   UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
     return parser
 
 
@@ -144,56 +141,56 @@ if __name__ == "__main__":
     else:
         raise ValueError(
             "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
-    data_loader = dict()
+    data_loader_dict = dict()
     if config.TRAIN.DATA.DATA_PATH:
         train_data_loader = train_loader(
             name="train",
             data_path=config.TRAIN.DATA.DATA_PATH,
             config_data=config.TRAIN.DATA)
-        data_loader['train'] = DataLoader(
+        data_loader_dict['train'] = DataLoader(
             dataset=train_data_loader,
-            num_workers=4,
+            num_workers=16,
             batch_size=config.TRAIN.BATCH_SIZE,
             shuffle=True,
             worker_init_fn=seed_worker,
             generator=g
         )
     else:
-        data_loader['train'] = None
+        data_loader_dict['train'] = None
     if config.TRAIN.DATA.DATA_PATH:
         valid_data = valid_loader(
             name="valid",
             data_path=config.VALID.DATA.DATA_PATH,
             config_data=config.VALID.DATA)
-        data_loader["valid"] = DataLoader(
+        data_loader_dict["valid"] = DataLoader(
             dataset=valid_data,
-            num_workers=4,
+            num_workers=16,
             batch_size=config.TRAIN.BATCH_SIZE,
             shuffle=True,
             worker_init_fn=seed_worker,
             generator=g
         )
     else:
-        data_loader['valid'] = None
+        data_loader_dict['valid'] = None
 
     if config.TEST.DATA.DATA_PATH:
         test_data = test_loader(
             name="test",
             data_path=config.TEST.DATA.DATA_PATH,
             config_data=config.TEST.DATA)
-        data_loader["test"] = DataLoader(
+        data_loader_dict["test"] = DataLoader(
             dataset=test_data,
-            num_workers=4,
+            num_workers=16,
             batch_size=config.INFERENCE.BATCH_SIZE,
             shuffle=False,
             worker_init_fn=seed_worker,
             generator=g
         )
     else:
-        data_loader['test'] = None
+        data_loader_dict['test'] = None
     if config.TRAIN_OR_TEST == "train_and_test":
-        train_and_test(config, data_loader)
+        train_and_test(config, data_loader_dict)
     elif config.TRAIN_OR_TEST == "only_test":
-        test(config, data_loader)
+        test(config, data_loader_dict)
     else:
         print("TRAIN_OR_TEST only support train_and_test or only_test !")
