@@ -51,7 +51,7 @@ Here are some explanation of parameters:
 * #### Train / Valid / Test Dataset: You need to set them individually but their parameters follow the same pattern. 
   * `DATA_PATH`: The path of raw data
   * `CACHED_PATH`: The path to save preprocessed data
-  * `EXP_DATA_NAME` If "": it will use other parameters and "CACHED_PATH" to automatically generate loading path. If you set it personally, it will directly use your path ignoring the above two parameters
+  * `EXP_DATA_NAME` If "": it will use other parameters and `CACHED_PATH` to automatically generate loading path. If you set it personally, it will directly use your path ignoring the above two parameters
   * `BEGIN" & "END`: Which part of your raw dataset are used, helpful when internal validating
   * `DATA_TYPE`: How to preprocess the video data
   * `LABEL_TYPE`: How to preprocess the label data
