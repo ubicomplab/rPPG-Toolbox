@@ -58,10 +58,10 @@ Here are some explanation of parameters:
   * `DO_CHUNK`: Whether clip the video and label to smaller length
   * `CLIP_LENGTH`: The length of clipping
   * `CROP_FACE`: Whether crop the video to smaller ones
-  * `LARGE_FACE_BOX`: Whether enlarge the rectangle of the detected face region
-  * `LARGER_BOX_SIZE`: The coefficient of enlarging
   * `DYNAMIC_DETECTION`: Whether use some middle frames to do face detection and crop the video
   * `DETECTION_LENGTH`: The interval of used frames if DYNAMIC_DETECTION is True
+  * `LARGE_FACE_BOX`: Whether enlarge the rectangle of the detected face region
+  * `LARGER_BOX_SIZE`: The coefficient of enlarging
   
 * #### Model : Use which model (support Deepphys / TSCAN / Physnet right now) and their parameters.
 
