@@ -8,7 +8,6 @@ An end-to-end training pipleine for neural network methods.
   python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
 """
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 import argparse
 import glob
 import time
@@ -45,22 +44,19 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/UBFC_UBFC_PURE_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
-    # yaml list:
-    # SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
-    # SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
-    # SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
-    # SCAMPS_SCAMPS_UBFC_PHYSNET_STANDARDIZED_BASIC.yaml
-    # SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
-    # SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
-    # PURE_PURE_UBFC_TSCAN_BASIC.yaml
-    # PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
-    # PURE_PURE_UBFC_PHYSNET_BASIC.yaml
-    # UBFC_UBFC_PURE_TSCAN_BASIC.yaml
-    # UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
-    # UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
-    # PURE_PURE_UBFC_PHYSNET_STANDARDIZED_BASIC.yaml
-    # PURE_PURE_UBFC_PHYSNET_NORMARLIZED_BASIC.yaml
+                        default="configs/PURE_PURE_UBFC_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+    # Sample YAMSL LIST:
+    #   SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
+    #   SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
+    #   SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
+    #   PURE_PURE_UBFC_TSCAN_BASIC.yaml
+    #   PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
+    #   PURE_PURE_UBFC_PHYSNET_BASIC.yaml
+    #   UBFC_UBFC_PURE_TSCAN_BASIC.yaml
+    #   UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
+    #   UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
     return parser
 
 
