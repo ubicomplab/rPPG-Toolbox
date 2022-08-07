@@ -134,8 +134,8 @@ class DeepPhysTrainer(BaseTrainer):
                     if subj_index not in predictions.keys():
                         predictions[subj_index] = dict()
                         labels[subj_index] = dict()
-                    predictions[subj_index][sort_index] = pred_ppg_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
-                    labels[subj_index][sort_index] = labels_test[idx*config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx*config.TEST.DATA.PREPROCESS.CHUNK_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CHUNK_LENGTH]
+                    labels[subj_index][sort_index] = labels_test[idx*config.TEST.DATA.PREPROCESS.CHUNK_LENGTH:(idx+1)*config.TEST.DATA.PREPROCESS.CHUNK_LENGTH]
 
         calculate_metrics(predictions, labels, config)
 
