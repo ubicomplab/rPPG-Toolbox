@@ -105,7 +105,9 @@ class DeepPhysTrainer(BaseTrainer):
         print("===Testing===")
         predictions = dict()
         labels = dict()
-        if config.INFERENCE.MODEL_PATH:
+        if config.TRAIN_OR_TEST == "only_test":
+            if not os.path.exists(config.INFERENCE.MODEL_PATH):
+                raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
             self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
         else:
