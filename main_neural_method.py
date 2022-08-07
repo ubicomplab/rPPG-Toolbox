@@ -194,4 +194,4 @@ if __name__ == "__main__":
     elif config.TOOLBOX_MODE == "only_test":
         test(config, data_loader_dict)
     else:
-        print("TRAIN_OR_TEST only support train_and_test or only_test !")
+        print("TOOLBOX_MODE only support train_and_test or only_test !")
