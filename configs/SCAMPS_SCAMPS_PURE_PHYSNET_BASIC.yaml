@@ -4,20 +4,20 @@ TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 10
   LR: 1e-3
-  MODEL_FILE_NAME: SCAMPS_SCAMPS_UBFC_physnet_standardized
+  MODEL_FILE_NAME: SCAMPS_SCAMPS_PURE_physnet
   DATA:
     FS: 30
     DATASET: SYNTHETICS
     DO_PREPROCESS: False               # if first time, should be true
-    DATA_FORMAT: NDCHW
+    DATA_FORMAT: NCDHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Train"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: [ 'Standardized' ]
-      LABEL_TYPE: Standardized
+      DATA_TYPE: [ 'Normalized' ]
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -31,16 +31,16 @@ VALID:
   DATA:
     FS: 30
     DATASET: SYNTHETICS
-    DO_PREPROCESS: True                  # if first time, should be true
-    DATA_FORMAT: NDCHW
+    DO_PREPROCESS: False                  # if first time, should be true
+    DATA_FORMAT: NCDHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Val"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Standardized' ]
-      LABEL_TYPE: Standardized
+      DATA_TYPE: [ 'Normalized' ]
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -54,17 +54,17 @@ TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   DATA:
     FS: 30
-    DATASET: UBFC
+    DATASET: PURE
     DO_PREPROCESS: True                    # if first time, should be true
-    DATA_FORMAT: NDCHW
-    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"          # Raw dataset path, need to be updated
+    DATA_FORMAT: NCDHW
+    DATA_PATH:   "/data1/toolbox_data/PURE/RawData"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Standardized' ]
-      LABEL_TYPE: Standardized
+      DATA_TYPE: [ 'Normalized' ]
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
       CLIP_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -86,4 +86,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   MODEL_PATH:   ""
-                   
+                  

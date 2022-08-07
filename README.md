@@ -52,7 +52,7 @@ Here are some explanation of parameters:
   * `DATA_PATH`: The path of raw data
   * `CACHED_PATH`: The path to save preprocessed data
   * `EXP_DATA_NAME` If it is "", the toolbox will use other parameters and `CACHED_PATH` to automatically generate loading path. If you set it personally, it will directly use your path ignoring the above two parameters
-  * `BEGIN" & "END`: Which part of your raw dataset are used, helpful when internal validating
+  * `BEGIN" & "END`: Which part of your raw datasets are used, it will be helpful when internal validating
   * `DATA_TYPE`: How to preprocess the video data
   * `LABEL_TYPE`: How to preprocess the label data
   * `DO_CHUNK`: Whether clip the video and label to smaller length
