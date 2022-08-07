@@ -62,6 +62,7 @@ Here are some explanation of parameters:
   * `DETECTION_LENGTH`: The interval of used frames if DYNAMIC_DETECTION is True
   * `LARGE_FACE_BOX`: Whether enlarge the rectangle of the detected face region
   * `LARGER_BOX_SIZE`: The coefficient of enlarging
+
   
 * #### Model : Use which model (support Deepphys / TSCAN / Physnet right now) and their parameters.
 
