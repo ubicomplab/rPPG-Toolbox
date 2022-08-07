@@ -8,7 +8,6 @@ An end-to-end training pipleine for neural network methods.
   python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
 """
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import argparse
 import glob
 import time
@@ -45,13 +44,14 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
-    # Sample YAMSL LIST:
+                        default="configs/PURE_PURE_UBFC_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+    # Sample YAML LIST:
     #   SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
     #   SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
     #   SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
     #   SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
     #   SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_PHYSNET_BASIC.yaml
     #   PURE_PURE_UBFC_TSCAN_BASIC.yaml
     #   PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
     #   PURE_PURE_UBFC_PHYSNET_BASIC.yaml
@@ -189,9 +189,9 @@ if __name__ == "__main__":
         )
     else:
         data_loader_dict['test'] = None
-    if config.TRAIN_OR_TEST == "train_and_test":
+    if config.TOOLBOX_MODE == "train_and_test":
         train_and_test(config, data_loader_dict)
-    elif config.TRAIN_OR_TEST == "only_test":
+    elif config.TOOLBOX_MODE == "only_test":
         test(config, data_loader_dict)
     else:
         print("TRAIN_OR_TEST only support train_and_test or only_test !")

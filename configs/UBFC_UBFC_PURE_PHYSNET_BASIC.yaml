@@ -1,5 +1,5 @@
 BASE: ['']
-TRAIN_OR_TEST: "train_and_test"
+TOOLBOX_MODE: "train_and_test" # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 10
@@ -8,7 +8,7 @@ TRAIN:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True            # if first time, should be true
+    DO_PREPROCESS: False            # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"       # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -19,19 +19,19 @@ TRAIN:
       DATA_TYPE: [ 'Normalized' ]
       LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CLIP_LENGTH: 128
+      CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
-      DETECTION_LENGTH: 180
+      DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 1.5
+      LARGE_BOX_COEF: 1.5
       H: 128
       W: 128
 VALID:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True                # if first time, should be true
+    DO_PREPROCESS: False                # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"   # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -42,12 +42,12 @@ VALID:
       DATA_TYPE: [ 'Normalized' ]
       LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CLIP_LENGTH: 128
+      CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
-      DETECTION_LENGTH: 180
+      DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 1.5
+      LARGE_BOX_COEF: 1.5
       H: 128
       W: 128
 TEST:
@@ -55,7 +55,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True                  # if first time, should be true
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/PURE/RawData"     # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -66,12 +66,12 @@ TEST:
       DATA_TYPE: [ 'Normalized' ]
       LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CLIP_LENGTH: 128
+      CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
-      DETECTION_LENGTH: 180
+      DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
       LARGE_FACE_BOX: True
-      LARGER_BOX_SIZE: 1.5
+      LARGE_BOX_COEF: 1.5
       H: 128
       W: 128
 DEVICE: cuda:0
@@ -85,4 +85,5 @@ MODEL:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4
+  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
   MODEL_PATH: ""

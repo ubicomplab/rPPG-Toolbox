@@ -43,7 +43,7 @@ The rPPG-Toolbox uses yaml file to control all parameters for training and evalu
 You can modify the existing yaml files to meet your own training and testing requirements.
 
 Here are some explanation of parameters:
-* #### TRAIN_OR_TEST: 
+* #### TOOLBOX_MODE: 
 
   * `train_and_test`: train on dataset and used the newly trained model to test.
   * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
@@ -56,12 +56,12 @@ Here are some explanation of parameters:
   * `DATA_TYPE`: How to preprocess the video data
   * `LABEL_TYPE`: How to preprocess the label data
   * `DO_CHUNK`: Whether clip the video and label to smaller length
-  * `CLIP_LENGTH`: The length of clipping
+  * `CHUNK_LENGTH`: The length of clipping
   * `CROP_FACE`: Whether crop the video to smaller ones
   * `DYNAMIC_DETECTION`: Whether use some middle frames to do face detection and crop the video
-  * `DETECTION_LENGTH`: The interval of used frames if DYNAMIC_DETECTION is True
+  * `DYNAMIC_DETECTION_FREQUENCY`: The interval of used frames if DYNAMIC_DETECTION is True
   * `LARGE_FACE_BOX`: Whether enlarge the rectangle of the detected face region
-  * `LARGER_BOX_SIZE`: The coefficient of enlarging
+  * `LARGE_BOX_COEF`: The coefficient of enlarging
 
   
 * #### Model : Use which model (support Deepphys / TSCAN / Physnet right now) and their parameters.
