@@ -115,7 +115,7 @@ class TscanTrainer(BaseTrainer):
         print("===Testing===")
         predictions = dict()
         labels = dict()
-        if config.TRAIN_OR_TEST == "only_test":
+        if config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
             self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
@@ -145,10 +145,10 @@ class TscanTrainer(BaseTrainer):
                     if subj_index not in predictions.keys():
                         predictions[subj_index] = dict()
                         labels[subj_index] = dict()
-                    predictions[subj_index][sort_index] = pred_ppg_test[idx * config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(
-                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
-                    labels[subj_index][sort_index] = labels_test[idx * config.TEST.DATA.PREPROCESS.CLIP_LENGTH:(
-                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CLIP_LENGTH]
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH:(
+                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH]
+                    labels[subj_index][sort_index] = labels_test[idx * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH:(
+                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH]
 
         calculate_metrics(predictions, labels, config)
 

@@ -52,6 +52,7 @@ def add_args(parser):
     #   SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
     #   SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
     #   SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
+    #   SCAMPS_SCAMPS_PURE_PHYSNET_BASIC.yaml
     #   PURE_PURE_UBFC_TSCAN_BASIC.yaml
     #   PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
     #   PURE_PURE_UBFC_PHYSNET_BASIC.yaml
@@ -189,9 +190,9 @@ if __name__ == "__main__":
         )
     else:
         data_loader_dict['test'] = None
-    if config.TRAIN_OR_TEST == "train_and_test":
+    if config.TOOLBOX_MODE == "train_and_test":
         train_and_test(config, data_loader_dict)
-    elif config.TRAIN_OR_TEST == "only_test":
+    elif config.TOOLBOX_MODE == "only_test":
         test(config, data_loader_dict)
     else:
-        print("TRAIN_OR_TEST only support train_and_test or only_test !")
+        print("TOOLBOX_MODE only support train_and_test or only_test !")

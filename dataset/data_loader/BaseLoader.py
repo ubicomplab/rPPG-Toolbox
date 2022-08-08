@@ -105,12 +105,12 @@ class BaseLoader(Dataset):
         frames = self.resize(
             frames,
             config_preprocess.DYNAMIC_DETECTION,
-            config_preprocess.DETECTION_LENGTH,
+            config_preprocess.DYNAMIC_DETECTION_FREQUENCY ,
             config_preprocess.W,
             config_preprocess.H,
             config_preprocess.LARGE_FACE_BOX,
             config_preprocess.CROP_FACE,
-            config_preprocess.LARGER_BOX_SIZE)
+            config_preprocess.LARGE_BOX_COEF)
         # data_type
         data = list()
         for data_type in config_preprocess.DATA_TYPE:
@@ -135,7 +135,7 @@ class BaseLoader(Dataset):
 
         if config_preprocess.DO_CHUNK:
             frames_clips, bvps_clips = self.chunk(
-                data, bvps, config_preprocess.CLIP_LENGTH)
+                data, bvps, config_preprocess.CHUNK_LENGTH)
         else:
             frames_clips = np.array([data])
             bvps_clips = np.array([bvps])
@@ -210,13 +210,13 @@ class BaseLoader(Dataset):
             resize_frames[i] = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
         return resize_frames
 
-    def chunk(self, frames, bvps, clip_length):
+    def chunk(self, frames, bvps, chunk_length):
         """Chunks the data into clips."""
-        clip_num = frames.shape[0] // clip_length
+        clip_num = frames.shape[0] // chunk_length
         frames_clips = [
-            frames[i * clip_length:(i + 1) * clip_length] for i in range(clip_num)]
+            frames[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
         bvps_clips = [
-            bvps[i * clip_length:(i + 1) * clip_length] for i in range(clip_num)]
+            bvps[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
         return np.array(frames_clips), np.array(bvps_clips)
 
     def save(self, frames_clips, bvps_clips, filename):

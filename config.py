@@ -17,7 +17,7 @@ _C.BASE = ['']
 # -----------------------------------------------------------------------------
 # Train settings
 # -----------------------------------------------------------------------------\
-_C.TRAIN_OR_TEST = ""
+_C.TOOLBOX_MODE = ""
 _C.TRAIN = CN()
 _C.TRAIN.EPOCHS = 50
 _C.TRAIN.BATCH_SIZE = 4
@@ -52,12 +52,12 @@ _C.TRAIN.DATA.END = 1.0
 # -----------------------------------------------------------------------------
 _C.TRAIN.DATA.PREPROCESS = CN()
 _C.TRAIN.DATA.PREPROCESS.DO_CHUNK = True
-_C.TRAIN.DATA.PREPROCESS.CLIP_LENGTH = 180
+_C.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.TRAIN.DATA.PREPROCESS.DETECTION_LENGTH = 180
+_C.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE = True
 _C.TRAIN.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.TRAIN.DATA.PREPROCESS.LARGER_BOX_SIZE = 1.5
+_C.TRAIN.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
 _C.TRAIN.DATA.PREPROCESS.W = 128
 _C.TRAIN.DATA.PREPROCESS.H = 128
 _C.TRAIN.DATA.PREPROCESS.DATA_TYPE = ['']
@@ -83,12 +83,12 @@ _C.VALID.DATA.END = 1.0
 # Valid Data preprocessing
 _C.VALID.DATA.PREPROCESS = CN()
 _C.VALID.DATA.PREPROCESS.DO_CHUNK = True
-_C.VALID.DATA.PREPROCESS.CLIP_LENGTH = 180
+_C.VALID.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.VALID.DATA.PREPROCESS.DETECTION_LENGTH = 180
+_C.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
 _C.VALID.DATA.PREPROCESS.CROP_FACE = True
 _C.VALID.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.VALID.DATA.PREPROCESS.LARGER_BOX_SIZE = 1.5
+_C.VALID.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
 _C.VALID.DATA.PREPROCESS.W = 128
 _C.VALID.DATA.PREPROCESS.H = 128
 _C.VALID.DATA.PREPROCESS.DATA_TYPE = ['']
@@ -117,12 +117,12 @@ _C.TEST.DATA.END = 1.0
 # Valid Data preprocessing
 _C.TEST.DATA.PREPROCESS = CN()
 _C.TEST.DATA.PREPROCESS.DO_CHUNK = True
-_C.TEST.DATA.PREPROCESS.CLIP_LENGTH = 180
+_C.TEST.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.TEST.DATA.PREPROCESS.DETECTION_LENGTH = 180
+_C.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
 _C.TEST.DATA.PREPROCESS.CROP_FACE = True
 _C.TEST.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.TEST.DATA.PREPROCESS.LARGER_BOX_SIZE = 1.5
+_C.TEST.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
 _C.TEST.DATA.PREPROCESS.W = 128
 _C.TEST.DATA.PREPROCESS.H = 128
 _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
@@ -161,6 +161,7 @@ _C.MODEL.EFFICIENTPHYS.FRAME_DEPTH = 10
 # -----------------------------------------------------------------------------
 _C.INFERENCE = CN()
 _C.INFERENCE.BATCH_SIZE = 4
+_C.INFERENCE.EVALUATION_METHOD = 'FFT'
 _C.INFERENCE.MODEL_PATH = ''
 
 # -----------------------------------------------------------------------------
@@ -200,24 +201,24 @@ def update_config(config, args):
     if config.TRAIN.DATA.EXP_DATA_NAME == '':
         config.TRAIN.DATA.EXP_DATA_NAME = "_".join([config.TRAIN.DATA.DATASET, "SizeW{0}".format(
             str(config.TRAIN.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.TRAIN.DATA.PREPROCESS.W)), "ClipLength{0}".format(
-            str(config.TRAIN.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.TRAIN.DATA.PREPROCESS.DATA_TYPE)),
+            str(config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.TRAIN.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.TRAIN.DATA.PREPROCESS.LABEL_TYPE),
                                       "Large_box{0}".format(config.TRAIN.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.TRAIN.DATA.PREPROCESS.LARGER_BOX_SIZE),
+                                      "Large_size{0}".format(config.TRAIN.DATA.PREPROCESS.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                        "det_len{0}".format(config.TRAIN.DATA.PREPROCESS.DETECTION_LENGTH)
+                                        "det_len{0}".format(config.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
                                               ])
     config.TRAIN.DATA.CACHED_PATH = os.path.join(config.TRAIN.DATA.CACHED_PATH, config.TRAIN.DATA.EXP_DATA_NAME)
 
     if config.VALID.DATA.EXP_DATA_NAME == '':
         config.VALID.DATA.EXP_DATA_NAME = "_".join([config.VALID.DATA.DATASET, "SizeW{0}".format(
             str(config.VALID.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.VALID.DATA.PREPROCESS.W)), "ClipLength{0}".format(
-            str(config.VALID.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.VALID.DATA.PREPROCESS.DATA_TYPE)),
+            str(config.VALID.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.VALID.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.VALID.DATA.PREPROCESS.LABEL_TYPE),
                                       "Large_box{0}".format(config.VALID.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.VALID.DATA.PREPROCESS.LARGER_BOX_SIZE),
+                                      "Large_size{0}".format(config.VALID.DATA.PREPROCESS.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                        "det_len{0}".format(config.VALID.DATA.PREPROCESS.DETECTION_LENGTH)
+                                        "det_len{0}".format(config.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
 
                                               ])
     config.VALID.DATA.CACHED_PATH = os.path.join(config.VALID.DATA.CACHED_PATH, config.VALID.DATA.EXP_DATA_NAME)
@@ -225,12 +226,12 @@ def update_config(config, args):
     if config.TEST.DATA.EXP_DATA_NAME == '':
         config.TEST.DATA.EXP_DATA_NAME = "_".join([config.TEST.DATA.DATASET, "SizeW{0}".format(
             str(config.TEST.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.TEST.DATA.PREPROCESS.W)), "ClipLength{0}".format(
-            str(config.TEST.DATA.PREPROCESS.CLIP_LENGTH)), "DataType{0}".format("_".join(config.TEST.DATA.PREPROCESS.DATA_TYPE)),
+            str(config.TEST.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.TEST.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.TEST.DATA.PREPROCESS.LABEL_TYPE),
                                       "Large_box{0}".format(config.TEST.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.TEST.DATA.PREPROCESS.LARGER_BOX_SIZE),
+                                      "Large_size{0}".format(config.TEST.DATA.PREPROCESS.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                        "det_len{0}".format(config.TEST.DATA.PREPROCESS.DETECTION_LENGTH)
+                                        "det_len{0}".format(config.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
                                               ])
     config.TEST.DATA.CACHED_PATH = os.path.join(config.TEST.DATA.CACHED_PATH, config.TEST.DATA.EXP_DATA_NAME)
 
