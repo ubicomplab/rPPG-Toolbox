@@ -55,13 +55,13 @@ Here are some explanation of parameters:
   * `BEGIN" & "END`: The portion of dataset used for training/validation/testing. For example, if the `DATASET` is PURE, `BEGIN` is 0.0 and `END` is 0.8 under the TRAIN, the first 80% PURE is used for training the network. If the `DATASET` is PURE, `BEGIN` is 0.8 and `END` is 1.0 under the VALID, the last 20% PURE is used as the validation set. It is worth noting that validation and training sets don't have overlapping subjects.  
   * `DATA_TYPE`: How to preprocess the video data
   * `LABEL_TYPE`: How to preprocess the label data
-  * `DO_CHUNK`: Whether clip the video and label to smaller length
-  * `CHUNK_LENGTH`: The length of clipping
-  * `CROP_FACE`: Whether crop the video to smaller ones
-  * `DYNAMIC_DETECTION`: Whether use some middle frames to do face detection and crop the video
-  * `DYNAMIC_DETECTION_FREQUENCY`: The interval of used frames if DYNAMIC_DETECTION is True
-  * `LARGE_FACE_BOX`: Whether enlarge the rectangle of the detected face region
-  * `LARGE_BOX_COEF`: The coefficient of enlarging
+  * `DO_CHUNK`: Whether to split the raw data into smaller chunks
+  * `CHUNK_LENGTH`: The length of each chunk (number of frames)
+  * `CROP_FACE`: Whether to perform face detection
+  * `DYNAMIC_DETECTION`: If False, face detection is only performed at the first frame and the detected box is used to crop the video for all of the subsequent frames. If True, face detection is performed at a specific frequency which is defined by `DYNAMIC_DETECTION_FREQUENCY`. 
+  * `DYNAMIC_DETECTION_FREQUENCY`: The frequency of face detection (number of frames) if DYNAMIC_DETECTION is True
+  * `LARGE_FACE_BOX`: Whether to enlarge the rectangle of the detected face region in case the detected box is not large enough for some special cases (e.g., motion videos)
+  * `LARGE_BOX_COEF`: The coefficient of enlarging. See more details at `https://github.com/ubicomplab/rPPG-Toolbox/blob/main/dataset/data_loader/BaseLoader.py#L162-L165`. 
 
   
 * #### Model : Use which model (support Deepphys / TSCAN / Physnet right now) and their parameters.
