@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 from scipy import signal
 from scipy import sparse
 from scipy import linalg
@@ -24,12 +25,12 @@ def ICA_POH(VideoFile,ECGFile, PPGFile, PlotTF):
 
 
     T, RGB, FS= process_video(VideoFile)
-
+    
     #Detrend & ICA
     NyquistF = 1/2*FS
     BGRNorm = np.zeros(RGB.shape)
     Lambda = 100
-    #TODO:spdetrend?
+?
     for c in range(3):
         BGRDetrend = utils.detrend(RGB[:,c],Lambda)
         BGRNorm[:,c] = (BGRDetrend-np.mean(BGRDetrend))/np.std(BGRDetrend)
@@ -43,13 +44,13 @@ def ICA_POH(VideoFile,ECGFile, PPGFile, PlotTF):
         FF= FF[:,1:]
         FF = FF[0]
         N = FF.shape[0]
-        #TODO:abs是否要取Mod
+    
         Px   = np.abs(FF[:math.floor(N/2)])
         Px = np.multiply(Px,Px)
         Fx = np.arange(0,N/2)/(N/2)*NyquistF
         Px = Px/np.sum(Px,axis=0)
-        MaxPx[0,c] = np.max(Px)#TODO max or np.max
-    M = np.max(MaxPx,axis=0)#TODO max or np.max
+        MaxPx[0,c] = np.max(Px)
+    M = np.max(MaxPx,axis=0)
     MaxComp = np.argmax(MaxPx)
     BVP_I = S[MaxComp,:]
 
@@ -74,7 +75,13 @@ def ICA_POH(VideoFile,ECGFile, PPGFile, PlotTF):
 
 
     # SNR = utils.bvpsnr(BVP[0], FS, HR_ECG, PlotSNR)
-    #TODO:plot
+    
+    # plot the iPPG
+    if PlotTF:
+        plt.plot(BVP)
+        plt.ylabel("BVP")
+        plt.title("iPPG")
+        plt.show()
     return BVP,PR
 
     #Ground Truth HR
@@ -84,21 +91,24 @@ def process_video(VideoFile):
     #Standard:
     VidObj = cv2.VideoCapture(VideoFile)
     FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
+    # FrameCount = math.ceil(VidObj.get(cv2.CAP_PROP_FRAME_COUNT))
+    # Duration = FrameCount/FrameRate
+    
     T = []
     RGB = []
     FN = 0
     CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
     success, frame = VidObj.read()
+    
     while(success):
         T.append(CurrentTime)
-        #TODO: if different region
         frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
         frame = np.asarray(frame)
         sum = np.sum(np.sum(frame,axis=0),axis=0)
         RGB.append(sum)
         success, frame = VidObj.read()
         CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
-        FN+=1
+        FN+=1  
     return np.asarray(T),np.asarray(RGB),FrameRate
 
 def ica(X,Nsources,Wprev=0):
@@ -120,11 +130,11 @@ def ica(X,Nsources,Wprev=0):
 def jade(X,m,Wprev):
     n = X.shape[0]
     T = X.shape[1]
-    #TODO:nargin
+
     nem = m
     seuil = 1/math.sqrt(T)/100
 
-    #wHITEN the matrix
+    #Whiten the matrix
     if m<n:
         D,U = np.linalg.eig(np.matmul(X,np.mat(X).H)/T)
         Diag = D
@@ -161,9 +171,8 @@ def jade(X,m,Wprev):
     M = np.zeros((m,nem*m),dtype=complex)
     Z = np.zeros(m)
     h = m*m-1
-    #TODO:第二块正负不一致
+    
     for u in range(0,nem*m,m):
-        #TODO:not sure
         Z = U[:,K[h]].reshape((m,m))
         M[:,u:u+m] = la[h]*Z
 
@@ -184,13 +193,13 @@ def jade(X,m,Wprev):
     else:
         V = np.linalg.inv(Wprev)
     #Main Loop:
-    while encore:#todo:？while encore,encore = 0
+    while encore:
         encore = 0
         for p in range(m-1):
             for q in range(p+1,m):
                 Ip = np.arange(p,nem*m,m)
                 Iq = np.arange(q,nem*m,m)
-                #第二列正负号反了
+                #Computing the Givens Angles
                 g = np.mat([M[p,Ip]-M[q,Iq],M[p,Iq],M[q,Ip]])
                 temp1 = np.matmul(g,g.H)
                 temp2 = np.matmul(B,temp1)
@@ -208,8 +217,7 @@ def jade(X,m,Wprev):
                 if(abs(s) > seuil):
                     encore = 1
                     pair = [p,q]
-                    #TODO:wrong
-                    G = np.mat([[c,-np.conj(s)],[s,c]])#Gavins旋转矩阵
+                    G = np.mat([[c,-np.conj(s)],[s,c]])
                     V[:,pair] = np.matmul(V[:,pair],G)
                     M[pair,:] = np.matmul(G.H,M[pair,:])
                     temp1 = c*M[:,Ip]+s*M[:,Iq]
@@ -290,4 +298,3 @@ def jade(X,m,Wprev):
 # PPGFile                 = DataDirectory+ 'PPGData.mat'
 # PlotTF                  = False
 #
-# ICA_POH(VideoFile,FS,StartTime,Duration,ECGFile,PPGFile,PlotTF)

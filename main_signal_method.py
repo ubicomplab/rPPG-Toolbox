@@ -20,4 +20,4 @@ if __name__ == "__main__":
     elif(args.method == "chrome"):
         CHROME_DEHAAN(args.video_file,args.bvp_file,args.ppg_file,False)
     elif(args.method == "ica"):
-        ICA_POH(args.video_file,args.bvp_file,args.ppg_file,False
+        ICA_POH(args.video_file,args.bvp_file,args.ppg_file,True)
