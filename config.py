@@ -9,7 +9,6 @@ import os
 import yaml
 from yacs.config import CfgNode as CN
 
-# TODO : do train/ do preprocessing
 _C = CN()
 
 # Base config files
@@ -31,25 +30,18 @@ _C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999)
 # SGD momentum
 _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
 _C.TRAIN.MODEL_FILE_NAME = ''
-### Train.Data settings
+# Train.Data settings
 _C.TRAIN.DATA = CN()
 _C.TRAIN.DATA.FS = 0
-# Path to dataset, could be overwritten by command line argument
 _C.TRAIN.DATA.DATA_PATH = ''
 _C.TRAIN.DATA.EXP_DATA_NAME = ''
-# Path to preprocessing data, could be overwritten by command line argument
 _C.TRAIN.DATA.CACHED_PATH = 'PreprocessedData'
-# Dataset name, coule be overwritten by command line argument
-
 _C.TRAIN.DATA.DATASET = ''
 _C.TRAIN.DATA.DO_PREPROCESS = False
 _C.TRAIN.DATA.DATA_FORMAT = 'NDCHW'
 _C.TRAIN.DATA.BEGIN = 0.0
 _C.TRAIN.DATA.END = 1.0
-# -----------------------------------------------------------------------------
-# Data preprocessing
-# TODO: add other preprocessing configs
-# -----------------------------------------------------------------------------
+# Train Data preprocessing
 _C.TRAIN.DATA.PREPROCESS = CN()
 _C.TRAIN.DATA.PREPROCESS.DO_CHUNK = True
 _C.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH = 180
@@ -69,12 +61,9 @@ _C.VALID = CN()
 # Valid.Data settings
 _C.VALID.DATA = CN()
 _C.VALID.DATA.FS = 0
-# Path to dataset, could be overwritten by command line argument
 _C.VALID.DATA.DATA_PATH = ''
 _C.VALID.DATA.EXP_DATA_NAME = ''
-# Path to preprocessing data, could be overwritten by command line argument
 _C.VALID.DATA.CACHED_PATH = 'PreprocessedData'
-# Dataset name, coule be overwritten by command line argument
 _C.VALID.DATA.DATASET = ''
 _C.VALID.DATA.DO_PREPROCESS = False
 _C.VALID.DATA.DATA_FORMAT = 'NDCHW'
@@ -103,18 +92,15 @@ _C.TEST.METRICS = []
 # Test.Data settings
 _C.TEST.DATA = CN()
 _C.TEST.DATA.FS = 0
-# Path to dataset, could be overwritten by command line argument
 _C.TEST.DATA.DATA_PATH = ''
 _C.TEST.DATA.EXP_DATA_NAME = ''
-# Path to preprocessing data, could be overwritten by command line argument
 _C.TEST.DATA.CACHED_PATH = 'PreprocessedData'
-# Dataset name, coule be overwritten by command line argument
 _C.TEST.DATA.DATASET = ''
 _C.TEST.DATA.DO_PREPROCESS = False
 _C.TEST.DATA.DATA_FORMAT = 'NDCHW'
 _C.TEST.DATA.BEGIN = 0.0
 _C.TEST.DATA.END = 1.0
-# Valid Data preprocessing
+# Test Data preprocessing
 _C.TEST.DATA.PREPROCESS = CN()
 _C.TEST.DATA.PREPROCESS.DO_CHUNK = True
 _C.TEST.DATA.PREPROCESS.CHUNK_LENGTH = 180
@@ -127,6 +113,37 @@ _C.TEST.DATA.PREPROCESS.W = 128
 _C.TEST.DATA.PREPROCESS.H = 128
 _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
+
+# -----------------------------------------------------------------------------
+# Signal method settings
+# -----------------------------------------------------------------------------\
+_C.SIGNAL = CN()
+_C.SIGNAL.METHOD = []
+_C.SIGNAL.METRICS = []
+# Signal.Data settings
+_C.SIGNAL.DATA = CN()
+_C.SIGNAL.DATA.FS = 0
+_C.SIGNAL.DATA.DATA_PATH = ''
+_C.SIGNAL.DATA.EXP_DATA_NAME = ''
+_C.SIGNAL.DATA.CACHED_PATH = 'PreprocessedData'
+_C.SIGNAL.DATA.DATASET = ''
+_C.SIGNAL.DATA.DO_PREPROCESS = False
+_C.SIGNAL.DATA.DATA_FORMAT = 'NDCHW'
+_C.SIGNAL.DATA.BEGIN = 0.0
+_C.SIGNAL.DATA.END = 1.0
+# Signal Data preprocessing
+_C.SIGNAL.DATA.PREPROCESS = CN()
+_C.SIGNAL.DATA.PREPROCESS.DO_CHUNK = True
+_C.SIGNAL.DATA.PREPROCESS.CHUNK_LENGTH = 180
+_C.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION = True
+_C.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
+_C.SIGNAL.DATA.PREPROCESS.CROP_FACE = True
+_C.SIGNAL.DATA.PREPROCESS.LARGE_FACE_BOX = True
+_C.SIGNAL.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
+_C.SIGNAL.DATA.PREPROCESS.W = 128
+_C.SIGNAL.DATA.PREPROCESS.H = 128
+_C.SIGNAL.DATA.PREPROCESS.DATA_TYPE = ['']
+_C.SIGNAL.DATA.PREPROCESS.LABEL_TYPE = ''
 
 ### -----------------------------------------------------------------------------
 # Model settings
@@ -234,6 +251,19 @@ def update_config(config, args):
                                         "det_len{0}".format(config.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
                                               ])
     config.TEST.DATA.CACHED_PATH = os.path.join(config.TEST.DATA.CACHED_PATH, config.TEST.DATA.EXP_DATA_NAME)
+    
+    if config.SIGNAL.DATA.EXP_DATA_NAME == '':
+        config.SIGNAL.DATA.EXP_DATA_NAME = "_".join([config.SIGNAL.DATA.DATASET, "SizeW{0}".format(
+            str(config.SIGNAL.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.SIGNAL.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+            str(config.SIGNAL.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.SIGNAL.DATA.PREPROCESS.DATA_TYPE)),
+                                      "LabelType{0}".format(config.SIGNAL.DATA.PREPROCESS.LABEL_TYPE),
+                                      "Large_box{0}".format(config.SIGNAL.DATA.PREPROCESS.LARGE_FACE_BOX),
+                                      "Large_size{0}".format(config.SIGNAL.DATA.PREPROCESS.LARGE_BOX_COEF),
+                                      "Dyamic_Det{0}".format(config.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION),
+                                        "det_len{0}".format(config.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY),
+                                        "_signal"
+                                              ])
+    config.SIGNAL.DATA.CACHED_PATH = os.path.join(config.SIGNAL.DATA.CACHED_PATH, config.SIGNAL.DATA.EXP_DATA_NAME)
 
     config.LOG.PATH = os.path.join(
         config.LOG.PATH, config.VALID.DATA.EXP_DATA_NAME)

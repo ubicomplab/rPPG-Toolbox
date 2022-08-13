@@ -69,7 +69,7 @@ def ICA_POH(frames, bvps, FS, PlotTF):
 
     # SNR = utils.bvpsnr(BVP[0], FS, HR_ECG, PlotSNR)
     # TODO:plot
-    return BVP, 0, 0
+    return BVP
 
     # Ground Truth HR
 

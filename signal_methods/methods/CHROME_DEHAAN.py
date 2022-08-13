@@ -81,7 +81,7 @@ def CHROME_DEHAAN(frames, bvps, FS, PlotTF):
 
     # PR = utils.prpsd(BVP,FS,40,240,PlotPRPSD)
     # PR_0 = utils.prpsd(bvps,FS,40,240,PlotPRPSD)
-    return BVP, 0, 0
+    return BVP
 
 
 def process_video(frames):

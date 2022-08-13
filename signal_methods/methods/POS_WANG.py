@@ -71,8 +71,7 @@ def POS_WANG(frames, labels, fs, PlotTF):
     BVP = signal.filtfilt(B, A, BVP.astype(np.double))
     # PR = utils.prpsd(BVP, fs, 40, 240, PlotPRPSD)
     # PR_0 = utils.prpsd(labels, fs, 40, 240, PlotPRPSD)
-    [PR, PR_0] = [0, 0]
-    return BVP, PR, PR_0
+    return BVP
 
 
 def process_video(frames):
