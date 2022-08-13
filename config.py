@@ -261,7 +261,7 @@ def update_config(config, args):
                                       "Large_size{0}".format(config.SIGNAL.DATA.PREPROCESS.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION),
                                         "det_len{0}".format(config.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY),
-                                        "_signal"
+                                        "signal"
                                               ])
     config.SIGNAL.DATA.CACHED_PATH = os.path.join(config.SIGNAL.DATA.CACHED_PATH, config.SIGNAL.DATA.EXP_DATA_NAME)
 
