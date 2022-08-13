@@ -11,12 +11,13 @@ from utils.utils import *
 from signal_methods.methods.CHROME_DEHAAN import *
 from signal_methods.methods.ICA import *
 from signal_methods.methods.POS_WANG import *
+from signal_methods.methods.SSR import *
 
 def signal_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
     if data_loader["signal"] is None:
         raise ValueError("No data for signal method predicting")
-    print("===Signal Method Predicting===")
+    print("===Signal Method ( " + method_name+ " ) Predicting ===")
     predict_hr_peak_all = []
     gt_hr_peak_all = []
     predict_hr_fft_all = []
@@ -26,12 +27,47 @@ def signal_predict(config, data_loader, method_name):
         batch_size = test_batch[0].shape[0]
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
-            if(method_name == "pos"):
+            if (method_name == "pos"):
                 BVP = POS_WANG(data_input, labels_input, config.SIGNAL.DATA.FS, False)
-            elif(method_name == "chrome"):
+            elif (method_name == "chrome"):
                 BVP = CHROME_DEHAAN(data_input, labels_input, config.SIGNAL.DATA.FS, False)
-            elif(method_name == "ica"):
+            elif (method_name == "ica"):
                 BVP = ICA_POH(data_input, labels_input, config.SIGNAL.DATA.FS, False)
+            elif (method_name == "SSR"):
+                BVP = cpu_SSR(data_input, fps=30.0)
+                BVP = BVP.reshape(-1)
+            elif (method_name == "LGI"):
+                data_input = process_video(data_input)
+                BVP = cpu_LGI(data_input)
+                BVP = BVP.reshape(-1)
+            elif (method_name == "CHROM"):
+                data_input = process_video(data_input)
+                BVP = cpu_CHROM(data_input)
+                BVP = BVP.reshape(-1)
+            elif (method_name == "POS2"):
+                data_input = process_video(data_input)
+                BVP = cpu_POS(data_input, fps=30.0)
+                BVP = BVP.reshape(-1)
+            elif (method_name == "PBV"):
+                data_input = process_video(data_input)
+                BVP = cpu_PBV(data_input)
+                BVP = BVP.reshape(-1)
+            elif (method_name == "PCA"):
+                data_input = process_video(data_input)
+                BVP = cpu_PCA(data_input, component='second_comp')
+                BVP = BVP.reshape(-1)
+            elif (method_name == "GREEN"):
+                data_input = process_video(data_input)
+                BVP = cpu_GREEN(data_input)
+                BVP = BVP.reshape(-1)
+            elif (method_name == "OMIT"):
+                data_input = process_video(data_input)
+                BVP =cpu_OMIT(data_input)
+                BVP = BVP.reshape(-1)
+            elif (method_name == "ICA2"):
+                data_input = process_video(data_input)
+                BVP = cpu_ICA(data_input, component='second_comp')
+                BVP = BVP.reshape(-1)
             else:
                 raise ValueError("signal method name wrong!")
 
@@ -85,4 +121,12 @@ def signal_predict(config, data_loader, method_name):
             else:
                 raise ValueError("Wrong Test Metric Type")
 
-
+def process_video(frames):
+    # Standard:
+    RGB = []
+    for frame in frames:
+        sum = np.sum(np.sum(frame, axis=0), axis=0)
+        RGB.append(sum/(frame.shape[0]*frame.shape[1]))
+    RGB = np.asarray(RGB)
+    RGB = RGB.transpose(1,0).reshape(1,3,-1)
+    return np.asarray(RGB)

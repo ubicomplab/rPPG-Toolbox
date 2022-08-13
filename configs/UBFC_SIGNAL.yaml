@@ -1,7 +1,7 @@
 BASE: ['']
 TOOLBOX_MODE: "signal_method"      # "train_and_test"  or "only_test" or "signal_method"
 SIGNAL:
-  METHOD: ["ica", "pos", "chrome"]
+  METHOD: ["ica", "pos", "chrome", "SSR", "LGI", "CHROM", "POS2", "PBV", "PCA", "GREEN", "OMIT", "ICA2"]   #"ica", "pos", "chrome", "SSR", "LGI", "CHROM", "POS2", "PBV", "PCA", "GREEN", "OMIT", "ICA2"
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   DATA:
     FS: 30

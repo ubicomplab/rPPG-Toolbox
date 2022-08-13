@@ -101,6 +101,24 @@ def signal_method_inference(config, data_loader):
         signal_predict(config, data_loader, "chrome")
     if "ica" in config.SIGNAL.METHOD:
         signal_predict(config, data_loader, "ica")
+    if "SSR" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "SSR")
+    if "LGI" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "LGI")
+    if "CHROM" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "CHROM")
+    if "POS2" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "POS2")
+    if "PBV" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "PBV")
+    if "PCA" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "PCA")
+    if "GREEN" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "GREEN")
+    if "OMIT" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "OMIT")
+    if "ICA2" in config.SIGNAL.METHOD:
+        signal_predict(config, data_loader, "ICA2")
     else:
         raise ValueError("Not supported signal method!")
 
