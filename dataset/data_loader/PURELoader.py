@@ -55,7 +55,17 @@ class PURELoader(BaseLoader):
             dirs.append({"index": int(subject), "path": data_dir})
         return dirs
 
-
+    @staticmethod
+    def get_data_signal_method(data_path):
+        """Returns paths of video files and wave files under the directory(For PURE dataset)."""
+        data_dirs = glob.glob(data_path + os.sep + "*-*")
+        if (data_dirs == []):
+            raise ValueError("PURE dataset get data error!")
+        dirs = list()
+        for data_dir in data_dirs:
+            filename = os.path.split(data_dir)[-1]
+            dirs.append({"frame_path": os.path.join(data_dir,filename,""), "wave_path": os.path.join(data_dir, "{0}.json".format(filename))})
+        return dirs
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """

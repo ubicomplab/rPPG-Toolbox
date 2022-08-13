@@ -1,4 +1,4 @@
-#ICA
+# ICA
 import cv2
 import numpy as np
 import math
@@ -8,10 +8,10 @@ from scipy import linalg
 from scipy import io as scio
 from skimage.util import img_as_float
 from sklearn.metrics import mean_squared_error
-#utils
 from signal_methods import utils
 
-def ICA_POH(VideoFile,ECGFile, PPGFile, PlotTF):
+
+def ICA_POH(frames, bvps, FS, PlotTF):
     # paras:cut off frequency
     LPF = 0.7
     HPF = 2.5
@@ -21,213 +21,195 @@ def ICA_POH(VideoFile,ECGFile, PPGFile, PlotTF):
     else:
         PlotPRPST = False
         PlotSNR = False
-
-
-    T, RGB, FS= process_video(VideoFile)
+    RGB = process_video(frames)
 
     #Detrend & ICA
     NyquistF = 1/2*FS
     BGRNorm = np.zeros(RGB.shape)
     Lambda = 100
-    #TODO:spdetrend?
+    # TODO:spdetrend?
     for c in range(3):
-        BGRDetrend = utils.detrend(RGB[:,c],Lambda)
-        BGRNorm[:,c] = (BGRDetrend-np.mean(BGRDetrend))/np.std(BGRDetrend)
-    W,S = ica(np.mat(BGRNorm).H,3)
+        BGRDetrend = utils.detrend(RGB[:, c], Lambda)
+        BGRNorm[:, c] = (BGRDetrend-np.mean(BGRDetrend))/np.std(BGRDetrend)
+    W, S = ica(np.mat(BGRNorm).H, 3)
 
-    #select BVP Source
-    MaxPx = np.zeros((1,3))
+    # select BVP Source
+    MaxPx = np.zeros((1, 3))
     for c in range(3):
-        FF = np.fft.fft(S[c,:])
-        F = np.arange(0,FF.shape[1])/FF.shape[1]*FS*60;
-        FF= FF[:,1:]
+        FF = np.fft.fft(S[c, :])
+        F = np.arange(0, FF.shape[1])/FF.shape[1]*FS*60
+        FF = FF[:, 1:]
         FF = FF[0]
         N = FF.shape[0]
-        #TODO:abs是否要取Mod
-        Px   = np.abs(FF[:math.floor(N/2)])
-        Px = np.multiply(Px,Px)
-        Fx = np.arange(0,N/2)/(N/2)*NyquistF
-        Px = Px/np.sum(Px,axis=0)
-        MaxPx[0,c] = np.max(Px)#TODO max or np.max
-    M = np.max(MaxPx,axis=0)#TODO max or np.max
+        # TODO:abs是否要取Mod
+        Px = np.abs(FF[:math.floor(N/2)])
+        Px = np.multiply(Px, Px)
+        Fx = np.arange(0, N/2)/(N/2)*NyquistF
+        Px = Px/np.sum(Px, axis=0)
+        MaxPx[0, c] = np.max(Px)  # TODO max or np.max
+    M = np.max(MaxPx, axis=0)  # TODO max or np.max
     MaxComp = np.argmax(MaxPx)
-    BVP_I = S[MaxComp,:]
+    BVP_I = S[MaxComp, :]
 
+    # Filter,Normalize
 
-    #Filter,Normalize
+    B, A = signal.butter(3, [LPF/NyquistF, HPF/NyquistF], 'bandpass')
+    BVP_F = signal.filtfilt(B, A, BVP_I.astype(np.double))
 
-    B,A = signal.butter(3,[LPF/NyquistF,HPF/NyquistF],'bandpass')
-    BVP_F = signal.filtfilt(B,A,BVP_I.astype(np.double))
-
-
-
-    BVP = BVP_F
+    BVP = BVP_F[0]
 
     #
     # BVP_mat = scio.loadmat("BVP_ica.mat")["BVP"]
     # print(np.sqrt(mean_squared_error(BVP_mat, BVP)))
 
-    PR = utils.prpsd(BVP[0],FS,40,240,False)
+    # PR = utils.prpsd(BVP, FS, 40, 240, False)
 
     # HR_ECG = utils.parse_ECG(ECGFile,StartTime,Duration)
     # PR_PPG = utils.parse_PPG(PPGFile,StartTime,Duration)
 
-
     # SNR = utils.bvpsnr(BVP[0], FS, HR_ECG, PlotSNR)
-    #TODO:plot
-    return BVP,PR
+    # TODO:plot
+    return BVP, 0, 0
 
-    #Ground Truth HR
+    # Ground Truth HR
 
 
-def process_video(VideoFile):
-    #Standard:
-    VidObj = cv2.VideoCapture(VideoFile)
-    FrameRate = VidObj.get(cv2.CAP_PROP_FPS)
-    T = []
+def process_video(frames):
     RGB = []
-    FN = 0
-    CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
-    success, frame = VidObj.read()
-    while(success):
-        T.append(CurrentTime)
-        #TODO: if different region
-        frame = cv2.cvtColor(np.array(frame).astype('float32'), cv2.COLOR_BGR2RGB)
-        frame = np.asarray(frame)
-        sum = np.sum(np.sum(frame,axis=0),axis=0)
-        RGB.append(sum)
-        success, frame = VidObj.read()
-        CurrentTime = VidObj.get(cv2.CAP_PROP_POS_MSEC)
-        FN+=1
-    return np.asarray(T),np.asarray(RGB),FrameRate
+    for frame in frames:
+        sum = np.sum(np.sum(frame, axis=0), axis=0)
+        RGB.append(sum/(frame.shape[0]*frame.shape[1]))
+    return np.asarray(RGB)
 
-def ica(X,Nsources,Wprev=0):
+
+def ica(X, Nsources, Wprev=0):
     nRows = X.shape[0]
     nCols = X.shape[1]
     if nRows > nCols:
-        print("Warning - The number of rows is cannot be greater than the number of columns.")
+        print(
+            "Warning - The number of rows is cannot be greater than the number of columns.")
         print("Please transpose input.")
 
-    if Nsources > min(nRows,nCols):
-        Nsources = min(nRows,nCols)
-        print('Warning - The number of soures cannot exceed number of observation channels.')
+    if Nsources > min(nRows, nCols):
+        Nsources = min(nRows, nCols)
+        print(
+            'Warning - The number of soures cannot exceed number of observation channels.')
         print('The number of sources will be reduced to the number of observation channels ', Nsources)
 
-    Winv,Zhat = jade(X,Nsources,Wprev)
+    Winv, Zhat = jade(X, Nsources, Wprev)
     W = np.linalg.pinv(Winv)
-    return W,Zhat
+    return W, Zhat
 
-def jade(X,m,Wprev):
+
+def jade(X, m, Wprev):
     n = X.shape[0]
     T = X.shape[1]
-    #TODO:nargin
+    # TODO:nargin
     nem = m
     seuil = 1/math.sqrt(T)/100
 
-    #wHITEN the matrix
-    if m<n:
-        D,U = np.linalg.eig(np.matmul(X,np.mat(X).H)/T)
+    # wHITEN the matrix
+    if m < n:
+        D, U = np.linalg.eig(np.matmul(X, np.mat(X).H)/T)
         Diag = D
         k = np.argsort(Diag)
         pu = Diag[k]
         ibl = np.sqrt(pu[n-m:n]-np.mean(pu[0:n-m]))
-        bl = np.true_divide(np.ones(m,1),ibl)
-        W = np.matmul(np.diag(bl),np.transpose(U[0:n,k[n-m:n]]))
-        IW = np.matmul(U[0:n,k[n-m:n]],np.diag(ibl))
+        bl = np.true_divide(np.ones(m, 1), ibl)
+        W = np.matmul(np.diag(bl), np.transpose(U[0:n, k[n-m:n]]))
+        IW = np.matmul(U[0:n, k[n-m:n]], np.diag(ibl))
     else:
-        IW = linalg.sqrtm(np.matmul(X,X.H)/T)
+        IW = linalg.sqrtm(np.matmul(X, X.H)/T)
         W = np.linalg.inv(IW)
 
-    Y = np.mat(np.matmul(W,X))
+    Y = np.mat(np.matmul(W, X))
     R = np.matmul(Y, Y.H) / T
-    C = np.matmul(Y,Y.T)/T
-    Q = np.zeros((m*m*m*m,1))
-    index= 0
+    C = np.matmul(Y, Y.T)/T
+    Q = np.zeros((m*m*m*m, 1))
+    index = 0
 
     for lx in range(m):
-        Y1 = Y[lx,:]
+        Y1 = Y[lx, :]
         for kx in range(m):
-            Yk1 = np.multiply(Y1,np.conj(Y[kx,:]))
+            Yk1 = np.multiply(Y1, np.conj(Y[kx, :]))
             for jx in range(m):
-                Yjk1 = np.multiply(Yk1,np.conj(Y[jx,:]))
+                Yjk1 = np.multiply(Yk1, np.conj(Y[jx, :]))
                 for ix in range(m):
-                    Q[index] = np.matmul(Yjk1/math.sqrt(T),Y[ix,:].T/math.sqrt(T))-R[ix,jx]*R[lx,kx]-R[ix,kx]*R[lx,jx]-C[ix,lx]*np.conj(C[jx,kx])
-                    index +=1
-    #Compute and Reshape the significant Eigen
-    D,U = np.linalg.eig(Q.reshape(m*m,m*m))
+                    Q[index] = np.matmul(Yjk1/math.sqrt(T), Y[ix, :].T/math.sqrt(
+                        T))-R[ix, jx]*R[lx, kx]-R[ix, kx]*R[lx, jx]-C[ix, lx]*np.conj(C[jx, kx])
+                    index += 1
+    # Compute and Reshape the significant Eigen
+    D, U = np.linalg.eig(Q.reshape(m*m, m*m))
     Diag = abs(D)
     K = np.argsort(Diag)
     la = Diag[K]
-    M = np.zeros((m,nem*m),dtype=complex)
+    M = np.zeros((m, nem*m), dtype=complex)
     Z = np.zeros(m)
     h = m*m-1
-    #TODO:第二块正负不一致
-    for u in range(0,nem*m,m):
+    # TODO:第二块正负不一致
+    for u in range(0, nem*m, m):
         #TODO:not sure
-        Z = U[:,K[h]].reshape((m,m))
-        M[:,u:u+m] = la[h]*Z
+        Z = U[:, K[h]].reshape((m, m))
+        M[:, u:u+m] = la[h]*Z
 
         # if(u == m):
         #     M[:, u:u + m] = -la[h] * Z
         h = h-1
 
+    # Approximate the Diagonalization of the Eigen Matrices:
 
-    #Approximate the Diagonalization of the Eigen Matrices:
-
-    B = np.array([[1,0,0],[0,1,1],[0,0-1j,0+1j]])
+    B = np.array([[1, 0, 0], [0, 1, 1], [0, 0-1j, 0+1j]])
     Bt = np.mat(B).H
-
 
     encore = 1
     if(Wprev == 0):
         V = np.eye(m).astype(complex)
     else:
         V = np.linalg.inv(Wprev)
-    #Main Loop:
-    while encore:#todo:？while encore,encore = 0
+    # Main Loop:
+    while encore:  # todo:？while encore,encore = 0
         encore = 0
         for p in range(m-1):
-            for q in range(p+1,m):
-                Ip = np.arange(p,nem*m,m)
-                Iq = np.arange(q,nem*m,m)
-                #第二列正负号反了
-                g = np.mat([M[p,Ip]-M[q,Iq],M[p,Iq],M[q,Ip]])
-                temp1 = np.matmul(g,g.H)
-                temp2 = np.matmul(B,temp1)
-                temp = np.matmul(temp2,Bt)
-                D,vcp = np.linalg.eig(np.real(temp))
-                #different with
+            for q in range(p+1, m):
+                Ip = np.arange(p, nem*m, m)
+                Iq = np.arange(q, nem*m, m)
+                # 第二列正负号反了
+                g = np.mat([M[p, Ip]-M[q, Iq], M[p, Iq], M[q, Ip]])
+                temp1 = np.matmul(g, g.H)
+                temp2 = np.matmul(B, temp1)
+                temp = np.matmul(temp2, Bt)
+                D, vcp = np.linalg.eig(np.real(temp))
+                # different with
                 K = np.argsort(D)
                 la = D[K]
-                angles = vcp[:,K[2]]
-                if(angles[0,0]<0):
+                angles = vcp[:, K[2]]
+                if(angles[0, 0] < 0):
                     angles = -angles
-                c = np.sqrt(0.5+angles[0,0]/2)
-                s = 0.5*(angles[1,0]-1j*angles[2,0])/c
+                c = np.sqrt(0.5+angles[0, 0]/2)
+                s = 0.5*(angles[1, 0]-1j*angles[2, 0])/c
 
                 if(abs(s) > seuil):
                     encore = 1
-                    pair = [p,q]
-                    #TODO:wrong
-                    G = np.mat([[c,-np.conj(s)],[s,c]])#Gavins旋转矩阵
-                    V[:,pair] = np.matmul(V[:,pair],G)
-                    M[pair,:] = np.matmul(G.H,M[pair,:])
-                    temp1 = c*M[:,Ip]+s*M[:,Iq]
-                    temp2 = -np.conj(s)*M[:,Ip]+c*M[:,Iq]
-                    temp = np.concatenate((temp1,temp2),axis=1)
-                    Ipair = [Ip,Iq]
-                    M[:,Ip] = temp1
-                    M[:,Iq] = temp2
+                    pair = [p, q]
+                    # TODO:wrong
+                    G = np.mat([[c, -np.conj(s)], [s, c]])  # Gavins旋转矩阵
+                    V[:, pair] = np.matmul(V[:, pair], G)
+                    M[pair, :] = np.matmul(G.H, M[pair, :])
+                    temp1 = c*M[:, Ip]+s*M[:, Iq]
+                    temp2 = -np.conj(s)*M[:, Ip]+c*M[:, Iq]
+                    temp = np.concatenate((temp1, temp2), axis=1)
+                    Ipair = [Ip, Iq]
+                    M[:, Ip] = temp1
+                    M[:, Iq] = temp2
 
-
-    #Whiten the Matrix
-    #Estimation of the Mixing Matrix and Signal Separation
-    #Different V
+    # Whiten the Matrix
+    # Estimation of the Mixing Matrix and Signal Separation
+    # Different V
     # V =scio.loadmat("V.mat")["V"]
-    A =  np.matmul(IW,V)
-    S = np.matmul(np.mat(V).H,Y)
+    A = np.matmul(IW, V)
+    S = np.matmul(np.mat(V).H, Y)
     # return A,S
-    return A,S
+    return A, S
 
 # def preprocess_raw_video(videoFilePath, dim=36):
 #
@@ -279,8 +261,7 @@ def jade(X,m,Wprev):
 #     return dXsub
 #
 
-
-    #return BVP,PR,HR_ECG,PR_PPG,SNR
+    # return BVP,PR,HR_ECG,PR_PPG,SNR
 # DataDirectory           = 'test_data\\'
 # VideoFile               = DataDirectory+ 'video_example3.avi'
 # FS                      = 120

@@ -40,7 +40,16 @@ class UBFCLoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
-    def get_data(self, data_path):
+    @staticmethod
+    def get_data_signal_method(data_path):
+        """Returns data directories under the path(For UBFC dataset)."""
+        data_dirs = glob.glob(data_path + os.sep + "subject*")
+        if (data_dirs == []):
+            raise ValueError("UBFC dataset get data error!")
+        dirs = [{"frame_path": os.path.join(data_dir,'vid.avi'), "wave_path": os.path.join(data_dir,'ground_truth.txt')} for data_dir in data_dirs]
+        return dirs
+
+    def get_data(self,data_path):
         """Returns data directories under the path(For UBFC dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "subject*")
         if (data_dirs == []):
@@ -48,8 +57,7 @@ class UBFCLoader(BaseLoader):
         dirs = [{"index": re.search(
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
         return dirs
-
-
+    
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]

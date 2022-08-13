@@ -57,6 +57,7 @@ class BaseLoader(Dataset):
         else:
             self.load()
         print(self.name + " dataset len:",self.len)
+        
     def get_data(self, data_path):
         """Returns data directories under the path."""
         return None
