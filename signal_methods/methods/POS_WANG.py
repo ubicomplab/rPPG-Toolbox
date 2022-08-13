@@ -1,3 +1,6 @@
+# The Plane Orthogonal to Skin-Tone (POS) Method from: Wang, W., den Brinker, A. C., Stuijk, S., & de Haan, G. (2017). 
+# Algorithmic principles of remote PPG. IEEE Transactions on Biomedical Engineering, 64(7), 1479-1491. 
+# DOI: 10.1109/TBME.2016.2609282
 import numpy as np
 import math
 from scipy import signal
@@ -6,14 +9,11 @@ from metrics.metrics import *
 
 
 def POS_WANG(frames,fs):
-    LPF = 0.7
-    HPF = 2.5
     WinSec = 1.6
     RGB = process_video(frames)
     N = RGB.shape[0]
     H = np.zeros((1, N))
     l = math.ceil(WinSec*fs)
-    C = np.zeros((1, 3))
 
     for n in range(N):
         m = n-l
@@ -35,6 +35,7 @@ def POS_WANG(frames,fs):
     return BVP
 
 def process_video(frames):
+    "Calculates the average value of each frame."
     RGB = []
     for frame in frames:
         sum = np.sum(np.sum(frame, axis=0), axis=0)

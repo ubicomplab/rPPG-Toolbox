@@ -1,5 +1,6 @@
-# ICA_POH
-import cv2
+# The Independent Component Analysis (ICA) Method from: Poh, M. Z., McDuff, D. J., & Picard, R. W. (2010). 
+# Non-contact, automated cardiac pulse measurements using video imaging and blind source separation. Optics express, 18(10), 10762-10774. 
+# DOI: 10.1364/OE.18.010762
 import numpy as np
 import math
 from scipy import signal
@@ -8,19 +9,18 @@ from signal_methods import utils
 
 
 def ICA_POH(frames, FS):
-    # paras:cut off frequency
+    # Cut off frequency.
     LPF = 0.7
     HPF = 2.5
     RGB = process_video(frames)
 
-    #Detrend & ICA
     NyquistF = 1/2*FS
     BGRNorm = np.zeros(RGB.shape)
     Lambda = 100
     for c in range(3):
         BGRDetrend = utils.detrend(RGB[:, c], Lambda)
         BGRNorm[:, c] = (BGRDetrend-np.mean(BGRDetrend))/np.std(BGRDetrend)
-    W, S = ica(np.mat(BGRNorm).H, 3)
+    _, S = ica(np.mat(BGRNorm).H, 3)
 
     # select BVP Source
     MaxPx = np.zeros((1, 3))
@@ -34,12 +34,9 @@ def ICA_POH(frames, FS):
         Px = np.multiply(Px, Px)
         Fx = np.arange(0, N/2)/(N/2)*NyquistF
         Px = Px/np.sum(Px, axis=0)
-        MaxPx[0, c] = np.max(Px)  # TODO max or np.max
-    M = np.max(MaxPx, axis=0)  # TODO max or np.max
+        MaxPx[0, c] = np.max(Px)  
     MaxComp = np.argmax(MaxPx)
     BVP_I = S[MaxComp, :]
-
-    # Filter,Normalize
     B, A = signal.butter(3, [LPF/NyquistF, HPF/NyquistF], 'bandpass')
     BVP_F = signal.filtfilt(B, A, BVP_I.astype(np.double))
 
@@ -48,6 +45,7 @@ def ICA_POH(frames, FS):
 
 
 def process_video(frames):
+    "Calculates the average value of each frame."
     RGB = []
     for frame in frames:
         sum = np.sum(np.sum(frame, axis=0), axis=0)
@@ -79,8 +77,6 @@ def jade(X, m, Wprev):
     T = X.shape[1]
     nem = m
     seuil = 1/math.sqrt(T)/100
-
-    # whitem the matrix
     if m < n:
         D, U = np.linalg.eig(np.matmul(X, np.mat(X).H)/T)
         Diag = D
@@ -122,9 +118,7 @@ def jade(X, m, Wprev):
         Z = U[:, K[h]].reshape((m, m))
         M[:, u:u+m] = la[h]*Z
         h = h-1
-
     # Approximate the Diagonalization of the Eigen Matrices:
-
     B = np.array([[1, 0, 0], [0, 1, 1], [0, 0-1j, 0+1j]])
     Bt = np.mat(B).H
 
@@ -162,7 +156,6 @@ def jade(X, m, Wprev):
                     temp1 = c*M[:, Ip]+s*M[:, Iq]
                     temp2 = -np.conj(s)*M[:, Ip]+c*M[:, Iq]
                     temp = np.concatenate((temp1, temp2), axis=1)
-                    Ipair = [Ip, Iq]
                     M[:, Ip] = temp1
                     M[:, Iq] = temp2
 

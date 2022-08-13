@@ -1,12 +1,9 @@
-import cv2
+# The Chrominance Method from: De Haan, G., & Jeanne, V. (2013). 
+# Robust pulse rate from chrominance-based rPPG. IEEE Transactions on Biomedical Engineering, 60(10), 2878-2886. 
+# DOI: 10.1109/TBME.2013.2266196
 import numpy as np
 import math
 from scipy import signal
-from scipy import sparse
-from scipy import linalg
-from scipy import io as scio
-from skimage.util import img_as_float
-from sklearn.metrics import mean_squared_error
 
 import signal_methods.utils as utils
 
@@ -29,14 +26,11 @@ def CHROME_DEHAAN(frames,FS):
     WinS = 0
     WinM = int(WinS+WinL//2)
     WinE = WinS+WinL
-    # todo:the total len
     totallen = (WinL//2)*(NWin+1)
     S = np.zeros(totallen)
 
     for i in range(NWin):
         RGBBase = np.mean(RGB[WinS:WinE, :], axis=0)
-        # TODO bsxfun
-        RGB_w = np.true_divide(1, RGBBase)
         RGBNorm = np.zeros((WinE-WinS, 3))
         for temp in range(WinS, WinE):
             RGBNorm[temp-WinS] = np.true_divide(RGB[temp], RGBBase)-1
@@ -61,8 +55,8 @@ def CHROME_DEHAAN(frames,FS):
     BVP = S
     return BVP
 
-
 def process_video(frames):
+    "Calculates the average value of each frame."
     RGB = []
     for frame in frames:
         sum = np.sum(np.sum(frame, axis=0), axis=0)

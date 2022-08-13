@@ -40,15 +40,6 @@ class UBFCLoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
-    @staticmethod
-    def get_data_signal_method(data_path):
-        """Returns data directories under the path(For UBFC dataset)."""
-        data_dirs = glob.glob(data_path + os.sep + "subject*")
-        if (data_dirs == []):
-            raise ValueError("UBFC dataset get data error!")
-        dirs = [{"frame_path": os.path.join(data_dir,'vid.avi'), "wave_path": os.path.join(data_dir,'ground_truth.txt')} for data_dir in data_dirs]
-        return dirs
-
     def get_data(self,data_path):
         """Returns data directories under the path(For UBFC dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "subject*")
