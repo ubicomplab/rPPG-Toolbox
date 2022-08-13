@@ -11,21 +11,10 @@ from sklearn.metrics import mean_squared_error
 import signal_methods.utils as utils
 
 
-def CHROME_DEHAAN(frames, bvps, FS, PlotTF):
-    # Parameters
-    SkinSegementTF = False
+def CHROME_DEHAAN(frames,FS):
     LPF = 0.7
     HPF = 2.5
     WinSec = 1.6
-
-    # Add backup function
-    # Plot Control
-    if (PlotTF):
-        PlotPRPSD = True
-        PlotSNR = True
-    else:
-        PlotPRPSD = False
-        PlotSNR = False
 
     RGB = process_video(frames)
     FN = RGB.shape[0]
@@ -51,10 +40,6 @@ def CHROME_DEHAAN(frames, bvps, FS, PlotTF):
         RGBNorm = np.zeros((WinE-WinS, 3))
         for temp in range(WinS, WinE):
             RGBNorm[temp-WinS] = np.true_divide(RGB[temp], RGBBase)-1
-
-        # RGBNorm =bsxfun(@times,RGB(WinS:WinE,:),1./RGBBase)-1;
-
-        # CHROM
         Xs = np.squeeze(3*RGBNorm[:, 0]-2*RGBNorm[:, 1])
         Ys = np.squeeze(1.5*RGBNorm[:, 0]+RGBNorm[:, 1]-1.5*RGBNorm[:, 2])
         Xf = signal.filtfilt(B, A, Xs, axis=0)
@@ -73,14 +58,7 @@ def CHROME_DEHAAN(frames, bvps, FS, PlotTF):
         WinS = WinM
         WinM = WinS+WinL//2
         WinE = WinS+WinL
-
     BVP = S
-    # Evaluate
-    # BVP_mat = scio.loadmat("BVP_ch.mat")["S"]
-    # print(np.sqrt(mean_squared_error(BVP_mat,BVP)))
-
-    # PR = utils.prpsd(BVP,FS,40,240,PlotPRPSD)
-    # PR_0 = utils.prpsd(bvps,FS,40,240,PlotPRPSD)
     return BVP
 
 

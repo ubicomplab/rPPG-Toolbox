@@ -9,7 +9,7 @@ from metrics.metrics import calculate_metrics
 from collections import OrderedDict
 from utils.utils import *
 from signal_methods.methods.CHROME_DEHAAN import *
-from signal_methods.methods.ICA import *
+from signal_methods.methods.ICA_POH import *
 from signal_methods.methods.POS_WANG import *
 
 def signal_predict(config, data_loader, method_name):
@@ -27,11 +27,11 @@ def signal_predict(config, data_loader, method_name):
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
             if(method_name == "pos"):
-                BVP = POS_WANG(data_input, labels_input, config.SIGNAL.DATA.FS, False)
+                BVP = POS_WANG(data_input, config.SIGNAL.DATA.FS,)
             elif(method_name == "chrome"):
-                BVP = CHROME_DEHAAN(data_input, labels_input, config.SIGNAL.DATA.FS, False)
+                BVP = CHROME_DEHAAN(data_input, config.SIGNAL.DATA.FS)
             elif(method_name == "ica"):
-                BVP = ICA_POH(data_input, labels_input, config.SIGNAL.DATA.FS, False)
+                BVP = ICA_POH(data_input, config.SIGNAL.DATA.FS)
             else:
                 raise ValueError("signal method name wrong!")
 

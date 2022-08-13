@@ -1,8 +1,4 @@
 import argparse
-from tarfile import PAX_NUMBER_FIELDS
-from xmlrpc.client import boolean
-import cv2
-import math
 import numpy as np
 from signal_methods.ICA import *
 from signal_methods.POS_WANG import *
@@ -24,7 +20,6 @@ if __name__ == "__main__":
     parser.add_argument('--method', type=str, default="chrome",
                         choices=["ica", "pos", "chrome"])
     parser.add_argument("--dataset", type=str, default="UBFC")
-    parser.add_argument("--plotTF", type=boolean, default=False)
     parser.add_argument("--fs", type=int, default=30)
     args = parser.parse_args()
     FS = 0
