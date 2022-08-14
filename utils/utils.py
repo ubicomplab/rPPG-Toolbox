@@ -1,6 +1,7 @@
 """ Short functions for data-preprocessing and data-loading. """
 
 import numpy as np
+import cv2
 
 
 def next_power_of_2(x):

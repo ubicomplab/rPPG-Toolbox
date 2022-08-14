@@ -55,8 +55,6 @@ class PURELoader(BaseLoader):
             dirs.append({"index": int(subject), "path": data_dir})
         return dirs
 
-
-
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]

@@ -1,0 +1,30 @@
+BASE: ['']
+TOOLBOX_MODE: "signal_method"      # "train_and_test"  or "only_test" or "signal_method"
+SIGNAL:
+  METHOD: ["ica", "pos", "chrome"]
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  DATA:
+    FS: 30
+    DATASET: PURE
+    DO_PREPROCESS: False               # if first time, should be true
+    DATA_FORMAT: NDHWC
+    DATA_PATH:   "/data1/toolbox_data/PURE/RawData"       # need to be updated
+    CACHED_PATH: "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PreprocessedData/"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS :
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Raw
+      DO_CHUNK: False
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.6
+      H: 72
+      W: 72
+INFERENCE:
+  EVALUATION_METHOD: "peak detection"        # "FFT" or "peak detection"
+                  

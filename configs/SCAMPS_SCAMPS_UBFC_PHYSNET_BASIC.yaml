@@ -22,8 +22,8 @@ TRAIN:
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: True
-      LARGE_FACE_BOX: True
+      CROP_FACE: False
+      LARGE_FACE_BOX: False
       LARGE_BOX_COEF: 1.5
       H: 128
       W: 128
@@ -45,8 +45,8 @@ VALID:
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: True
-      LARGE_FACE_BOX: True
+      CROP_FACE: False
+      LARGE_FACE_BOX: False
       LARGE_BOX_COEF: 1.5
       H: 128
       W: 128

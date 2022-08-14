@@ -57,6 +57,7 @@ class BaseLoader(Dataset):
         else:
             self.load()
         print(self.name + " dataset len:",self.len)
+        
     def get_data(self, data_path):
         """Returns data directories under the path."""
         return None
@@ -82,6 +83,8 @@ class BaseLoader(Dataset):
             data = np.transpose(data, (0, 3, 1, 2))
         elif self.data_format == 'NCDHW':
             data = np.transpose(data, (3, 0, 1, 2))
+        elif self.data_format == 'NDHWC':
+            pass
         else:
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)

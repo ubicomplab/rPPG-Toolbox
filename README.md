@@ -6,8 +6,6 @@ STEP2: `conda activate rppg-toolbox`
 
 STEP3: `pip install -r requirements.txt` 
 
-#### Note: Evaluation/Testing Pipeline is not ready yet. Please use training pipeline and trained checkpoints for your own evaluation. 
-
 # Training on PURE and testing on UBFC with TSCAN 
 
 STEP1: Download the PURE raw data by asking the [paper authors](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure).
@@ -16,7 +14,7 @@ STEP2: Download the UBFC raw data via [link](https://sites.google.com/view/ybene
 
 STEP3: Modify `./configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
 
-STEP4: Run `python main_neural_method.py --config_file ./configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
+STEP4: Run `python main.py --config_file ./configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
 
 Note1: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
 
@@ -31,12 +29,20 @@ STEP2: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfc
 
 STEP3: Modify `./configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml` 
 
-STEP4: Run `python main_neural_method.py --config_file ./configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
+STEP4: Run `python main.py --config_file ./configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
 
 Note1: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
 
 Note2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
+
+# Predicting BVP signal and calculate heart rate on UBFC with POS/CHROME/ICA
+
+STEP1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
+
+STEP3: Modify `./configs/UBFC_SIGNAL.yaml` 
+
+STEP4: Run `python main.py --config_file ./configs/UBFC_SIGNAL.yaml`
 
 # Yaml File Setting
 The rPPG-Toolbox uses yaml file to control all parameters for training and evaluation. 
@@ -47,8 +53,8 @@ Here are some explanation of parameters:
 
   * `train_and_test`: train on dataset and used the newly trained model to test.
   * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
-
-* #### TRAIN / VALID / TEST: 
+  * `signal method`: use signal methods to predict rppg BVP signal and calculate heart rate.
+* #### TRAIN / VALID / TEST / SIGNAL DATA: 
   * `DATA_PATH`: The input path of raw data
   * `CACHED_PATH`: The output path to preprocessed data
   * `EXP_DATA_NAME` If it is "", the toolbox generates a EXP_DATA_NAME based on other defined parameters. Otherwise, it uses the user-defined EXP_DATA_NAME.  
@@ -64,7 +70,9 @@ Here are some explanation of parameters:
   * `LARGE_BOX_COEF`: The coefficient of enlarging. See more details at `https://github.com/ubicomplab/rPPG-Toolbox/blob/main/dataset/data_loader/BaseLoader.py#L162-L165`. 
 
   
-* #### Model : Use which model (support Deepphys / TSCAN / Physnet right now) and their parameters.
+* #### MODEL : Set used model (support Deepphys / TSCAN / Physnet right now) and their parameters.
+* #### SIGNAL METHOD: Set used signal method. Example: ["ica", "pos", "chrome"]
+* #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson']
 
 # Dataset
 The toolbox supports four datasets, which are SCAMPS, UBFC, PURE and COHFACE. Cite corresponding papers when using.
