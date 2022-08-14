@@ -6,7 +6,7 @@ SIGNAL:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True               # if first time, should be true
+    DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDHWC
     DATA_PATH:   "/data1/toolbox_data/PURE/RawData"       # need to be updated
     CACHED_PATH: "/data1/acsp/Yuzhe_Zhang/rPPG-Toolbox/PreprocessedData/"    # Processed dataset save path, need to be updated
