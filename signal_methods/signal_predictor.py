@@ -11,7 +11,7 @@ from utils.utils import *
 from signal_methods.methods.CHROME_DEHAAN import *
 from signal_methods.methods.ICA_POH import *
 from signal_methods.methods.POS_WANG import *
-from signal_methods.methods.SSR import *
+
 
 def signal_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
@@ -33,41 +33,6 @@ def signal_predict(config, data_loader, method_name):
                 BVP = CHROME_DEHAAN(data_input, config.SIGNAL.DATA.FS)
             elif (method_name == "ica"):
                 BVP = ICA_POH(data_input,config.SIGNAL.DATA.FS)
-            elif (method_name == "SSR"):
-                BVP = cpu_SSR(data_input, fps=30.0)
-                BVP = BVP.reshape(-1)
-            elif (method_name == "LGI"):
-                data_input = process_video(data_input)
-                BVP = cpu_LGI(data_input)
-                BVP = BVP.reshape(-1)
-            elif (method_name == "CHROM"):
-                data_input = process_video(data_input)
-                BVP = cpu_CHROM(data_input)
-                BVP = BVP.reshape(-1)
-            elif (method_name == "POS2"):
-                data_input = process_video(data_input)
-                BVP = cpu_POS(data_input, fps=30.0)
-                BVP = BVP.reshape(-1)
-            elif (method_name == "PBV"):
-                data_input = process_video(data_input)
-                BVP = cpu_PBV(data_input)
-                BVP = BVP.reshape(-1)
-            elif (method_name == "PCA"):
-                data_input = process_video(data_input)
-                BVP = cpu_PCA(data_input, component='second_comp')
-                BVP = BVP.reshape(-1)
-            elif (method_name == "GREEN"):
-                data_input = process_video(data_input)
-                BVP = cpu_GREEN(data_input)
-                BVP = BVP.reshape(-1)
-            elif (method_name == "OMIT"):
-                data_input = process_video(data_input)
-                BVP =cpu_OMIT(data_input)
-                BVP = BVP.reshape(-1)
-            elif (method_name == "ICA2"):
-                data_input = process_video(data_input)
-                BVP = cpu_ICA(data_input, component='second_comp')
-                BVP = BVP.reshape(-1)
             else:
                 raise ValueError("signal method name wrong!")
 
