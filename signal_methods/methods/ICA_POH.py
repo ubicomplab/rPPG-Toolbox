@@ -150,7 +150,7 @@ def jade(X, m, Wprev):
                 if(abs(s) > seuil):
                     encore = 1
                     pair = [p, q]
-                    G = np.mat([[c, -np.conj(s)], [s, c]])  # Gavins旋转矩阵
+                    G = np.mat([[c, -np.conj(s)], [s, c]])  # Givens Rotation
                     V[:, pair] = np.matmul(V[:, pair], G)
                     M[pair, :] = np.matmul(G.H, M[pair, :])
                     temp1 = c*M[:, Ip]+s*M[:, Iq]
