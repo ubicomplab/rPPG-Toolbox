@@ -4,11 +4,11 @@ TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 10
   LR: 1e-3
-  MODEL_FILE_NAME: UBFC_UBFC_PURE_physnet
+  MODEL_FILE_NAME: UBFC_UBFC_PURE_physnet_stan
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: False            # if first time, should be true
+    DO_PREPROCESS: True            # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"       # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -16,8 +16,8 @@ TRAIN:
     BEGIN: 0.0
     END: 0.8
     PREPROCESS :
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -31,7 +31,7 @@ VALID:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: False                # if first time, should be true
+    DO_PREPROCESS: True                # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"   # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -39,8 +39,8 @@ VALID:
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -55,7 +55,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: False                  # if first time, should be true
+    DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/PURE/RawData"     # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
@@ -63,8 +63,8 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False

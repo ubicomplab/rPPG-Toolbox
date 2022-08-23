@@ -11,19 +11,19 @@ TRAIN:
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Train"          # Raw dataset path, need to be updated
-    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
+    CACHED_PATH: "/data4/acsp/Yuzhe_Zhang/PreprocessedData_backup/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Standardized' ]
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: False
-      LARGE_FACE_BOX: False
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
       H: 128
       W: 128
@@ -34,19 +34,19 @@ VALID:
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Val"          # Raw dataset path, need to be updated
-    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
+    CACHED_PATH: "/data4/acsp/Yuzhe_Zhang/PreprocessedData_backup/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Standardized' ]
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: False
-      LARGE_FACE_BOX: False
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
       H: 128
       W: 128
@@ -55,16 +55,16 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: False                    # if first time, should be true
+    DO_PREPROCESS: True                    # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"          # Raw dataset path, need to be updated
-    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
+    CACHED_PATH: "/data4/acsp/Yuzhe_Zhang/PreprocessedData_backup/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Standardized' ]
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
