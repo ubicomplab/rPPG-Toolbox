@@ -56,7 +56,7 @@ def calculate_SNR(pxx_pred, f_pred, currHR, signal):
 # %%  Processing
 
 
-def calculate_metric_peak_per_video(predictions, labels, signal='pulse', window_size=360, fs=30, bpFlag=True):
+def calculate_metric_peak_per_video(predictions, labels, diff_flag=True, signal='pulse', window_size=360, fs=30, bpFlag=True):
     if signal == 'pulse':
         [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2],
                         btype='bandpass')  # 2.5 -> 1.7
@@ -80,11 +80,18 @@ def calculate_metric_peak_per_video(predictions, labels, signal='pulse', window_
         else:
             pred_window = predictions[j:j + window_size]
             label_window = labels[j:j + window_size]
-        if signal == 'pulse':
-            pred_window = detrend(np.cumsum(pred_window), 100)
-            label_window = detrend(np.cumsum(label_window), 100)
+        if diff_flag == True:
+            if signal == 'pulse':
+                pred_window = detrend(np.cumsum(pred_window), 100)
+                label_window = detrend(np.cumsum(label_window), 100)
+            else:
+                pred_window = np.cumsum(pred_window)
         else:
-            pred_window = np.cumsum(pred_window)
+            if signal == 'pulse':
+                pred_window = detrend(pred_window, 100)
+                label_window = detrend(label_window, 100)
+            else:
+                pred_window = pred_window
 
         # label_window = np.squeeze(label_window)
         if bpFlag:
@@ -114,18 +121,31 @@ def calculate_metric_peak_per_video(predictions, labels, signal='pulse', window_
     return HR0, HR
 
 
-def calculate_metric_per_video(predictions, labels, signal='pulse', fs=30, bpFlag=True):
+def calculate_metric_per_video(predictions, labels, diff_flag=True, signal='pulse', fs=30, bpFlag=True):
     if signal == 'pulse':
         [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2],
                         btype='bandpass')  # 2.5 -> 1.7
     else:
         [b, a] = butter(1, [0.08 / fs * 2, 0.5 / fs * 2], btype='bandpass')
 
-    if signal == 'pulse':
-        pred_window = detrend(np.cumsum(predictions), 100)
-        label_window = detrend(np.cumsum(labels), 100)
+    # if signal == 'pulse':
+    #     pred_window = detrend(np.cumsum(predictions), 100)
+    #     label_window = detrend(np.cumsum(labels), 100)
+    # else:
+    #     pred_window = np.cumsum(predictions)
+
+    if diff_flag == True:
+        if signal == 'pulse':
+            pred_window = detrend(np.cumsum(predictions), 100)
+            label_window = detrend(np.cumsum(labels), 100)
+        else:
+            pred_window = np.cumsum(predictions)
     else:
-        pred_window = np.cumsum(predictions)
+        if signal == 'pulse':
+            pred_window = detrend(predictions, 100)
+            label_window = detrend(labels, 100)
+        else:
+            pred_window = predictions
 
     if bpFlag:
         pred_window = scipy.signal.filtfilt(b, a, np.double(pred_window))

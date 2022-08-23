@@ -45,11 +45,11 @@ def signal_predict(config, data_loader, method_name):
                 raise ValueError("signal method name wrong!")
 
             if config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                gt_hr, pre_hr = calculate_metric_peak_per_video(BVP, labels_input, fs=config.SIGNAL.DATA.FS)
+                gt_hr, pre_hr = calculate_metric_peak_per_video(BVP, labels_input, diff_flag=False,fs=config.SIGNAL.DATA.FS)
                 predict_hr_peak_all.append(pre_hr)
                 gt_hr_peak_all.append(gt_hr)
             if config.INFERENCE.EVALUATION_METHOD == "FFT":
-                gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, fs=config.SIGNAL.DATA.FS)
+                gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False, fs=config.SIGNAL.DATA.FS)
                 predict_hr_fft_all.append(pre_fft_hr)
                 gt_hr_fft_all.append(gt_fft_hr)
     print("Used Signal Method: " + method_name)
