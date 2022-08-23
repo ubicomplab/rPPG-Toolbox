@@ -16,21 +16,14 @@ def PBV(frames):
     PBV_n = np.array([np.std(R_norm, axis=1), np.std(G_norm, axis=1), np.std(B_norm, axis=1)])
     PBV_d = np.sqrt(np.var(R_norm, axis=1) + np.var(G_norm, axis=1) + np.var(B_norm, axis=1))
     PBV = PBV_n / PBV_d
-    print("RGB_array",RGB_array.shape)
     C = np.transpose(RGB_array, (1, 0, 2))
-    print("C",C.shape)
     Ct = np.transpose(RGB_array, (1, 2, 0))
-    print("Ct",C.shape)
 
-    C = np.swapaxes(np.array([R_norm, G_norm, B_norm]), 0, 1)
-    Ct = np.swapaxes(np.swapaxes(np.transpose(C), 0, 2), 1, 2)
-    print("C",C.shape)
-    print("Ct",C.shape)
     Q = np.matmul(C, Ct)
     W = np.linalg.solve(Q, np.swapaxes(PBV, 0, 1))
-
-    A = np.matmul(Ct, np.expand_dims(W, axis=2))
-    B = np.matmul(np.swapaxes(np.expand_dims(PBV.T, axis=2), 1, 2), np.expand_dims(W, axis=2))
-    BVP = A / B
+        
+    Numerator = np.matmul(Ct, np.expand_dims(W, axis=2))
+    Denominator  = np.matmul(np.swapaxes(np.expand_dims(PBV.T, axis=2), 1, 2), np.expand_dims(W, axis=2))
+    BVP = Numerator / Denominator
     BVP = BVP.squeeze(axis=2).reshape(-1)
     return BVP
