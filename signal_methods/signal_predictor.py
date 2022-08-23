@@ -11,7 +11,9 @@ from utils.utils import *
 from signal_methods.methods.CHROME_DEHAAN import *
 from signal_methods.methods.ICA_POH import *
 from signal_methods.methods.POS_WANG import *
-
+from signal_methods.methods.GREEN import *
+from signal_methods.methods.LGI import *
+from signal_methods.methods.PBV import *
 
 def signal_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
@@ -33,6 +35,12 @@ def signal_predict(config, data_loader, method_name):
                 BVP = CHROME_DEHAAN(data_input, config.SIGNAL.DATA.FS)
             elif (method_name == "ica"):
                 BVP = ICA_POH(data_input,config.SIGNAL.DATA.FS)
+            elif (method_name == "green"):
+                BVP = GREEN(data_input)
+            elif (method_name == "LGI"):
+                BVP = LGI(data_input)
+            elif (method_name == "PBV"):
+                BVP = PBV(data_input)
             else:
                 raise ValueError("signal method name wrong!")
 

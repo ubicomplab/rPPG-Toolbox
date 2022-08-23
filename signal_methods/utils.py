@@ -130,3 +130,13 @@ def parse_PPG(PPGFile,StartTime,Duration):
     PR_PPG = (1/np.mean(diff))*60
     print("PR_PPG",PR_PPG)
     return PR_PPG
+
+def process_video(frames):
+    # Standard:
+    RGB = []
+    for frame in frames:
+        sum = np.sum(np.sum(frame, axis=0), axis=0)
+        RGB.append(sum/(frame.shape[0]*frame.shape[1]))
+    RGB = np.asarray(RGB)
+    RGB = RGB.transpose(1,0).reshape(1,3,-1)
+    return np.asarray(RGB)

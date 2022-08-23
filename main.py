@@ -88,14 +88,23 @@ def test(config, data_loader):
     model_trainer.test(data_loader)
 
 def signal_method_inference(config, data_loader):
-    if "pos" in config.SIGNAL.METHOD:
-        signal_predict(config, data_loader, "pos")
-    if "chrome" in config.SIGNAL.METHOD:
-        signal_predict(config, data_loader, "chrome")
-    if "ica" in config.SIGNAL.METHOD:
-        signal_predict(config, data_loader, "ica")
-    else:
-        raise ValueError("Not supported signal method!")
+    if config.SIGNAL.METHOD == []:
+        raise ValueError("Please set signal method in yaml!")
+    for signal_method in config.SIGNAL.METHOD:
+        if signal_method == "pos":
+            signal_predict(config, data_loader, "pos")
+        elif signal_method == "chrome":
+            signal_predict(config, data_loader, "chrome")
+        elif signal_method == "ica":
+            signal_predict(config, data_loader, "ica")
+        elif signal_method == "green":
+            signal_predict(config, data_loader, "green")
+        elif signal_method == "LGI":
+            signal_predict(config, data_loader, "LGI")
+        elif signal_method == "PBV":
+            signal_predict(config, data_loader, "PBV")
+        else:
+            raise ValueError("Not supported signal method!")
 
 if __name__ == "__main__":
     # parse arguments.
