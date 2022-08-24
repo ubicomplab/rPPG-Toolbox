@@ -1,7 +1,7 @@
 BASE: ['']
 TOOLBOX_MODE: "signal_method"      # "train_and_test"  or "only_test" or "signal_method"
 SIGNAL:
-  METHOD: ["ica"]   #"ica", "pos", "chrome", "green", "LGI", "PBV"
+  METHOD: ["ica", "pos", "chrome", "green", "LGI", "PBV"]   #"ica", "pos", "chrome", "green", "LGI", "PBV"
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   DATA:
     FS: 30
@@ -26,5 +26,5 @@ SIGNAL:
       H: 72
       W: 72
 INFERENCE:
-  EVALUATION_METHOD: "peak detection"        # "FFT" or "peak detection"
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
                   

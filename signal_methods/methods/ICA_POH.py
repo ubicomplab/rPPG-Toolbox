@@ -11,7 +11,7 @@ from numpy import abs, append, arange, arctan2, argsort, array, concatenate, \
     sign, sin, sqrt, zeros
 import numpy as np
 
-def ICA_POH(frames, FS):
+def ICA_POH2(frames, FS):
     """
     ICA method on CPU using Numpy.
     The dictionary parameters are {'component':str}. Where 'component' can be 'second_comp' or 'all_comp'.
@@ -25,15 +25,15 @@ def ICA_POH(frames, FS):
         bvp.append(np.dot(W, X))
 
     # selector
-    bvp = np.array(bvp).reshape(-1)
-    l, c, f = bvp.shape  # l=#landmks c=#3chs, f=#frames
+    bvp = np.array(bvp)
+    # l, c, f = bvp.shape  # l=#landmks c=#3chs, f=#frames
     # if kargs['component'] == 'all_comp':
     #     bvp = np.reshape(bvp, (l * c, f))  # compact into 2D matrix
     # elif kargs['component'] == 'second_comp':
     #     bvp = np.reshape(bvp[:, 1, :], (l, f))
 
     # collect
-    return bvp
+    return bvp.reshape(-1)
 
 
 
@@ -42,7 +42,7 @@ def ICA_POH(frames, FS):
 
 
 
-def ICA_POH2(frames, FS):
+def ICA_POH(frames, FS):
     # Cut off frequency.
     LPF = 0.7
     HPF = 2.5
@@ -75,7 +75,7 @@ def ICA_POH2(frames, FS):
     BVP_F = signal.filtfilt(B, A, BVP_I.astype(np.double))
 
     BVP = BVP_F[0]
-    return BVP
+    return BVP.reshape(-1)
 
 
 def process_video(frames):
