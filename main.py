@@ -41,7 +41,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PURE_UBFC_PHYSNET_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/UBFC_SIGNAL.yaml", type=str, help="The name of the model.")
     # Neural Method Sample YAMSL LIST:
     #   SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
     #   SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
