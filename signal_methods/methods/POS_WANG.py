@@ -7,10 +7,10 @@ from scipy import signal
 from signal_methods import utils
 from metrics.metrics import *
 
+
 def POS_WANG(frames,fs):
     WinSec = 1.6
     RGB = process_video(frames)
-    print(RGB.shape)
     N = RGB.shape[0]
     H = np.zeros((1, N))
     l = math.ceil(WinSec*fs)
@@ -41,3 +41,4 @@ def process_video(frames):
         sum = np.sum(np.sum(frame, axis=0), axis=0)
         RGB.append(sum/(frame.shape[0]*frame.shape[1]))
     return np.asarray(RGB)
+

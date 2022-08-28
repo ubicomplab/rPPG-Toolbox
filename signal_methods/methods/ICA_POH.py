@@ -34,11 +34,11 @@ def ICA_POH(frames, FS):
         Px = np.multiply(Px, Px)
         Fx = np.arange(0, N/2)/(N/2)*NyquistF
         Px = Px/np.sum(Px, axis=0)
-        MaxPx[0, c] = np.max(Px)
+        MaxPx[0, c] = np.max(Px)  
     MaxComp = np.argmax(MaxPx)
     BVP_I = S[MaxComp, :]
     B, A = signal.butter(3, [LPF/NyquistF, HPF/NyquistF], 'bandpass')
-    BVP_F = signal.filtfilt(B, A, BVP_I)
+    BVP_F = signal.filtfilt(B, A, BVP_I.astype(np.double))
 
     BVP = BVP_F[0]
     return BVP
@@ -128,7 +128,7 @@ def jade(X, m, Wprev):
     else:
         V = np.linalg.inv(Wprev)
     # Main Loop:
-    while encore:
+    while encore:  
         encore = 0
         for p in range(m-1):
             for q in range(p+1, m):
