@@ -8,8 +8,6 @@ An end-to-end training pipleine for neural network methods.
   python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
 """
 
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import argparse
 from config import get_config
 from torch.utils.data import DataLoader

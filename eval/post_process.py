@@ -95,8 +95,10 @@ def calculate_metric_peak_per_video(predictions, labels, diff_flag=True, signal=
 
         # label_window = np.squeeze(label_window)
         if bpFlag:
-            pred_window = scipy.signal.filtfilt(b, a, np.double(pred_window))
-            label_window = scipy.signal.filtfilt(b, a, np.double(label_window))
+            # pred_window = scipy.signal.filtfilt(b, a, np.double(pred_window))
+            # label_window = scipy.signal.filtfilt(b, a, np.double(label_window))
+            pred_window = scipy.signal.filtfilt(b, a, pred_window)
+            label_window = scipy.signal.filtfilt(b, a, label_window)
 
         # label_window = (label_window - np.min(label_window)) / (np.max(label_window) - np.min(label_window))
         # pred_window = (pred_window - np.min(pred_window)) / (np.max(pred_window) - np.min(pred_window))
@@ -127,12 +129,6 @@ def calculate_metric_per_video(predictions, labels, diff_flag=True, signal='puls
                         btype='bandpass')  # 2.5 -> 1.7
     else:
         [b, a] = butter(1, [0.08 / fs * 2, 0.5 / fs * 2], btype='bandpass')
-
-    # if signal == 'pulse':
-    #     pred_window = detrend(np.cumsum(predictions), 100)
-    #     label_window = detrend(np.cumsum(labels), 100)
-    # else:
-    #     pred_window = np.cumsum(predictions)
 
     if diff_flag == True:
         if signal == 'pulse':
