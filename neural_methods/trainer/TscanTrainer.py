@@ -1,4 +1,4 @@
-"""Trainer for TSCAN, but also applies to 3D-CAN, Hybrid-CAN, and DeepPhys."""
+"""Trainer for TSCAN."""
 
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
