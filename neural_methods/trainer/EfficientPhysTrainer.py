@@ -22,7 +22,8 @@ class EfficientPhysTrainer(BaseTrainer):
         self.frame_depth = config.MODEL.EFFICIENTPHYS.FRAME_DEPTH
         self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
-        self.criterion = Neg_Pearson()
+        # self.criterion = Neg_Pearson()
+        self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
         self.max_epoch_num = config.TRAIN.EPOCHS

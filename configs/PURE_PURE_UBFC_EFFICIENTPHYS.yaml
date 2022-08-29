@@ -85,5 +85,5 @@ MODEL:
     FRAME_DEPTH: 10
 INFERENCE:
   BATCH_SIZE: 4
-  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
+  EVALUATION_METHOD: 'peak detection'        # "FFT" or "peak detection"
   MODEL_PATH:   ""
