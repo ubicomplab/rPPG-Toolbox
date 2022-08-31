@@ -73,6 +73,7 @@ def train_and_test(config, data_loader):
     model_trainer.train(data_loader)
     model_trainer.test(data_loader)
 
+
 def test(config, data_loader):
     """Tests the model."""
     if config.MODEL.NAME == "Physnet":
@@ -87,6 +88,7 @@ def test(config, data_loader):
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.test(data_loader)
 
+
 def signal_method_inference(config, data_loader):
     if "pos" in config.SIGNAL.METHOD:
         signal_predict(config, data_loader, "pos")
@@ -96,6 +98,7 @@ def signal_method_inference(config, data_loader):
         signal_predict(config, data_loader, "ica")
     else:
         raise ValueError("Not supported signal method!")
+
 
 if __name__ == "__main__":
     # parse arguments.
