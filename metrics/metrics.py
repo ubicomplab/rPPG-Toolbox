@@ -4,7 +4,6 @@ import os
 import torch
 import re
 import pandas as pd
-from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 
 from dataset import data_loader
@@ -15,6 +14,7 @@ from neural_methods.model.DeepPhys import DeepPhys
 from collections import OrderedDict
 import random
 import numpy as np
+
 
 def read_label(dataset):
     df = pd.read_csv("label/{0}_Comparison.csv".format(dataset))
@@ -37,12 +37,12 @@ def read_hr_label(feed_dict, index):
         hr = video_dict['Peak Detection']
     return index, hr
 
+
 def reform_data_from_dict(data):
     sort_data = sorted(data.items(), key=lambda x: x[0])
     sort_data = [i[1] for i in sort_data]
     sort_data = torch.cat(sort_data, dim=0)
     return np.reshape(sort_data.cpu(), (-1))
-
 
 
 def calculate_metrics(predictions, labels, config):

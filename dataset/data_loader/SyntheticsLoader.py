@@ -82,7 +82,7 @@ class SyntheticsLoader(BaseLoader):
         for i in choose_range:
             process_flag = True
             while (process_flag):       # ensure that every i creates a process
-                if running_num <32:          # in case of too many processes
+                if running_num < 16:          # in case of too many processes
                     p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i))
                     p.start()
                     p_list.append(p)
