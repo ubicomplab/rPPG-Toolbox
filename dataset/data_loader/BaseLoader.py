@@ -62,6 +62,9 @@ class BaseLoader(Dataset):
         """Returns data directories under the path."""
         return None
 
+    def get_data_subset(self, data_dirs, begin, end):
+        return None
+
     def preprocess_dataset(self, data_dirs, config_preprocess,begin,end):
         """Parses and preprocesses all data.
 
