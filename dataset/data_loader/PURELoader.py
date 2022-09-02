@@ -49,14 +49,6 @@ class PURELoader(BaseLoader):
 
     def get_data(self, data_path):
         """Returns data directories under the path(For PURE dataset)."""
-        # data_dirs = glob.glob(data_path + os.sep + "*-*")
-        # if not data_dirs:
-        #     raise ValueError(self.name+ " dataset get data error!")
-        # dirs = list()
-        # for data_dir in data_dirs:
-        #     subject = os.path.split(data_dir)[-1].replace('-', '')
-        #     dirs.append({"index": int(subject), "path": data_dir})
-        # return dirs
 
         data_dirs = glob.glob(data_path + os.sep + "*-*")
         if not data_dirs:
@@ -71,6 +63,8 @@ class PURELoader(BaseLoader):
 
 
     def get_data_subset(self, data_dirs, begin, end):
+        """Returns a subset of data dirs, split with begin and end values, 
+        and ensures no overlapping subjects between splits"""
 
         # get info about the dataset: subject list and num vids per subject
         data_info = dict()
@@ -103,9 +97,6 @@ class PURELoader(BaseLoader):
             subj_files = data_info[subj_num]
             file_info_list += subj_files # add file information to file_list (tuple of fname, subj ID, trial num, chunk num)
         
-        # print('FILE LIST LENGTH', len(file_info_list))
-        # print(file_info_list)
-        # raise ValueError("GIRISH FORCE QUIT") # TO DO GIRISH
         return file_info_list
 
 
