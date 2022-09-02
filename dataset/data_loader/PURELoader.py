@@ -94,8 +94,7 @@ class PURELoader(BaseLoader):
         subj_range = list(range(0,num_subjs))
         if (begin !=0 or end !=1):
             subj_range = list(range(int(begin*num_subjs), int(end*num_subjs)))
-            print(subj_range)
-        print('used subject ids:', [subj_list[i] for i in subj_range])
+        print('used subject ids for split:', [subj_list[i] for i in subj_range])
 
         # compile file list
         file_info_list = []
@@ -104,9 +103,9 @@ class PURELoader(BaseLoader):
             subj_files = data_info[subj_num]
             file_info_list += subj_files # add file information to file_list (tuple of fname, subj ID, trial num, chunk num)
         
-        print('FILE LIST LENGTH', len(file_info_list))
-        print(file_info_list)
-        raise ValueError("GIRISH FORCE QUIT") # TO DO GIRISH
+        # print('FILE LIST LENGTH', len(file_info_list))
+        # print(file_info_list)
+        # raise ValueError("GIRISH FORCE QUIT") # TO DO GIRISH
         return file_info_list
 
 
@@ -127,7 +126,7 @@ class PURELoader(BaseLoader):
             frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
 
-    def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
+    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
         print("file_num:", file_num)
@@ -145,7 +144,7 @@ class PURELoader(BaseLoader):
         running_num = 0
         for i in choose_range:
             process_flag = True
-            while process_flag:         # ensure that every i creates a process
+            while process_flag:            # ensure that every i creates a process
                 if running_num < 16:       # in case of too many processes
                     p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i))
                     p.start()
