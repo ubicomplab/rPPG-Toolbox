@@ -18,6 +18,7 @@ import glob
 from multiprocessing import Pool, Process, Value, Array, Manager
 from tqdm import tqdm
 
+
 class PURELoader(BaseLoader):
     """The data loader for the PURE dataset."""
 
@@ -47,7 +48,7 @@ class PURELoader(BaseLoader):
     def get_data(self, data_path):
         """Returns data directories under the path(For PURE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*-*")
-        if (data_dirs == []):
+        if not data_dirs:
             raise ValueError(self.name+ " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
@@ -70,16 +71,15 @@ class PURELoader(BaseLoader):
         bvps = sample(bvps, frames.shape[0])
         frames_clips, bvps_clips = self.preprocess(
             frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
-        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips,
-                              saved_filename)
+        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
 
     def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
-        print("file_num:",file_num)
-        choose_range = range(0,file_num)
-        if (begin !=0 or end !=1):
-            choose_range = range(int(begin*file_num), int(end * file_num))
+        print("file_num:", file_num)
+        choose_range = range(0, file_num)
+        if begin != 0 or end != 1:
+            choose_range = range(int(begin * file_num), int(end * file_num))
             print(choose_range)
 
         pbar = tqdm(list(choose_range))
@@ -88,15 +88,15 @@ class PURELoader(BaseLoader):
         running_num = 0
         for i in choose_range:
             process_flag = True
-            while (process_flag):         # ensure that every i creates a process
-                if running_num < 32:       # in case of too many processes
+            while process_flag:         # ensure that every i creates a process
+                if running_num < 16:       # in case of too many processes
                     p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i))
                     p.start()
                     p_list.append(p)
-                    running_num +=1
+                    running_num += 1
                     process_flag = False
                 for p_ in p_list:
-                    if (not p_.is_alive() ):
+                    if not p_.is_alive():
                         p_list.remove(p_)
                         p_.join()
                         running_num -= 1
@@ -108,7 +108,7 @@ class PURELoader(BaseLoader):
         pbar.close()
         # append all data path and update the length of data
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
-        if inputs == []:
+        if not inputs:
             raise ValueError(self.name + ' dataset loading data error!')
         labels = [input.replace("input", "label") for input in inputs]
         assert (len(inputs) == len(labels))

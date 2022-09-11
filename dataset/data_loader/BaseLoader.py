@@ -39,12 +39,12 @@ class BaseLoader(Dataset):
         self.name = name
         self.data_path = data_path
         self.cached_path = config_data.CACHED_PATH
-        assert (config_data.BEGIN <  config_data.END)
-        assert (config_data.BEGIN > 0 or config_data.BEGIN==0)
-        assert (config_data.END < 1 or config_data.END==1)
-        if (config_data.BEGIN != 0 or config_data.END !=1):
-            self.cached_path = config_data.CACHED_PATH +"_"+ str(config_data.BEGIN) + '_'+str(config_data.END)
-        elif (config_data.DATASET == "SYNTHETICS"):
+        assert (config_data.BEGIN < config_data.END)
+        assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
+        assert (config_data.END < 1 or config_data.END == 1)
+        if config_data.BEGIN != 0 or config_data.END !=1:
+            self.cached_path = config_data.CACHED_PATH + "_"+ str(config_data.BEGIN) + '_'+str(config_data.END)
+        elif config_data.DATASET == "SYNTHETICS":
             self.cached_path = config_data.CACHED_PATH + "_" + self.name
         print(self.cached_path)
         self.inputs = list()
@@ -53,7 +53,7 @@ class BaseLoader(Dataset):
         self.data_format = config_data.DATA_FORMAT
         data_dirs = self.get_data(self.data_path)
         if config_data.DO_PREPROCESS:
-            self.preprocess_dataset(data_dirs, config_data.PREPROCESS,config_data.BEGIN,config_data.END)
+            self.preprocess_dataset(data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
             self.load()
         print(self.name + " dataset len:",self.len)
@@ -151,10 +151,10 @@ class BaseLoader(Dataset):
         detector = cv2.CascadeClassifier(
             './dataset/haarcascade_frontalface_default.xml')
         face_zone = detector.detectMultiScale(frame)
-        if (len(face_zone) < 1):
+        if len(face_zone) < 1:
             print("ERROR:No Face Detected")
             result = [0, 0, frame.shape[0], frame.shape[1]]
-        elif (len(face_zone) >= 2):
+        elif len(face_zone) >= 2:
             result = np.argmax(face_zone, axis=0)
             result = face_zone[result[2]]
             print("WARN:More than one faces are detected(Only cropping the biggest one.)")
@@ -224,7 +224,7 @@ class BaseLoader(Dataset):
 
     def save(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
-        if (not os.path.exists(self.cached_path)):
+        if not os.path.exists(self.cached_path):
             os.makedirs(self.cached_path)
         count = 0
         for i in range(len(bvps_clips)):
@@ -242,7 +242,7 @@ class BaseLoader(Dataset):
 
     def save_multi_process(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
-        if (not os.path.exists(self.cached_path)):
+        if not os.path.exists(self.cached_path):
             os.makedirs(self.cached_path)
         count = 0
         input_path_name_list = []
@@ -263,7 +263,7 @@ class BaseLoader(Dataset):
     def load(self):
         """Loads the preprocessing data."""
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
-        if inputs == []:
+        if not inputs:
             raise ValueError(self.name+' dataset loading data error!')
         labels = [input.replace("input", "label") for input in inputs]
         assert (len(inputs) == len(labels))
