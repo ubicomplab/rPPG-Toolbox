@@ -108,7 +108,6 @@ def signal_method_inference(config, data_loader):
         else:
             raise ValueError("Not supported signal method!")
 
-
 if __name__ == "__main__":
     # parse arguments.
     parser = argparse.ArgumentParser()
