@@ -41,3 +41,4 @@ def process_video(frames):
         sum = np.sum(np.sum(frame, axis=0), axis=0)
         RGB.append(sum/(frame.shape[0]*frame.shape[1]))
     return np.asarray(RGB)
+

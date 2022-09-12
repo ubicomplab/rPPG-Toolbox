@@ -4,7 +4,7 @@ TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 10
   LR: 1e-3
-  MODEL_FILE_NAME: PURE_PURE_UBFC_physnet
+  MODEL_FILE_NAME: PURE_PURE_UBFC_physnet_raw
   DATA:
     FS: 30
     DATASET: PURE
@@ -16,8 +16,8 @@ TRAIN:
     BEGIN: 0.0
     END: 0.8
     PREPROCESS :
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -39,8 +39,8 @@ VALID:
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
@@ -63,8 +63,8 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'Normalized' ]
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: Raw
       DO_CHUNK: True
       CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False

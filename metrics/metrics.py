@@ -53,10 +53,18 @@ def calculate_metrics(predictions, labels, config):
     for index in predictions.keys():
         prediction = reform_data_from_dict(predictions[index])
         label = reform_data_from_dict(labels[index])
+        
+        if config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
+            config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Raw":
+            diff_flag_test = False
+        elif config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Normalized":
+            diff_flag_test = True
+        else:
+            raise ValueError("Not supported label type in testing!")
         gt_hr_fft, pred_hr_fft = calculate_metric_per_video(
-            prediction, label, fs=config.TEST.DATA.FS)
+            prediction, label,diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
         gt_hr_peak, pred_hr_peak = calculate_metric_peak_per_video(
-            prediction, label, fs=config.TEST.DATA.FS)
+            prediction, label,diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
         gt_hr_fft_all.append(gt_hr_fft)
         predict_hr_fft_all.append(pred_hr_fft)
         predict_hr_peak_all.append(pred_hr_peak)

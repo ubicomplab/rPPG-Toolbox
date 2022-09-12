@@ -11,7 +11,9 @@ from utils.utils import *
 from signal_methods.methods.CHROME_DEHAAN import *
 from signal_methods.methods.ICA_POH import *
 from signal_methods.methods.POS_WANG import *
-
+from signal_methods.methods.GREEN import *
+from signal_methods.methods.LGI import *
+from signal_methods.methods.PBV import *
 
 def signal_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
@@ -33,15 +35,21 @@ def signal_predict(config, data_loader, method_name):
                 BVP = CHROME_DEHAAN(data_input, config.SIGNAL.DATA.FS)
             elif (method_name == "ica"):
                 BVP = ICA_POH(data_input,config.SIGNAL.DATA.FS)
+            elif (method_name == "green"):
+                BVP = GREEN(data_input)
+            elif (method_name == "LGI"):
+                BVP = LGI(data_input)
+            elif (method_name == "PBV"):
+                BVP = PBV(data_input)
             else:
                 raise ValueError("signal method name wrong!")
 
             if config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                gt_hr, pre_hr = calculate_metric_peak_per_video(BVP, labels_input, fs=config.SIGNAL.DATA.FS)
+                gt_hr, pre_hr = calculate_metric_peak_per_video(BVP, labels_input, diff_flag=False,fs=config.SIGNAL.DATA.FS)
                 predict_hr_peak_all.append(pre_hr)
                 gt_hr_peak_all.append(gt_hr)
             if config.INFERENCE.EVALUATION_METHOD == "FFT":
-                gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, fs=config.SIGNAL.DATA.FS)
+                gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False, fs=config.SIGNAL.DATA.FS)
                 predict_hr_fft_all.append(pre_fft_hr)
                 gt_hr_fft_all.append(gt_fft_hr)
     print("Used Signal Method: " + method_name)
