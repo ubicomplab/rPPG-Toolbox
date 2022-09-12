@@ -1,4 +1,4 @@
-"""Trainer for TSCAN, but also applies to 3D-CAN, Hybrid-CAN, and DeepPhys."""
+"""Trainer for TSCAN."""
 
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 import torch
@@ -31,6 +31,7 @@ class TscanTrainer(BaseTrainer):
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.num_of_gpu = config.NUM_OF_GPU_TRAIN
         self.base_len = self.num_of_gpu * self.frame_depth
+        self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
         self.config = config
         self.best_epoch = 0
 
@@ -77,7 +78,6 @@ class TscanTrainer(BaseTrainer):
                 self.save_model(epoch)
         print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
 
-
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
         if data_loader["valid"] is None:
@@ -105,20 +105,17 @@ class TscanTrainer(BaseTrainer):
             valid_loss = np.asarray(valid_loss)
         return np.mean(valid_loss)
 
-
-
     def test(self, data_loader):
         """ Model evaluation on the testing dataset."""
         if data_loader["test"] is None:
             raise ValueError("No data for test")
-        config = self.config
         print("===Testing===")
         predictions = dict()
         labels = dict()
-        if config.TOOLBOX_MODE == "only_test":
-            if not os.path.exists(config.INFERENCE.MODEL_PATH):
+        if self.config.TOOLBOX_MODE == "only_test":
+            if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
-            self.model.load_state_dict(torch.load(config.INFERENCE.MODEL_PATH))
+            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
         else:
             best_model_path = os.path.join(
@@ -126,13 +123,13 @@ class TscanTrainer(BaseTrainer):
             print("Testing uses non-pretrained model!")
             print(best_model_path)
             self.model.load_state_dict(torch.load(best_model_path))
-        self.model = self.model.to(config.DEVICE)
+        self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader['test']):
                 batch_size = test_batch[0].shape[0]
                 data_test, labels_test = test_batch[0].to(
-                    config.DEVICE), test_batch[1].to(config.DEVICE)
+                    self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
                 N, D, C, H, W = data_test.shape
                 data_test = data_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
@@ -145,13 +142,10 @@ class TscanTrainer(BaseTrainer):
                     if subj_index not in predictions.keys():
                         predictions[subj_index] = dict()
                         labels[subj_index] = dict()
-                    predictions[subj_index][sort_index] = pred_ppg_test[idx * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH:(
-                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH]
-                    labels[subj_index][sort_index] = labels_test[idx * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH:(
-                                                    idx + 1) * config.TEST.DATA.PREPROCESS.CHUNK_LENGTH]
+                    predictions[subj_index][sort_index] = pred_ppg_test[idx * self.chunk_len:(idx + 1) * self.chunk_len]
+                    labels[subj_index][sort_index] = labels_test[idx * self.chunk_len:(idx + 1) * self.chunk_len]
 
-        calculate_metrics(predictions, labels, config)
-
+        calculate_metrics(predictions, labels, self.config)
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):

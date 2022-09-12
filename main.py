@@ -58,7 +58,7 @@ def add_args(parser):
     return parser
 
 
-def train_and_test(config, data_loader):
+def train_and_test(config, data_loader_dict):
     """Trains the model."""
     if config.MODEL.NAME == "Physnet":
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config)
@@ -70,10 +70,11 @@ def train_and_test(config, data_loader):
         model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
-    model_trainer.train(data_loader)
-    model_trainer.test(data_loader)
+    model_trainer.train(data_loader_dict)
+    model_trainer.test(data_loader_dict)
 
-def test(config, data_loader):
+
+def test(config, data_loader_dict):
     """Tests the model."""
     if config.MODEL.NAME == "Physnet":
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config)
@@ -85,7 +86,8 @@ def test(config, data_loader):
         model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
-    model_trainer.test(data_loader)
+    model_trainer.test(data_loader_dict)
+
 
 def signal_method_inference(config, data_loader):
     if config.SIGNAL.METHOD == []:
@@ -123,20 +125,21 @@ if __name__ == "__main__":
         # neural method dataloader
         # train_loader
         if config.TRAIN.DATA.DATASET == "COHFACE":
-            train_loader = data_loader.COHFACELoader.COHFACELoader
+            #train_loader = data_loader.COHFACELoader.COHFACELoader
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.TRAIN.DATA.DATASET == "UBFC":
             train_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.TRAIN.DATA.DATASET == "PURE":
             train_loader = data_loader.PURELoader.PURELoader
         elif config.TRAIN.DATA.DATASET == "SYNTHETICS":
-            train_loader = data_loader.SyntheticsLoader.SyntheticsLoader
+            train_loader = data_loader.SyntheticsLoader.SyntheticsLoader            
         else:
-            raise ValueError(
-                "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
         # valid_loader
         if config.VALID.DATA.DATASET == "COHFACE":
-            valid_loader = data_loader.COHFACELoader.COHFACELoader
+            #valid_loader = data_loader.COHFACELoader.COHFACELoader
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.VALID.DATA.DATASET == "UBFC":
             valid_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.VALID.DATA.DATASET == "PURE":
@@ -144,12 +147,12 @@ if __name__ == "__main__":
         elif config.VALID.DATA.DATASET == "SYNTHETICS":
             valid_loader = data_loader.SyntheticsLoader.SyntheticsLoader
         else:
-            raise ValueError(
-                "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
         # test_loader
         if config.TEST.DATA.DATASET == "COHFACE":
-            test_loader = data_loader.COHFACELoader.COHFACELoader
+            #test_loader = data_loader.COHFACELoader.COHFACELoader
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.TEST.DATA.DATASET == "UBFC":
             test_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.TEST.DATA.DATASET == "PURE":
@@ -157,8 +160,8 @@ if __name__ == "__main__":
         elif config.TEST.DATA.DATASET == "SYNTHETICS":
             test_loader = data_loader.SyntheticsLoader.SyntheticsLoader
         else:
-            raise ValueError(
-                "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
+
         if config.TRAIN.DATA.DATA_PATH:
             train_data_loader = train_loader(
                 name="train",
@@ -174,7 +177,8 @@ if __name__ == "__main__":
             )
         else:
             data_loader_dict['train'] = None
-        if config.TRAIN.DATA.DATA_PATH:
+
+        if config.VALID.DATA.DATA_PATH:
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
@@ -182,7 +186,7 @@ if __name__ == "__main__":
             data_loader_dict["valid"] = DataLoader(
                 dataset=valid_data,
                 num_workers=16,
-                batch_size=config.TRAIN.BATCH_SIZE,
+                batch_size=config.TRAIN.BATCH_SIZE, # batch size for val is the same as train
                 shuffle=True,
                 worker_init_fn=seed_worker,
                 generator=g
@@ -205,10 +209,12 @@ if __name__ == "__main__":
             )
         else:
             data_loader_dict['test'] = None
+
     elif config.TOOLBOX_MODE == "signal_method":
         # signal method dataloader
         if config.SIGNAL.DATA.DATASET == "COHFACE":
-            signal_loader = data_loader.COHFACELoader.COHFACELoader
+            #signal_loader = data_loader.COHFACELoader.COHFACELoader
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.SIGNAL.DATA.DATASET == "UBFC":
             signal_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.SIGNAL.DATA.DATASET == "PURE":
@@ -216,8 +222,8 @@ if __name__ == "__main__":
         elif config.SIGNAL.DATA.DATASET == "SYNTHETICS":
             signal_loader = data_loader.SyntheticsLoader.SyntheticsLoader
         else:
-            raise ValueError(
-                "Unsupported dataset! Currently supporting COHFACE, UBFC and PURE.")
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
+            
         signal_data = signal_loader(
             name="signal",
             data_path=config.SIGNAL.DATA.DATA_PATH,
@@ -230,6 +236,7 @@ if __name__ == "__main__":
             worker_init_fn=seed_worker,
             generator=g
         )
+
     else:
         raise ValueError("Unsupported toolbox_mode! Currently support train_and_test or only_test or signal_method.")
 
@@ -238,6 +245,6 @@ if __name__ == "__main__":
     elif config.TOOLBOX_MODE == "only_test":
         test(config, data_loader_dict)
     elif config.TOOLBOX_MODE == "signal_method":
-        signal_method_inference(config,data_loader_dict)
+        signal_method_inference(config, data_loader_dict)
     else:
         print("TOOLBOX_MODE only support train_and_test or only_test !")
