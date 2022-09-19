@@ -189,7 +189,7 @@ if __name__ == "__main__":
                 dataset=valid_data,
                 num_workers=16,
                 batch_size=config.TRAIN.BATCH_SIZE, # batch size for val is the same as train
-                shuffle=True,
+                shuffle=False,
                 worker_init_fn=seed_worker,
                 generator=g
             )
