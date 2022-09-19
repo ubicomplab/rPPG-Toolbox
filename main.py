@@ -7,6 +7,7 @@ An end-to-end training pipleine for neural network methods.
 
   python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
 """
+
 import argparse
 from config import get_config
 from torch.utils.data import DataLoader
@@ -38,7 +39,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/UBFC_SIGNAL.yaml", type=str, help="The name of the model.")
+                        default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
     # Neural Method Sample YAMSL LIST:
     #   SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
     #   SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
@@ -188,7 +189,7 @@ if __name__ == "__main__":
                 dataset=valid_data,
                 num_workers=16,
                 batch_size=config.TRAIN.BATCH_SIZE, # batch size for val is the same as train
-                shuffle=True,
+                shuffle=False,
                 worker_init_fn=seed_worker,
                 generator=g
             )
