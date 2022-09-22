@@ -154,14 +154,7 @@ class PURELoader(BaseLoader):
             pbar.update(1)
         pbar.close()
         # append all data path and update the length of data
-        inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
-        if not inputs:
-            raise ValueError(self.name + ' dataset loading data error!')
-        labels = [input.replace("input", "label") for input in inputs]
-        assert (len(inputs) == len(labels))
-        self.inputs = inputs
-        self.labels = labels
-        self.len = len(inputs)
+        self.load()
 
     @staticmethod
     def read_video(video_file):
