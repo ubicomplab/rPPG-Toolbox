@@ -153,7 +153,8 @@ class PURELoader(BaseLoader):
             p_.join()
             pbar.update(1)
         pbar.close()
-        # append all data path and update the length of data
+        
+        # load all data and corresponding labels (sorted for consistency)
         self.load()
 
     @staticmethod

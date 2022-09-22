@@ -282,9 +282,9 @@ class BaseLoader(Dataset):
     def load(self):
         """Loads the preprocessing data."""
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
-        inputs.sort() # sort input file name list
         if not inputs:
             raise ValueError(self.name+' dataset loading data error!')
+        inputs = sorted(inputs) # sort input file name list
         labels = [input.replace("input", "label") for input in inputs]
         assert (len(inputs) == len(labels))
         self.inputs = inputs
