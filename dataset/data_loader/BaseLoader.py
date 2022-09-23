@@ -19,6 +19,7 @@ class BaseLoader(Dataset):
     including reading files, resizing each frame, chunking, and video-signal synchronization.
     """
 
+
     @staticmethod
     def add_data_loader_args(parser):
         """Adds arguments to parser for training process"""
@@ -27,6 +28,7 @@ class BaseLoader(Dataset):
         parser.add_argument(
             "--preprocess", default=None, action='store_true')
         return parser
+
 
     def __init__(self, name, data_path, config_data):
         """Inits dataloader with lists of files.
@@ -57,15 +59,18 @@ class BaseLoader(Dataset):
         else:
             self.load()
         print(self.name + " dataset len:",self.len)
-        
+
+
     def get_data(self, data_path):
         """Returns data directories under the path."""
         return None
+
 
     def get_data_subset(self, data_dirs, begin, end):
         """Returns a subset of data dirs, split with begin and end values, 
         and ensures no overlapping subjects between splits"""
         return None
+
 
     def preprocess_dataset(self, data_dirs, config_preprocess,begin,end):
         """Parses and preprocesses all data.
@@ -76,9 +81,11 @@ class BaseLoader(Dataset):
         """
         pass
 
+
     def __len__(self):
         """Returns the length of the dataset."""
         return len(self.inputs)
+
 
     def __getitem__(self, index):
         """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
@@ -100,6 +107,7 @@ class BaseLoader(Dataset):
         filename = item_path_filename[:split_idx]
         chunk_id = item_path_filename[split_idx+6:].split('.')[0]
         return data, label, filename, chunk_id
+
 
     def preprocess(self, frames, bvps, config_preprocess, large_box=False):
         """Preprocesses a pair of data.
@@ -150,6 +158,7 @@ class BaseLoader(Dataset):
 
         return frames_clips, bvps_clips
 
+
     def facial_detection(self, frame, larger_box=False, larger_box_size=1.0):
         """Conducts face detection on a single frame.
         Sets larger_box=True for larger bounding box, e.g. moving trials."""
@@ -172,6 +181,7 @@ class BaseLoader(Dataset):
             result[2] = larger_box_size * result[2]
             result[3] = larger_box_size * result[3]
         return result
+
 
     def resize(self, frames, dynamic_det, det_length,
                w, h, larger_box, crop_face, larger_box_size):
@@ -218,6 +228,7 @@ class BaseLoader(Dataset):
             resize_frames[i] = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
         return resize_frames
 
+
     def chunk(self, frames, bvps, chunk_length):
         """Chunks the data into clips."""
         clip_num = frames.shape[0] // chunk_length
@@ -226,6 +237,7 @@ class BaseLoader(Dataset):
         bvps_clips = [
             bvps[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
         return np.array(frames_clips), np.array(bvps_clips)
+
 
     def save(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
@@ -244,6 +256,7 @@ class BaseLoader(Dataset):
             np.save(label_path_name, bvps_clips[i])
             count += 1
         return count
+
 
     def save_multi_process(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
@@ -265,17 +278,20 @@ class BaseLoader(Dataset):
             count += 1
         return count, input_path_name_list, label_path_name_list
 
+
     def load(self):
         """Loads the preprocessing data."""
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
         if not inputs:
             raise ValueError(self.name+' dataset loading data error!')
+        inputs = sorted(inputs) # sort input file name list
         labels = [input.replace("input", "label") for input in inputs]
         assert (len(inputs) == len(labels))
         self.inputs = inputs
         self.labels = labels
         self.len = len(inputs)
         print("loaded data len:",self.len)
+
 
     @staticmethod
     def diff_normalize_data(data):
@@ -290,6 +306,7 @@ class BaseLoader(Dataset):
         normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
 
+
     @staticmethod
     def diff_normalize_label(label):
         """Difference frames and normalization labels"""
@@ -298,6 +315,7 @@ class BaseLoader(Dataset):
         normalized_label[np.isnan(normalized_label)] = 0
         return normalized_label
 
+
     @staticmethod
     def standardized_data(data):
         """Difference frames and normalization data"""
@@ -305,6 +323,7 @@ class BaseLoader(Dataset):
         data = data / np.std(data)
         data[np.isnan(data)] = 0
         return data
+
 
     @staticmethod
     def standardized_label(label):
