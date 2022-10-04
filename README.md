@@ -16,7 +16,7 @@ STEP3: Modify `./configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml`
 
 STEP4: Run `python main.py --config_file ./configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
 
-Note1: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
+Note1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
 
 Note2: The example yaml setting will allow 80% of PURE to train and 20% of PURE to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
