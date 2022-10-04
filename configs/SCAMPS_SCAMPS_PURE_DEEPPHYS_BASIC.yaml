@@ -7,7 +7,7 @@ TRAIN:
   MODEL_FILE_NAME: SCAMPS_SCAMPS_PURE_deepphys
   DATA:
     FS: 30
-    DATASET: SYNTHETICS
+    DATASET: SCAMPS
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Train"          # Raw dataset path, need to be updated
@@ -30,7 +30,7 @@ TRAIN:
 VALID:
   DATA:
     FS: 30
-    DATASET: SYNTHETICS
+    DATASET: SCAMPS
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data2/rppg_datasets/scamps/RawData/Val"          # Raw dataset path, need to be updated

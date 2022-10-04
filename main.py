@@ -133,8 +133,8 @@ if __name__ == "__main__":
             train_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.TRAIN.DATA.DATASET == "PURE":
             train_loader = data_loader.PURELoader.PURELoader
-        elif config.TRAIN.DATA.DATASET == "SYNTHETICS":
-            train_loader = data_loader.SyntheticsLoader.SyntheticsLoader            
+        elif config.TRAIN.DATA.DATASET == "SCAMPS":
+            train_loader = data_loader.SCAMPSLoader.SCAMPSLoader            
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
@@ -146,8 +146,8 @@ if __name__ == "__main__":
             valid_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.VALID.DATA.DATASET == "PURE":
             valid_loader = data_loader.PURELoader.PURELoader
-        elif config.VALID.DATA.DATASET == "SYNTHETICS":
-            valid_loader = data_loader.SyntheticsLoader.SyntheticsLoader
+        elif config.VALID.DATA.DATASET == "SCAMPS":
+            valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
@@ -159,8 +159,8 @@ if __name__ == "__main__":
             test_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.TEST.DATA.DATASET == "PURE":
             test_loader = data_loader.PURELoader.PURELoader
-        elif config.TEST.DATA.DATASET == "SYNTHETICS":
-            test_loader = data_loader.SyntheticsLoader.SyntheticsLoader
+        elif config.TEST.DATA.DATASET == "SCAMPS":
+            test_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
@@ -221,8 +221,8 @@ if __name__ == "__main__":
             signal_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.SIGNAL.DATA.DATASET == "PURE":
             signal_loader = data_loader.PURELoader.PURELoader
-        elif config.SIGNAL.DATA.DATASET == "SYNTHETICS":
-            signal_loader = data_loader.SyntheticsLoader.SyntheticsLoader
+        elif config.SIGNAL.DATA.DATASET == "SCAMPS":
+            signal_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
             
