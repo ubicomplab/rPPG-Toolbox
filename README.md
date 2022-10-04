@@ -31,7 +31,7 @@ STEP3: Modify `./configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
 
 STEP4: Run `python main.py --config_file ./configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
 
-Note1: Preprocessing requires only once, thus turn it off on the yaml file when you train the network after the first time. 
+Note1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
 
 Note2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
@@ -51,14 +51,14 @@ You can modify the existing yaml files to meet your own training and testing req
 Here are some explanation of parameters:
 * #### TOOLBOX_MODE: 
 
-  * `train_and_test`: train on dataset and used the newly trained model to test.
+  * `train_and_test`: train on the dataset and use the newly trained model to test.
   * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
   * `signal method`: use signal methods to predict rppg BVP signal and calculate heart rate.
 * #### TRAIN / VALID / TEST / SIGNAL DATA: 
   * `DATA_PATH`: The input path of raw data
   * `CACHED_PATH`: The output path to preprocessed data
   * `EXP_DATA_NAME` If it is "", the toolbox generates a EXP_DATA_NAME based on other defined parameters. Otherwise, it uses the user-defined EXP_DATA_NAME.  
-  * `BEGIN" & "END`: The portion of dataset used for training/validation/testing. For example, if the `DATASET` is PURE, `BEGIN` is 0.0 and `END` is 0.8 under the TRAIN, the first 80% PURE is used for training the network. If the `DATASET` is PURE, `BEGIN` is 0.8 and `END` is 1.0 under the VALID, the last 20% PURE is used as the validation set. It is worth noting that validation and training sets don't have overlapping subjects.  
+  * `BEGIN" & "END`: The portion of the dataset used for training/validation/testing. For example, if the `DATASET` is PURE, `BEGIN` is 0.0 and `END` is 0.8 under the TRAIN, the first 80% PURE is used for training the network. If the `DATASET` is PURE, `BEGIN` is 0.8 and `END` is 1.0 under the VALID, the last 20% PURE is used as the validation set. It is worth noting that validation and training sets don't have overlapping subjects.  
   * `DATA_TYPE`: How to preprocess the video data
   * `LABEL_TYPE`: How to preprocess the label data
   * `DO_CHUNK`: Whether to split the raw data into smaller chunks
