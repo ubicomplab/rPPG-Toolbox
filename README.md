@@ -179,3 +179,15 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
 
 * Step3 :[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * Step4 :Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
+
+## Citation
+
+Please cite the following paper if you use the toolbox. 
+
+Title: Deep Physiological Sensing Toolbox
+
+Xin Liu, Xiaoyu Zhang, Girish Narayanswamy, Yuzhe Zhang, Yuntao Wang, Shwetak Patel, Daniel McDuff
+
+https://arxiv.org/abs/2210.00716
+
+
