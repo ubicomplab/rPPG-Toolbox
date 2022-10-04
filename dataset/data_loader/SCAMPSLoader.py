@@ -24,7 +24,7 @@ class SCAMPSLoader(BaseLoader):
     """The data loader for the SCAMPS Processed dataset."""
 
     def __init__(self, name, data_path, config_data):
-        """Initializes an Processed dataloader.
+        """Initializes an SCAMPS Processed dataloader.
             Args:
                 data_path(string): path of a folder which stores raw video and ground truth biosignal in mat files.
                 Each mat file contains a video sequence of resolution of 72x72 and various ground trugh signal.
