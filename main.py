@@ -1,23 +1,16 @@
-""" The main function of rPPG deep learning pipeline.
-
-TODO: Adds detailed description for models and datasets supported.
-An end-to-end training pipleine for neural network methods.
-  Typical usage example:
-
-
-  python main_neural_method.py --config_file configs/COHFACE_TSCAN_BASIC.yaml --data_path "G:\\COHFACE"
-"""
+""" The main function of rPPG deep learning pipeline."""
 
 import argparse
+import random
+import time
+
+import numpy as np
+import torch
 from config import get_config
-from torch.utils.data import DataLoader
 from dataset import data_loader
 from neural_methods import trainer
-import torch
-import random
-import numpy as np
-import time
 from signal_methods.signal_predictor import signal_predict
+from torch.utils.data import DataLoader
 
 RANDOM_SEED = 100
 torch.manual_seed(RANDOM_SEED)
@@ -31,7 +24,7 @@ g.manual_seed(RANDOM_SEED)
 
 
 def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
+    worker_seed = torch.initial_seed() % 2 ** 32
     np.random.seed(worker_seed)
     random.seed(worker_seed)
 
@@ -40,22 +33,23 @@ def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
                         default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
-    # Neural Method Sample YAMSL LIST:
-    #   SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
-    #   SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
-    #   SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
-    #   SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
-    #   SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
-    #   SCAMPS_SCAMPS_PURE_PHYSNET_BASIC.yaml
-    #   PURE_PURE_UBFC_TSCAN_BASIC.yaml
-    #   PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
-    #   PURE_PURE_UBFC_PHYSNET_BASIC.yaml
-    #   UBFC_UBFC_PURE_TSCAN_BASIC.yaml
-    #   UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
-    #   UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
-    # Signal Method Sample YAMSL LIST:
-    #   PURE_SIGNAL.yaml
-    #   UBFC_SIGNAL.yaml
+    '''Neural Method Sample YAMSL LIST:
+      SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
+      SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
+      SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
+      SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
+      SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
+      SCAMPS_SCAMPS_PURE_PHYSNET_BASIC.yaml
+      PURE_PURE_UBFC_TSCAN_BASIC.yaml
+      PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
+      PURE_PURE_UBFC_PHYSNET_BASIC.yaml
+      UBFC_UBFC_PURE_TSCAN_BASIC.yaml
+      UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
+      UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
+    Signal Method Sample YAMSL LIST:
+      PURE_SIGNAL.yaml
+      UBFC_SIGNAL.yaml
+    '''
     return parser
 
 
@@ -91,7 +85,7 @@ def test(config, data_loader_dict):
 
 
 def signal_method_inference(config, data_loader):
-    if config.SIGNAL.METHOD == []:
+    if not config.SIGNAL.METHOD:
         raise ValueError("Please set signal method in yaml!")
     for signal_method in config.SIGNAL.METHOD:
         if signal_method == "pos":
@@ -127,20 +121,20 @@ if __name__ == "__main__":
         # neural method dataloader
         # train_loader
         if config.TRAIN.DATA.DATASET == "COHFACE":
-            #train_loader = data_loader.COHFACELoader.COHFACELoader
+            # train_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.TRAIN.DATA.DATASET == "UBFC":
             train_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.TRAIN.DATA.DATASET == "PURE":
             train_loader = data_loader.PURELoader.PURELoader
         elif config.TRAIN.DATA.DATASET == "SCAMPS":
-            train_loader = data_loader.SCAMPSLoader.SCAMPSLoader            
+            train_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
         # valid_loader
         if config.VALID.DATA.DATASET == "COHFACE":
-            #valid_loader = data_loader.COHFACELoader.COHFACELoader
+            # valid_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.VALID.DATA.DATASET == "UBFC":
             valid_loader = data_loader.UBFCLoader.UBFCLoader
@@ -153,7 +147,7 @@ if __name__ == "__main__":
 
         # test_loader
         if config.TEST.DATA.DATASET == "COHFACE":
-            #test_loader = data_loader.COHFACELoader.COHFACELoader
+            # test_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.TEST.DATA.DATASET == "UBFC":
             test_loader = data_loader.UBFCLoader.UBFCLoader
@@ -188,7 +182,7 @@ if __name__ == "__main__":
             data_loader_dict["valid"] = DataLoader(
                 dataset=valid_data,
                 num_workers=16,
-                batch_size=config.TRAIN.BATCH_SIZE, # batch size for val is the same as train
+                batch_size=config.TRAIN.BATCH_SIZE,  # batch size for val is the same as train
                 shuffle=False,
                 worker_init_fn=seed_worker,
                 generator=g
@@ -215,7 +209,7 @@ if __name__ == "__main__":
     elif config.TOOLBOX_MODE == "signal_method":
         # signal method dataloader
         if config.SIGNAL.DATA.DATASET == "COHFACE":
-            #signal_loader = data_loader.COHFACELoader.COHFACELoader
+            # signal_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.SIGNAL.DATA.DATASET == "UBFC":
             signal_loader = data_loader.UBFCLoader.UBFCLoader
@@ -225,7 +219,7 @@ if __name__ == "__main__":
             signal_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
-            
+
         signal_data = signal_loader(
             name="signal",
             data_path=config.SIGNAL.DATA.DATA_PATH,

@@ -1,16 +1,17 @@
 """Trainer for EfficientPhys."""
 
-from neural_methods.trainer.BaseTrainer import BaseTrainer
-import torch
-from neural_methods.model.EfficientPhys import EfficientPhys
-from neural_methods.loss.NegPearsonLoss import Neg_Pearson
-import torch.optim as optim
-import numpy as np
-import os
-from tqdm import tqdm
 import logging
-from metrics.metrics import calculate_metrics
+import os
 from collections import OrderedDict
+
+import numpy as np
+import torch
+import torch.optim as optim
+from metrics.metrics import calculate_metrics
+from neural_methods.loss.NegPearsonLoss import Neg_Pearson
+from neural_methods.model.EfficientPhys import EfficientPhys
+from neural_methods.trainer.BaseTrainer import BaseTrainer
+from tqdm import tqdm
 
 
 class EfficientPhysTrainer(BaseTrainer):
@@ -20,9 +21,9 @@ class EfficientPhysTrainer(BaseTrainer):
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.frame_depth = config.MODEL.EFFICIENTPHYS.FRAME_DEPTH
-        self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
+        self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(
+            self.device)
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
-        # self.criterion = Neg_Pearson()
         self.criterion = torch.nn.MSELoss()
         self.optimizer = optim.AdamW(
             self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
@@ -53,13 +54,13 @@ class EfficientPhysTrainer(BaseTrainer):
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
-                data = data.view(N*D, C, H, W)
+                data = data.view(N * D, C, H, W)
                 labels = labels.view(-1, 1)
-                data = data[:(N*D)//self.base_len*self.base_len]
+                data = data[:(N * D) // self.base_len * self.base_len]
                 # Add one more frame for EfficientPhys since it does torch.diff for the input
                 last_frame = torch.unsqueeze(data[-1, :, :, :], 0).repeat(self.num_of_gpu, 1, 1, 1)
                 data = torch.cat((data, last_frame), 0)
-                labels = labels[:(N*D)//self.base_len*self.base_len]
+                labels = labels[:(N * D) // self.base_len * self.base_len]
                 self.optimizer.zero_grad()
                 pred_ppg = self.model(data)
                 loss = self.criterion(pred_ppg, labels)
@@ -75,7 +76,7 @@ class EfficientPhysTrainer(BaseTrainer):
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
-            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+            if (valid_loss < min_valid_loss) or (valid_loss < 0):
                 min_valid_loss = valid_loss
                 self.best_epoch = epoch
                 print("Update best model! Best epoch: {}".format(self.best_epoch))

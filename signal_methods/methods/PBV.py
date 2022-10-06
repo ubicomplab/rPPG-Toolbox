@@ -1,7 +1,14 @@
-import numpy as np
+"""PBV
+Improved motion robustness of remote-ppg by using the blood volume pulse signature.
+De Haan, G. & Van Leest, A.
+Physiol. measurement 35, 1913 (2014)
+"""
+
 import math
-from scipy import signal
+
+import numpy as np
 from scipy import linalg
+from scipy import signal
 from signal_methods import utils
 
 
@@ -27,6 +34,7 @@ def PBV(frames):
     bvp = A / B
     return bvp.squeeze(axis=2).reshape(-1)
 
+
 def PBV2(frames):
     precessed_data = utils.process_video(frames)
     data_mean = np.mean(precessed_data, axis=2)
@@ -43,9 +51,9 @@ def PBV2(frames):
 
     Q = np.matmul(C, Ct)
     W = np.linalg.solve(Q, np.swapaxes(PBV, 0, 1))
-        
+
     Numerator = np.matmul(Ct, np.expand_dims(W, axis=2))
-    Denominator  = np.matmul(np.swapaxes(np.expand_dims(PBV.T, axis=2), 1, 2), np.expand_dims(W, axis=2))
+    Denominator = np.matmul(np.swapaxes(np.expand_dims(PBV.T, axis=2), 1, 2), np.expand_dims(W, axis=2))
     BVP = Numerator / Denominator
     BVP = BVP.squeeze(axis=2).reshape(-1)
     return BVP

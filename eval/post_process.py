@@ -1,4 +1,7 @@
-# %% Import
+"""The post processing files for caluclating heart rate using FFT or peak detection.
+The file also  includes helper funcs such as detrend, mag2db etc.
+"""
+
 import numpy as np
 import scipy
 import scipy.io
@@ -8,11 +11,11 @@ from scipy.sparse import spdiags
 
 # %% Helper Function
 def next_power_of_2(x):
-    return 1 if x == 0 else 2**(x - 1).bit_length()
+    return 1 if x == 0 else 2 ** (x - 1).bit_length()
 
 
-def detrend(signal, Lambda):
-    signal_length = signal.shape[0]
+def detrend(input_signal, lambda_value):
+    signal_length = input_signal.shape[0]
     # observation matrix
     H = np.identity(signal_length)
     ones = np.ones(signal_length)
@@ -22,12 +25,11 @@ def detrend(signal, Lambda):
     D = spdiags(diags_data, diags_index,
                 (signal_length - 2), signal_length).toarray()
     filtered_signal = np.dot(
-        (H - np.linalg.inv(H + (Lambda ** 2) * np.dot(D.T, D))), signal)
+        (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
     return filtered_signal
 
 
 def mag2db(mag):
-
     return 20. * np.log10(mag)
 
 
@@ -40,7 +42,7 @@ def calculate_HR(pxx_pred, frange_pred, fmask_pred, pxx_label, frange_label, fma
 
 
 def calculate_SNR(pxx_pred, f_pred, currHR, signal):
-    currHR = currHR/60
+    currHR = currHR / 60
     f = f_pred
     pxx = pxx_pred
     gtmask1 = (f >= currHR - 0.1) & (f <= currHR + 0.1)
@@ -53,10 +55,13 @@ def calculate_SNR(pxx_pred, f_pred, currHR, signal):
     allPower = np.sum(np.take(pxx, np.where(fmask2 == True)))
     SNR_temp = mag2db(sPower / (allPower - sPower))
     return SNR_temp
+
+
 # %%  Processing
 
 
-def calculate_metric_peak_per_video(predictions, labels, diff_flag=True, signal='pulse', window_size=360, fs=30, bpFlag=True):
+def calculate_metric_peak_per_video(predictions, labels, diff_flag=True, signal='pulse', window_size=360, fs=30,
+                                    bpFlag=True):
     if signal == 'pulse':
         [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2],
                         btype='bandpass')  # 2.5 -> 1.7
@@ -72,7 +77,7 @@ def calculate_metric_peak_per_video(predictions, labels, diff_flag=True, signal=
     label_signal = []
     window_size = data_len
     for j in range(0, data_len, window_size):
-        if j == 0 and (j+window_size) > data_len:
+        if j == 0 and (j + window_size) > data_len:
             pred_window = predictions
             label_window = labels
         elif (j + window_size) > data_len:
@@ -80,7 +85,7 @@ def calculate_metric_peak_per_video(predictions, labels, diff_flag=True, signal=
         else:
             pred_window = predictions[j:j + window_size]
             label_window = labels[j:j + window_size]
-        if diff_flag == True:
+        if diff_flag:
             if signal == 'pulse':
                 pred_window = detrend(np.cumsum(pred_window), 100)
                 label_window = detrend(np.cumsum(label_window), 100)
@@ -93,15 +98,9 @@ def calculate_metric_peak_per_video(predictions, labels, diff_flag=True, signal=
             else:
                 pred_window = pred_window
 
-        # label_window = np.squeeze(label_window)
         if bpFlag:
-            # pred_window = scipy.signal.filtfilt(b, a, np.double(pred_window))
-            # label_window = scipy.signal.filtfilt(b, a, np.double(label_window))
             pred_window = scipy.signal.filtfilt(b, a, pred_window)
             label_window = scipy.signal.filtfilt(b, a, label_window)
-
-        # label_window = (label_window - np.min(label_window)) / (np.max(label_window) - np.min(label_window))
-        # pred_window = (pred_window - np.min(pred_window)) / (np.max(pred_window) - np.min(pred_window))
 
         # Peak detection
         labels_peaks, _ = scipy.signal.find_peaks(label_window)
@@ -130,7 +129,7 @@ def calculate_metric_per_video(predictions, labels, diff_flag=True, signal='puls
     else:
         [b, a] = butter(1, [0.08 / fs * 2, 0.5 / fs * 2], btype='bandpass')
 
-    if diff_flag == True:
+    if diff_flag:
         if signal == 'pulse':
             pred_window = detrend(np.cumsum(predictions), 100)
             label_window = detrend(np.cumsum(labels), 100)
@@ -174,8 +173,6 @@ def calculate_metric_per_video(predictions, labels, diff_flag=True, signal='puls
     # MAE
     temp_HR, temp_HR_0 = calculate_HR(
         pxx_pred, pred_window, fmask_pred, pxx_label, label_window, fmask_label)
-    # temp_SNR = calculate_SNR(pxx_pred, f_prd, temp_HR_0, signal)
-
     return temp_HR_0, temp_HR
 
 
@@ -191,7 +188,7 @@ def calculate_metric(predictions, labels, signal='pulse', window_size=360, fs=30
     HR0_pred = []
     mySNR = []
     for j in range(0, data_len, window_size):
-        if j == 0 and (j+window_size) > data_len:
+        if j == 0 and (j + window_size) > data_len:
             pred_window = predictions
             label_window = labels
         elif (j + window_size) > data_len:

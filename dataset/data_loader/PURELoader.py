@@ -6,22 +6,22 @@ Stricker, R., Müller, S., Gross, H.-M.
 Non-contact Video-based Pulse Rate Measurement on a Mobile Service Robot
 in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
 """
-import os
-import cv2
+import glob
 import glob
 import json
-import numpy as np
+import os
 import re
-from dataset.data_loader.BaseLoader import BaseLoader
-from utils.utils import sample
-import glob
 from multiprocessing import Pool, Process, Value, Array, Manager
+
+import cv2
+import numpy as np
+from dataset.data_loader.BaseLoader import BaseLoader
 from tqdm import tqdm
+from utils.utils import sample
 
 
 class PURELoader(BaseLoader):
     """The data loader for the PURE dataset."""
-
 
     def __init__(self, name, data_path, config_data):
         """Initializes an PURE dataloader.
@@ -46,13 +46,12 @@ class PURELoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
-
     def get_data(self, data_path):
         """Returns data directories under the path(For PURE dataset)."""
 
         data_dirs = glob.glob(data_path + os.sep + "*-*")
         if not data_dirs:
-            raise ValueError(self.name+ " dataset get data error!")
+            raise ValueError(self.name + " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             subject_trail_val = os.path.split(data_dir)[-1].replace('-', '')
@@ -60,7 +59,6 @@ class PURELoader(BaseLoader):
             subject = int(subject_trail_val[0:2])
             dirs.append({"index": index, "path": data_dir, "subject": subject})
         return dirs
-
 
     def get_data_subset(self, data_dirs, begin, end):
         """Returns a subset of data dirs, split with begin and end values, 
@@ -75,19 +73,19 @@ class PURELoader(BaseLoader):
             index = data['index']
 
             # creates a dictionary of data_dirs indexed by subject number
-            if subject not in data_info: # if subject not in the data info dictionary
-                data_info[subject] = [] # make an emplty list for that subject
+            if subject not in data_info:  # if subject not in the data info dictionary
+                data_info[subject] = []  # make an emplty list for that subject
             # append a tuple of the filename, subject num, trial num, and chunk num
             data_info[subject].append({"index": index, "path": data_dir, "subject": subject})
 
-        subj_list = list(data_info.keys()) # all subjects by number ID (1-27)
+        subj_list = list(data_info.keys())  # all subjects by number ID (1-27)
         subj_list.sort()
-        num_subjs = len(subj_list) # number of unique subjects
+        num_subjs = len(subj_list)  # number of unique subjects
 
         # get split of data set (depending on start / end)
-        subj_range = list(range(0,num_subjs))
-        if (begin !=0 or end !=1):
-            subj_range = list(range(int(begin*num_subjs), int(end*num_subjs)))
+        subj_range = list(range(0, num_subjs))
+        if begin != 0 or end != 1:
+            subj_range = list(range(int(begin * num_subjs), int(end * num_subjs)))
         print('used subject ids for split:', [subj_list[i] for i in subj_range])
 
         # compile file list
@@ -95,10 +93,10 @@ class PURELoader(BaseLoader):
         for i in subj_range:
             subj_num = subj_list[i]
             subj_files = data_info[subj_num]
-            file_info_list += subj_files # add file information to file_list (tuple of fname, subj ID, trial num, chunk num)
-        
-        return file_info_list
+            file_info_list += subj_files  # add file information to file_list (tuple of fname, subj ID, trial num,
+            # chunk num)
 
+        return file_info_list
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """
@@ -124,7 +122,7 @@ class PURELoader(BaseLoader):
         choose_range = range(0, file_num)
 
         if begin != 0 or end != 1:
-            #choose_range = range(int(begin * file_num), int(end * file_num))
+            # choose_range = range(int(begin * file_num), int(end * file_num))
             data_dirs = self.get_data_subset(data_dirs, begin, end)
             choose_range = range(0, len(data_dirs))
         print(choose_range)
@@ -135,9 +133,9 @@ class PURELoader(BaseLoader):
         running_num = 0
         for i in choose_range:
             process_flag = True
-            while process_flag:            # ensure that every i creates a process
-                if running_num < 16:       # in case of too many processes
-                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i))
+            while process_flag:  # ensure that every i creates a process
+                if running_num < 16:  # in case of too many processes
+                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs, config_preprocess, i))
                     p.start()
                     p_list.append(p)
                     running_num += 1
@@ -153,7 +151,7 @@ class PURELoader(BaseLoader):
             p_.join()
             pbar.update(1)
         pbar.close()
-        
+
         # load all data and corresponding labels (sorted for consistency)
         self.load()
 

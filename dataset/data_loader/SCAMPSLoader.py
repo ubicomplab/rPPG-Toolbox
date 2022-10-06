@@ -1,24 +1,26 @@
-"""The dataloader for PURE datasets.
+"""The dataloader for SCAMPS datasets.
 
-Details for the PURE Dataset see https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure
+Details for the SCAMPS Dataset see https://github.com/danmcduff/scampsdataset
 If you use this dataset, please cite the following publication:
-Stricker, R., Müller, S., Gross, H.-M.
-Non-contact Video-based Pulse Rate Measurement on a Mobile Service Robot
-in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
+McDuff, Daniel and Wander, Miah and Liu, Xin and Hill, Brian L and Hernandez, Javier and Lester, Jonathan and Baltrusaitis, Tadas
+SCAMPS: Synthetics for Camera Measurement of Physiological Signals
+in: Conference on Neural Information Processing Systems' 2022
 """
-import os
-import cv2
-import json
-import numpy as np
-from dataset.data_loader.BaseLoader import BaseLoader
-from utils.utils import sample
 import glob
+import json
+import os
 import re
-import scipy.io
-import mat73
-from tqdm import tqdm
 from multiprocessing import Pool, Process, Value, Array, Manager
+
+import cv2
+import mat73
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy.io
+from dataset.data_loader.BaseLoader import BaseLoader
+from tqdm import tqdm
+from utils.utils import sample
+
 
 class SCAMPSLoader(BaseLoader):
     """The data loader for the SCAMPS Processed dataset."""
@@ -44,14 +46,13 @@ class SCAMPSLoader(BaseLoader):
     def get_data(self, data_path):
         """Returns data directories under the path(For COHFACE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*.mat")
-        if (data_dirs == []):
-            raise ValueError(self.name+ " dataset get data error!")
+        if not data_dirs:
+            raise ValueError(self.name + " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             subject = os.path.split(data_dir)[-1]
             dirs.append({"index": subject, "path": data_dir})
         return dirs
-
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
         """   invoked by preprocess_dataset for multi_process.   """
@@ -64,16 +65,15 @@ class SCAMPSLoader(BaseLoader):
         frames_clips, bvps_clips = self.preprocess(
             frames, bvps, config_preprocess)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips,
-                              data_dirs[i]['index'])
+                                                                          data_dirs[i]['index'])
 
-
-    def preprocess_dataset(self, data_dirs, config_preprocess,begin, end):
+    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
-        print("file_num:",file_num)
-        choose_range = range(0,file_num)
-        if (begin !=0 or end !=1):
-            choose_range = range(int(begin*file_num), int(end * file_num))
+        print("file_num:", file_num)
+        choose_range = range(0, file_num)
+        if begin != 0 or end != 1:
+            choose_range = range(int(begin * file_num), int(end * file_num))
             print(choose_range)
         pbar = tqdm(list(choose_range))
         # multi_process
@@ -81,15 +81,15 @@ class SCAMPSLoader(BaseLoader):
         running_num = 0
         for i in choose_range:
             process_flag = True
-            while (process_flag):       # ensure that every i creates a process
-                if running_num < 16:          # in case of too many processes
-                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,config_preprocess,i))
+            while process_flag:  # ensure that every i creates a process
+                if running_num < 16:  # in case of too many processes
+                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs, config_preprocess, i))
                     p.start()
                     p_list.append(p)
-                    running_num +=1
+                    running_num += 1
                     process_flag = False
                 for p_ in p_list:
-                    if (not p_.is_alive() ):
+                    if not p_.is_alive():
                         p_list.remove(p_)
                         p_.join()
                         running_num -= 1
@@ -99,10 +99,9 @@ class SCAMPSLoader(BaseLoader):
             p_.join()
             pbar.update(1)
         pbar.close()
-        
+
         # load all data and corresponding labels (sorted for consistency)
         self.load()
-
 
     def preprocess_dataset_backup(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""

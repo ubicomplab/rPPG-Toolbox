@@ -3,7 +3,7 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 
 
-class BaseTrainer():
+class BaseTrainer:
     @staticmethod
     def add_trainer_args(parser):
         """Adds arguments to Paser for training process"""
