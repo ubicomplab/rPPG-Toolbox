@@ -1,25 +1,27 @@
-"""Signal Method Predictor"""
+"""Unsupervised learning methods including POS, GREEN, CHROME, ICA, LGI and PBV."""
 
-import torch
-import numpy as np
-import os
-from tqdm import tqdm
 import logging
-from metrics.metrics import calculate_metrics
+import os
 from collections import OrderedDict
-from utils.utils import *
+
+import numpy as np
+import torch
+from metrics.metrics import calculate_metrics
 from signal_methods.methods.CHROME_DEHAAN import *
-from signal_methods.methods.ICA_POH import *
-from signal_methods.methods.POS_WANG import *
 from signal_methods.methods.GREEN import *
+from signal_methods.methods.ICA_POH import *
 from signal_methods.methods.LGI import *
 from signal_methods.methods.PBV import *
+from signal_methods.methods.POS_WANG import *
+from tqdm import tqdm
+from utils.utils import *
+
 
 def signal_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
     if data_loader["signal"] is None:
         raise ValueError("No data for signal method predicting")
-    print("===Signal Method ( " + method_name+ " ) Predicting ===")
+    print("===Signal Method ( " + method_name + " ) Predicting ===")
     predict_hr_peak_all = []
     gt_hr_peak_all = []
     predict_hr_fft_all = []
@@ -29,15 +31,15 @@ def signal_predict(config, data_loader, method_name):
         batch_size = test_batch[0].shape[0]
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
-            if (method_name == "pos"):
+            if method_name == "pos":
                 BVP = POS_WANG(data_input, config.SIGNAL.DATA.FS)
-            elif (method_name == "chrome"):
+            elif method_name == "chrome":
                 BVP = CHROME_DEHAAN(data_input, config.SIGNAL.DATA.FS)
-            elif (method_name == "ica"):
-                BVP = ICA_POH(data_input,config.SIGNAL.DATA.FS)
-            elif (method_name == "green"):
+            elif method_name == "ica":
+                BVP = ICA_POH(data_input, config.SIGNAL.DATA.FS)
+            elif method_name == "green":
                 BVP = GREEN(data_input)
-            elif (method_name == "LGI"):
+            elif method_name == "LGI":
                 BVP = LGI(data_input)
             elif (method_name == "PBV"):
                 BVP = PBV(data_input)
@@ -45,11 +47,13 @@ def signal_predict(config, data_loader, method_name):
                 raise ValueError("signal method name wrong!")
 
             if config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                gt_hr, pre_hr = calculate_metric_peak_per_video(BVP, labels_input, diff_flag=False,fs=config.SIGNAL.DATA.FS)
+                gt_hr, pre_hr = calculate_metric_peak_per_video(BVP, labels_input, diff_flag=False,
+                                                                fs=config.SIGNAL.DATA.FS)
                 predict_hr_peak_all.append(pre_hr)
                 gt_hr_peak_all.append(gt_hr)
             if config.INFERENCE.EVALUATION_METHOD == "FFT":
-                gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False, fs=config.SIGNAL.DATA.FS)
+                gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False,
+                                                                   fs=config.SIGNAL.DATA.FS)
                 predict_hr_fft_all.append(pre_fft_hr)
                 gt_hr_fft_all.append(gt_fft_hr)
     print("Used Signal Method: " + method_name)
@@ -94,12 +98,13 @@ def signal_predict(config, data_loader, method_name):
             else:
                 raise ValueError("Wrong Test Metric Type")
 
+
 def process_video(frames):
     # Standard:
     RGB = []
     for frame in frames:
         sum = np.sum(np.sum(frame, axis=0), axis=0)
-        RGB.append(sum/(frame.shape[0]*frame.shape[1]))
+        RGB.append(sum / (frame.shape[0] * frame.shape[1]))
     RGB = np.asarray(RGB)
-    RGB = RGB.transpose(1,0).reshape(1,3,-1)
+    RGB = RGB.transpose(1, 0).reshape(1, 3, -1)
     return np.asarray(RGB)

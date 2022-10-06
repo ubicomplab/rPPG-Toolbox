@@ -4,13 +4,15 @@ Provides a pytorch-style data-loader for end-to-end training pipelines.
 Extend the class to support specific datasets.
 Dataset already supported:UBFC,PURE and COHFACE
 """
-import numpy as np
-import os
-import cv2
 import glob
+import os
 import re
-from torch.utils.data import Dataset
 from math import ceil
+
+import cv2
+import numpy as np
+from torch.utils.data import Dataset
+
 
 class BaseLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
@@ -18,7 +20,6 @@ class BaseLoader(Dataset):
     The dataloader supports both providing data for pytorch training and common data-preprocessing methods,
     including reading files, resizing each frame, chunking, and video-signal synchronization.
     """
-
 
     @staticmethod
     def add_data_loader_args(parser):
@@ -28,7 +29,6 @@ class BaseLoader(Dataset):
         parser.add_argument(
             "--preprocess", default=None, action='store_true')
         return parser
-
 
     def __init__(self, name, data_path, config_data):
         """Inits dataloader with lists of files.
@@ -44,8 +44,8 @@ class BaseLoader(Dataset):
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
         assert (config_data.END < 1 or config_data.END == 1)
-        if config_data.BEGIN != 0 or config_data.END !=1:
-            self.cached_path = config_data.CACHED_PATH + "_"+ str(config_data.BEGIN) + '_'+str(config_data.END)
+        if config_data.BEGIN != 0 or config_data.END != 1:
+            self.cached_path = config_data.CACHED_PATH + "_" + str(config_data.BEGIN) + '_' + str(config_data.END)
         elif config_data.DATASET == "SCAMPS":
             self.cached_path = config_data.CACHED_PATH + "_" + self.name
         print(self.cached_path)
@@ -58,21 +58,18 @@ class BaseLoader(Dataset):
             self.preprocess_dataset(data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
             self.load()
-        print(self.name + " dataset len:",self.len)
-
+        print(self.name + " dataset len:", self.len)
 
     def get_data(self, data_path):
         """Returns data directories under the path."""
         return None
-
 
     def get_data_subset(self, data_dirs, begin, end):
         """Returns a subset of data dirs, split with begin and end values, 
         and ensures no overlapping subjects between splits"""
         return None
 
-
-    def preprocess_dataset(self, data_dirs, config_preprocess,begin,end):
+    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Parses and preprocesses all data.
 
         Args:
@@ -81,11 +78,9 @@ class BaseLoader(Dataset):
         """
         pass
 
-
     def __len__(self):
         """Returns the length of the dataset."""
         return len(self.inputs)
-
 
     def __getitem__(self, index):
         """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
@@ -105,9 +100,8 @@ class BaseLoader(Dataset):
         item_path_filename = item_path.split('/')[-1]
         split_idx = item_path_filename.index('_')
         filename = item_path_filename[:split_idx]
-        chunk_id = item_path_filename[split_idx+6:].split('.')[0]
+        chunk_id = item_path_filename[split_idx + 6:].split('.')[0]
         return data, label, filename, chunk_id
-
 
     def preprocess(self, frames, bvps, config_preprocess, large_box=False):
         """Preprocesses a pair of data.
@@ -121,7 +115,7 @@ class BaseLoader(Dataset):
         frames = self.resize(
             frames,
             config_preprocess.DYNAMIC_DETECTION,
-            config_preprocess.DYNAMIC_DETECTION_FREQUENCY ,
+            config_preprocess.DYNAMIC_DETECTION_FREQUENCY,
             config_preprocess.W,
             config_preprocess.H,
             config_preprocess.LARGE_FACE_BOX,
@@ -158,7 +152,6 @@ class BaseLoader(Dataset):
 
         return frames_clips, bvps_clips
 
-
     def facial_detection(self, frame, larger_box=False, larger_box_size=1.0):
         """Conducts face detection on a single frame.
         Sets larger_box=True for larger bounding box, e.g. moving trials."""
@@ -176,12 +169,11 @@ class BaseLoader(Dataset):
             result = face_zone[0]
         if larger_box:
             print("Larger Bounding Box")
-            result[0] = max(0, result[0] - (larger_box_size-1.0) / 2 * result[2])
-            result[1] = max(0, result[1] - (larger_box_size-1.0) / 2 * result[3])
+            result[0] = max(0, result[0] - (larger_box_size - 1.0) / 2 * result[2])
+            result[1] = max(0, result[1] - (larger_box_size - 1.0) / 2 * result[3])
             result[2] = larger_box_size * result[2]
             result[3] = larger_box_size * result[3]
         return result
-
 
     def resize(self, frames, dynamic_det, det_length,
                w, h, larger_box, crop_face, larger_box_size):
@@ -206,10 +198,10 @@ class BaseLoader(Dataset):
         # obtain detection region. it will do facial detection every "det_length" frames, totally "det_num" times.
         for idx in range(det_num):
             if crop_face:
-                face_region.append(self.facial_detection(frames[det_length*idx], larger_box,larger_box_size))
+                face_region.append(self.facial_detection(frames[det_length * idx], larger_box, larger_box_size))
             else:
                 # if crop_face:False, the face_region will be the whole frame, namely cropping nothing.
-                face_region.append([0,0,frames.shape[1],frames.shape[2]])
+                face_region.append([0, 0, frames.shape[1], frames.shape[2]])
         face_region_all = np.asarray(face_region, dtype='int')
         resize_frames = np.zeros((frames.shape[0], h, w, 3))
 
@@ -223,11 +215,10 @@ class BaseLoader(Dataset):
                 reference_index = 0
             if crop_face:
                 face_region = face_region_all[reference_index]
-                frame = frame[max(face_region[1],0):min(face_region[1] + face_region[3],frame.shape[0]),
-                              max(face_region[0],0):min(face_region[0] + face_region[2],frame.shape[1])]
+                frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
+                        max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
             resize_frames[i] = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
         return resize_frames
-
 
     def chunk(self, frames, bvps, chunk_length):
         """Chunks the data into clips."""
@@ -238,7 +229,6 @@ class BaseLoader(Dataset):
             bvps[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
         return np.array(frames_clips), np.array(bvps_clips)
 
-
     def save(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
         if not os.path.exists(self.cached_path):
@@ -247,16 +237,15 @@ class BaseLoader(Dataset):
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
-                "{0}_input{1}.npy".format(filename, str(count))
+                              "{0}_input{1}.npy".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + \
-                "{0}_label{1}.npy".format(filename, str(count))
+                              "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
             np.save(label_path_name, bvps_clips[i])
             count += 1
         return count
-
 
     def save_multi_process(self, frames_clips, bvps_clips, filename):
         """Saves the preprocessing data."""
@@ -268,9 +257,9 @@ class BaseLoader(Dataset):
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
             input_path_name = self.cached_path + os.sep + \
-                "{0}_input{1}.npy".format(filename, str(count))
+                              "{0}_input{1}.npy".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + \
-                "{0}_label{1}.npy".format(filename, str(count))
+                              "{0}_label{1}.npy".format(filename, str(count))
             input_path_name_list.append(input_path_name)
             label_path_name_list.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
@@ -278,20 +267,18 @@ class BaseLoader(Dataset):
             count += 1
         return count, input_path_name_list, label_path_name_list
 
-
     def load(self):
         """Loads the preprocessing data."""
         inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
         if not inputs:
-            raise ValueError(self.name+' dataset loading data error!')
-        inputs = sorted(inputs) # sort input file name list
+            raise ValueError(self.name + ' dataset loading data error!')
+        inputs = sorted(inputs)  # sort input file name list
         labels = [input.replace("input", "label") for input in inputs]
         assert (len(inputs) == len(labels))
         self.inputs = inputs
         self.labels = labels
         self.len = len(inputs)
-        print("loaded data len:",self.len)
-
+        print("loaded data len:", self.len)
 
     @staticmethod
     def diff_normalize_data(data):
@@ -306,7 +293,6 @@ class BaseLoader(Dataset):
         normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
 
-
     @staticmethod
     def diff_normalize_label(label):
         """Difference frames and normalization labels"""
@@ -315,7 +301,6 @@ class BaseLoader(Dataset):
         normalized_label[np.isnan(normalized_label)] = 0
         return normalized_label
 
-
     @staticmethod
     def standardized_data(data):
         """Difference frames and normalization data"""
@@ -323,7 +308,6 @@ class BaseLoader(Dataset):
         data = data / np.std(data)
         data[np.isnan(data)] = 0
         return data
-
 
     @staticmethod
     def standardized_label(label):

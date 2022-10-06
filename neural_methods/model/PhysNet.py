@@ -1,27 +1,18 @@
-'''
-Code of 'Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks' 
+""" PhysNet
+Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks
+British Machine Vision Conference (BMVC)} 2019,
 By Zitong Yu, 2019/05/05
-
-If you use the code, please cite:
-@inproceedings{yu2019remote,
-    title={Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks},
-    author={Yu, Zitong and Li, Xiaobai and Zhao, Guoying},
-    booktitle= {British Machine Vision Conference (BMVC)},
-    year = {2019}
-}
-
 Only for research purpose, and commercial use is not allowed.
-
 MIT License
-Copyright (c) 2019 
-'''
-
+Copyright (c) 2019
+"""
 
 import math
+import pdb
+
+import torch
 import torch.nn as nn
 from torch.nn.modules.utils import _triple
-import torch
-import pdb
 
 
 class PhysNet_padding_Encoder_Decoder_MAX(nn.Module):
@@ -78,13 +69,13 @@ class PhysNet_padding_Encoder_Decoder_MAX(nn.Module):
 
         self.upsample = nn.Sequential(
             nn.ConvTranspose3d(in_channels=64, out_channels=64, kernel_size=[
-                               4, 1, 1], stride=[2, 1, 1], padding=[1, 0, 0]),  # [1, 128, 32]
+                4, 1, 1], stride=[2, 1, 1], padding=[1, 0, 0]),  # [1, 128, 32]
             nn.BatchNorm3d(64),
             nn.ELU(),
         )
         self.upsample2 = nn.Sequential(
             nn.ConvTranspose3d(in_channels=64, out_channels=64, kernel_size=[
-                               4, 1, 1], stride=[2, 1, 1], padding=[1, 0, 0]),  # [1, 128, 32]
+                4, 1, 1], stride=[2, 1, 1], padding=[1, 0, 0]),  # [1, 128, 32]
             nn.BatchNorm3d(64),
             nn.ELU(),
         )
@@ -101,30 +92,30 @@ class PhysNet_padding_Encoder_Decoder_MAX(nn.Module):
         x_visual = x
         [batch, channel, length, width, height] = x.shape
 
-        x = self.ConvBlock1(x)		     # x [3, T, 128,128]
-        x = self.MaxpoolSpa(x)       # x [16, T, 64,64]
+        x = self.ConvBlock1(x)  # x [3, T, 128,128]
+        x = self.MaxpoolSpa(x)  # x [16, T, 64,64]
 
-        x = self.ConvBlock2(x)		    # x [32, T, 64,64]
-        x_visual6464 = self.ConvBlock3(x)	    	# x [32, T, 64,64]
+        x = self.ConvBlock2(x)  # x [32, T, 64,64]
+        x_visual6464 = self.ConvBlock3(x)  # x [32, T, 64,64]
         # x [32, T/2, 32,32]    Temporal halve
         x = self.MaxpoolSpaTem(x_visual6464)
 
-        x = self.ConvBlock4(x)		    # x [64, T/2, 32,32]
-        x_visual3232 = self.ConvBlock5(x)	    	# x [64, T/2, 32,32]
-        x = self.MaxpoolSpaTem(x_visual3232)      # x [64, T/4, 16,16]
+        x = self.ConvBlock4(x)  # x [64, T/2, 32,32]
+        x_visual3232 = self.ConvBlock5(x)  # x [64, T/2, 32,32]
+        x = self.MaxpoolSpaTem(x_visual3232)  # x [64, T/4, 16,16]
 
-        x = self.ConvBlock6(x)		    # x [64, T/4, 16,16]
-        x_visual1616 = self.ConvBlock7(x)	    	# x [64, T/4, 16,16]
-        x = self.MaxpoolSpa(x_visual1616)      # x [64, T/4, 8,8]
+        x = self.ConvBlock6(x)  # x [64, T/4, 16,16]
+        x_visual1616 = self.ConvBlock7(x)  # x [64, T/4, 16,16]
+        x = self.MaxpoolSpa(x_visual1616)  # x [64, T/4, 8,8]
 
-        x = self.ConvBlock8(x)		    # x [64, T/4, 8, 8]
-        x = self.ConvBlock9(x)		    # x [64, T/4, 8, 8]
-        x = self.upsample(x)		    # x [64, T/2, 8, 8]
-        x = self.upsample2(x)		    # x [64, T, 8, 8]
+        x = self.ConvBlock8(x)  # x [64, T/4, 8, 8]
+        x = self.ConvBlock9(x)  # x [64, T/4, 8, 8]
+        x = self.upsample(x)  # x [64, T/2, 8, 8]
+        x = self.upsample2(x)  # x [64, T, 8, 8]
 
         # x [64, T, 1,1]    -->  groundtruth left and right - 7
         x = self.poolspa(x)
-        x = self.ConvBlock10(x)    # x [1, T, 1,1]
+        x = self.ConvBlock10(x)  # x [1, T, 1,1]
 
         rPPG = x.view(-1, length)
 

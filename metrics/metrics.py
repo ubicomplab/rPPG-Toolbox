@@ -1,26 +1,25 @@
 import argparse
 import glob
 import os
-import torch
+import random
 import re
-import pandas as pd
-from torch.utils.data import DataLoader
+from collections import OrderedDict
 
+import numpy as np
+import pandas as pd
+import torch
 from dataset import data_loader
 from eval.post_process import *
+from neural_methods.model.DeepPhys import DeepPhys
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 from neural_methods.model.TS_CAN import TSCAN
-from neural_methods.model.DeepPhys import DeepPhys
-from collections import OrderedDict
-import random
-import numpy as np
+from torch.utils.data import DataLoader
 
 
 def read_label(dataset):
     df = pd.read_csv("label/{0}_Comparison.csv".format(dataset))
     out_dict = df.to_dict(orient='index')
-    out_dict = {str(value['VideoID']): value for key,
-                                                 value in out_dict.items()}
+    out_dict = {str(value['VideoID']): value for key, value in out_dict.items()}
     return out_dict
 
 
@@ -53,18 +52,18 @@ def calculate_metrics(predictions, labels, config):
     for index in predictions.keys():
         prediction = reform_data_from_dict(predictions[index])
         label = reform_data_from_dict(labels[index])
-        
+
         if config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
-            config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Raw":
+                config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Raw":
             diff_flag_test = False
         elif config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Normalized":
             diff_flag_test = True
         else:
             raise ValueError("Not supported label type in testing!")
         gt_hr_fft, pred_hr_fft = calculate_metric_per_video(
-            prediction, label,diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
+            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
         gt_hr_peak, pred_hr_peak = calculate_metric_peak_per_video(
-            prediction, label,diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
+            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
         gt_hr_fft_all.append(gt_hr_fft)
         predict_hr_fft_all.append(pred_hr_fft)
         predict_hr_peak_all.append(pred_hr_peak)

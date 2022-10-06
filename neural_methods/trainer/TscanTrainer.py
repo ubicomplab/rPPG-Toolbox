@@ -1,16 +1,17 @@
 """Trainer for TSCAN."""
 
-from neural_methods.trainer.BaseTrainer import BaseTrainer
-import torch
-from neural_methods.model.TS_CAN import TSCAN
-from neural_methods.loss.NegPearsonLoss import Neg_Pearson
-import torch.optim as optim
-import numpy as np
-import os
-from tqdm import tqdm
 import logging
-from metrics.metrics import calculate_metrics
+import os
 from collections import OrderedDict
+
+import numpy as np
+import torch
+import torch.optim as optim
+from metrics.metrics import calculate_metrics
+from neural_methods.loss.NegPearsonLoss import Neg_Pearson
+from neural_methods.model.TS_CAN import TSCAN
+from neural_methods.trainer.BaseTrainer import BaseTrainer
+from tqdm import tqdm
 
 
 class TscanTrainer(BaseTrainer):
@@ -52,10 +53,10 @@ class TscanTrainer(BaseTrainer):
                 data, labels = batch[0].to(
                     self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
-                data = data.view(N*D, C, H, W)
+                data = data.view(N * D, C, H, W)
                 labels = labels.view(-1, 1)
-                data = data[:(N*D)//self.base_len*self.base_len]
-                labels = labels[:(N*D)//self.base_len*self.base_len]
+                data = data[:(N * D) // self.base_len * self.base_len]
+                labels = labels[:(N * D) // self.base_len * self.base_len]
                 self.optimizer.zero_grad()
                 pred_ppg = self.model(data)
                 loss = self.criterion(pred_ppg, labels)
@@ -71,12 +72,12 @@ class TscanTrainer(BaseTrainer):
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
-            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+            if (valid_loss < min_valid_loss) or (valid_loss < 0):
                 min_valid_loss = valid_loss
                 self.best_epoch = epoch
                 print("Update best model! Best epoch: {}".format(self.best_epoch))
                 self.save_model(epoch)
-        print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch,min_valid_loss))
+        print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch, min_valid_loss))
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""

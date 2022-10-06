@@ -1,27 +1,16 @@
-# TODO: Docstring
-"""A one line summary of the module or program, terminated by a period.
-
-Leave one blank line.  The rest of this docstring should contain an
-overall description of the module or program.  Optionally, it may also
-contain a brief description of exported classes and functions and/or usage
-examples.
-
-  Typical usage example:
-
-  foo = ClassFoo()
-  bar = foo.FunctionBar()
-"""
-from neural_methods.trainer.BaseTrainer import BaseTrainer
-import torch
-from torch.autograd import Variable
-from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
-from neural_methods.loss.NegPearsonLoss import Neg_Pearson
-import torch.optim as optim
-import numpy as np
+"""PhysNet Trainer."""
 import os
-from tqdm import tqdm
-from metrics.metrics import calculate_metrics
 from collections import OrderedDict
+
+import numpy as np
+import torch
+import torch.optim as optim
+from metrics.metrics import calculate_metrics
+from neural_methods.loss.NegPearsonLoss import Neg_Pearson
+from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
+from neural_methods.trainer.BaseTrainer import BaseTrainer
+from torch.autograd import Variable
+from tqdm import tqdm
 
 
 class PhysnetTrainer(BaseTrainer):
@@ -63,7 +52,7 @@ class PhysnetTrainer(BaseTrainer):
                     torch.float32).to(self.device)
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
                 BVP_label = (BVP_label - torch.mean(BVP_label)) / \
-                    torch.std(BVP_label)  # normalize
+                            torch.std(BVP_label)  # normalize
                 loss = self.loss_model(rPPG, BVP_label)
                 loss.backward()
                 running_loss += loss.item()
@@ -78,7 +67,7 @@ class PhysnetTrainer(BaseTrainer):
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
-            if(valid_loss < min_valid_loss) or (valid_loss < 0):
+            if (valid_loss < min_valid_loss) or (valid_loss < 0):
                 min_valid_loss = valid_loss
                 self.best_epoch = epoch
                 print("Update best model! Best epoch: {}".format(self.best_epoch))
@@ -104,7 +93,7 @@ class PhysnetTrainer(BaseTrainer):
                     valid_batch[0].to(torch.float32).to(self.device))
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
                 BVP_label = (BVP_label - torch.mean(BVP_label)) / \
-                    torch.std(BVP_label)  # normalize
+                            torch.std(BVP_label)  # normalize
                 loss_ecg = self.loss_model(rPPG, BVP_label)
                 valid_loss.append(loss_ecg.item())
                 valid_step += 1

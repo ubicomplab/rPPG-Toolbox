@@ -1,7 +1,15 @@
-import numpy as np
+"""LGI
+Local group invariance for heart rate estimation from face videos.
+Pilz, C. S., Zaunseder, S., Krajewski, J. & Blazek, V.
+In Proceedings of the IEEE conference on computer vision and pattern recognition workshops, 1254–1262
+(2018).
+"""
+
 import math
-from scipy import signal
+
+import numpy as np
 from scipy import linalg
+from scipy import signal
 from signal_methods import utils
 
 

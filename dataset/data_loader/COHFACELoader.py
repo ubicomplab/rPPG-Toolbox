@@ -5,12 +5,13 @@ If you use this dataset, please cite the following publication:
 Guillaume Heusch, André Anjos, Sébastien Marcel, “A reproducible study on remote heart rate measurement”, arXiv, 2016.
 http://publications.idiap.ch/index.php/publications/show/3688
 """
-import os
-import cv2
 import glob
-import numpy as np
-import h5py
+import os
 import re
+
+import cv2
+import h5py
+import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
 from utils.utils import sample
 
@@ -51,14 +52,14 @@ class COHFACELoader(BaseLoader):
     def get_data(self, data_path):
         """Returns data directories under the path(For COHFACE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*")
-        if (data_dirs == []):
-            raise ValueError(self.name+ " dataset get data error!")
+        if not data_dirs:
+            raise ValueError(self.name + " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             for i in range(4):
                 subject = os.path.split(data_dir)[-1]
                 dirs.append({"index": int('{0}0{1}'.format(subject, i)),
-                            "path": os.path.join(data_dir, str(i))})
+                             "path": os.path.join(data_dir, str(i))})
         return dirs
 
     def preprocess_dataset(self, data_dirs, config_preprocess):
@@ -89,7 +90,7 @@ class COHFACELoader(BaseLoader):
         frames = list()
 
         # cv2.imwrite("temp/exemple.png", frame)
-        while(success):
+        while (success):
             frame = cv2.cvtColor(np.array(frame), cv2.COLOR_BGR2RGB)
             frame = np.asarray(frame)
             frame[np.isnan(frame)] = 0  # TODO: maybe change into avg
