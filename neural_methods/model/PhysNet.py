@@ -20,7 +20,7 @@ class PhysNet_padding_Encoder_Decoder_MAX(nn.Module):
         super(PhysNet_padding_Encoder_Decoder_MAX, self).__init__()
 
         self.ConvBlock1 = nn.Sequential(
-            nn.Conv3d(6, 16, [1, 5, 5], stride=1, padding=[0, 2, 2]),
+            nn.Conv3d(3, 16, [1, 5, 5], stride=1, padding=[0, 2, 2]),
             nn.BatchNorm3d(16),
             nn.ReLU(inplace=True),
         )
