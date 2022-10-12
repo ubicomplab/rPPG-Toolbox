@@ -19,7 +19,7 @@ TRAIN:
       DATA_TYPE: [ 'Raw' ]
       LABEL_TYPE: Raw
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128  #only support for factor of 512
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
@@ -42,7 +42,7 @@ VALID:
       DATA_TYPE: [ 'Raw' ]
       LABEL_TYPE: Raw
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128   #only support for factor of 512
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
@@ -66,7 +66,7 @@ TEST:
       DATA_TYPE: [ 'Raw' ]
       LABEL_TYPE: Raw
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128   #only support for factor of 512
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
