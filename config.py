@@ -235,8 +235,8 @@ def update_config(config, args):
     if not ext: # no file extension
         config.TRAIN.DATA.FILE_LIST_PATH = os.path.join(config.TRAIN.DATA.FILE_LIST_PATH, \
                                                         config.TRAIN.DATA.EXP_DATA_NAME + '_' + \
-                                                        config.TRAIN.DATA.BEGIN+ '_' + \
-                                                        config.TRAIN.DATA.END + '.csv')
+                                                        str(config.TRAIN.DATA.BEGIN) + '_' + \
+                                                        str(config.TRAIN.DATA.END) + '.csv')
     elif ext != '.csv':
         raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
     
@@ -260,8 +260,8 @@ def update_config(config, args):
     if not ext: # no file extension
         config.VALID.DATA.FILE_LIST_PATH = os.path.join(config.VALID.DATA.FILE_LIST_PATH, \
                                                         config.VALID.DATA.EXP_DATA_NAME + '_' + \
-                                                        config.VALID.DATA.BEGIN+ '_' + \
-                                                        config.VALID.DATA.END + '.csv')
+                                                        str(config.VALID.DATA.BEGIN) + '_' + \
+                                                        str(config.VALID.DATA.END) + '.csv')
     elif ext != '.csv':
         raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
 
@@ -285,8 +285,8 @@ def update_config(config, args):
     if not ext: # no file extension
         config.TEST.DATA.FILE_LIST_PATH = os.path.join(config.TEST.DATA.FILE_LIST_PATH, \
                                                        config.TEST.DATA.EXP_DATA_NAME + '_' + \
-                                                       config.TEST.DATA.BEGIN+ '_' + \
-                                                       config.TEST.DATA.END + '.csv')
+                                                       str(config.TEST.DATA.BEGIN) + '_' + \
+                                                       str(config.TEST.DATA.END) + '.csv')
     elif ext != '.csv':
         raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
 
@@ -311,8 +311,8 @@ def update_config(config, args):
     if not ext: # no file extension
         config.SIGNAL.DATA.FILE_LIST_PATH = os.path.join(config.SIGNAL.DATA.FILE_LIST_PATH, \
                                                          config.SIGNAL.DATA.EXP_DATA_NAME + '_' + \
-                                                         config.SIGNAL.DATA.BEGIN+ '_' + \
-                                                         config.SIGNAL.DATA.END + '.csv')
+                                                         str(config.SIGNAL.DATA.BEGIN) + '_' + \
+                                                         str(config.SIGNAL.DATA.END) + '.csv')
     elif ext != '.csv':
         raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
 

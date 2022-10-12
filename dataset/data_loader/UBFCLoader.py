@@ -50,23 +50,19 @@ class UBFCLoader(BaseLoader):
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
         return dirs
 
-    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
+    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
-        frames = self.read_video(
-            os.path.join(
-                data_dirs[i]['path'],
-                "vid.avi"))
-        bvps = self.read_wave(
-            os.path.join(
-                data_dirs[i]['path'],
-                "ground_truth.txt"))
-        frames_clips, bvps_clips = self.preprocess(
-            frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
 
-        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips,
-                                                                          saved_filename)
+        frames = self.read_video(
+            os.path.join(data_dirs[i]['path'],"vid.avi"))
+        bvps = self.read_wave(
+            os.path.join(data_dirs[i]['path'],"ground_truth.txt"))
+            
+        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
+        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
+        file_list_dict[i] = input_name_list
 
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Preprocesses the raw data."""
@@ -75,35 +71,11 @@ class UBFCLoader(BaseLoader):
         choose_range = range(0, file_num)
         if begin != 0 or end != 1:
             choose_range = range(int(begin * file_num), int(end * file_num))
-            print(choose_range)
-        pbar = tqdm(list(choose_range))
-        # multi_process
-        p_list = []
-        running_num = 0
-        for i in choose_range:
-            process_flag = True
-            while process_flag:
-                if running_num < 16:
-                    p = Process(target=self.preprocess_dataset_subprocess,
-                                args=(data_dirs, config_preprocess, i))
-                    p.start()
-                    p_list.append(p)
-                    running_num += 1
-                    process_flag = False
-                for p_ in p_list:
-                    if not p_.is_alive():
-                        p_list.remove(p_)
-                        p_.join()
-                        running_num -= 1
-                        pbar.update(1)
-        # join all processes
-        for p_ in p_list:
-            p_.join()
-            pbar.update(1)
-        pbar.close()
+        print(choose_range)
 
-        # load all data and corresponding labels (sorted for consistency)
-        self.load()
+        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess, choose_range)
+        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
+        self.load() # load all data and corresponding labels (sorted for consistency)
 
     @staticmethod
     def read_video(video_file):

@@ -101,17 +101,14 @@ class PURELoader(BaseLoader):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
+        
         frames = self.read_video(
-            os.path.join(
-                data_dirs[i]['path'],
-                filename, ""))
+            os.path.join(data_dirs[i]['path'], filename, ""))
         bvps = self.read_wave(
-            os.path.join(
-                data_dirs[i]['path'],
-                "{0}.json".format(filename)))
+            os.path.join(data_dirs[i]['path'], "{0}.json".format(filename)))
+
         bvps = sample(bvps, frames.shape[0])
-        frames_clips, bvps_clips = self.preprocess(
-            frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
+        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 
@@ -122,13 +119,12 @@ class PURELoader(BaseLoader):
         choose_range = range(0, file_num)
 
         if begin != 0 or end != 1:
-            # choose_range = range(int(begin * file_num), int(end * file_num))
             data_dirs = self.get_data_subset(data_dirs, begin, end)
             choose_range = range(0, len(data_dirs))
         print(choose_range)
 
-        file_list_dict = self.multi_process_manager(self, data_dirs, config_preprocess, choose_range)
-        self.build_file_list(self, file_list_dict, len(list(choose_range))) # build file list
+        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess, choose_range)
+        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
         self.load() # load all data and corresponding labels (sorted for consistency)
 
     @staticmethod

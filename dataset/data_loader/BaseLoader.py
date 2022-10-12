@@ -282,7 +282,7 @@ class BaseLoader(Dataset):
         for i in choose_range:
             process_flag = True
             while process_flag:  # ensure that every i creates a process
-                if running_num < 16:  # in case of too many processes
+                if running_num < 8:  # in case of too many processes
                     p = Process(target=self.preprocess_dataset_subprocess, \
                                 args=(data_dirs, config_preprocess, i, file_list_dict))
                     p.start()
@@ -317,6 +317,7 @@ class BaseLoader(Dataset):
             raise ValueError(self.name, 'No files in file list')
 
         file_list_df = pd.DataFrame(file_list, columns = ['input_files'])   
+        os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
         file_list_df.to_csv(self.file_list_path)
 
     def load(self):
@@ -328,6 +329,7 @@ class BaseLoader(Dataset):
         inputs = file_list_df['input_files'].tolist()
         if inputs == []:
             raise ValueError(self.name + ' dataset loading data error!')
+        inputs = sorted(inputs)  # sort input file name list
         labels = [input_file.replace("input", "label") for input_file in inputs]
         self.inputs = inputs
         self.labels = labels
