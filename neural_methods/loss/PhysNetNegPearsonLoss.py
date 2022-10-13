@@ -11,6 +11,12 @@ from torch import nn
 
 
 class Neg_Pearson(nn.Module):
+    """
+    The Neg_Pearson Module is from the orignal author of Physnet.
+    Code of 'Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks' 
+    source: https://github.com/ZitongYu/PhysNet/blob/master/NegPearsonLoss.py
+    """
+    
     def __init__(self):
         super(Neg_Pearson, self).__init__()
         return
@@ -33,10 +39,5 @@ class Neg_Pearson(nn.Module):
         return loss
 
 
-    # def forward(self, preds, labels):
-    #     cos = nn.CosineSimilarity(dim=0, eps=1e-6)
-    #     pearson = cos(preds - preds.mean(dim=0, keepdim=True), labels - labels.mean(dim=0, keepdim=True))
-    #     neg_pearson_sum = torch.mean(1-pearson)
-    #     return neg_pearson_sum
 
 
