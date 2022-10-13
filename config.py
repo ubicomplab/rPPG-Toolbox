@@ -257,7 +257,7 @@ def update_config(config, args):
     config.VALID.DATA.CACHED_PATH = os.path.join(config.VALID.DATA.CACHED_PATH, config.VALID.DATA.EXP_DATA_NAME)
 
     name, ext = os.path.splitext(config.VALID.DATA.FILE_LIST_PATH)
-    if not ext: # no file extension
+    if not ext:  # no file extension
         config.VALID.DATA.FILE_LIST_PATH = os.path.join(config.VALID.DATA.FILE_LIST_PATH, \
                                                         config.VALID.DATA.EXP_DATA_NAME + '_' + \
                                                         str(config.VALID.DATA.BEGIN) + '_' + \

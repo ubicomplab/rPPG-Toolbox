@@ -45,20 +45,22 @@ class BaseLoader(Dataset):
         self.name = name
         self.data_path = data_path
         self.cached_path = config_data.CACHED_PATH
+        self.file_list_path = config_data.FILE_LIST_PATH
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
         assert (config_data.END < 1 or config_data.END == 1)
-        if config_data.BEGIN != 0 or config_data.END != 1:
-            self.cached_path = config_data.CACHED_PATH
-        elif config_data.DATASET == "SCAMPS":
+        if config_data.DATASET == "SCAMPS":
             self.cached_path = config_data.CACHED_PATH + "_" + self.name
-        print(self.cached_path)
-        self.file_list_path = config_data.FILE_LIST_PATH
+            self.file_list_path = config_data.FILE_LIST_PATH[:-4] + "_" + self.name \
+                                  + config_data.FILE_LIST_PATH[-4:]
+        print('Cached Data Path', self.cached_path)
+        print('File List Path', self.file_list_path)
         self.inputs = list()
         self.labels = list()
         self.len = 0
         self.data_format = config_data.DATA_FORMAT
         data_dirs = self.get_data(self.data_path)
+        self.do_preprocess = config_data.DO_PREPROCESS
         if config_data.DO_PREPROCESS:
             self.preprocess_dataset(data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
@@ -324,8 +326,10 @@ class BaseLoader(Dataset):
         """Loads the preprocessing data listed in the file list"""
 
         file_list_path = self.file_list_path # get list of files in 
-        file_list_df = pd.read_csv(file_list_path) 
 
+        # TO DO: Insert functionality to generate file list if it does not already exist
+
+        file_list_df = pd.read_csv(file_list_path) 
         inputs = file_list_df['input_files'].tolist()
         if inputs == []:
             raise ValueError(self.name + ' dataset loading data error!')
