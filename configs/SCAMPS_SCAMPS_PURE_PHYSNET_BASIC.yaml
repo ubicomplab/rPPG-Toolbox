@@ -16,12 +16,12 @@ TRAIN:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: [ 'Standardized' ]
-      LABEL_TYPE: Standardized
+      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
+      DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
@@ -38,13 +38,13 @@ VALID:
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
-    PREPROCESS:
-      DATA_TYPE: [ 'Standardized' ]
-      LABEL_TYPE: Standardized
+    PREPROCESS :
+      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
+      DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
@@ -62,13 +62,13 @@ TEST:
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
-    PREPROCESS:
-      DATA_TYPE: [ 'Standardized' ]
-      LABEL_TYPE: Standardized
+    PREPROCESS :
+      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
+      DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
