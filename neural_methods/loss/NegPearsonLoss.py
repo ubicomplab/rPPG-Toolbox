@@ -18,6 +18,6 @@ class Neg_Pearson(nn.Module):
     def forward(self, preds, labels):
         cos = nn.CosineSimilarity(dim=0, eps=1e-6)
         pearson = cos(preds - preds.mean(dim=0, keepdim=True), labels - labels.mean(dim=0, keepdim=True))
-        return 1 - pearson
+        return torch.mean(1 - pearson)
 
 
