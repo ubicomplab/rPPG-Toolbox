@@ -16,10 +16,10 @@ TRAIN:
     BEGIN: 0.0
     END: 0.8
     PREPROCESS :
-      DATA_TYPE: ['Normalized'] #if use physnet, should be Normalized
+      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
       LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128  #only support for factor of 512
+      CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
@@ -39,10 +39,10 @@ VALID:
     BEGIN: 0.8
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Normalized']
+      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
       LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128  #only support for factor of 512
+      CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
@@ -63,10 +63,10 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Normalized']
+      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
       LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128  #only support for factor of 512
+      CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
