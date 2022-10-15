@@ -52,7 +52,7 @@ class BaseLoader(Dataset):
         if config_data.DATASET == "SCAMPS":
             self.cached_path = config_data.CACHED_PATH + "_" + self.name
             self.file_list_path = config_data.FILE_LIST_PATH[:-4] + "_" + self.name \
-                                  + config_data.FILE_LIST_PATH[-4:]
+                                  + config_data.FILE_LIST_PATH[-4:] # append split name before .csv ext
         print('Cached Data Path', self.cached_path)
         print('File List Path', self.file_list_path)
         self.inputs = list()
