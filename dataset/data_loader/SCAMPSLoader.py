@@ -54,18 +54,19 @@ class SCAMPSLoader(BaseLoader):
             dirs.append({"index": subject, "path": data_dir})
         return dirs
 
-    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i):
+    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """   invoked by preprocess_dataset for multi_process.   """
 
         matfile_path = data_dirs[i]['path']
+        saved_filename = data_dirs[i]['index']
 
         frames = self.read_video(matfile_path)
         frames = (np.round(frames * 255)).astype(np.uint8)
         bvps = self.read_wave(matfile_path)
         frames_clips, bvps_clips = self.preprocess(
             frames, bvps, config_preprocess)
-        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips,
-                                                                          data_dirs[i]['index'])
+        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
+        file_list_dict[i] = input_name_list
 
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Preprocesses the raw data."""
@@ -74,34 +75,11 @@ class SCAMPSLoader(BaseLoader):
         choose_range = range(0, file_num)
         if begin != 0 or end != 1:
             choose_range = range(int(begin * file_num), int(end * file_num))
-            print(choose_range)
-        pbar = tqdm(list(choose_range))
-        # multi_process
-        p_list = []
-        running_num = 0
-        for i in choose_range:
-            process_flag = True
-            while process_flag:  # ensure that every i creates a process
-                if running_num < 16:  # in case of too many processes
-                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs, config_preprocess, i))
-                    p.start()
-                    p_list.append(p)
-                    running_num += 1
-                    process_flag = False
-                for p_ in p_list:
-                    if not p_.is_alive():
-                        p_list.remove(p_)
-                        p_.join()
-                        running_num -= 1
-                        pbar.update(1)
-        # join all processes
-        for p_ in p_list:
-            p_.join()
-            pbar.update(1)
-        pbar.close()
-
-        # load all data and corresponding labels (sorted for consistency)
-        self.load()
+        print(choose_range)
+        
+        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess, choose_range)
+        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
+        self.load() # load all data and corresponding labels (sorted for consistency)
 
     def preprocess_dataset_backup(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""

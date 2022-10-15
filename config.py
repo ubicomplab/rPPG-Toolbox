@@ -36,6 +36,7 @@ _C.TRAIN.DATA.FS = 0
 _C.TRAIN.DATA.DATA_PATH = ''
 _C.TRAIN.DATA.EXP_DATA_NAME = ''
 _C.TRAIN.DATA.CACHED_PATH = 'PreprocessedData'
+_C.TRAIN.DATA.FILE_LIST_PATH = "DataFileLists"
 _C.TRAIN.DATA.DATASET = ''
 _C.TRAIN.DATA.DO_PREPROCESS = False
 _C.TRAIN.DATA.DATA_FORMAT = 'NDCHW'
@@ -64,6 +65,7 @@ _C.VALID.DATA.FS = 0
 _C.VALID.DATA.DATA_PATH = ''
 _C.VALID.DATA.EXP_DATA_NAME = ''
 _C.VALID.DATA.CACHED_PATH = 'PreprocessedData'
+_C.VALID.DATA.FILE_LIST_PATH = "DataFileLists"
 _C.VALID.DATA.DATASET = ''
 _C.VALID.DATA.DO_PREPROCESS = False
 _C.VALID.DATA.DATA_FORMAT = 'NDCHW'
@@ -95,6 +97,7 @@ _C.TEST.DATA.FS = 0
 _C.TEST.DATA.DATA_PATH = ''
 _C.TEST.DATA.EXP_DATA_NAME = ''
 _C.TEST.DATA.CACHED_PATH = 'PreprocessedData'
+_C.TEST.DATA.FILE_LIST_PATH = "DataFileLists"
 _C.TEST.DATA.DATASET = ''
 _C.TEST.DATA.DO_PREPROCESS = False
 _C.TEST.DATA.DATA_FORMAT = 'NDCHW'
@@ -126,6 +129,7 @@ _C.SIGNAL.DATA.FS = 0
 _C.SIGNAL.DATA.DATA_PATH = ''
 _C.SIGNAL.DATA.EXP_DATA_NAME = ''
 _C.SIGNAL.DATA.CACHED_PATH = 'PreprocessedData'
+_C.SIGNAL.DATA.FILE_LIST_PATH = "DataFileLists"
 _C.SIGNAL.DATA.DATASET = ''
 _C.SIGNAL.DATA.DO_PREPROCESS = False
 _C.SIGNAL.DATA.DATA_FORMAT = 'NDCHW'
@@ -227,6 +231,19 @@ def update_config(config, args):
                                               ])
     config.TRAIN.DATA.CACHED_PATH = os.path.join(config.TRAIN.DATA.CACHED_PATH, config.TRAIN.DATA.EXP_DATA_NAME)
 
+    name, ext = os.path.splitext(config.TRAIN.DATA.FILE_LIST_PATH)
+    if not ext: # no file extension
+        config.TRAIN.DATA.FILE_LIST_PATH = os.path.join(config.TRAIN.DATA.FILE_LIST_PATH, \
+                                                        config.TRAIN.DATA.EXP_DATA_NAME + '_' + \
+                                                        str(config.TRAIN.DATA.BEGIN) + '_' + \
+                                                        str(config.TRAIN.DATA.END) + '.csv')
+    elif ext != '.csv':
+        raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+    
+    if ext == '.csv' and config.TRAIN.DATA.DO_PREPROCESS:
+        raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+                         Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
+
     if config.VALID.DATA.EXP_DATA_NAME == '':
         config.VALID.DATA.EXP_DATA_NAME = "_".join([config.VALID.DATA.DATASET, "SizeW{0}".format(
             str(config.VALID.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.VALID.DATA.PREPROCESS.W)), "ClipLength{0}".format(
@@ -236,9 +253,21 @@ def update_config(config, args):
                                       "Large_size{0}".format(config.VALID.DATA.PREPROCESS.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION),
                                         "det_len{0}".format(config.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
-
                                               ])
     config.VALID.DATA.CACHED_PATH = os.path.join(config.VALID.DATA.CACHED_PATH, config.VALID.DATA.EXP_DATA_NAME)
+
+    name, ext = os.path.splitext(config.VALID.DATA.FILE_LIST_PATH)
+    if not ext:  # no file extension
+        config.VALID.DATA.FILE_LIST_PATH = os.path.join(config.VALID.DATA.FILE_LIST_PATH, \
+                                                        config.VALID.DATA.EXP_DATA_NAME + '_' + \
+                                                        str(config.VALID.DATA.BEGIN) + '_' + \
+                                                        str(config.VALID.DATA.END) + '.csv')
+    elif ext != '.csv':
+        raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+
+    if ext == '.csv' and config.VALID.DATA.DO_PREPROCESS:
+        raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+                         Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
 
     if config.TEST.DATA.EXP_DATA_NAME == '':
         config.TEST.DATA.EXP_DATA_NAME = "_".join([config.TEST.DATA.DATASET, "SizeW{0}".format(
@@ -251,6 +280,19 @@ def update_config(config, args):
                                         "det_len{0}".format(config.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
                                               ])
     config.TEST.DATA.CACHED_PATH = os.path.join(config.TEST.DATA.CACHED_PATH, config.TEST.DATA.EXP_DATA_NAME)
+
+    name, ext = os.path.splitext(config.TEST.DATA.FILE_LIST_PATH)
+    if not ext: # no file extension
+        config.TEST.DATA.FILE_LIST_PATH = os.path.join(config.TEST.DATA.FILE_LIST_PATH, \
+                                                       config.TEST.DATA.EXP_DATA_NAME + '_' + \
+                                                       str(config.TEST.DATA.BEGIN) + '_' + \
+                                                       str(config.TEST.DATA.END) + '.csv')
+    elif ext != '.csv':
+        raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+
+    if ext == '.csv' and config.TEST.DATA.DO_PREPROCESS:
+        raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+                         Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
     
     if config.SIGNAL.DATA.EXP_DATA_NAME == '':
         config.SIGNAL.DATA.EXP_DATA_NAME = "_".join([config.SIGNAL.DATA.DATASET, "SizeW{0}".format(
@@ -264,6 +306,20 @@ def update_config(config, args):
                                         "signal"
                                               ])
     config.SIGNAL.DATA.CACHED_PATH = os.path.join(config.SIGNAL.DATA.CACHED_PATH, config.SIGNAL.DATA.EXP_DATA_NAME)
+
+    name, ext = os.path.splitext(config.SIGNAL.DATA.FILE_LIST_PATH)
+    if not ext: # no file extension
+        config.SIGNAL.DATA.FILE_LIST_PATH = os.path.join(config.SIGNAL.DATA.FILE_LIST_PATH, \
+                                                         config.SIGNAL.DATA.EXP_DATA_NAME + '_' + \
+                                                         str(config.SIGNAL.DATA.BEGIN) + '_' + \
+                                                         str(config.SIGNAL.DATA.END) + '.csv')
+    elif ext != '.csv':
+        raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+
+    if ext == '.csv' and config.SIGNAL.DATA.DO_PREPROCESS:
+        raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+                         Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
+
 
     config.LOG.PATH = os.path.join(
         config.LOG.PATH, config.VALID.DATA.EXP_DATA_NAME)

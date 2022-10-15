@@ -7,6 +7,10 @@ Dataset already supported:UBFC,PURE and COHFACE
 import glob
 import os
 import re
+from multiprocessing import Pool, Process, Value, Array, Manager
+from tqdm import tqdm
+import pandas as pd
+import csv
 from math import ceil
 
 import cv2
@@ -41,19 +45,22 @@ class BaseLoader(Dataset):
         self.name = name
         self.data_path = data_path
         self.cached_path = config_data.CACHED_PATH
+        self.file_list_path = config_data.FILE_LIST_PATH
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
         assert (config_data.END < 1 or config_data.END == 1)
-        if config_data.BEGIN != 0 or config_data.END != 1:
-            self.cached_path = config_data.CACHED_PATH + "_" + str(config_data.BEGIN) + '_' + str(config_data.END)
-        elif config_data.DATASET == "SCAMPS":
+        if config_data.DATASET == "SCAMPS":
             self.cached_path = config_data.CACHED_PATH + "_" + self.name
-        print(self.cached_path)
+            self.file_list_path = config_data.FILE_LIST_PATH[:-4] + "_" + self.name \
+                                  + config_data.FILE_LIST_PATH[-4:]
+        print('Cached Data Path', self.cached_path)
+        print('File List Path', self.file_list_path)
         self.inputs = list()
         self.labels = list()
         self.len = 0
         self.data_format = config_data.DATA_FORMAT
         data_dirs = self.get_data(self.data_path)
+        self.do_preprocess = config_data.DO_PREPROCESS
         if config_data.DO_PREPROCESS:
             self.preprocess_dataset(data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
@@ -74,7 +81,6 @@ class BaseLoader(Dataset):
 
         Args:
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
-
         """
         pass
 
@@ -267,18 +273,72 @@ class BaseLoader(Dataset):
             count += 1
         return count, input_path_name_list, label_path_name_list
 
+    def multi_process_manager(self, data_dirs, config_preprocess, choose_range):
+        # shared data resource
+        manager = Manager()
+        file_list_dict = manager.dict()
+
+        pbar = tqdm(list(choose_range))
+        p_list = []
+        running_num = 0
+        for i in choose_range:
+            process_flag = True
+            while process_flag:  # ensure that every i creates a process
+                if running_num < 8:  # in case of too many processes
+                    p = Process(target=self.preprocess_dataset_subprocess, \
+                                args=(data_dirs, config_preprocess, i, file_list_dict))
+                    p.start()
+                    p_list.append(p)
+                    running_num += 1
+                    process_flag = False
+                for p_ in p_list:
+                    if not p_.is_alive():
+                        p_list.remove(p_)
+                        p_.join()
+                        running_num -= 1
+                        pbar.update(1)
+        # join all processes
+        for p_ in p_list:
+            p_.join()
+            pbar.update(1)
+        pbar.close()
+
+        return file_list_dict
+
+    def build_file_list(self, file_list_dict, num_files):
+        """build file list"""
+
+        if len(file_list_dict.keys()) != num_files:
+            raise ValueError(self.name, 'All processed files not found')
+
+        file_list = []
+        for process_num, file_paths in file_list_dict.items():
+            file_list = file_list + file_paths
+
+        if not file_list:
+            raise ValueError(self.name, 'No files in file list')
+
+        file_list_df = pd.DataFrame(file_list, columns = ['input_files'])   
+        os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
+        file_list_df.to_csv(self.file_list_path)
+
     def load(self):
-        """Loads the preprocessing data."""
-        inputs = glob.glob(os.path.join(self.cached_path, "*input*.npy"))
-        if not inputs:
+        """Loads the preprocessing data listed in the file list"""
+
+        file_list_path = self.file_list_path # get list of files in 
+
+        # TO DO: Insert functionality to generate file list if it does not already exist
+
+        file_list_df = pd.read_csv(file_list_path) 
+        inputs = file_list_df['input_files'].tolist()
+        if inputs == []:
             raise ValueError(self.name + ' dataset loading data error!')
         inputs = sorted(inputs)  # sort input file name list
-        labels = [input.replace("input", "label") for input in inputs]
-        assert (len(inputs) == len(labels))
+        labels = [input_file.replace("input", "label") for input_file in inputs]
         self.inputs = inputs
         self.labels = labels
         self.len = len(inputs)
-        print("loaded data len:", self.len)
+        print("Loaded data len:", self.len)
 
     @staticmethod
     def diff_normalize_data(data):
