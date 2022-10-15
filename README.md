@@ -57,6 +57,7 @@ Here are some explanation of parameters:
 * #### TRAIN / VALID / TEST / SIGNAL DATA: 
   * `DATA_PATH`: The input path of raw data
   * `CACHED_PATH`: The output path to preprocessed data
+  * `FILE_LIST_PATH`: The path at which the file list is stored. At this path a csv file is generated that lists the paths to all input data files used for the data split (train/val/test). If FILE_LIST_PATH is specified as a directory, a csv file list will be auto generated and auto-named (reflecting the preprocessing parameters) at this location. If FILE_LIST_PATH is specified as a csv file and preprocessing is turned on, a file list will be generated (or existing file overwritten) with name FILE_LIST_PATH. If FILE_LIST_PATH is specified as a csv file and preprocessing is turned off, this file (assuming it exists) will be used to load input data path-specified in the file. 
   * `EXP_DATA_NAME` If it is "", the toolbox generates a EXP_DATA_NAME based on other defined parameters. Otherwise, it uses the user-defined EXP_DATA_NAME.  
   * `BEGIN" & "END`: The portion of the dataset used for training/validation/testing. For example, if the `DATASET` is PURE, `BEGIN` is 0.0 and `END` is 0.8 under the TRAIN, the first 80% PURE is used for training the network. If the `DATASET` is PURE, `BEGIN` is 0.8 and `END` is 1.0 under the VALID, the last 20% PURE is used as the validation set. It is worth noting that validation and training sets don't have overlapping subjects.  
   * `DATA_TYPE`: How to preprocess the video data
@@ -75,7 +76,7 @@ Here are some explanation of parameters:
 * #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson']
 
 # Dataset
-The toolbox supports four datasets, which are SCAMPS, UBFC, PURE and COHFACE. Cite corresponding papers when using.
+The toolbox supports three datasets, which are SCAMPS, UBFC, and PURE (COHFACE support will be added shortly). Cite corresponding papers when using.
 For now, we only recommend training with PURE or SCAMPS due to the level of synchronization and volume of the dataset.
 * [SCAMPS](https://arxiv.org/abs/2206.04197)
   
