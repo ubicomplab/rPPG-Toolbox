@@ -54,6 +54,20 @@ class SCAMPSLoader(BaseLoader):
             dirs.append({"index": subject, "path": data_dir})
         return dirs
 
+    def get_data_subset(self, data_dirs, begin, end):
+        """Returns a subset of data dirs, split with begin and end values"""
+        if begin == 0 and end == 1: # return the full directory if begin == 0 and end == 1
+            return data_dirs
+
+        file_num = len(data_dirs)
+        choose_range = range(int(begin * file_num), int(end * file_num))
+        data_dirs_new = []
+
+        for i in choose_range:
+            data_dirs_new.append(data_dirs[i])
+
+        return data_dirs_new
+
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """   invoked by preprocess_dataset for multi_process.   """
 
@@ -67,19 +81,6 @@ class SCAMPSLoader(BaseLoader):
             frames, bvps, config_preprocess)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
-
-    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
-        """Preprocesses the raw data."""
-        file_num = len(data_dirs)
-        print("file_num:", file_num)
-        choose_range = range(0, file_num)
-        if begin != 0 or end != 1:
-            choose_range = range(int(begin * file_num), int(end * file_num))
-        print(choose_range)
-        
-        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess, choose_range)
-        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
-        self.load() # load all data and corresponding labels (sorted for consistency)
 
     def preprocess_dataset_backup(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""

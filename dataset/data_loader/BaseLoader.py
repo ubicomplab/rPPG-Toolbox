@@ -64,6 +64,11 @@ class BaseLoader(Dataset):
         if config_data.DO_PREPROCESS:
             self.preprocess_dataset(data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
+            print('FILE LIST PATH', self.file_list_path)
+            if not os.path.exists(self.file_list_path):
+                print('File list does not exist... generating now...')
+                self.build_file_list_retroactive(data_dirs, config_data.BEGIN, config_data.END)
+                print('File list generated.')
             self.load()
         print(self.name + " dataset len:", self.len)
 
@@ -74,6 +79,7 @@ class BaseLoader(Dataset):
     def get_data_subset(self, data_dirs, begin, end):
         """Returns a subset of data dirs, split with begin and end values, 
         and ensures no overlapping subjects between splits"""
+
         return None
 
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
@@ -82,7 +88,12 @@ class BaseLoader(Dataset):
         Args:
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
         """
-        pass
+        data_dirs = self.get_data_subset(data_dirs, begin, end)
+        print("Number of files to preprocess:", len(data_dirs))
+
+        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess)
+        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
+        self.load() # load all data and corresponding labels (sorted for consistency)
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -273,14 +284,18 @@ class BaseLoader(Dataset):
             count += 1
         return count, input_path_name_list, label_path_name_list
 
-    def multi_process_manager(self, data_dirs, config_preprocess, choose_range):
+    def multi_process_manager(self, data_dirs, config_preprocess):
+
+        file_num = len(data_dirs)
+        choose_range = choose_range = range(0, file_num)
+        pbar = tqdm(list(choose_range))
+
         # shared data resource
         manager = Manager()
         file_list_dict = manager.dict()
-
-        pbar = tqdm(list(choose_range))
         p_list = []
         running_num = 0
+
         for i in choose_range:
             process_flag = True
             while process_flag:  # ensure that every i creates a process
@@ -317,6 +332,30 @@ class BaseLoader(Dataset):
 
         if not file_list:
             raise ValueError(self.name, 'No files in file list')
+
+        file_list_df = pd.DataFrame(file_list, columns = ['input_files'])   
+        os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
+        file_list_df.to_csv(self.file_list_path)
+
+    def build_file_list_retroactive(self, data_dirs, begin, end):
+
+        # get data split
+        data_dirs = self.get_data_subset(data_dirs, begin, end)
+
+        # generate a list of unique raw-data file names 
+        filename_list = []
+        for i in range(len(data_dirs)):
+            filename_list.append(data_dirs[i]['index'])
+        filename_list = list(set(filename_list)) # ensure all indexes are unique
+
+        # generate a list of all preprocessed / chunked data files 
+        file_list = []
+        for fname in filename_list:
+            processed_file_data = list(glob.glob(self.cached_path + os.sep + "{0}_input*.npy".format(fname)))
+            file_list += processed_file_data
+
+        if not file_list:
+            raise ValueError(self.name, 'File list empty. Check preprocessed data folder exists and is not empty.')
 
         file_list_df = pd.DataFrame(file_list, columns = ['input_files'])   
         os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)

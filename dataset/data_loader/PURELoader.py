@@ -63,6 +63,10 @@ class PURELoader(BaseLoader):
         """Returns a subset of data dirs, split with begin and end values, 
         and ensures no overlapping subjects between splits"""
 
+        # return the full directory
+        if begin == 0 and end == 1:
+            return data_dirs
+
         # get info about the dataset: subject list and num vids per subject
         data_info = dict()
         for data in data_dirs:
@@ -88,14 +92,14 @@ class PURELoader(BaseLoader):
         print('used subject ids for split:', [subj_list[i] for i in subj_range])
 
         # compile file list
-        file_info_list = []
+        data_dirs_new = []
         for i in subj_range:
             subj_num = subj_list[i]
             subj_files = data_info[subj_num]
-            file_info_list += subj_files  # add file information to file_list (tuple of fname, subj ID, trial num,
+            data_dirs_new += subj_files  # add file information to file_list (tuple of fname, subj ID, trial num,
             # chunk num)
 
-        return file_info_list
+        return data_dirs_new
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """   invoked by preprocess_dataset for multi_process.   """
@@ -111,21 +115,6 @@ class PURELoader(BaseLoader):
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
-
-    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
-        """Preprocesses the raw data."""
-        file_num = len(data_dirs)
-        print("file_num:", file_num)
-        choose_range = range(0, file_num)
-
-        if begin != 0 or end != 1:
-            data_dirs = self.get_data_subset(data_dirs, begin, end)
-            choose_range = range(0, len(data_dirs))
-        print(choose_range)
-
-        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess, choose_range)
-        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
-        self.load() # load all data and corresponding labels (sorted for consistency)
 
     @staticmethod
     def read_video(video_file):

@@ -50,6 +50,20 @@ class UBFCLoader(BaseLoader):
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
         return dirs
 
+    def get_data_subset(self, data_dirs, begin, end):
+        """Returns a subset of data dirs, split with begin and end values"""
+        if begin == 0 and end == 1: # return the full directory if begin == 0 and end == 1
+            return data_dirs
+
+        file_num = len(data_dirs)
+        choose_range = range(int(begin * file_num), int(end * file_num))
+        data_dirs_new = []
+
+        for i in choose_range:
+            data_dirs_new.append(data_dirs[i])
+
+        return data_dirs_new
+
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """   invoked by preprocess_dataset for multi_process.   """
         filename = os.path.split(data_dirs[i]['path'])[-1]
@@ -63,19 +77,6 @@ class UBFCLoader(BaseLoader):
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
-
-    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
-        """Preprocesses the raw data."""
-        file_num = len(data_dirs)
-        print("file_num:", file_num)
-        choose_range = range(0, file_num)
-        if begin != 0 or end != 1:
-            choose_range = range(int(begin * file_num), int(end * file_num))
-        print(choose_range)
-
-        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess, choose_range)
-        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
-        self.load() # load all data and corresponding labels (sorted for consistency)
 
     @staticmethod
     def read_video(video_file):
