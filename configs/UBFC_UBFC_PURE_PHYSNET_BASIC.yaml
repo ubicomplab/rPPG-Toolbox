@@ -12,16 +12,17 @@ TRAIN:
     DATA_FORMAT: NCDHW
     DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"          # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
+    FILE_LIST_PATH: "/data2/rppg_datasets/DataFileLists/"    # Path to store file lists, needs to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 0.8
     PREPROCESS :
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+      DATA_TYPE: ['Normalized'] #if use physnet, should be Normalized
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128  #only support for factor of 512
       DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
+      DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
@@ -35,16 +36,17 @@ VALID:
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/UBFC/RawData"            # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
+    FILE_LIST_PATH: "/data2/rppg_datasets/DataFileLists/"    # Path to store file lists, needs to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
-    PREPROCESS:
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+    PREPROCESS :
+      DATA_TYPE: ['Normalized'] #if use physnet, should be Normalized
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128  #only support for factor of 512
       DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
+      DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
@@ -59,16 +61,17 @@ TEST:
     DATA_FORMAT: NCDHW
     DATA_PATH: "/data1/toolbox_data/PURE/RawData"            # need to be updated
     CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
+    FILE_LIST_PATH: "/data2/rppg_datasets/DataFileLists/"    # Path to store file lists, needs to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
-    PREPROCESS:
-      DATA_TYPE: [ 'Raw' ]
-      LABEL_TYPE: Raw
+    PREPROCESS :
+      DATA_TYPE: ['Normalized'] #if use physnet, should be Normalized
+      LABEL_TYPE: Normalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128
+      CHUNK_LENGTH: 128  #only support for factor of 512
       DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
+      DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
