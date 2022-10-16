@@ -10,9 +10,8 @@ TRAIN:
     DATASET: UBFC
     DO_PREPROCESS: True               # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH:   "/data1/toolbox_data/UBFC/RawData"          # need to be updated
-    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
-    FILE_LIST_PATH: "/data2/rppg_datasets/DataFileLists/"    # Path to store file lists, needs to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 0.8
@@ -34,9 +33,8 @@ VALID:
     DATASET: UBFC
     DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/toolbox_data/UBFC/RawData"            # need to be updated
-    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
-    FILE_LIST_PATH: "/data2/rppg_datasets/DataFileLists/"    # Path to store file lists, needs to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
@@ -59,9 +57,8 @@ TEST:
     DATASET: PURE
     DO_PREPROCESS: True                    # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/toolbox_data/PURE/RawData"            # need to be updated
-    CACHED_PATH: "/data2/rppg_datasets/PreprocessedData/"    # Processed dataset save path, need to be updated
-    FILE_LIST_PATH: "/data2/rppg_datasets/DataFileLists/"    # Path to store file lists, needs to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
@@ -78,7 +75,7 @@ TEST:
       H: 72
       W: 72
 DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 1
+NUM_OF_GPU_TRAIN: 4
 LOG:
   PATH: runs/exp
 MODEL:
