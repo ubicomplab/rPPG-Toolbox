@@ -82,7 +82,7 @@ class PURELoader(BaseLoader):
             data_info[subject].append({"index": index, "path": data_dir, "subject": subject})
 
         subj_list = list(data_info.keys())  # all subjects by number ID (1-27)
-        subj_list.sort()
+        subj_list = sorted(subj_list)
         num_subjs = len(subj_list)  # number of unique subjects
 
         # get split of data set (depending on start / end)
