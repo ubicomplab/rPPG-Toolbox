@@ -64,7 +64,8 @@ class BaseLoader(Dataset):
         if config_data.DO_PREPROCESS:
             self.preprocess_dataset(data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
-            print('FILE LIST PATH', self.file_list_path)
+            if not os.path.exists(self.cached_path):
+                raise ValueError(self.name, 'Preprocess set to False, but preprocessed data dir does not exist')
             if not os.path.exists(self.file_list_path):
                 print('File list does not exist... generating now...')
                 self.build_file_list_retroactive(data_dirs, config_data.BEGIN, config_data.END)
