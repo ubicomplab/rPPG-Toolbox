@@ -92,7 +92,7 @@ class BaseLoader(Dataset):
         print("Number of files to preprocess:", len(data_dirs))
 
         file_list_dict = self.multi_process_manager(data_dirs, config_preprocess)
-        self.build_file_list(file_list_dict, len(list(choose_range))) # build file list
+        self.build_file_list(file_list_dict) # build file list
         self.load() # load all data and corresponding labels (sorted for consistency)
 
     def __len__(self):
@@ -320,11 +320,8 @@ class BaseLoader(Dataset):
 
         return file_list_dict
 
-    def build_file_list(self, file_list_dict, num_files):
+    def build_file_list(self, file_list_dict):
         """build file list"""
-
-        if len(file_list_dict.keys()) != num_files:
-            raise ValueError(self.name, 'All processed files not found')
 
         file_list = []
         for process_num, file_paths in file_list_dict.items():
