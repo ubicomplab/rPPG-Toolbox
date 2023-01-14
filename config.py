@@ -91,6 +91,7 @@ _C.VALID.DATA.PREPROCESS.LABEL_TYPE = ''
 # -----------------------------------------------------------------------------\
 _C.TEST = CN()
 _C.TEST.METRICS = []
+_C.TEST.USE_LAST_EPOCH = True
 # Test.Data settings
 _C.TEST.DATA = CN()
 _C.TEST.DATA.FS = 0

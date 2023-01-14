@@ -24,6 +24,7 @@ class PhysnetTrainer(BaseTrainer):
         self.loss_model = Neg_Pearson()
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=config.TRAIN.LR)
+        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.1, last_epoch=-1, verbose=False)
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
@@ -64,6 +65,7 @@ class PhysnetTrainer(BaseTrainer):
                 self.optimizer.step()
                 self.optimizer.zero_grad()
                 tbar.set_postfix(loss=loss.item())
+            self.scheduler.step()
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
@@ -108,6 +110,7 @@ class PhysnetTrainer(BaseTrainer):
         print("===Testing===")
         predictions = dict()
         labels = dict()
+
         if self.config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
@@ -115,11 +118,19 @@ class PhysnetTrainer(BaseTrainer):
             print("Testing uses pretrained model!")
             print(self.config.INFERENCE.MODEL_PATH)
         else:
-            best_model_path = os.path.join(
-                self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
-            print("Testing uses non-pretrained model!")
-            print(best_model_path)
-            self.model.load_state_dict(torch.load(best_model_path))
+            if self.config.TEST.USE_LAST_EPOCH:
+                last_epoch_model_path = os.path.join(
+                self.model_dir, self.model_file_name + '_Epoch' + str(self.max_epoch_num - 1) + '.pth')
+                print("Testing uses last epoch as non-pretrained model!")
+                print(last_epoch_model_path)
+                self.model.load_state_dict(torch.load(last_epoch_model_path))
+            else:
+                best_model_path = os.path.join(
+                    self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
+                print("Testing uses best epoch selected using model selection as non-pretrained model!")
+                print(best_model_path)
+                self.model.load_state_dict(torch.load(best_model_path))
+
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
         with torch.no_grad():

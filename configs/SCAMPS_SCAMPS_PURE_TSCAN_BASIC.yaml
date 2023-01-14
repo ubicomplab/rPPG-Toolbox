@@ -2,7 +2,7 @@ BASE: ['']
 TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
-  EPOCHS: 10
+  EPOCHS: 15
   LR: 1e-3
   MODEL_FILE_NAME: SCAMPS_SCAMPS_PURE_tscan
   DATA:
@@ -52,6 +52,7 @@ VALID:
       W: 72
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
+  USE_LAST_EPOCH: True
   DATA:
     FS: 30
     DATASET: PURE
