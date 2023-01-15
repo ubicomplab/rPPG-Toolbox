@@ -16,19 +16,13 @@ from tqdm import tqdm
 
 class EfficientPhysTrainer(BaseTrainer):
 
-    def __init__(self, config):
+    def __init__(self, config, data_loader):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.frame_depth = config.MODEL.EFFICIENTPHYS.FRAME_DEPTH
-        self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(
-            self.device)
-        self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
-        self.criterion = torch.nn.MSELoss()
-        self.optimizer = optim.AdamW(
-            self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
-        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.1, last_epoch=-1, verbose=False)
         self.max_epoch_num = config.TRAIN.EPOCHS
+        self.num_train_batches = len(data_loader["train"])
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
@@ -37,6 +31,16 @@ class EfficientPhysTrainer(BaseTrainer):
         self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
         self.config = config
         self.best_epoch = 0
+
+        self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(
+            self.device)
+        self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+        self.criterion = torch.nn.MSELoss()
+        self.optimizer = optim.AdamW(
+            self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
+        # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -67,6 +71,7 @@ class EfficientPhysTrainer(BaseTrainer):
                 loss = self.criterion(pred_ppg, labels)
                 loss.backward()
                 self.optimizer.step()
+                self.scheduler.step()
                 running_loss += loss.item()
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
@@ -74,7 +79,6 @@ class EfficientPhysTrainer(BaseTrainer):
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 tbar.set_postfix(loss=loss.item())
-            self.scheduler.step()
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
