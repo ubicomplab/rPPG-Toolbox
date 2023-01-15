@@ -2,8 +2,8 @@ BASE: ['']
 TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
-  EPOCHS: 15
-  LR: 1e-3
+  EPOCHS: 30
+  LR: 9e-3
   MODEL_FILE_NAME: UBFC_UBFC_PURE_tscan
   DATA:
     FS: 30

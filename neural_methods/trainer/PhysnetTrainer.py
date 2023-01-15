@@ -15,17 +15,12 @@ from tqdm import tqdm
 
 class PhysnetTrainer(BaseTrainer):
 
-    def __init__(self, config):
+    def __init__(self, config, data_loader):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
         self.device = torch.device(config.DEVICE)
-        self.model = PhysNet_padding_Encoder_Decoder_MAX(
-            frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
-        self.loss_model = Neg_Pearson()
-        self.optimizer = optim.Adam(
-            self.model.parameters(), lr=config.TRAIN.LR)
-        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.1, last_epoch=-1, verbose=False)
         self.max_epoch_num = config.TRAIN.EPOCHS
+        self.num_train_batches = len(data_loader["train"])
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
@@ -33,6 +28,15 @@ class PhysnetTrainer(BaseTrainer):
         self.base_len = self.num_of_gpu
         self.config = config
         self.best_epoch = 0
+
+        self.model = PhysNet_padding_Encoder_Decoder_MAX(
+            frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
+        self.loss_model = Neg_Pearson()
+        self.optimizer = optim.Adam(
+            self.model.parameters(), lr=config.TRAIN.LR)
+        # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
 
     def train(self, data_loader):
         """ TODO:Docstring"""
@@ -63,9 +67,9 @@ class PhysnetTrainer(BaseTrainer):
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 self.optimizer.step()
+                self.scheduler.step()
                 self.optimizer.zero_grad()
                 tbar.set_postfix(loss=loss.item())
-            self.scheduler.step()
             valid_loss = self.valid(data_loader)
             self.save_model(epoch)
             print('validation loss: ', valid_loss)
