@@ -45,7 +45,7 @@ class PURELoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
-    def get_data(self, data_path):
+    def get_raw_data(self, data_path):
         """Returns data directories under the path(For PURE dataset)."""
 
         data_dirs = glob.glob(data_path + os.sep + "*-*")
@@ -59,7 +59,7 @@ class PURELoader(BaseLoader):
             dirs.append({"index": index, "path": data_dir, "subject": subject})
         return dirs
 
-    def get_data_subset(self, data_dirs, begin, end):
+    def split_raw_data(self, data_dirs, begin, end):
         """Returns a subset of data dirs, split with begin and end values, 
         and ensures no overlapping subjects between splits"""
 
@@ -70,11 +70,9 @@ class PURELoader(BaseLoader):
         # get info about the dataset: subject list and num vids per subject
         data_info = dict()
         for data in data_dirs:
-
             subject = data['subject']
             data_dir = data['path']
             index = data['index']
-
             # creates a dictionary of data_dirs indexed by subject number
             if subject not in data_info:  # if subject not in the data info dictionary
                 data_info[subject] = []  # make an emplty list for that subject
@@ -89,7 +87,6 @@ class PURELoader(BaseLoader):
         subj_range = list(range(0, num_subjs))
         if begin != 0 or end != 1:
             subj_range = list(range(int(begin * num_subjs), int(end * num_subjs)))
-        print('used subject ids for split:', [subj_list[i] for i in subj_range])
 
         # compile file list
         data_dirs_new = []

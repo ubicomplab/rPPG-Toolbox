@@ -4,18 +4,18 @@ Provides a pytorch-style data-loader for end-to-end training pipelines.
 Extend the class to support specific datasets.
 Dataset already supported:UBFC,PURE and COHFACE
 """
+import csv
 import glob
 import os
 import re
-from multiprocessing import Pool, Process, Value, Array, Manager
-from tqdm import tqdm
-import pandas as pd
-import csv
 from math import ceil
+from multiprocessing import Pool, Process, Value, Array, Manager
 
 import cv2
 import numpy as np
+import pandas as pd
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 class BaseLoader(Dataset):
@@ -34,67 +34,41 @@ class BaseLoader(Dataset):
             "--preprocess", default=None, action='store_true')
         return parser
 
-    def __init__(self, name, data_path, config_data):
+    def __init__(self, dataset_name, raw_data_path, config_data):
         """Inits dataloader with lists of files.
 
         Args:
-            name(str): name of the dataloader.
-            data_path(string): path to the folder containing all data.
+            dataset_name(str): name of the dataloader.
+            raw_data_path(string): path to the folder containing all data.
             config_data(CfgNode): data settings(ref:config.py).
         """
-        self.name = name
-        self.data_path = data_path
+        self.inputs = list()
+        self.labels = list()
+        self.dataset_name = dataset_name
+        self.raw_data_path = raw_data_path
         self.cached_path = config_data.CACHED_PATH
         self.file_list_path = config_data.FILE_LIST_PATH
+        self.preprocessed_data_len = 0
+        self.data_format = config_data.DATA_FORMAT
+        self.do_preprocess = config_data.DO_PREPROCESS
+        self.raw_data_dirs = self.get_raw_data(self.raw_data_path)
+
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
         assert (config_data.END < 1 or config_data.END == 1)
-        if config_data.DATASET == "SCAMPS":
-            self.cached_path = config_data.CACHED_PATH + "_" + self.name
-            self.file_list_path = config_data.FILE_LIST_PATH[:-4] + "_" + self.name \
-                                  + config_data.FILE_LIST_PATH[-4:] # append split name before .csv ext
-        print('Cached Data Path', self.cached_path)
-        print('File List Path', self.file_list_path)
-        self.inputs = list()
-        self.labels = list()
-        self.len = 0
-        self.data_format = config_data.DATA_FORMAT
-        data_dirs = self.get_data(self.data_path)
-        self.do_preprocess = config_data.DO_PREPROCESS
         if config_data.DO_PREPROCESS:
-            self.preprocess_dataset(data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
+            self.preprocess_dataset(self.raw_data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
             if not os.path.exists(self.cached_path):
-                raise ValueError(self.name, 'Preprocess set to False, but preprocessed data dir does not exist')
+                raise ValueError(self.dataset_name, 'Preprocess set to False, but preprocessed data dir does not exist')
             if not os.path.exists(self.file_list_path):
                 print('File list does not exist... generating now...')
-                self.build_file_list_retroactive(data_dirs, config_data.BEGIN, config_data.END)
+                self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN, config_data.END)
                 print('File list generated.')
-            self.load()
-        print(self.name + " dataset len:", self.len)
-
-    def get_data(self, data_path):
-        """Returns data directories under the path."""
-        return None
-
-    def get_data_subset(self, data_dirs, begin, end):
-        """Returns a subset of data dirs, split with begin and end values, 
-        and ensures no overlapping subjects between splits"""
-
-        return None
-
-    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
-        """Parses and preprocesses all data.
-
-        Args:
-            config_preprocess(CfgNode): preprocessing settings(ref:config.py).
-        """
-        data_dirs = self.get_data_subset(data_dirs, begin, end)
-        print("Number of files to preprocess:", len(data_dirs))
-
-        file_list_dict = self.multi_process_manager(data_dirs, config_preprocess)
-        self.build_file_list(file_list_dict) # build file list
-        self.load() # load all data and corresponding labels (sorted for consistency)
+            self.load_preprocessed_data()
+        print('Cached Data Path', self.cached_path)
+        print('File List Path', self.file_list_path)
+        print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}")
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -121,16 +95,52 @@ class BaseLoader(Dataset):
         chunk_id = item_path_filename[split_idx + 6:].split('.')[0]
         return data, label, filename, chunk_id
 
-    def preprocess(self, frames, bvps, config_preprocess, large_box=False):
+    def get_raw_data(self, raw_data_path):
+        """Returns raw data directories under the path.
+
+        Args:
+            raw_data_path(str): a list of video_files.
+        """
+        raise Exception("Not Implemented")
+
+    def split_raw_data(self, data_dirs, begin, end):
+        """Returns a subset of data dirs, split with begin and end values, and ensures no overlapping subjects
+        between splits.
+
+        Args:
+            data_dirs(List[str]): a list of video_files.
+            begin(float): index of begining during train/val split.
+            end(float): index of ending during train/val split.
+        """
+        raise Exception("Not Implemented")
+
+    def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
+        """Parses and preprocesses all the raw data based on split.
+
+        Args:
+            data_dirs(List[str]): a list of video_files.
+            config_preprocess(CfgNode): preprocessing settings(ref:config.py).
+            begin(float): index of begining during train/val split.
+            end(float): index of ending during train/val split.
+        """
+        data_dirs_split = self.split_raw_data(data_dirs, begin, end)
+        file_list_dict = self.multi_process_manager(data_dirs_split, config_preprocess)
+        self.build_file_list(file_list_dict)  # build file list
+        self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
+        print("Total Number of raw files to preprocess:", len(data_dirs_split))
+
+    def preprocess(self, frames, bvps, config_preprocess):
         """Preprocesses a pair of data.
 
         Args:
             frames(np.array): Frames in a video.
-            bvps(np.array): Bvp signal labels for a video.
+            bvps(np.array): Blood volumne pulse (PPG) signal labels for a video.
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
-            large_box(bool): Whether to use a large bounding box in face cropping, e.g. in moving situations.
+        Returns:
+            frame_clips(np.array): processed video data by frames
+            bvps_clips(np.array): processed bvp (ppg) labels by frames
         """
-        frames = self.resize(
+        frames = self.face_crop_resize(
             frames,
             config_preprocess.DYNAMIC_DETECTION,
             config_preprocess.DYNAMIC_DETECTION_FREQUENCY,
@@ -140,7 +150,7 @@ class BaseLoader(Dataset):
             config_preprocess.CROP_FACE,
             config_preprocess.LARGE_BOX_COEF)
         # data_type
-        data = list()
+        data = list()  # Video data
         for data_type in config_preprocess.DATA_TYPE:
             f_c = frames.copy()
             if data_type == "Raw":
@@ -151,7 +161,7 @@ class BaseLoader(Dataset):
                 data.append(BaseLoader.standardized_data(f_c)[:-1, :, :, :])
             else:
                 raise ValueError("Unsupported data type!")
-        data = np.concatenate(data, axis=3)
+        data = np.concatenate(data, axis=-1)  # concatenate all channels
         if config_preprocess.LABEL_TYPE == "Raw":
             bvps = bvps[:-1]
         elif config_preprocess.LABEL_TYPE == "Normalized":
@@ -170,94 +180,120 @@ class BaseLoader(Dataset):
 
         return frames_clips, bvps_clips
 
-    def facial_detection(self, frame, larger_box=False, larger_box_size=1.0):
-        """Conducts face detection on a single frame.
-        Sets larger_box=True for larger bounding box, e.g. moving trials."""
+    def face_detection(self, frame, use_larger_box=False, larger_box_coef=1.0):
+        """Face detection on a single frame.
+
+        Args:
+            frame(np.array): a single frame.
+            use_larger_box(bool): whether to use a larger bounding box on face detection.
+            larger_box_coef(float): Coef. of larger box.
+        Returns:
+            face_box_coor(List[int]): coordinates of face bouding box.
+        """
+
         detector = cv2.CascadeClassifier(
             './dataset/haarcascade_frontalface_default.xml')
         face_zone = detector.detectMultiScale(frame)
         if len(face_zone) < 1:
-            print("ERROR:No Face Detected")
-            result = [0, 0, frame.shape[0], frame.shape[1]]
+            print("ERROR: No Face Detected")
+            face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
         elif len(face_zone) >= 2:
-            result = np.argmax(face_zone, axis=0)
-            result = face_zone[result[2]]
-            print("WARN:More than one faces are detected(Only cropping the biggest one.)")
+            face_box_coor = np.argmax(face_zone, axis=0)
+            face_box_coor = face_zone[face_box_coor[2]]
+            print("Warning: More than one faces are detected(Only cropping the biggest one.)")
         else:
-            result = face_zone[0]
-        if larger_box:
-            print("Larger Bounding Box")
-            result[0] = max(0, result[0] - (larger_box_size - 1.0) / 2 * result[2])
-            result[1] = max(0, result[1] - (larger_box_size - 1.0) / 2 * result[3])
-            result[2] = larger_box_size * result[2]
-            result[3] = larger_box_size * result[3]
-        return result
+            face_box_coor = face_zone[0]
+        if use_larger_box:
+            face_box_coor[0] = max(0, face_box_coor[0] - (larger_box_coef - 1.0) / 2 * face_box_coor[2])
+            face_box_coor[1] = max(0, face_box_coor[1] - (larger_box_coef - 1.0) / 2 * face_box_coor[3])
+            face_box_coor[2] = larger_box_coef * face_box_coor[2]
+            face_box_coor[3] = larger_box_coef * face_box_coor[3]
+        return face_box_coor
 
-    def resize(self, frames, dynamic_det, det_length,
-               w, h, larger_box, crop_face, larger_box_size):
-        """
+    def face_crop_resize(self, frames, use_dynamic_detection, detection_freq, width, height,
+                         use_larger_box, use_face_detection, larger_box_coef):
+        """Crop face and resize frames.
 
-        :param dynamic_det: If False, it will use the only first frame to do facial detection and
-                            the detected result will be used for all frames to do cropping and resizing.
-                            If True, it will implement facial detection every "det_length" frames,
-                            [i*det_length, (i+1)*det_length] of frames will use the i-th detected region to do cropping.
-        :param det_length: the interval of dynamic detection
-        :param larger_box: whether enlarge the detected region.
-        :param crop_face:  whether crop the frames.
-        :param larger_box_size: the coefficient of the larger region(height and weight),
-                            the middle point of the detected region will stay still during the process of enlarging.
+        Args:
+            frames(np.array): Video frames.
+            use_dynamic_detection(bool): If False, all the frames use the first frame's bouding box to crop the faces
+                                         and resizing.
+                                         If True, it performs face detection every "detection_freq" frames.
+            detection_freq(int): The frequency of dynamic face detection e.g., every detection_freq frames.
+            width(int): Target width for resizing.
+            height(int): Target height for resizing.
+            use_larger_box(bool): Whether enlarge the detected bouding box from face detection.
+            use_face_detection(bool):  Whether crop the face.
+            larger_box_coef(float): the coefficient of the larger region(height and weight),
+                                the middle point of the detected region will stay still during the process of enlarging.
+        Returns:
+            resized_frames(list[np.array(float)]): Resized and cropped frames
         """
-        if dynamic_det:
-            det_num = ceil(frames.shape[0] / det_length)
+        # Face Cropping
+        if use_dynamic_detection:
+            num_dynamic_det = ceil(frames.shape[0] / detection_freq)
         else:
-            det_num = 1
-        face_region = list()
-
-        # obtain detection region. it will do facial detection every "det_length" frames, totally "det_num" times.
-        for idx in range(det_num):
-            if crop_face:
-                face_region.append(self.facial_detection(frames[det_length * idx], larger_box, larger_box_size))
+            num_dynamic_det = 1
+        face_region_all = []
+        # Perform face detection by num_dynamic_det" times.
+        for idx in range(num_dynamic_det):
+            if use_face_detection:
+                face_region_all.append(self.face_detection(frames[detection_freq * idx], use_larger_box, larger_box_coef))
             else:
-                # if crop_face:False, the face_region will be the whole frame, namely cropping nothing.
-                face_region.append([0, 0, frames.shape[1], frames.shape[2]])
-        face_region_all = np.asarray(face_region, dtype='int')
-        resize_frames = np.zeros((frames.shape[0], h, w, 3))
+                face_region_all.append([0, 0, frames.shape[1], frames.shape[2]])
+        face_region_all = np.asarray(face_region_all, dtype='int')
 
-        # if dynamic_det: True, the frame under processing will use the (i // det_length)-th facial region.
-        # if dynamic_det: False, the frame will only use the first region obtrained from the first frame.
+        # Frame Resizing
+        resized_frames = np.zeros((frames.shape[0], height, width, 3))
         for i in range(0, frames.shape[0]):
             frame = frames[i]
-            if dynamic_det:
-                reference_index = i // det_length
-            else:
+            if use_dynamic_detection:  # use the (i // detection_freq)-th facial region.
+                reference_index = i // detection_freq
+            else:  # use the first region obtrained from the first frame.
                 reference_index = 0
-            if crop_face:
+            if use_face_detection:
                 face_region = face_region_all[reference_index]
                 frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
                         max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
-            resize_frames[i] = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
-        return resize_frames
+            resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+        return resized_frames
 
     def chunk(self, frames, bvps, chunk_length):
-        """Chunks the data into clips."""
+        """Chunk the data into small chunks.
+
+        Args:
+            frames(np.array): video frames.
+            bvps(np.array): blood volumne pulse (PPG) labels.
+            chunk_length(int): the length of each chunk.
+        Returns:
+            frames_clips: all chunks of face cropped frames
+            bvp_clips: all chunks of bvp frames
+        """
+
         clip_num = frames.shape[0] // chunk_length
-        frames_clips = [
-            frames[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
-        bvps_clips = [
-            bvps[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
+        frames_clips = [frames[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
+        bvps_clips = [bvps[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
         return np.array(frames_clips), np.array(bvps_clips)
 
     def save(self, frames_clips, bvps_clips, filename):
-        """Saves the preprocessing data."""
+        """Save all the chunked data.
+
+        Args:
+            frames_clips(np.array): blood volumne pulse (PPG) labels.
+            bvps_clips(np.array): the length of each chunk.
+            filename: name the filename
+        Returns:
+            frames_clips: all chunks of face cropped frames
+            bvp_clips: all chunks of bvp frames
+        """
+
         if not os.path.exists(self.cached_path):
             os.makedirs(self.cached_path, exist_ok=True)
         count = 0
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
-            input_path_name = self.cached_path + os.sep + \
-                              "{0}_input{1}.npy".format(filename, str(count))
-            label_path_name = self.cached_path + os.sep + \
-                              "{0}_label{1}.npy".format(filename, str(count))
+            input_path_name = self.cached_path + os.sep + "{0}_input{1}.npy".format(filename, str(count))
+            label_path_name = self.cached_path + os.sep + "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
@@ -266,7 +302,16 @@ class BaseLoader(Dataset):
         return count
 
     def save_multi_process(self, frames_clips, bvps_clips, filename):
-        """Saves the preprocessing data."""
+        """Save all the chunked data with multi-thread processing.
+
+        Args:
+            frames_clips(np.array): blood volumne pulse (PPG) labels.
+            bvps_clips(np.array): the length of each chunk.
+            filename: name the filename
+        Returns:
+            frames_clips: all chunks of face cropped frames
+            bvp_clips: all chunks of bvp frames
+        """
         if not os.path.exists(self.cached_path):
             os.makedirs(self.cached_path, exist_ok=True)
         count = 0
@@ -274,10 +319,8 @@ class BaseLoader(Dataset):
         label_path_name_list = []
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
-            input_path_name = self.cached_path + os.sep + \
-                              "{0}_input{1}.npy".format(filename, str(count))
-            label_path_name = self.cached_path + os.sep + \
-                              "{0}_label{1}.npy".format(filename, str(count))
+            input_path_name = self.cached_path + os.sep + "{0}_input{1}.npy".format(filename, str(count))
+            label_path_name = self.cached_path + os.sep + "{0}_label{1}.npy".format(filename, str(count))
             input_path_name_list.append(input_path_name)
             label_path_name_list.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
@@ -285,10 +328,11 @@ class BaseLoader(Dataset):
             count += 1
         return count, input_path_name_list, label_path_name_list
 
-    def multi_process_manager(self, data_dirs, config_preprocess):
+    def multi_process_manager(self, data_dirs, config_preprocess, multi_process_quota=8):
+        #  TODO: @Girish add doc string.
 
         file_num = len(data_dirs)
-        choose_range = choose_range = range(0, file_num)
+        choose_range = range(0, file_num)
         pbar = tqdm(list(choose_range))
 
         # shared data resource
@@ -300,9 +344,9 @@ class BaseLoader(Dataset):
         for i in choose_range:
             process_flag = True
             while process_flag:  # ensure that every i creates a process
-                if running_num < 8:  # in case of too many processes
-                    p = Process(target=self.preprocess_dataset_subprocess, \
-                                args=(data_dirs, config_preprocess, i, file_list_dict))
+                if running_num < multi_process_quota:  # in case of too many processes
+                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,
+                                                                                 config_preprocess, i, file_list_dict))
                     p.start()
                     p_list.append(p)
                     running_num += 1
@@ -322,64 +366,62 @@ class BaseLoader(Dataset):
         return file_list_dict
 
     def build_file_list(self, file_list_dict):
-        """build file list"""
-
+        #  TODO: @Girish add doc string.
         file_list = []
         for process_num, file_paths in file_list_dict.items():
             file_list = file_list + file_paths
 
         if not file_list:
-            raise ValueError(self.name, 'No files in file list')
+            raise ValueError(self.dataset_name, 'No files in file list')
 
-        file_list_df = pd.DataFrame(file_list, columns = ['input_files'])   
+        file_list_df = pd.DataFrame(file_list, columns=['input_files'])
         os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
         file_list_df.to_csv(self.file_list_path)
 
     def build_file_list_retroactive(self, data_dirs, begin, end):
+        #  TODO: @Girish add doc string.
 
-        # get data split
-        data_dirs = self.get_data_subset(data_dirs, begin, end)
+        # Get data split based on begin and end indices.
+        data_dirs_subset = self.split_raw_data(data_dirs, begin, end)
 
-        # generate a list of unique raw-data file names 
+        # generate a list of unique raw-data file names
         filename_list = []
-        for i in range(len(data_dirs)):
-            filename_list.append(data_dirs[i]['index'])
-        filename_list = list(set(filename_list)) # ensure all indexes are unique
+        for i in range(len(data_dirs_subset)):
+            filename_list.append(data_dirs_subset[i]['index'])
+        filename_list = list(set(filename_list))  # ensure all indexes are unique
 
-        # generate a list of all preprocessed / chunked data files 
+        # generate a list of all preprocessed / chunked data files
         file_list = []
         for fname in filename_list:
             processed_file_data = list(glob.glob(self.cached_path + os.sep + "{0}_input*.npy".format(fname)))
             file_list += processed_file_data
 
         if not file_list:
-            raise ValueError(self.name, 'File list empty. Check preprocessed data folder exists and is not empty.')
+            raise ValueError(self.dataset_name,
+                             'File list empty. Check preprocessed data folder exists and is not empty.')
 
-        file_list_df = pd.DataFrame(file_list, columns = ['input_files'])   
+        file_list_df = pd.DataFrame(file_list, columns=['input_files'])
         os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
         file_list_df.to_csv(self.file_list_path)
 
-    def load(self):
-        """Loads the preprocessing data listed in the file list"""
-
-        file_list_path = self.file_list_path # get list of files in 
-
-        # TO DO: Insert functionality to generate file list if it does not already exist
-
-        file_list_df = pd.read_csv(file_list_path) 
+    def load_preprocessed_data(self):
+        """Loads the preprocessing data listed in the file list."""
+        # TODO (@Girish): Insert functionality to generate file list if it does not already exist
+        file_list_path = self.file_list_path  # get list of files in
+        file_list_df = pd.read_csv(file_list_path)
         inputs = file_list_df['input_files'].tolist()
-        if inputs == []:
-            raise ValueError(self.name + ' dataset loading data error!')
+        if not inputs:
+            raise ValueError(self.dataset_name + ' dataset loading data error!')
         inputs = sorted(inputs)  # sort input file name list
         labels = [input_file.replace("input", "label") for input_file in inputs]
         self.inputs = inputs
         self.labels = labels
-        self.len = len(inputs)
-        print("Loaded data len:", self.len)
+        self.preprocessed_data_len = len(inputs)
+        print("Loaded Data Length: ", self.preprocessed_data_len)
 
     @staticmethod
     def diff_normalize_data(data):
-        """Difference frames and normalization data"""
+        """Calculate discrete difference in video data along the time-axis and nornamize by its standard deviation."""
         n, h, w, c = data.shape
         normalized_len = n - 1
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
@@ -392,7 +434,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def diff_normalize_label(label):
-        """Difference frames and normalization labels"""
+        """Calculate discrete difference in labels along the time-axis and nornamize by its standard deviation."""
         diff_label = np.diff(label, axis=0)
         normalized_label = diff_label / np.std(diff_label)
         normalized_label[np.isnan(normalized_label)] = 0
@@ -400,7 +442,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def standardized_data(data):
-        """Difference frames and normalization data"""
+        """Z-score standarzation for video data."""
         data = data - np.mean(data)
         data = data / np.std(data)
         data[np.isnan(data)] = 0
@@ -408,6 +450,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def standardized_label(label):
+        """Z-score standarzation for label signal."""
         label = label - np.mean(label)
         label = label / np.std(label)
         label[np.isnan(label)] = 0
