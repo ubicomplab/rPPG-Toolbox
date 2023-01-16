@@ -75,8 +75,7 @@ class COHFACELoader(BaseLoader):
                     data_dirs[i]["path"],
                     "data.hdf5"))
             bvps = sample(bvps, frames.shape[0])
-            frames_clips, bvps_clips = self.preprocess(
-                frames, bvps, config_preprocess, False)
+            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
             self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 
     @staticmethod

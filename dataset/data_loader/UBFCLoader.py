@@ -74,7 +74,7 @@ class UBFCLoader(BaseLoader):
         bvps = self.read_wave(
             os.path.join(data_dirs[i]['path'],"ground_truth.txt"))
             
-        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
+        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 
