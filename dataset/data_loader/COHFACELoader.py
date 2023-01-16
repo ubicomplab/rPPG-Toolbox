@@ -13,7 +13,6 @@ import cv2
 import h5py
 import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
-from utils.utils import sample
 
 
 class COHFACELoader(BaseLoader):
@@ -74,7 +73,8 @@ class COHFACELoader(BaseLoader):
                 os.path.join(
                     data_dirs[i]["path"],
                     "data.hdf5"))
-            bvps = sample(bvps, frames.shape[0])
+            target_length = frames.shape[0]
+            bvps = BaseLoader.resample_ppg(bvps, target_length)
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
             self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 

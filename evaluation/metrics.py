@@ -9,14 +9,12 @@ import numpy as np
 import pandas as pd
 import torch
 from dataset import data_loader
-from eval.post_process import *
-from neural_methods.model.DeepPhys import DeepPhys
-from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
-from neural_methods.model.TS_CAN import TSCAN
+from evaluation.post_process import *
 from torch.utils.data import DataLoader
 
 
 def read_label(dataset):
+    """Read manually corrected labels."""
     df = pd.read_csv("label/{0}_Comparison.csv".format(dataset))
     out_dict = df.to_dict(orient='index')
     out_dict = {str(value['VideoID']): value for key, value in out_dict.items()}
@@ -24,6 +22,7 @@ def read_label(dataset):
 
 
 def read_hr_label(feed_dict, index):
+    """Read manually corrected UBFC labels."""
     # For UBFC only
     if index[:7] == 'subject':
         index = index[7:]
@@ -37,7 +36,8 @@ def read_hr_label(feed_dict, index):
     return index, hr
 
 
-def reform_data_from_dict(data):
+def _reform_data_from_dict(data):
+    """Helper func for calculate metrics: reformat predictions and labels from dicts. """
     sort_data = sorted(data.items(), key=lambda x: x[0])
     sort_data = [i[1] for i in sort_data]
     sort_data = torch.cat(sort_data, dim=0)
@@ -45,13 +45,14 @@ def reform_data_from_dict(data):
 
 
 def calculate_metrics(predictions, labels, config):
+    """Calculate rPPG Metrics (MAE, RMSE, MAPE, Pearson Coef.)."""
     predict_hr_fft_all = list()
     gt_hr_fft_all = list()
     predict_hr_peak_all = list()
     gt_hr_peak_all = list()
     for index in predictions.keys():
-        prediction = reform_data_from_dict(predictions[index])
-        label = reform_data_from_dict(labels[index])
+        prediction = _reform_data_from_dict(predictions[index])
+        label = _reform_data_from_dict(labels[index])
 
         if config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
                 config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Raw":
@@ -61,9 +62,9 @@ def calculate_metrics(predictions, labels, config):
         else:
             raise ValueError("Not supported label type in testing!")
         gt_hr_fft, pred_hr_fft = calculate_metric_per_video(
-            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
-        gt_hr_peak, pred_hr_peak = calculate_metric_peak_per_video(
-            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS)
+            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='FFT')
+        gt_hr_peak, pred_hr_peak = calculate_metric_per_video(
+            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='Peak')
         gt_hr_fft_all.append(gt_hr_fft)
         predict_hr_fft_all.append(pred_hr_fft)
         predict_hr_peak_all.append(pred_hr_peak)

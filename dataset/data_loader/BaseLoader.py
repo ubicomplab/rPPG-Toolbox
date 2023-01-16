@@ -2,7 +2,8 @@
 
 Provides a pytorch-style data-loader for end-to-end training pipelines.
 Extend the class to support specific datasets.
-Dataset already supported:UBFC,PURE and COHFACE
+Dataset already supported: UBFC, PURE, SCAMPS, and COHFACE.
+
 """
 import csv
 import glob
@@ -455,3 +456,11 @@ class BaseLoader(Dataset):
         label = label / np.std(label)
         label[np.isnan(label)] = 0
         return label
+
+    @staticmethod
+    def resample_ppg(input_signal, target_length):
+        """Samples a PPG sequence into specific length."""
+        return np.interp(
+            np.linspace(
+                1, input_signal.shape[0], target_length), np.linspace(
+                1, input_signal.shape[0], input_signal.shape[0]), input_signal)

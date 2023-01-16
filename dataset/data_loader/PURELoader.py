@@ -16,7 +16,6 @@ import cv2
 import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
 from tqdm import tqdm
-from utils.utils import sample
 
 
 class PURELoader(BaseLoader):
@@ -99,7 +98,7 @@ class PURELoader(BaseLoader):
         return data_dirs_new
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
-        """   invoked by preprocess_dataset for multi_process.   """
+        """ Invoked by preprocess_dataset for multi_process. """
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
         
@@ -107,8 +106,8 @@ class PURELoader(BaseLoader):
             os.path.join(data_dirs[i]['path'], filename, ""))
         bvps = self.read_wave(
             os.path.join(data_dirs[i]['path'], "{0}.json".format(filename)))
-
-        bvps = sample(bvps, frames.shape[0])
+        target_length = frames.shape[0]
+        bvps = BaseLoader.resample_ppg(bvps, target_length)
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list

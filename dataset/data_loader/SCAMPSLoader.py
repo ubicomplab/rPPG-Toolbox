@@ -19,7 +19,6 @@ import numpy as np
 import scipy.io
 from dataset.data_loader.BaseLoader import BaseLoader
 from tqdm import tqdm
-from utils.utils import sample
 
 
 class SCAMPSLoader(BaseLoader):
