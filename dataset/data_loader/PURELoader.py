@@ -49,7 +49,7 @@ class PURELoader(BaseLoader):
 
         data_dirs = glob.glob(data_path + os.sep + "*-*")
         if not data_dirs:
-            raise ValueError(self.name + " dataset get data error!")
+            raise ValueError(self.dataset_name + " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             subject_trail_val = os.path.split(data_dir)[-1].replace('-', '')

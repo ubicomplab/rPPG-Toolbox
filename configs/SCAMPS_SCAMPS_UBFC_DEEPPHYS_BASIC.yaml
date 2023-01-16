@@ -10,7 +10,7 @@ TRAIN:
     DATASET: SCAMPS
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Train"          # Raw dataset path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SCAMPS/RawData/Train"          # Raw dataset path, need to be updated
     CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
@@ -33,7 +33,7 @@ VALID:
     DATASET: SCAMPS
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SyntheticsPublicDataset/RawData/Val"          # Raw dataset path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SCAMPS/RawData/Val"          # Raw dataset path, need to be updated
     CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0

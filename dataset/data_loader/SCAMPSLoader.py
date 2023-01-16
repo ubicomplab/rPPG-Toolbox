@@ -49,7 +49,7 @@ class SCAMPSLoader(BaseLoader):
         """Returns data directories under the path(For COHFACE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*.mat")
         if not data_dirs:
-            raise ValueError(self.name + " dataset get data error!")
+            raise ValueError(self.dataset_name + " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             subject = os.path.split(data_dir)[-1]
