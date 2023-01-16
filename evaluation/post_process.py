@@ -44,7 +44,7 @@ def _calculate_fft_hr(ppg_signal, fs=60, low_pass=0.75, high_pass=2.5):
     mask_ppg = np.take(f_ppg, fmask_ppg)
     mask_pxx = np.take(pxx_ppg, fmask_ppg)
     fft_hr = np.take(mask_ppg, np.argmax(mask_pxx, 0))[0] * 60
-    return fft_hr, mask_ppg, mask_pxx
+    return fft_hr
 
 
 def _calculate_peak_hr(ppg_signal, fs):
