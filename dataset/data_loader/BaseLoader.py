@@ -155,20 +155,20 @@ class BaseLoader(Dataset):
         for data_type in config_preprocess.DATA_TYPE:
             f_c = frames.copy()
             if data_type == "Raw":
-                data.append(f_c[:-1, :, :, :])
+                data.append(f_c)
             elif data_type == "Normalized":
                 data.append(BaseLoader.diff_normalize_data(f_c))
             elif data_type == "Standardized":
-                data.append(BaseLoader.standardized_data(f_c)[:-1, :, :, :])
+                data.append(BaseLoader.standardized_data(f_c))
             else:
                 raise ValueError("Unsupported data type!")
         data = np.concatenate(data, axis=-1)  # concatenate all channels
         if config_preprocess.LABEL_TYPE == "Raw":
-            bvps = bvps[:-1]
+            pass
         elif config_preprocess.LABEL_TYPE == "Normalized":
             bvps = BaseLoader.diff_normalize_label(bvps)
         elif config_preprocess.LABEL_TYPE == "Standardized":
-            bvps = BaseLoader.standardized_label(bvps)[:-1]
+            bvps = BaseLoader.standardized_label(bvps)
         else:
             raise ValueError("Unsupported label type!")
 
@@ -426,10 +426,12 @@ class BaseLoader(Dataset):
         n, h, w, c = data.shape
         normalized_len = n - 1
         normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
+        normalized_data_padding = np.zeros((1, h, w, c), dtype=np.float32)
         for j in range(normalized_len - 1):
             normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
                     data[j + 1, :, :, :] + data[j, :, :, :] + 1e-7)
         normalized_data = normalized_data / np.std(normalized_data)
+        normalized_data = np.append(normalized_data, normalized_data_padding, axis=0)
         normalized_data[np.isnan(normalized_data)] = 0
         return normalized_data
 
@@ -438,6 +440,7 @@ class BaseLoader(Dataset):
         """Calculate discrete difference in labels along the time-axis and nornamize by its standard deviation."""
         diff_label = np.diff(label, axis=0)
         normalized_label = diff_label / np.std(diff_label)
+        normalized_label = np.append(normalized_label, np.zeros(1), axis=0)
         normalized_label[np.isnan(normalized_label)] = 0
         return normalized_label
 

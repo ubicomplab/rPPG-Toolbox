@@ -5,7 +5,7 @@ from collections import OrderedDict
 import numpy as np
 import torch
 import torch.optim as optim
-from metrics.metrics import calculate_metrics
+from evaluation.metrics import calculate_metrics
 from neural_methods.loss.PhysNetNegPearsonLoss import Neg_Pearson
 from neural_methods.model.PhysNet import PhysNet_padding_Encoder_Decoder_MAX
 from neural_methods.trainer.BaseTrainer import BaseTrainer
