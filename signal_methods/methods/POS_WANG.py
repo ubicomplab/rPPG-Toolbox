@@ -7,14 +7,22 @@ IEEE Transactions on Biomedical Engineering, 64(7), 1479-1491.
 import math
 
 import numpy as np
-from metrics.metrics import *
 from scipy import signal
 from signal_methods import utils
 
 
+def _process_video(frames):
+    """Calculates the average value of each frame."""
+    RGB = []
+    for frame in frames:
+        summation = np.sum(np.sum(frame, axis=0), axis=0)
+        RGB.append(summation / (frame.shape[0] * frame.shape[1]))
+    return np.asarray(RGB)
+
+
 def POS_WANG(frames, fs):
     WinSec = 1.6
-    RGB = process_video(frames)
+    RGB = _process_video(frames)
     N = RGB.shape[0]
     H = np.zeros((1, N))
     l = math.ceil(WinSec * fs)
@@ -39,10 +47,3 @@ def POS_WANG(frames, fs):
     return BVP
 
 
-def process_video(frames):
-    """Calculates the average value of each frame."""
-    RGB = []
-    for frame in frames:
-        summation = np.sum(np.sum(frame, axis=0), axis=0)
-        RGB.append(summation / (frame.shape[0] * frame.shape[1]))
-    return np.asarray(RGB)

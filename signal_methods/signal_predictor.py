@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import numpy as np
 import torch
-from metrics.metrics import calculate_metrics
+from evaluation.metrics import calculate_metrics
 from signal_methods.methods.CHROME_DEHAAN import *
 from signal_methods.methods.GREEN import *
 from signal_methods.methods.ICA_POH import *
@@ -14,7 +14,6 @@ from signal_methods.methods.LGI import *
 from signal_methods.methods.PBV import *
 from signal_methods.methods.POS_WANG import *
 from tqdm import tqdm
-from utils.utils import *
 
 
 def signal_predict(config, data_loader, method_name):

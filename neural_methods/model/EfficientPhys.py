@@ -1,5 +1,5 @@
 """EfficientPhys: Enabling Simple, Fast and Accurate Camera-Based Vitals Measurement
-Arxiv, 2021
+Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV 2023)
 Xin Liu, Brial Hill, Ziheng Jiang, Shwetak Patel, Daniel McDuff
 """
 

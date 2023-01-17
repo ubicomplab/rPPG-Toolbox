@@ -41,18 +41,18 @@ class UBFCLoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
-    def get_data(self, data_path):
+    def get_raw_data(self, data_path):
         """Returns data directories under the path(For UBFC dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "subject*")
         if not data_dirs:
-            raise ValueError(self.name + " dataset get data error!")
+            raise ValueError(self.dataset_name + " dataset get data error!")
         dirs = [{"index": re.search(
             'subject(\d+)', data_dir).group(0), "path": data_dir} for data_dir in data_dirs]
         return dirs
 
-    def get_data_subset(self, data_dirs, begin, end):
-        """Returns a subset of data dirs, split with begin and end values"""
-        if begin == 0 and end == 1: # return the full directory if begin == 0 and end == 1
+    def split_raw_data(self, data_dirs, begin, end):
+        """Returns a subset of data dirs, split with begin and end values."""
+        if begin == 0 and end == 1:  # return the full directory if begin == 0 and end == 1
             return data_dirs
 
         file_num = len(data_dirs)
@@ -65,7 +65,7 @@ class UBFCLoader(BaseLoader):
         return data_dirs_new
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
-        """   invoked by preprocess_dataset for multi_process.   """
+        """ invoked by preprocess_dataset for multi_process."""
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
 
@@ -74,7 +74,7 @@ class UBFCLoader(BaseLoader):
         bvps = self.read_wave(
             os.path.join(data_dirs[i]['path'],"ground_truth.txt"))
             
-        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess, config_preprocess.LARGE_FACE_BOX)
+        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
         count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 

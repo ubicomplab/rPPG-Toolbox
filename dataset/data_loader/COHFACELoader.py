@@ -13,7 +13,6 @@ import cv2
 import h5py
 import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
-from utils.utils import sample
 
 
 class COHFACELoader(BaseLoader):
@@ -49,11 +48,11 @@ class COHFACELoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
-    def get_data(self, data_path):
+    def get_raw_data(self, data_path):
         """Returns data directories under the path(For COHFACE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*")
         if not data_dirs:
-            raise ValueError(self.name + " dataset get data error!")
+            raise ValueError(self.dataset_name + " dataset get data error!")
         dirs = list()
         for data_dir in data_dirs:
             for i in range(4):
@@ -74,11 +73,10 @@ class COHFACELoader(BaseLoader):
                 os.path.join(
                     data_dirs[i]["path"],
                     "data.hdf5"))
-            bvps = sample(bvps, frames.shape[0])
-            frames_clips, bvps_clips = self.preprocess(
-                frames, bvps, config_preprocess, False)
-            self.len += self.save(frames_clips, bvps_clips,
-                                  data_dirs[i]["index"])
+            target_length = frames.shape[0]
+            bvps = BaseLoader.resample_ppg(bvps, target_length)
+            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
+            self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 
     @staticmethod
     def read_video(video_file):
@@ -86,10 +84,7 @@ class COHFACELoader(BaseLoader):
         VidObj = cv2.VideoCapture(video_file)
         VidObj.set(cv2.CAP_PROP_POS_MSEC, 0)
         success, frame = VidObj.read()
-
         frames = list()
-
-        # cv2.imwrite("temp/exemple.png", frame)
         while (success):
             frame = cv2.cvtColor(np.array(frame), cv2.COLOR_BGR2RGB)
             frame = np.asarray(frame)

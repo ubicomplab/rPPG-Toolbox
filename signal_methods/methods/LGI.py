@@ -22,6 +22,6 @@ def LGI(frames):
     p = np.tile(np.identity(3), (S.shape[0], 1, 1))
     P = p - SST
     Y = np.matmul(P, precessed_data)
-    BVP = Y[:, 1, :]
-    BVP = BVP.reshape(-1)
-    return BVP
+    bvp = Y[:, 1, :]
+    bvp = bvp.reshape(-1)
+    return bvp
