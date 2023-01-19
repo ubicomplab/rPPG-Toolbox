@@ -42,7 +42,9 @@ class DeepPhysTrainer(BaseTrainer):
         """ TODO:Docstring"""
         if data_loader["train"] is None:
             raise ValueError("No data for train")
-        min_valid_loss = 1
+        if self.config.TEST.USE_LAST_EPOCH is False: 
+            min_valid_loss = 1
+
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
@@ -70,15 +72,17 @@ class DeepPhysTrainer(BaseTrainer):
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 tbar.set_postfix({"loss": loss.item(), "lr": self.optimizer.param_groups[0]["lr"]})
-            valid_loss = self.valid(data_loader)
-            self.save_model(epoch)
-            print('validation loss: ', valid_loss)
-            if (valid_loss < min_valid_loss) or (valid_loss < 0):
-                min_valid_loss = valid_loss
-                self.best_epoch = epoch
-                print("update best model,best epoch :{}".format(self.best_epoch))
+            if self.config.TEST.USE_LAST_EPOCH is False: 
+                valid_loss = self.valid(data_loader)
                 self.save_model(epoch)
-        print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch, min_valid_loss))
+                print('validation loss: ', valid_loss)
+                if (valid_loss < min_valid_loss) or (valid_loss < 0):
+                    min_valid_loss = valid_loss
+                    self.best_epoch = epoch
+                    print("update best model,best epoch :{}".format(self.best_epoch))
+                    self.save_model(epoch)
+        if self.config.TEST.USE_LAST_EPOCH is False: 
+            print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch, min_valid_loss))
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
