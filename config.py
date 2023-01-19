@@ -249,16 +249,13 @@ def update_config(config, args):
                                                         str(config.TRAIN.DATA.BEGIN) + '_' + \
                                                         str(config.TRAIN.DATA.END) + '.csv')
     elif ext != '.csv':
-        raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+        raise ValueError(self.dataset_name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
     
     if ext == '.csv' and config.TRAIN.DATA.DO_PREPROCESS:
-        raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+        raise ValueError(self.dataset_name, 'User specified FILE_LIST_PATH .csv file already exists. \
                          Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
 
-    if config.TEST.USE_LAST_EPOCH is False:
-        if config.VALID.DATA.DATASET is None:
-            raise ValueError(self.name, 'Validation dataset is not provided despite USE_LAST_EPOCH being False!')
-
+    if not config.TEST.USE_LAST_EPOCH and config.VALID.DATA.DATASET is not None:
         # UPDATE VALID PATHS
         if config.VALID.DATA.FILE_LIST_PATH == default_VALID_FILE_LIST_PATH:
             config.VALID.DATA.FILE_LIST_PATH = os.path.join(config.VALID.DATA.CACHED_PATH, 'DataFileLists')
@@ -282,11 +279,13 @@ def update_config(config, args):
                                                             str(config.VALID.DATA.BEGIN) + '_' + \
                                                             str(config.VALID.DATA.END) + '.csv')
         elif ext != '.csv':
-            raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+            raise ValueError(self.dataset_name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
 
         if ext == '.csv' and config.VALID.DATA.DO_PREPROCESS:
-            raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+            raise ValueError(self.dataset_name, 'User specified FILE_LIST_PATH .csv file already exists. \
                             Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
+    elif not config.TEST.USE_LAST_EPOCH and config.VALID.DATA.DATASET is None:
+        raise ValueError(self.dataset_name, 'Validation dataset is not provided despite USE_LAST_EPOCH being False!')
 
     # UPDATE TEST PATHS
     if config.TEST.DATA.FILE_LIST_PATH == default_TEST_FILE_LIST_PATH:
@@ -311,10 +310,10 @@ def update_config(config, args):
                                                        str(config.TEST.DATA.BEGIN) + '_' + \
                                                        str(config.TEST.DATA.END) + '.csv')
     elif ext != '.csv':
-        raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+        raise ValueError(self.dataset_name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
 
     if ext == '.csv' and config.TEST.DATA.DO_PREPROCESS:
-        raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+        raise ValueError(self.dataset_name, 'User specified FILE_LIST_PATH .csv file already exists. \
                          Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
     
 
@@ -342,10 +341,10 @@ def update_config(config, args):
                                                          str(config.SIGNAL.DATA.BEGIN) + '_' + \
                                                          str(config.SIGNAL.DATA.END) + '.csv')
     elif ext != '.csv':
-        raise ValueError(self.name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
+        raise ValueError(self.dataset_name, 'FILE_LIST_PATH must either be a directory path or a .csv file name')
 
     if ext == '.csv' and config.SIGNAL.DATA.DO_PREPROCESS:
-        raise ValueError(self.name, 'User specified FILE_LIST_PATH .csv file already exists. \
+        raise ValueError(self.dataset_name, 'User specified FILE_LIST_PATH .csv file already exists. \
                          Please turn DO_PREPROCESS to False or delete existing FILE_LIST_PATH .csv file.')
 
 
