@@ -42,7 +42,7 @@ class PhysnetTrainer(BaseTrainer):
         """ TODO:Docstring"""
         if data_loader["train"] is None:
             raise ValueError("No data for train")
-        if self.config.TEST.USE_LAST_EPOCH is False: 
+        if not self.config.TEST.USE_LAST_EPOCH: 
             min_valid_loss = 1
 
         for epoch in range(self.max_epoch_num):
@@ -72,7 +72,7 @@ class PhysnetTrainer(BaseTrainer):
                 self.scheduler.step()
                 self.optimizer.zero_grad()
                 tbar.set_postfix(loss=loss.item())
-            if self.config.TEST.USE_LAST_EPOCH is False: 
+            if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
                 self.save_model(epoch)
                 print('validation loss: ', valid_loss)
@@ -81,7 +81,7 @@ class PhysnetTrainer(BaseTrainer):
                     self.best_epoch = epoch
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
                     self.save_model(epoch)
-        if self.config.TEST.USE_LAST_EPOCH is False: 
+        if not self.config.TEST.USE_LAST_EPOCH: 
             print("best trained epoch:{}, min_val_loss:{}".format(
                 self.best_epoch, min_valid_loss))
 
