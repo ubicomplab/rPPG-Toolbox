@@ -142,8 +142,14 @@ if __name__ == "__main__":
             valid_loader = data_loader.PURELoader.PURELoader
         elif config.VALID.DATA.DATASET == "SCAMPS":
             valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        elif config.VALID.DATA.DATASET is None:
+            if config.TEST.USE_LAST_EPOCH is False:
+                raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
+
+        if config.TEST.USE_LAST_EPOCH:
+                print("Testing uses last epoch, validation dataset is not required.")
 
         # test_loader
         if config.TEST.DATA.DATASET == "COHFACE":
@@ -158,53 +164,56 @@ if __name__ == "__main__":
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
-        if config.TRAIN.DATA.DATA_PATH:
-            train_data_loader = train_loader(
-                name="train",
-                data_path=config.TRAIN.DATA.DATA_PATH,
-                config_data=config.TRAIN.DATA)
-            data_loader_dict['train'] = DataLoader(
-                dataset=train_data_loader,
-                num_workers=16,
-                batch_size=config.TRAIN.BATCH_SIZE,
-                shuffle=True,
-                worker_init_fn=seed_worker,
-                generator=g
-            )
-        else:
-            data_loader_dict['train'] = None
+        if config.TRAIN.DATA.DATASET is not None:
+            if config.TRAIN.DATA.DATA_PATH:
+                train_data_loader = train_loader(
+                    name="train",
+                    data_path=config.TRAIN.DATA.DATA_PATH,
+                    config_data=config.TRAIN.DATA)
+                data_loader_dict['train'] = DataLoader(
+                    dataset=train_data_loader,
+                    num_workers=16,
+                    batch_size=config.TRAIN.BATCH_SIZE,
+                    shuffle=True,
+                    worker_init_fn=seed_worker,
+                    generator=g
+                )
+            else:
+                data_loader_dict['train'] = None
 
-        if config.VALID.DATA.DATA_PATH:
-            valid_data = valid_loader(
-                name="valid",
-                data_path=config.VALID.DATA.DATA_PATH,
-                config_data=config.VALID.DATA)
-            data_loader_dict["valid"] = DataLoader(
-                dataset=valid_data,
-                num_workers=16,
-                batch_size=config.TRAIN.BATCH_SIZE,  # batch size for val is the same as train
-                shuffle=False,
-                worker_init_fn=seed_worker,
-                generator=g
-            )
-        else:
-            data_loader_dict['valid'] = None
+        if config.VALID.DATA.DATASET is not None:
+            if config.VALID.DATA.DATA_PATH:
+                valid_data = valid_loader(
+                    name="valid",
+                    data_path=config.VALID.DATA.DATA_PATH,
+                    config_data=config.VALID.DATA)
+                data_loader_dict["valid"] = DataLoader(
+                    dataset=valid_data,
+                    num_workers=16,
+                    batch_size=config.TRAIN.BATCH_SIZE,  # batch size for val is the same as train
+                    shuffle=False,
+                    worker_init_fn=seed_worker,
+                    generator=g
+                )
+            else:
+                data_loader_dict['valid'] = None
 
-        if config.TEST.DATA.DATA_PATH:
-            test_data = test_loader(
-                name="test",
-                data_path=config.TEST.DATA.DATA_PATH,
-                config_data=config.TEST.DATA)
-            data_loader_dict["test"] = DataLoader(
-                dataset=test_data,
-                num_workers=16,
-                batch_size=config.INFERENCE.BATCH_SIZE,
-                shuffle=False,
-                worker_init_fn=seed_worker,
-                generator=g
-            )
-        else:
-            data_loader_dict['test'] = None
+        if config.TEST.DATA.DATASET is not None:
+            if config.TEST.DATA.DATA_PATH:
+                test_data = test_loader(
+                    name="test",
+                    data_path=config.TEST.DATA.DATA_PATH,
+                    config_data=config.TEST.DATA)
+                data_loader_dict["test"] = DataLoader(
+                    dataset=test_data,
+                    num_workers=16,
+                    batch_size=config.INFERENCE.BATCH_SIZE,
+                    shuffle=False,
+                    worker_init_fn=seed_worker,
+                    generator=g
+                )
+            else:
+                data_loader_dict['test'] = None
 
     elif config.TOOLBOX_MODE == "signal_method":
         # signal method dataloader
