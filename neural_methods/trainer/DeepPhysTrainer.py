@@ -43,7 +43,7 @@ class DeepPhysTrainer(BaseTrainer):
         if data_loader["train"] is None:
             raise ValueError("No data for train")
         if not self.config.TEST.USE_LAST_EPOCH: 
-            min_valid_loss = 1
+            min_valid_loss = None
 
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -76,11 +76,14 @@ class DeepPhysTrainer(BaseTrainer):
                 valid_loss = self.valid(data_loader)
                 self.save_model(epoch)
                 print('validation loss: ', valid_loss)
-                if (valid_loss < min_valid_loss) or (valid_loss < 0):
+                if min_valid_loss is None:
                     min_valid_loss = valid_loss
                     self.best_epoch = epoch
-                    print("update best model,best epoch :{}".format(self.best_epoch))
-                    self.save_model(epoch)
+                    print("Update best model! Best epoch: {}".format(self.best_epoch))
+                elif (valid_loss < min_valid_loss):
+                    min_valid_loss = valid_loss
+                    self.best_epoch = epoch
+                    print("Update best model! Best epoch: {}".format(self.best_epoch))
         if not self.config.TEST.USE_LAST_EPOCH: 
             print("best trained epoch:{}, min_val_loss:{}".format(self.best_epoch, min_valid_loss))
 
