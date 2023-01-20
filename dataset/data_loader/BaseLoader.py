@@ -419,7 +419,6 @@ class BaseLoader(Dataset):
         self.inputs = inputs
         self.labels = labels
         self.preprocessed_data_len = len(inputs)
-        print("Loaded Data Length: ", self.preprocessed_data_len)
 
     @staticmethod
     def diff_normalize_data(data):
