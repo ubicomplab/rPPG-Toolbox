@@ -54,7 +54,7 @@ VALID:
       W: 128
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
-  USE_LAST_EPOCH: True
+  USE_LAST_EPOCH: True                   # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
     DATASET: PURE
@@ -79,7 +79,7 @@ TEST:
       H: 128
       W: 128
 DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 4
+NUM_OF_GPU_TRAIN: 1
 LOG:
   PATH: runs/exp
 MODEL:
@@ -89,5 +89,5 @@ MODEL:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4
-  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
   MODEL_PATH: ""

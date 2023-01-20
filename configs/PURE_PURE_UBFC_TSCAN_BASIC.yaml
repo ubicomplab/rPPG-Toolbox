@@ -52,7 +52,7 @@ VALID:
       W: 72
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
-  USE_LAST_EPOCH: True
+  USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
     DATASET: UBFC
@@ -86,5 +86,5 @@ MODEL:
     FRAME_DEPTH: 10
 INFERENCE:
   BATCH_SIZE: 4
-  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
   MODEL_PATH:   ""
