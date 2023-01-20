@@ -315,6 +315,7 @@ class BaseLoader(Dataset):
         """
         if not os.path.exists(self.cached_path):
             os.makedirs(self.cached_path, exist_ok=True)
+        count = 0
         input_path_name_list = []
         label_path_name_list = []
         for i in range(len(bvps_clips)):
@@ -325,6 +326,7 @@ class BaseLoader(Dataset):
             label_path_name_list.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
             np.save(label_path_name, bvps_clips[i])
+            count += 1
         return input_path_name_list, label_path_name_list
 
     def multi_process_manager(self, data_dirs, config_preprocess, multi_process_quota=8):
