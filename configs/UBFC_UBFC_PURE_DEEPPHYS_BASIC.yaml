@@ -52,7 +52,7 @@ VALID:
       W: 72
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
-  USE_LAST_EPOCH: True
+  USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
     DATASET: PURE
@@ -76,7 +76,7 @@ TEST:
       H: 72
       W: 72
 DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 4
+NUM_OF_GPU_TRAIN: 1
 LOG:
   PATH: runs/exp
 MODEL:
@@ -84,6 +84,6 @@ MODEL:
   NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 4
-  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
   MODEL_PATH:   ""
                     

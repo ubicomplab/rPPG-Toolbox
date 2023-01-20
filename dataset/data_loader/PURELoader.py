@@ -109,12 +109,12 @@ class PURELoader(BaseLoader):
         target_length = frames.shape[0]
         bvps = BaseLoader.resample_ppg(bvps, target_length)
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-        count, input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
+        input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 
     @staticmethod
     def read_video(video_file):
-        """Reads a video file, returns frames(T,H,W,3) """
+        """Reads a video file, returns frames(T, H, W, 3) """
         frames = list()
         all_png = sorted(glob.glob(video_file + '*.png'))
         for png_path in all_png:

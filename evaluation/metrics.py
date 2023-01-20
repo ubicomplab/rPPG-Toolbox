@@ -1,16 +1,7 @@
-import argparse
-import glob
-import os
-import random
-import re
-from collections import OrderedDict
-
 import numpy as np
 import pandas as pd
 import torch
-from dataset import data_loader
 from evaluation.post_process import *
-from torch.utils.data import DataLoader
 
 
 def read_label(dataset):
