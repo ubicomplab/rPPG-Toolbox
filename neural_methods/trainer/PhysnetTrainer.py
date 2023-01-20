@@ -39,13 +39,14 @@ class PhysnetTrainer(BaseTrainer):
             self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
 
     def train(self, data_loader):
-        """ TODO:Docstring"""
+        """Training routine for model"""
         if data_loader["train"] is None:
             raise ValueError("No data for train")
         if not self.config.TEST.USE_LAST_EPOCH: 
             min_valid_loss = None
 
         for epoch in range(self.max_epoch_num):
+            print('')
             print(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
             train_loss = []
@@ -92,6 +93,8 @@ class PhysnetTrainer(BaseTrainer):
         """ Runs the model on valid sets."""
         if data_loader["valid"] is None:
             raise ValueError("No data for valid")
+
+        print('')
         print(" ====Validing===")
         valid_loss = []
         self.model.eval()
@@ -118,6 +121,8 @@ class PhysnetTrainer(BaseTrainer):
         """ Runs the model on test sets."""
         if data_loader["test"] is None:
             raise ValueError("No data for test")
+        
+        print('')
         print("===Testing===")
         predictions = dict()
         labels = dict()
@@ -158,6 +163,8 @@ class PhysnetTrainer(BaseTrainer):
                         labels[subj_index] = dict()
                     predictions[subj_index][sort_index] = pred_ppg_test[idx]
                     labels[subj_index][sort_index] = label[idx]
+
+        print('')
         calculate_metrics(predictions, labels, self.config)
 
     def save_model(self, index):

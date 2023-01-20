@@ -67,10 +67,13 @@ class BaseLoader(Dataset):
                 print('File list does not exist... generating now...')
                 self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN, config_data.END)
                 print('File list generated.')
+                print('')
             self.load_preprocessed_data()
         print('Cached Data Path', self.cached_path)
+        print('')
         print('File List Path', self.file_list_path)
         print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}")
+        print('')
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -103,18 +106,18 @@ class BaseLoader(Dataset):
         Args:
             raw_data_path(str): a list of video_files.
         """
-        raise Exception("Not Implemented")
+        raise Exception("'get_raw_data' Not Implemented")
 
     def split_raw_data(self, data_dirs, begin, end):
-        """Returns a subset of data dirs, split with begin and end values, and ensures no overlapping subjects
-        between splits.
+        """Returns a subset of data dirs, split with begin and end values, 
+        and ensures no overlapping subjects between splits.
 
         Args:
             data_dirs(List[str]): a list of video_files.
             begin(float): index of begining during train/val split.
             end(float): index of ending during train/val split.
         """
-        raise Exception("Not Implemented")
+        raise Exception("'split_raw_data' Not Implemented")
 
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Parses and preprocesses all the raw data based on split.
@@ -125,11 +128,13 @@ class BaseLoader(Dataset):
             begin(float): index of begining during train/val split.
             end(float): index of ending during train/val split.
         """
-        data_dirs_split = self.split_raw_data(data_dirs, begin, end)
-        file_list_dict = self.multi_process_manager(data_dirs_split, config_preprocess)
+        data_dirs_split = self.split_raw_data(data_dirs, begin, end)  # partition dataset 
+        # send data directories to be processed
+        file_list_dict = self.multi_process_manager(data_dirs_split, config_preprocess) 
         self.build_file_list(file_list_dict)  # build file list
         self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
-        print("Total Number of raw files to preprocess:", len(data_dirs_split))
+        print("Total Number of raw files preprocessed:", len(data_dirs_split))
+        print('')
 
     def preprocess(self, frames, bvps, config_preprocess):
         """Preprocesses a pair of data.
@@ -142,6 +147,7 @@ class BaseLoader(Dataset):
             frame_clips(np.array): processed video data by frames
             bvps_clips(np.array): processed bvp (ppg) labels by frames
         """
+        # resize frames and crop for face region
         frames = self.face_crop_resize(
             frames,
             config_preprocess.DYNAMIC_DETECTION,
@@ -151,7 +157,7 @@ class BaseLoader(Dataset):
             config_preprocess.LARGE_FACE_BOX,
             config_preprocess.CROP_FACE,
             config_preprocess.LARGE_BOX_COEF)
-        # data_type
+        # Check data transformation type
         data = list()  # Video data
         for data_type in config_preprocess.DATA_TYPE:
             f_c = frames.copy()
@@ -173,7 +179,7 @@ class BaseLoader(Dataset):
         else:
             raise ValueError("Unsupported label type!")
 
-        if config_preprocess.DO_CHUNK:
+        if config_preprocess.DO_CHUNK:  # chunk data into snippets
             frames_clips, bvps_clips = self.chunk(
                 data, bvps, config_preprocess.CHUNK_LENGTH)
         else:
@@ -330,24 +336,34 @@ class BaseLoader(Dataset):
         return input_path_name_list, label_path_name_list
 
     def multi_process_manager(self, data_dirs, config_preprocess, multi_process_quota=8):
-        #  TODO: @Girish add doc string.
+        """Allocate dataset preprocessing across multiple processes.
 
+        Args:
+            data_dirs(List[str]): a list of video_files.
+            config_preprocess(Dict): a dictionary of preprocessing configurations
+            multi_process_quota(Int): max number of sub-processes to spawn for multiprocessing
+        Returns:
+            file_list_dict(Dict): Dictionary containing information regarding processed data ( path names)
+        """
         file_num = len(data_dirs)
         choose_range = range(0, file_num)
         pbar = tqdm(list(choose_range))
 
         # shared data resource
-        manager = Manager()
-        file_list_dict = manager.dict()
-        p_list = []
-        running_num = 0
+        manager = Manager()  # multi-process manager
+        file_list_dict = manager.dict()  # dictionary for all processes to store processed files
+        p_list = []  # list of processes
+        running_num = 0  # number of running processes
 
+        # in range of number of files to process
+        print('Preprocessing dataset...')
         for i in choose_range:
             process_flag = True
             while process_flag:  # ensure that every i creates a process
                 if running_num < multi_process_quota:  # in case of too many processes
-                    p = Process(target=self.preprocess_dataset_subprocess, args=(data_dirs,
-                                                                                 config_preprocess, i, file_list_dict))
+                    # send data to be preprocessing task
+                    p = Process(target=self.preprocess_dataset_subprocess, 
+                                args=(data_dirs,config_preprocess, i, file_list_dict))
                     p.start()
                     p_list.append(p)
                     running_num += 1
@@ -367,8 +383,16 @@ class BaseLoader(Dataset):
         return file_list_dict
 
     def build_file_list(self, file_list_dict):
-        #  TODO: @Girish add doc string.
+        """Build a list of files used by the dataloader for the data split. Eg. list of files used for 
+        train / val / test. Also saves the list to a .csv file.
+
+        Args:
+            file_list_dict(Dict): Dictionary containing information regarding processed data ( path names)
+        Returns:
+            None (this function does save a file-list .csv file to self.file_list_path)
+        """
         file_list = []
+        # iterate through processes and add all processed file paths
         for process_num, file_paths in file_list_dict.items():
             file_list = file_list + file_paths
 
@@ -377,10 +401,20 @@ class BaseLoader(Dataset):
 
         file_list_df = pd.DataFrame(file_list, columns=['input_files'])
         os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
-        file_list_df.to_csv(self.file_list_path)
+        file_list_df.to_csv(self.file_list_path)  # save file list to .csv
 
     def build_file_list_retroactive(self, data_dirs, begin, end):
-        #  TODO: @Girish add doc string.
+        """ If a file list has not already been generated for a specific data split build a list of files 
+        used by the dataloader for the data split. Eg. list of files used for 
+        train / val / test. Also saves the list to a .csv file.
+
+        Args:
+            data_dirs(List[str]): a list of video_files.
+            begin(float): index of begining during train/val split.
+            end(float): index of ending during train/val split.
+        Returns:
+            None (this function does save a file-list .csv file to self.file_list_path)
+        """
 
         # Get data split based on begin and end indices.
         data_dirs_subset = self.split_raw_data(data_dirs, begin, end)
@@ -403,11 +437,16 @@ class BaseLoader(Dataset):
 
         file_list_df = pd.DataFrame(file_list, columns=['input_files'])
         os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
-        file_list_df.to_csv(self.file_list_path)
+        file_list_df.to_csv(self.file_list_path)  # save file list to .csv
 
     def load_preprocessed_data(self):
-        """Loads the preprocessing data listed in the file list."""
-        # TODO (@Girish): Insert functionality to generate file list if it does not already exist
+        """ Loads the preprocessed data listed in the file list.
+
+        Args:
+            None
+        Returns:
+            None
+        """
         file_list_path = self.file_list_path  # get list of files in
         file_list_df = pd.read_csv(file_list_path)
         inputs = file_list_df['input_files'].tolist()

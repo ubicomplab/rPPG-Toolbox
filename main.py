@@ -114,7 +114,10 @@ if __name__ == "__main__":
 
     # configurations.
     config = get_config(args)
+    print('')
+    print('Configuration:')
     print(config)
+    print('')
 
     data_loader_dict = dict()
     if config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
@@ -149,6 +152,7 @@ if __name__ == "__main__":
 
         if config.TEST.USE_LAST_EPOCH:
                 print("Testing uses last epoch, validation dataset is not required.")
+                print('')
 
         # test_loader
         if config.TEST.DATA.DATASET == "COHFACE":
@@ -249,3 +253,4 @@ if __name__ == "__main__":
         signal_method_inference(config, data_loader_dict)
     else:
         print("TOOLBOX_MODE only support train_and_test or only_test !")
+        print('')
