@@ -72,9 +72,9 @@ class PhysnetTrainer(BaseTrainer):
                 self.scheduler.step()
                 self.optimizer.zero_grad()
                 tbar.set_postfix(loss=loss.item())
+            self.save_model(epoch)
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
-                self.save_model(epoch)
                 print('validation loss: ', valid_loss)
                 if min_valid_loss is None:
                     min_valid_loss = valid_loss
