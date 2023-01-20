@@ -66,14 +66,12 @@ class BaseLoader(Dataset):
             if not os.path.exists(self.file_list_path):
                 print('File list does not exist... generating now...')
                 self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN, config_data.END)
-                print('File list generated.')
-                print('')
+                print('File list generated.', end='\n\n')
+
             self.load_preprocessed_data()
-        print('Cached Data Path', self.cached_path)
-        print('')
+        print('Cached Data Path', self.cached_path, end='\n\n')
         print('File List Path', self.file_list_path)
-        print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}")
-        print('')
+        print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -133,8 +131,7 @@ class BaseLoader(Dataset):
         file_list_dict = self.multi_process_manager(data_dirs_split, config_preprocess) 
         self.build_file_list(file_list_dict)  # build file list
         self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
-        print("Total Number of raw files preprocessed:", len(data_dirs_split))
-        print('')
+        print("Total Number of raw files preprocessed:", len(data_dirs_split), end='\n\n')
 
     def preprocess(self, frames, bvps, config_preprocess):
         """Preprocesses a pair of data.

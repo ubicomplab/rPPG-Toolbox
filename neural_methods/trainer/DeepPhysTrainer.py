@@ -75,7 +75,6 @@ class DeepPhysTrainer(BaseTrainer):
                 tbar.set_postfix({"loss": loss.item(), "lr": self.optimizer.param_groups[0]["lr"]})
             self.save_model(epoch)
             if not self.config.TEST.USE_LAST_EPOCH: 
-                print('')
                 valid_loss = self.valid(data_loader)
                 print('validation loss: ', valid_loss)
                 if min_valid_loss is None:
