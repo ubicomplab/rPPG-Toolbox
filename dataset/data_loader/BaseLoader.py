@@ -285,8 +285,7 @@ class BaseLoader(Dataset):
             bvps_clips(np.array): the length of each chunk.
             filename: name the filename
         Returns:
-            frames_clips: all chunks of face cropped frames
-            bvp_clips: all chunks of bvp frames
+            count: count of preprocessed data
         """
 
         if not os.path.exists(self.cached_path):
@@ -311,12 +310,11 @@ class BaseLoader(Dataset):
             bvps_clips(np.array): the length of each chunk.
             filename: name the filename
         Returns:
-            frames_clips: all chunks of face cropped frames
-            bvp_clips: all chunks of bvp frames
+            input_path_name_list: list of input path names
+            label_path_name_list: list of label path names
         """
         if not os.path.exists(self.cached_path):
             os.makedirs(self.cached_path, exist_ok=True)
-        count = 0
         input_path_name_list = []
         label_path_name_list = []
         for i in range(len(bvps_clips)):
@@ -327,8 +325,7 @@ class BaseLoader(Dataset):
             label_path_name_list.append(label_path_name)
             np.save(input_path_name, frames_clips[i])
             np.save(label_path_name, bvps_clips[i])
-            count += 1
-        return count, input_path_name_list, label_path_name_list
+        return input_path_name_list, label_path_name_list
 
     def multi_process_manager(self, data_dirs, config_preprocess, multi_process_quota=8):
         #  TODO: @Girish add doc string.
@@ -437,7 +434,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def diff_normalize_label(label):
-        """Calculate discrete difference in labels along the time-axis and nornamize by its standard deviation."""
+        """Calculate discrete difference in labels along the time-axis and normalize by its standard deviation."""
         diff_label = np.diff(label, axis=0)
         normalized_label = diff_label / np.std(diff_label)
         normalized_label = np.append(normalized_label, np.zeros(1), axis=0)
@@ -446,7 +443,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def standardized_data(data):
-        """Z-score standarzation for video data."""
+        """Z-score standardization for video data."""
         data = data - np.mean(data)
         data = data / np.std(data)
         data[np.isnan(data)] = 0
@@ -454,7 +451,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def standardized_label(label):
-        """Z-score standarzation for label signal."""
+        """Z-score standardization for label signal."""
         label = label - np.mean(label)
         label = label / np.std(label)
         label[np.isnan(label)] = 0
