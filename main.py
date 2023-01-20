@@ -142,8 +142,7 @@ if __name__ == "__main__":
             valid_loader = data_loader.PURELoader.PURELoader
         elif config.VALID.DATA.DATASET == "SCAMPS":
             valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
-        elif config.VALID.DATA.DATASET is None:
-            if config.TEST.USE_LAST_EPOCH is False:
+        elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
                 raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
