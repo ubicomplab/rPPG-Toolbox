@@ -142,8 +142,13 @@ if __name__ == "__main__":
             valid_loader = data_loader.PURELoader.PURELoader
         elif config.VALID.DATA.DATASET == "SCAMPS":
             valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
+                raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
+
+        if config.TEST.USE_LAST_EPOCH:
+                print("Testing uses last epoch, validation dataset is not required.")
 
         # test_loader
         if config.TEST.DATA.DATASET == "COHFACE":
@@ -158,7 +163,7 @@ if __name__ == "__main__":
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
-        if config.TRAIN.DATA.DATA_PATH:
+        if config.TRAIN.DATA.DATASET is not None and config.TRAIN.DATA.DATA_PATH:
             train_data_loader = train_loader(
                 name="train",
                 data_path=config.TRAIN.DATA.DATA_PATH,
@@ -174,7 +179,7 @@ if __name__ == "__main__":
         else:
             data_loader_dict['train'] = None
 
-        if config.VALID.DATA.DATA_PATH:
+        if config.VALID.DATA.DATASET is not None and config.VALID.DATA.DATA_PATH:
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
@@ -190,7 +195,7 @@ if __name__ == "__main__":
         else:
             data_loader_dict['valid'] = None
 
-        if config.TEST.DATA.DATA_PATH:
+        if config.TEST.DATA.DATASET is not None and config.TEST.DATA.DATA_PATH:
             test_data = test_loader(
                 name="test",
                 data_path=config.TEST.DATA.DATA_PATH,
