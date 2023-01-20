@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import numpy as np
 import torch
-from evaluation.metrics import calculate_metrics
+from evaluation.post_process import *
 from signal_methods.methods.CHROME_DEHAAN import *
 from signal_methods.methods.GREEN import *
 from signal_methods.methods.ICA_POH import *
@@ -46,13 +46,13 @@ def signal_predict(config, data_loader, method_name):
                 raise ValueError("signal method name wrong!")
 
             if config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                gt_hr, pre_hr = calculate_metric_peak_per_video(BVP, labels_input, diff_flag=False,
-                                                                fs=config.SIGNAL.DATA.FS)
+                gt_hr, pre_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False,
+                                                                fs=config.SIGNAL.DATA.FS, hr_method='Peak')
                 predict_hr_peak_all.append(pre_hr)
                 gt_hr_peak_all.append(gt_hr)
             if config.INFERENCE.EVALUATION_METHOD == "FFT":
                 gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False,
-                                                                   fs=config.SIGNAL.DATA.FS)
+                                                                   fs=config.SIGNAL.DATA.FS, hr_method='FFT')
                 predict_hr_fft_all.append(pre_fft_hr)
                 gt_hr_fft_all.append(gt_fft_hr)
     print("Used Signal Method: " + method_name)
@@ -96,14 +96,3 @@ def signal_predict(config, data_loader, method_name):
                 print("FFT Pearson  (FFT Label):{0}".format(Pearson_PEAK[0][1]))
             else:
                 raise ValueError("Wrong Test Metric Type")
-
-
-def process_video(frames):
-    # Standard:
-    RGB = []
-    for frame in frames:
-        sum = np.sum(np.sum(frame, axis=0), axis=0)
-        RGB.append(sum / (frame.shape[0] * frame.shape[1]))
-    RGB = np.asarray(RGB)
-    RGB = RGB.transpose(1, 0).reshape(1, 3, -1)
-    return np.asarray(RGB)
