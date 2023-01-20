@@ -85,7 +85,7 @@ class PhysnetTrainer(BaseTrainer):
                     self.best_epoch = epoch
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
         if not self.config.TEST.USE_LAST_EPOCH: 
-            print("best trained epoch:{}, min_val_loss:{}".format(
+            print("best trained epoch: {}, min_val_loss: {}".format(
                 self.best_epoch, min_valid_loss))
 
     def valid(self, data_loader):
