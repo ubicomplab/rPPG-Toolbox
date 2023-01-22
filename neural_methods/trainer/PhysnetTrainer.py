@@ -65,7 +65,7 @@ class PhysnetTrainer(BaseTrainer):
                 running_loss += loss.item()
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
+                        f'[{epoch}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 self.optimizer.step()
