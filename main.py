@@ -185,7 +185,7 @@ if __name__ == "__main__":
         else:
             data_loader_dict['train'] = None
 
-        if config.VALID.DATA.DATASET is not None and config.VALID.DATA.DATA_PATH:
+        if config.VALID.DATA.DATASET is not None and config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH:
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
