@@ -27,6 +27,7 @@ class DeepPhysTrainer(BaseTrainer):
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
         self.config = config
+        self.min_valid_loss = None
         self.best_epoch = 0
 
         self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
@@ -42,8 +43,6 @@ class DeepPhysTrainer(BaseTrainer):
         """ TODO:Docstring"""
         if data_loader["train"] is None:
             raise ValueError("No data for train")
-        if not self.config.TEST.USE_LAST_EPOCH: 
-            min_valid_loss = None
 
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -76,16 +75,16 @@ class DeepPhysTrainer(BaseTrainer):
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
                 print('validation loss: ', valid_loss)
-                if min_valid_loss is None:
-                    min_valid_loss = valid_loss
+                if self.min_valid_loss is None:
+                    self.min_valid_loss = valid_loss
                     self.best_epoch = epoch
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
-                elif (valid_loss < min_valid_loss):
-                    min_valid_loss = valid_loss
+                elif (valid_loss < self.min_valid_loss):
+                    self.min_valid_loss = valid_loss
                     self.best_epoch = epoch
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
         if not self.config.TEST.USE_LAST_EPOCH: 
-            print("best trained epoch: {}, min_val_loss: {}".format(self.best_epoch, min_valid_loss))
+            print("best trained epoch: {}, min_val_loss: {}".format(self.best_epoch, self.min_valid_loss))
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""
