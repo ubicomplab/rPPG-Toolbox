@@ -78,13 +78,13 @@ def train_and_test(config, data_loader_dict):
 def test(config, data_loader_dict):
     """Tests the model."""
     if config.MODEL.NAME == "Physnet":
-        model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config)
+        model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "Tscan":
-        model_trainer = trainer.TscanTrainer.TscanTrainer(config)
+        model_trainer = trainer.TscanTrainer.TscanTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "EfficientPhys":
-        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config)
+        model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'DeepPhys':
-        model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config)
+        model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config, data_loader_dict)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.test(data_loader_dict)
@@ -94,14 +94,14 @@ def signal_method_inference(config, data_loader):
     if not config.SIGNAL.METHOD:
         raise ValueError("Please set signal method in yaml!")
     for signal_method in config.SIGNAL.METHOD:
-        if signal_method == "pos":
-            signal_predict(config, data_loader, "pos")
-        elif signal_method == "chrome":
-            signal_predict(config, data_loader, "chrome")
-        elif signal_method == "ica":
-            signal_predict(config, data_loader, "ica")
-        elif signal_method == "green":
-            signal_predict(config, data_loader, "green")
+        if signal_method == "POS":
+            signal_predict(config, data_loader, "POS")
+        elif signal_method == "CHROM":
+            signal_predict(config, data_loader, "CHROM")
+        elif signal_method == "ICA":
+            signal_predict(config, data_loader, "ICA")
+        elif signal_method == "GREEN":
+            signal_predict(config, data_loader, "GREEN")
         elif signal_method == "LGI":
             signal_predict(config, data_loader, "LGI")
         elif signal_method == "PBV":

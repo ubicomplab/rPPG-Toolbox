@@ -30,17 +30,17 @@ def signal_predict(config, data_loader, method_name):
         batch_size = test_batch[0].shape[0]
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
-            if method_name == "pos":
+            if method_name == "POS":
                 BVP = POS_WANG(data_input, config.SIGNAL.DATA.FS)
-            elif method_name == "chrome":
+            elif method_name == "CHROM":
                 BVP = CHROME_DEHAAN(data_input, config.SIGNAL.DATA.FS)
-            elif method_name == "ica":
+            elif method_name == "ICA":
                 BVP = ICA_POH(data_input, config.SIGNAL.DATA.FS)
-            elif method_name == "green":
+            elif method_name == "GREEN":
                 BVP = GREEN(data_input)
             elif method_name == "LGI":
                 BVP = LGI(data_input)
-            elif (method_name == "PBV"):
+            elif method_name == "PBV":
                 BVP = PBV(data_input)
             else:
                 raise ValueError("signal method name wrong!")

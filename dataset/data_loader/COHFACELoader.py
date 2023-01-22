@@ -52,7 +52,7 @@ class COHFACELoader(BaseLoader):
         """Returns data directories under the path(For COHFACE dataset)."""
         data_dirs = glob.glob(data_path + os.sep + "*")
         if not data_dirs:
-            raise ValueError(self.dataset_name + " dataset get data error!")
+            raise ValueError(self.dataset_name + " data paths empty!")
         dirs = list()
         for data_dir in data_dirs:
             for i in range(4):
