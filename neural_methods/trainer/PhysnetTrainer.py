@@ -27,6 +27,7 @@ class PhysnetTrainer(BaseTrainer):
         self.num_of_gpu = config.NUM_OF_GPU_TRAIN
         self.base_len = self.num_of_gpu
         self.config = config
+        self.min_valid_loss = None
         self.best_epoch = 0
 
         self.model = PhysNet_padding_Encoder_Decoder_MAX(
@@ -42,8 +43,6 @@ class PhysnetTrainer(BaseTrainer):
         """Training routine for model"""
         if data_loader["train"] is None:
             raise ValueError("No data for train")
-        if not self.config.TEST.USE_LAST_EPOCH: 
-            min_valid_loss = None
 
         for epoch in range(self.max_epoch_num):
             print('')
@@ -66,7 +65,7 @@ class PhysnetTrainer(BaseTrainer):
                 running_loss += loss.item()
                 if idx % 100 == 99:  # print every 100 mini-batches
                     print(
-                        f'[{epoch + 1}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
+                        f'[{epoch}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 self.optimizer.step()
@@ -77,17 +76,17 @@ class PhysnetTrainer(BaseTrainer):
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
                 print('validation loss: ', valid_loss)
-                if min_valid_loss is None:
-                    min_valid_loss = valid_loss
+                if self.min_valid_loss is None:
+                    self.min_valid_loss = valid_loss
                     self.best_epoch = epoch
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
-                elif (valid_loss < min_valid_loss):
-                    min_valid_loss = valid_loss
+                elif (valid_loss < self.min_valid_loss):
+                    self.min_valid_loss = valid_loss
                     self.best_epoch = epoch
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
         if not self.config.TEST.USE_LAST_EPOCH: 
             print("best trained epoch: {}, min_val_loss: {}".format(
-                self.best_epoch, min_valid_loss))
+                self.best_epoch, self.min_valid_loss))
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""

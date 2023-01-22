@@ -19,8 +19,14 @@ np.random.seed(RANDOM_SEED)
 random.seed(RANDOM_SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
-g = torch.Generator()
-g.manual_seed(RANDOM_SEED)
+# Create a general generator for use with the validation dataloader,
+# the test dataloader, and the signal dataloader
+general_generator = torch.Generator()
+general_generator.manual_seed(RANDOM_SEED)
+# Create a training generator to isolate the train dataloader from
+# other dataloaders and better control non-deterministic behavior
+train_generator = torch.Generator()
+train_generator.manual_seed(RANDOM_SEED)
 
 
 def seed_worker(worker_id):
@@ -175,12 +181,12 @@ if __name__ == "__main__":
                 batch_size=config.TRAIN.BATCH_SIZE,
                 shuffle=True,
                 worker_init_fn=seed_worker,
-                generator=g
+                generator=train_generator
             )
         else:
             data_loader_dict['train'] = None
 
-        if config.VALID.DATA.DATASET is not None and config.VALID.DATA.DATA_PATH:
+        if config.VALID.DATA.DATASET is not None and config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH:
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
@@ -191,7 +197,7 @@ if __name__ == "__main__":
                 batch_size=config.TRAIN.BATCH_SIZE,  # batch size for val is the same as train
                 shuffle=False,
                 worker_init_fn=seed_worker,
-                generator=g
+                generator=general_generator
             )
         else:
             data_loader_dict['valid'] = None
@@ -207,7 +213,7 @@ if __name__ == "__main__":
                 batch_size=config.INFERENCE.BATCH_SIZE,
                 shuffle=False,
                 worker_init_fn=seed_worker,
-                generator=g
+                generator=general_generator
             )
         else:
             data_loader_dict['test'] = None
@@ -236,7 +242,7 @@ if __name__ == "__main__":
             batch_size=1,
             shuffle=False,
             worker_init_fn=seed_worker,
-            generator=g
+            generator=general_generator
         )
 
     else:
