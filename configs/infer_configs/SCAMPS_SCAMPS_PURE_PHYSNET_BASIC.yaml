@@ -87,5 +87,5 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
-  MODEL_PATH: "./final_model_release/PURE_PhysNet_Normalized.pth"
+  MODEL_PATH: "./final_model_release/SCAMPS_PhysNet_Normalied.pth"
                   
