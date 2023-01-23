@@ -124,7 +124,7 @@ if __name__ == "__main__":
     print(config, end='\n\n')
 
     data_loader_dict = dict()
-    if config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
+    if (config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test"):
         # neural method dataloader
         # train_loader
         if config.TRAIN.DATA.DATASET == "COHFACE":
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
-        if config.TEST.USE_LAST_EPOCH:
+        if (config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH):
                 print("Testing uses last epoch, validation dataset is not required.", end='\n\n')
 
         # test_loader
@@ -170,7 +170,8 @@ if __name__ == "__main__":
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
-        if config.TRAIN.DATA.DATASET is not None and config.TRAIN.DATA.DATA_PATH:
+        if (config.TOOLBOX_MODE == "train_and_test" and config.TRAIN.DATA.DATASET is not None and 
+            config.TRAIN.DATA.DATA_PATH):
             train_data_loader = train_loader(
                 name="train",
                 data_path=config.TRAIN.DATA.DATA_PATH,
@@ -186,7 +187,8 @@ if __name__ == "__main__":
         else:
             data_loader_dict['train'] = None
 
-        if config.VALID.DATA.DATASET is not None and config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH:
+        if (config.TOOLBOX_MODE == "train_and_test" and config.VALID.DATA.DATASET is not None and 
+            config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH):
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
@@ -202,7 +204,7 @@ if __name__ == "__main__":
         else:
             data_loader_dict['valid'] = None
 
-        if config.TEST.DATA.DATASET is not None and config.TEST.DATA.DATA_PATH:
+        if (config.TEST.DATA.DATASET is not None and config.TEST.DATA.DATA_PATH):
             test_data = test_loader(
                 name="test",
                 data_path=config.TEST.DATA.DATA_PATH,
