@@ -29,7 +29,7 @@ class SCAMPSLoader(BaseLoader):
             Args:
                 data_path(string): path of a folder which stores raw video and ground truth biosignal in mat files.
                 Each mat file contains a video sequence of resolution of 72x72 and various ground trugh signal.
-                e.g., dXsub -> raw/normalized data; d_ppg -> pulse signal, d_br -> resp signal
+                e.g., dXsub -> raw/diffnormalized data; d_ppg -> pulse signal, d_br -> resp signal
                 -----------------
                      ProcessedData/
                      |   |-- P000001.mat/

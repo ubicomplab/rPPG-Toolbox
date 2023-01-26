@@ -48,7 +48,7 @@ def calculate_metrics(predictions, labels, config):
         if config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
                 config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Raw":
             diff_flag_test = False
-        elif config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Normalized":
+        elif config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "DiffNormalized":
             diff_flag_test = True
         else:
             raise ValueError("Not supported label type in testing!")
