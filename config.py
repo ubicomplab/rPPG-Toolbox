@@ -119,12 +119,12 @@ _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
 
 # -----------------------------------------------------------------------------
-# Signal method settings
+# Unsupervised method settings
 # -----------------------------------------------------------------------------\
 _C.UNSUPERVISED = CN()
 _C.UNSUPERVISED.METHOD = []
 _C.UNSUPERVISED.METRICS = []
-# Signal.Data settings
+# Unsupervised.Data settings
 _C.UNSUPERVISED.DATA = CN()
 _C.UNSUPERVISED.DATA.FS = 0
 _C.UNSUPERVISED.DATA.DATA_PATH = ''
@@ -136,7 +136,7 @@ _C.UNSUPERVISED.DATA.DO_PREPROCESS = False
 _C.UNSUPERVISED.DATA.DATA_FORMAT = 'NDCHW'
 _C.UNSUPERVISED.DATA.BEGIN = 0.0
 _C.UNSUPERVISED.DATA.END = 1.0
-# Signal Data preprocessing
+# Unsupervised Data preprocessing
 _C.UNSUPERVISED.DATA.PREPROCESS = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.DO_CHUNK = True
 _C.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH = 180

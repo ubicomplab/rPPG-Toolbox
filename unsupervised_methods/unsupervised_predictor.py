@@ -20,7 +20,7 @@ def unsupervised_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
     if data_loader["unsupervised"] is None:
         raise ValueError("No data for unsupervised method predicting")
-    print("===Signal Method ( " + method_name + " ) Predicting ===")
+    print("===Unsupervised Method ( " + method_name + " ) Predicting ===")
     predict_hr_peak_all = []
     gt_hr_peak_all = []
     predict_hr_fft_all = []
@@ -55,7 +55,7 @@ def unsupervised_predict(config, data_loader, method_name):
                                                                    fs=config.UNSUPERVISED.DATA.FS, hr_method='FFT')
                 predict_hr_fft_all.append(pre_fft_hr)
                 gt_hr_fft_all.append(gt_fft_hr)
-    print("Used Signal Method: " + method_name)
+    print("Used Unsupervised Method: " + method_name)
     if config.INFERENCE.EVALUATION_METHOD == "peak detection":
         predict_hr_peak_all = np.array(predict_hr_peak_all)
         gt_hr_peak_all = np.array(gt_hr_peak_all)

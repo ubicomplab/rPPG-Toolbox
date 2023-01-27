@@ -52,7 +52,7 @@ def add_args(parser):
       UBFC_UBFC_PURE_TSCAN_BASIC.yaml
       UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
       UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
-    Signal Method Sample YAMSL LIST:
+    Unsupervised Method Sample YAMSL LIST:
       PURE_UNSUPERVISED.yaml
       UBFC_UNSUPERVISED.yaml
     '''
