@@ -7,35 +7,35 @@ from collections import OrderedDict
 import numpy as np
 import torch
 from evaluation.post_process import *
-from signal_methods.methods.CHROME_DEHAAN import *
-from signal_methods.methods.GREEN import *
-from signal_methods.methods.ICA_POH import *
-from signal_methods.methods.LGI import *
-from signal_methods.methods.PBV import *
-from signal_methods.methods.POS_WANG import *
+from unsupervised_methods.methods.CHROME_DEHAAN import *
+from unsupervised_methods.methods.GREEN import *
+from unsupervised_methods.methods.ICA_POH import *
+from unsupervised_methods.methods.LGI import *
+from unsupervised_methods.methods.PBV import *
+from unsupervised_methods.methods.POS_WANG import *
 from tqdm import tqdm
 
 
-def signal_predict(config, data_loader, method_name):
+def unsupervised_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
-    if data_loader["signal"] is None:
-        raise ValueError("No data for signal method predicting")
-    print("===Signal Method ( " + method_name + " ) Predicting ===")
+    if data_loader["unsupervised"] is None:
+        raise ValueError("No data for unsupervised method predicting")
+    print("===Unsupervised Method ( " + method_name + " ) Predicting ===")
     predict_hr_peak_all = []
     gt_hr_peak_all = []
     predict_hr_fft_all = []
     gt_hr_fft_all = []
-    sbar = tqdm(data_loader["signal"], ncols=80)
+    sbar = tqdm(data_loader["unsupervised"], ncols=80)
     for _, test_batch in enumerate(sbar):
         batch_size = test_batch[0].shape[0]
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
             if method_name == "POS":
-                BVP = POS_WANG(data_input, config.SIGNAL.DATA.FS)
+                BVP = POS_WANG(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "CHROM":
-                BVP = CHROME_DEHAAN(data_input, config.SIGNAL.DATA.FS)
+                BVP = CHROME_DEHAAN(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "ICA":
-                BVP = ICA_POH(data_input, config.SIGNAL.DATA.FS)
+                BVP = ICA_POH(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "GREEN":
                 BVP = GREEN(data_input)
             elif method_name == "LGI":
@@ -43,23 +43,23 @@ def signal_predict(config, data_loader, method_name):
             elif method_name == "PBV":
                 BVP = PBV(data_input)
             else:
-                raise ValueError("signal method name wrong!")
+                raise ValueError("unsupervised method name wrong!")
 
             if config.INFERENCE.EVALUATION_METHOD == "peak detection":
                 gt_hr, pre_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False,
-                                                                fs=config.SIGNAL.DATA.FS, hr_method='Peak')
+                                                                fs=config.UNSUPERVISED.DATA.FS, hr_method='Peak')
                 predict_hr_peak_all.append(pre_hr)
                 gt_hr_peak_all.append(gt_hr)
             if config.INFERENCE.EVALUATION_METHOD == "FFT":
                 gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False,
-                                                                   fs=config.SIGNAL.DATA.FS, hr_method='FFT')
+                                                                   fs=config.UNSUPERVISED.DATA.FS, hr_method='FFT')
                 predict_hr_fft_all.append(pre_fft_hr)
                 gt_hr_fft_all.append(gt_fft_hr)
-    print("Used Signal Method: " + method_name)
+    print("Used Unsupervised Method: " + method_name)
     if config.INFERENCE.EVALUATION_METHOD == "peak detection":
         predict_hr_peak_all = np.array(predict_hr_peak_all)
         gt_hr_peak_all = np.array(gt_hr_peak_all)
-        for metric in config.SIGNAL.METRICS:
+        for metric in config.UNSUPERVISED.METRICS:
             if metric == "MAE":
                 MAE_PEAK = np.mean(np.abs(predict_hr_peak_all - gt_hr_peak_all))
                 print("Peak MAE (Peak Label):{0}".format(MAE_PEAK))
@@ -79,7 +79,7 @@ def signal_predict(config, data_loader, method_name):
     if config.INFERENCE.EVALUATION_METHOD == "FFT":
         predict_hr_fft_all = np.array(predict_hr_fft_all)
         gt_hr_fft_all = np.array(gt_hr_fft_all)
-        for metric in config.SIGNAL.METRICS:
+        for metric in config.UNSUPERVISED.METRICS:
             if metric == "MAE":
                 MAE_PEAK = np.mean(np.abs(predict_hr_fft_all - gt_hr_fft_all))
                 print("FFT MAE (FFT Label):{0}".format(MAE_PEAK))

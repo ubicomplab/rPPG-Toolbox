@@ -5,7 +5,7 @@ import numpy as np
 import math
 from scipy import signal
 
-import signal_methods.utils as utils
+import unsupervised_methods.utils as utils
 
 
 def CHROME_DEHAAN(frames,FS):

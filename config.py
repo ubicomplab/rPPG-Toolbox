@@ -119,36 +119,36 @@ _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
 
 # -----------------------------------------------------------------------------
-# Signal method settings
+# Unsupervised method settings
 # -----------------------------------------------------------------------------\
-_C.SIGNAL = CN()
-_C.SIGNAL.METHOD = []
-_C.SIGNAL.METRICS = []
-# Signal.Data settings
-_C.SIGNAL.DATA = CN()
-_C.SIGNAL.DATA.FS = 0
-_C.SIGNAL.DATA.DATA_PATH = ''
-_C.SIGNAL.DATA.EXP_DATA_NAME = ''
-_C.SIGNAL.DATA.CACHED_PATH = 'PreprocessedData'
-_C.SIGNAL.DATA.FILE_LIST_PATH = os.path.join(_C.SIGNAL.DATA.CACHED_PATH, 'DataFileLists')
-_C.SIGNAL.DATA.DATASET = ''
-_C.SIGNAL.DATA.DO_PREPROCESS = False
-_C.SIGNAL.DATA.DATA_FORMAT = 'NDCHW'
-_C.SIGNAL.DATA.BEGIN = 0.0
-_C.SIGNAL.DATA.END = 1.0
-# Signal Data preprocessing
-_C.SIGNAL.DATA.PREPROCESS = CN()
-_C.SIGNAL.DATA.PREPROCESS.DO_CHUNK = True
-_C.SIGNAL.DATA.PREPROCESS.CHUNK_LENGTH = 180
-_C.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
-_C.SIGNAL.DATA.PREPROCESS.CROP_FACE = True
-_C.SIGNAL.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.SIGNAL.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
-_C.SIGNAL.DATA.PREPROCESS.W = 128
-_C.SIGNAL.DATA.PREPROCESS.H = 128
-_C.SIGNAL.DATA.PREPROCESS.DATA_TYPE = ['']
-_C.SIGNAL.DATA.PREPROCESS.LABEL_TYPE = ''
+_C.UNSUPERVISED = CN()
+_C.UNSUPERVISED.METHOD = []
+_C.UNSUPERVISED.METRICS = []
+# Unsupervised.Data settings
+_C.UNSUPERVISED.DATA = CN()
+_C.UNSUPERVISED.DATA.FS = 0
+_C.UNSUPERVISED.DATA.DATA_PATH = ''
+_C.UNSUPERVISED.DATA.EXP_DATA_NAME = ''
+_C.UNSUPERVISED.DATA.CACHED_PATH = 'PreprocessedData'
+_C.UNSUPERVISED.DATA.FILE_LIST_PATH = os.path.join(_C.UNSUPERVISED.DATA.CACHED_PATH, 'DataFileLists')
+_C.UNSUPERVISED.DATA.DATASET = ''
+_C.UNSUPERVISED.DATA.DO_PREPROCESS = False
+_C.UNSUPERVISED.DATA.DATA_FORMAT = 'NDCHW'
+_C.UNSUPERVISED.DATA.BEGIN = 0.0
+_C.UNSUPERVISED.DATA.END = 1.0
+# Unsupervised Data preprocessing
+_C.UNSUPERVISED.DATA.PREPROCESS = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.DO_CHUNK = True
+_C.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH = 180
+_C.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION = True
+_C.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE = True
+_C.UNSUPERVISED.DATA.PREPROCESS.LARGE_FACE_BOX = True
+_C.UNSUPERVISED.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
+_C.UNSUPERVISED.DATA.PREPROCESS.W = 128
+_C.UNSUPERVISED.DATA.PREPROCESS.H = 128
+_C.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE = ['']
+_C.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE = ''
 
 ### -----------------------------------------------------------------------------
 # Model settings
@@ -220,7 +220,7 @@ def update_config(config, args):
     default_TRAIN_FILE_LIST_PATH = config.TRAIN.DATA.FILE_LIST_PATH
     default_VALID_FILE_LIST_PATH = config.VALID.DATA.FILE_LIST_PATH
     default_TEST_FILE_LIST_PATH = config.TEST.DATA.FILE_LIST_PATH
-    default_SIGNAL_FILE_LIST_PATH = config.SIGNAL.DATA.FILE_LIST_PATH
+    default_UNSUPERVISED_FILE_LIST_PATH = config.UNSUPERVISED.DATA.FILE_LIST_PATH
 
     # update flag from config file
     _update_config_from_file(config, args.config_file)
@@ -317,35 +317,35 @@ def update_config(config, args):
                          Please turn DO_PREPROCESS to False or delete existing TEST dataset FILE_LIST_PATH .csv file.')
     
 
-    # UPDATE SIGNAL PATHS
-    if config.SIGNAL.DATA.FILE_LIST_PATH == default_SIGNAL_FILE_LIST_PATH:
-        config.SIGNAL.DATA.FILE_LIST_PATH = os.path.join(config.SIGNAL.DATA.CACHED_PATH, 'DataFileLists')
+    # UPDATE UNSUPERVISED PATHS
+    if config.UNSUPERVISED.DATA.FILE_LIST_PATH == default_UNSUPERVISED_FILE_LIST_PATH:
+        config.UNSUPERVISED.DATA.FILE_LIST_PATH = os.path.join(config.UNSUPERVISED.DATA.CACHED_PATH, 'DataFileLists')
 
-    if config.SIGNAL.DATA.EXP_DATA_NAME == '':
-        config.SIGNAL.DATA.EXP_DATA_NAME = "_".join([config.SIGNAL.DATA.DATASET, "SizeW{0}".format(
-            str(config.SIGNAL.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.SIGNAL.DATA.PREPROCESS.W)), "ClipLength{0}".format(
-            str(config.SIGNAL.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.SIGNAL.DATA.PREPROCESS.DATA_TYPE)),
-                                      "LabelType{0}".format(config.SIGNAL.DATA.PREPROCESS.LABEL_TYPE),
-                                      "Large_box{0}".format(config.SIGNAL.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.SIGNAL.DATA.PREPROCESS.LARGE_BOX_COEF),
-                                      "Dyamic_Det{0}".format(config.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                        "det_len{0}".format(config.SIGNAL.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY),
-                                        "signal"
+    if config.UNSUPERVISED.DATA.EXP_DATA_NAME == '':
+        config.UNSUPERVISED.DATA.EXP_DATA_NAME = "_".join([config.UNSUPERVISED.DATA.DATASET, "SizeW{0}".format(
+            str(config.UNSUPERVISED.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.UNSUPERVISED.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+            str(config.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE)),
+                                      "LabelType{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE),
+                                      "Large_box{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LARGE_FACE_BOX),
+                                      "Large_size{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LARGE_BOX_COEF),
+                                      "Dyamic_Det{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION),
+                                        "det_len{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY),
+                                        "unsupervised"
                                               ])
-    config.SIGNAL.DATA.CACHED_PATH = os.path.join(config.SIGNAL.DATA.CACHED_PATH, config.SIGNAL.DATA.EXP_DATA_NAME)
+    config.UNSUPERVISED.DATA.CACHED_PATH = os.path.join(config.UNSUPERVISED.DATA.CACHED_PATH, config.UNSUPERVISED.DATA.EXP_DATA_NAME)
 
-    name, ext = os.path.splitext(config.SIGNAL.DATA.FILE_LIST_PATH)
+    name, ext = os.path.splitext(config.UNSUPERVISED.DATA.FILE_LIST_PATH)
     if not ext: # no file extension
-        config.SIGNAL.DATA.FILE_LIST_PATH = os.path.join(config.SIGNAL.DATA.FILE_LIST_PATH, \
-                                                         config.SIGNAL.DATA.EXP_DATA_NAME + '_' + \
-                                                         str(config.SIGNAL.DATA.BEGIN) + '_' + \
-                                                         str(config.SIGNAL.DATA.END) + '.csv')
+        config.UNSUPERVISED.DATA.FILE_LIST_PATH = os.path.join(config.UNSUPERVISED.DATA.FILE_LIST_PATH, \
+                                                         config.UNSUPERVISED.DATA.EXP_DATA_NAME + '_' + \
+                                                         str(config.UNSUPERVISED.DATA.BEGIN) + '_' + \
+                                                         str(config.UNSUPERVISED.DATA.END) + '.csv')
     elif ext != '.csv':
-        raise ValueError('SIGNAL dataset FILE_LIST_PATH must either be a directory path or a .csv file name')
+        raise ValueError('UNSUPERVISED dataset FILE_LIST_PATH must either be a directory path or a .csv file name')
 
-    if ext == '.csv' and config.SIGNAL.DATA.DO_PREPROCESS:
-        raise ValueError('User specified SIGNAL dataset FILE_LIST_PATH .csv file already exists. \
-                         Please turn DO_PREPROCESS to False or delete existing SIGNAL dataset FILE_LIST_PATH .csv file.')
+    if ext == '.csv' and config.UNSUPERVISED.DATA.DO_PREPROCESS:
+        raise ValueError('User specified UNSUPERVISED dataset FILE_LIST_PATH .csv file already exists. \
+                         Please turn DO_PREPROCESS to False or delete existing UNSUPERVISED dataset FILE_LIST_PATH .csv file.')
 
 
     config.LOG.PATH = os.path.join(
