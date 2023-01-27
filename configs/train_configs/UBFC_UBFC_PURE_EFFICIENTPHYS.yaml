@@ -17,7 +17,7 @@ TRAIN:
     END: 0.8
     PREPROCESS :
       DATA_TYPE: ['Standardized']
-      LABEL_TYPE: Normalized
+      LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
       DYNAMIC_DETECTION: False
@@ -40,7 +40,7 @@ VALID:
     END: 1.0
     PREPROCESS:
       DATA_TYPE: ['Standardized']
-      LABEL_TYPE: Normalized
+      LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
       DYNAMIC_DETECTION: False
@@ -65,7 +65,7 @@ TEST:
     END: 1.0
     PREPROCESS:
       DATA_TYPE: ['Standardized']
-      LABEL_TYPE: Normalized
+      LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
       DYNAMIC_DETECTION: False

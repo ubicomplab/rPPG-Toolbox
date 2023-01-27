@@ -160,7 +160,7 @@ class BaseLoader(Dataset):
             f_c = frames.copy()
             if data_type == "Raw":
                 data.append(f_c)
-            elif data_type == "Normalized":
+            elif data_type == "DiffNormalized":
                 data.append(BaseLoader.diff_normalize_data(f_c))
             elif data_type == "Standardized":
                 data.append(BaseLoader.standardized_data(f_c))
@@ -169,7 +169,7 @@ class BaseLoader(Dataset):
         data = np.concatenate(data, axis=-1)  # concatenate all channels
         if config_preprocess.LABEL_TYPE == "Raw":
             pass
-        elif config_preprocess.LABEL_TYPE == "Normalized":
+        elif config_preprocess.LABEL_TYPE == "DiffNormalized":
             bvps = BaseLoader.diff_normalize_label(bvps)
         elif config_preprocess.LABEL_TYPE == "Standardized":
             bvps = BaseLoader.standardized_label(bvps)
@@ -459,25 +459,25 @@ class BaseLoader(Dataset):
     def diff_normalize_data(data):
         """Calculate discrete difference in video data along the time-axis and nornamize by its standard deviation."""
         n, h, w, c = data.shape
-        normalized_len = n - 1
-        normalized_data = np.zeros((normalized_len, h, w, c), dtype=np.float32)
-        normalized_data_padding = np.zeros((1, h, w, c), dtype=np.float32)
-        for j in range(normalized_len - 1):
-            normalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
+        diffnormalized_len = n - 1
+        diffnormalized_data = np.zeros((diffnormalized_len, h, w, c), dtype=np.float32)
+        diffnormalized_data_padding = np.zeros((1, h, w, c), dtype=np.float32)
+        for j in range(diffnormalized_len - 1):
+            diffnormalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
                     data[j + 1, :, :, :] + data[j, :, :, :] + 1e-7)
-        normalized_data = normalized_data / np.std(normalized_data)
-        normalized_data = np.append(normalized_data, normalized_data_padding, axis=0)
-        normalized_data[np.isnan(normalized_data)] = 0
-        return normalized_data
+        diffnormalized_data = diffnormalized_data / np.std(diffnormalized_data)
+        diffnormalized_data = np.append(diffnormalized_data, diffnormalized_data_padding, axis=0)
+        diffnormalized_data[np.isnan(diffnormalized_data)] = 0
+        return diffnormalized_data
 
     @staticmethod
     def diff_normalize_label(label):
         """Calculate discrete difference in labels along the time-axis and normalize by its standard deviation."""
         diff_label = np.diff(label, axis=0)
-        normalized_label = diff_label / np.std(diff_label)
-        normalized_label = np.append(normalized_label, np.zeros(1), axis=0)
-        normalized_label[np.isnan(normalized_label)] = 0
-        return normalized_label
+        diffnormalized_label = diff_label / np.std(diff_label)
+        diffnormalized_label = np.append(diffnormalized_label, np.zeros(1), axis=0)
+        diffnormalized_label[np.isnan(diffnormalized_label)] = 0
+        return diffnormalized_label
 
     @staticmethod
     def standardized_data(data):

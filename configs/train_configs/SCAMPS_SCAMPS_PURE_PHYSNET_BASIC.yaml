@@ -16,8 +16,8 @@ TRAIN:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
-      LABEL_TYPE: Normalized
+      DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
+      LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
@@ -39,8 +39,8 @@ VALID:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
-      LABEL_TYPE: Normalized
+      DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
+      LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
@@ -64,8 +64,8 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Normalized']         #if use physnet, should be Normalized
-      LABEL_TYPE: Normalized
+      DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
+      LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
       DYNAMIC_DETECTION: False
