@@ -10,7 +10,7 @@ import math
 import numpy as np
 from scipy import linalg
 from scipy import signal
-from signal_methods import utils
+from unsupervised_methods import utils
 
 
 def LGI(frames):

@@ -12,7 +12,7 @@ Please use config files under `./configs/infer_configs`
 
 For example, if you want to run The model trained on PURE and tested on UBFC, use `python main.py --config_file ./configs/infer_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml`
 
-If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC_SIGNAL.yaml`
+If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
 # Example of neural network training
 
@@ -52,9 +52,9 @@ After training, it will use the best model(with the least validation loss) to te
 
 STEP1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP3: Modify `./configs/infer_configs/UBFC_SIGNAL.yaml` 
+STEP3: Modify `./configs/infer_configs/UBFC_UNSUPERVISED.yaml` 
 
-STEP4: Run `python main.py --config_file ./configs/infer_configs/UBFC_SIGNAL.yaml`
+STEP4: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
 # Yaml File Setting
 The rPPG-Toolbox uses yaml file to control all parameters for training and evaluation. 
@@ -64,7 +64,7 @@ Here are some explanation of parameters:
 * #### TOOLBOX_MODE: 
   * `train_and_test`: train on the dataset and use the newly trained model to test.
   * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
-* #### TRAIN / VALID / TEST / SIGNAL DATA: 
+* #### TRAIN / VALID / TEST / UNSUPERVISED DATA: 
   * `DATA_PATH`: The input path of raw data
   * `CACHED_PATH`: The output path to preprocessed data. This path also houses a directory of .csv files containing data paths to files loaded by the dataloader. This filelist (found in default at CACHED_PATH/DataFileLists). These can be viewed for users to understand which files are used in each data split (train/val/test)
   * `EXP_DATA_NAME` If it is "", the toolbox generates a EXP_DATA_NAME based on other defined parameters. Otherwise, it uses the user-defined EXP_DATA_NAME.  
@@ -81,7 +81,7 @@ Here are some explanation of parameters:
 
   
 * #### MODEL : Set used model (support Deepphys / TSCAN / Physnet right now) and their parameters.
-* #### SIGNAL METHOD: Set used signal method. Example: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
+* #### UNSUPERVISED METHOD: Set used unsupervised method. Example: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
 * #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson']
 
 # Dataset

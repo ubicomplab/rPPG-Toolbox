@@ -8,7 +8,7 @@ import math
 
 import numpy as np
 from scipy import signal
-from signal_methods import utils
+from unsupervised_methods import utils
 
 
 def _process_video(frames):

@@ -342,6 +342,7 @@ class BaseLoader(Dataset):
         Returns:
             file_list_dict(Dict): Dictionary containing information regarding processed data ( path names)
         """
+        print('Preprocessing dataset...')
         file_num = len(data_dirs)
         choose_range = range(0, file_num)
         pbar = tqdm(list(choose_range))
@@ -353,7 +354,6 @@ class BaseLoader(Dataset):
         running_num = 0  # number of running processes
 
         # in range of number of files to process
-        print('Preprocessing dataset...')
         for i in choose_range:
             process_flag = True
             while process_flag:  # ensure that every i creates a process

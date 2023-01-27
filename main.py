@@ -9,7 +9,7 @@ import torch
 from config import get_config
 from dataset import data_loader
 from neural_methods import trainer
-from signal_methods.signal_predictor import signal_predict
+from unsupervised_methods.unsupervised_predictor import unsupervised_predict
 from torch.utils.data import DataLoader
 
 RANDOM_SEED = 100
@@ -20,7 +20,7 @@ random.seed(RANDOM_SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 # Create a general generator for use with the validation dataloader,
-# the test dataloader, and the signal dataloader
+# the test dataloader, and the unsupervised dataloader
 general_generator = torch.Generator()
 general_generator.manual_seed(RANDOM_SEED)
 # Create a training generator to isolate the train dataloader from
@@ -53,8 +53,8 @@ def add_args(parser):
       UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
       UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
     Signal Method Sample YAMSL LIST:
-      PURE_SIGNAL.yaml
-      UBFC_SIGNAL.yaml
+      PURE_UNSUPERVISED.yaml
+      UBFC_UNSUPERVISED.yaml
     '''
     return parser
 
@@ -90,24 +90,24 @@ def test(config, data_loader_dict):
     model_trainer.test(data_loader_dict)
 
 
-def signal_method_inference(config, data_loader):
-    if not config.SIGNAL.METHOD:
-        raise ValueError("Please set signal method in yaml!")
-    for signal_method in config.SIGNAL.METHOD:
-        if signal_method == "POS":
-            signal_predict(config, data_loader, "POS")
-        elif signal_method == "CHROM":
-            signal_predict(config, data_loader, "CHROM")
-        elif signal_method == "ICA":
-            signal_predict(config, data_loader, "ICA")
-        elif signal_method == "GREEN":
-            signal_predict(config, data_loader, "GREEN")
-        elif signal_method == "LGI":
-            signal_predict(config, data_loader, "LGI")
-        elif signal_method == "PBV":
-            signal_predict(config, data_loader, "PBV")
+def unsupervised_method_inference(config, data_loader):
+    if not config.UNSUPERVISED.METHOD:
+        raise ValueError("Please set unsupervised method in yaml!")
+    for unsupervised_method in config.UNSUPERVISED.METHOD:
+        if unsupervised_method == "POS":
+            unsupervised_predict(config, data_loader, "POS")
+        elif unsupervised_method == "CHROM":
+            unsupervised_predict(config, data_loader, "CHROM")
+        elif unsupervised_method == "ICA":
+            unsupervised_predict(config, data_loader, "ICA")
+        elif unsupervised_method == "GREEN":
+            unsupervised_predict(config, data_loader, "GREEN")
+        elif unsupervised_method == "LGI":
+            unsupervised_predict(config, data_loader, "LGI")
+        elif unsupervised_method == "PBV":
+            unsupervised_predict(config, data_loader, "PBV")
         else:
-            raise ValueError("Not supported signal method!")
+            raise ValueError("Not supported unsupervised method!")
 
 
 if __name__ == "__main__":
@@ -218,26 +218,26 @@ if __name__ == "__main__":
         else:
             data_loader_dict['test'] = None
 
-    elif config.TOOLBOX_MODE == "signal_method":
-        # signal method dataloader
-        if config.SIGNAL.DATA.DATASET == "COHFACE":
-            # signal_loader = data_loader.COHFACELoader.COHFACELoader
+    elif config.TOOLBOX_MODE == "unsupervised_method":
+        # unsupervised method dataloader
+        if config.UNSUPERVISED.DATA.DATASET == "COHFACE":
+            # unsupervised_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
-        elif config.SIGNAL.DATA.DATASET == "UBFC":
-            signal_loader = data_loader.UBFCLoader.UBFCLoader
-        elif config.SIGNAL.DATA.DATASET == "PURE":
-            signal_loader = data_loader.PURELoader.PURELoader
-        elif config.SIGNAL.DATA.DATASET == "SCAMPS":
-            signal_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        elif config.UNSUPERVISED.DATA.DATASET == "UBFC":
+            unsupervised_loader = data_loader.UBFCLoader.UBFCLoader
+        elif config.UNSUPERVISED.DATA.DATASET == "PURE":
+            unsupervised_loader = data_loader.PURELoader.PURELoader
+        elif config.UNSUPERVISED.DATA.DATASET == "SCAMPS":
+            unsupervised_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
-        signal_data = signal_loader(
-            name="signal",
-            data_path=config.SIGNAL.DATA.DATA_PATH,
-            config_data=config.SIGNAL.DATA)
-        data_loader_dict["signal"] = DataLoader(
-            dataset=signal_data,
+        unsupervised_data = unsupervised_loader(
+            name="unsupervised",
+            data_path=config.UNSUPERVISED.DATA.DATA_PATH,
+            config_data=config.UNSUPERVISED.DATA)
+        data_loader_dict["unsupervised"] = DataLoader(
+            dataset=unsupervised_data,
             num_workers=16,
             batch_size=1,
             shuffle=False,
@@ -246,13 +246,13 @@ if __name__ == "__main__":
         )
 
     else:
-        raise ValueError("Unsupported toolbox_mode! Currently support train_and_test or only_test or signal_method.")
+        raise ValueError("Unsupported toolbox_mode! Currently support train_and_test or only_test or unsupervised_method.")
 
     if config.TOOLBOX_MODE == "train_and_test":
         train_and_test(config, data_loader_dict)
     elif config.TOOLBOX_MODE == "only_test":
         test(config, data_loader_dict)
-    elif config.TOOLBOX_MODE == "signal_method":
-        signal_method_inference(config, data_loader_dict)
+    elif config.TOOLBOX_MODE == "unsupervised_method":
+        unsupervised_method_inference(config, data_loader_dict)
     else:
         print("TOOLBOX_MODE only support train_and_test or only_test !", end='\n\n')
