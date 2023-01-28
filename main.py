@@ -124,10 +124,12 @@ if __name__ == "__main__":
     print(config, end='\n\n')
 
     data_loader_dict = dict()
-    if (config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test"):
+    if config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
         # neural method dataloader
         # train_loader
-        if config.TRAIN.DATA.DATASET == "COHFACE":
+        if config.TOOLBOX_MODE == "only_test":
+            pass
+        elif config.TRAIN.DATA.DATASET == "COHFACE":
             # train_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.TRAIN.DATA.DATASET == "UBFC":
@@ -140,7 +142,9 @@ if __name__ == "__main__":
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
         # valid_loader
-        if config.VALID.DATA.DATASET == "COHFACE":
+        if config.TOOLBOX_MODE == "only_test":
+            pass
+        elif config.VALID.DATA.DATASET == "COHFACE":
             # valid_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.VALID.DATA.DATASET == "UBFC":
@@ -154,7 +158,7 @@ if __name__ == "__main__":
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
-        if (config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH):
+        if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
                 print("Testing uses last epoch, validation dataset is not required.", end='\n\n')
 
         # test_loader
@@ -170,7 +174,9 @@ if __name__ == "__main__":
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
-        if (config.TOOLBOX_MODE == "train_and_test" and config.TRAIN.DATA.DATASET is not None and 
+        # Create and initialize the train dataloader given the correct toolbox mode,
+        # a supported dataset name, and a valid dataset path
+        if (config.TOOLBOX_MODE == "train_and_test" and config.TRAIN.DATA.DATASET and 
             config.TRAIN.DATA.DATA_PATH):
             train_data_loader = train_loader(
                 name="train",
@@ -187,7 +193,9 @@ if __name__ == "__main__":
         else:
             data_loader_dict['train'] = None
 
-        if (config.TOOLBOX_MODE == "train_and_test" and config.VALID.DATA.DATASET is not None and 
+        # Create and initialize the valid dataloader given the correct toolbox mode,
+        # a supported dataset name, and a valid dataset path
+        if (config.TOOLBOX_MODE == "train_and_test" and config.VALID.DATA.DATASET and 
             config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH):
             valid_data = valid_loader(
                 name="valid",
@@ -204,7 +212,9 @@ if __name__ == "__main__":
         else:
             data_loader_dict['valid'] = None
 
-        if (config.TEST.DATA.DATASET is not None and config.TEST.DATA.DATA_PATH):
+        # Create and initialize the test dataloader given the correct toolbox mode,
+        # a supported dataset name, and a valid dataset path
+        if config.TEST.DATA.DATASET and config.TEST.DATA.DATA_PATH:
             test_data = test_loader(
                 name="test",
                 data_path=config.TEST.DATA.DATA_PATH,

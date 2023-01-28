@@ -35,7 +35,7 @@ class TscanTrainer(BaseTrainer):
         self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
         self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
-        if (config.TOOLBOX_MODE == "train_and_test"):
+        if config.TOOLBOX_MODE == "train_and_test":
             self.num_train_batches = len(data_loader["train"])
             self.criterion = torch.nn.MSELoss()
             self.optimizer = optim.AdamW(
