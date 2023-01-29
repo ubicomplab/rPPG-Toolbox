@@ -41,7 +41,7 @@ def ICA_POH(frames, FS):
     MaxComp = np.argmax(MaxPx)
     BVP_I = S[MaxComp, :]
     B, A = signal.butter(3, [LPF / NyquistF, HPF / NyquistF], 'bandpass')
-    BVP_F = signal.filtfilt(B, A, BVP_I.astype(np.double))
+    BVP_F = signal.filtfilt(B, A, np.real(BVP_I).astype(np.double))
 
     BVP = BVP_F[0]
     return BVP
