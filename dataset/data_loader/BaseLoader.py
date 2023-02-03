@@ -91,10 +91,19 @@ class BaseLoader(Dataset):
             raise ValueError('Unsupported Data Format!')
         data = np.float32(data)
         label = np.float32(label)
+        # item_path is the location of a specific clip in a preprocessing output folder
+        # For example, an item path could be /home/data/PURE_SizeW72_...unsupervised/501_input0.npy
         item_path = self.inputs[index]
+        # item_path_filename is simply the filename of the specific clip
+        # For example, the preceding item_path's filename would be 501_input0.npy
         item_path_filename = item_path.split(os.sep)[-1]
-        split_idx = item_path_filename.index('_')
+        # split_idx represents the point in the previous filename where we want to split the string 
+        # in order to retrieve a more precise filename (e.g., 501) preceding the chunk (e.g., input0)
+        split_idx = item_path_filename.rindex('_')
+        # Following the previous comments, the filename for example would be 501
         filename = item_path_filename[:split_idx]
+        # chunk_id is the extracted, numeric chunk identifier. Following the previous comments, 
+        # the chunk_id for example would be 0
         chunk_id = item_path_filename[split_idx + 6:].split('.')[0]
         return data, label, filename, chunk_id
 
