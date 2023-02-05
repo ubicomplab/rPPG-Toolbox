@@ -124,12 +124,10 @@ if __name__ == "__main__":
     print(config, end='\n\n')
 
     data_loader_dict = dict()
-    if config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
+    if config.TOOLBOX_MODE == "train_and_test":
         # neural method dataloader
         # train_loader
-        if config.TOOLBOX_MODE == "only_test":
-            pass
-        elif config.TRAIN.DATA.DATASET == "COHFACE":
+        if config.TRAIN.DATA.DATASET == "COHFACE":
             # train_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.TRAIN.DATA.DATASET == "UBFC":
@@ -142,9 +140,7 @@ if __name__ == "__main__":
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
         # valid_loader
-        if config.TOOLBOX_MODE == "only_test":
-            pass
-        elif config.VALID.DATA.DATASET == "COHFACE":
+        if config.VALID.DATA.DATASET == "COHFACE":
             # valid_loader = data_loader.COHFACELoader.COHFACELoader
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
         elif config.VALID.DATA.DATASET == "UBFC":
@@ -161,23 +157,9 @@ if __name__ == "__main__":
         if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
                 print("Testing uses last epoch, validation dataset is not required.", end='\n\n')
 
-        # test_loader
-        if config.TEST.DATA.DATASET == "COHFACE":
-            # test_loader = data_loader.COHFACELoader.COHFACELoader
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
-        elif config.TEST.DATA.DATASET == "UBFC":
-            test_loader = data_loader.UBFCLoader.UBFCLoader
-        elif config.TEST.DATA.DATASET == "PURE":
-            test_loader = data_loader.PURELoader.PURELoader
-        elif config.TEST.DATA.DATASET == "SCAMPS":
-            test_loader = data_loader.SCAMPSLoader.SCAMPSLoader
-        else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
-
         # Create and initialize the train dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
-        if (config.TOOLBOX_MODE == "train_and_test" and config.TRAIN.DATA.DATASET and 
-            config.TRAIN.DATA.DATA_PATH):
+        if (config.TRAIN.DATA.DATASET and config.TRAIN.DATA.DATA_PATH):
             train_data_loader = train_loader(
                 name="train",
                 data_path=config.TRAIN.DATA.DATA_PATH,
@@ -195,8 +177,7 @@ if __name__ == "__main__":
 
         # Create and initialize the valid dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
-        if (config.TOOLBOX_MODE == "train_and_test" and config.VALID.DATA.DATASET and 
-            config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH):
+        if (config.VALID.DATA.DATASET and config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH):
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
@@ -211,6 +192,20 @@ if __name__ == "__main__":
             )
         else:
             data_loader_dict['valid'] = None
+
+    elif config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
+        # test_loader
+        if config.TEST.DATA.DATASET == "COHFACE":
+            # test_loader = data_loader.COHFACELoader.COHFACELoader
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
+        elif config.TEST.DATA.DATASET == "UBFC":
+            test_loader = data_loader.UBFCLoader.UBFCLoader
+        elif config.TEST.DATA.DATASET == "PURE":
+            test_loader = data_loader.PURELoader.PURELoader
+        elif config.TEST.DATA.DATASET == "SCAMPS":
+            test_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        else:
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
         # Create and initialize the test dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
