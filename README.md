@@ -169,6 +169,28 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
          |      |-- ii-jj.json
     -----------------
 
+* [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
+* Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
+ "MMPD: Multi-Domain Mobile Video Physiology Dataset", arxiv, 2023
+    * In order to use this dataset in a deep model, you should organize the files as follows:
+    
+    -----------------
+         data/MMPD/
+         |   |-- subject1/
+         |       |-- p1_0.mat
+         |       |-- p1_1.mat
+         |       |...
+         |   |-- subject2/
+         |       |-- p2_0.mat
+         |       |-- p2_1.mat
+         |       |...
+         |...
+         |   |-- subjectn/
+         |       |-- pn_0.mat
+         |       |-- pn_1.mat
+         |       |...
+    -----------------
+    
 ## Add A New Dataloader
 
 * Step1 : Create a new python file in dataset/data_loader, e.g. MyLoader.py
