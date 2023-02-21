@@ -38,7 +38,7 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
     '''Neural Method Sample YAMSL LIST:
       SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
       SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
@@ -136,6 +136,10 @@ if __name__ == "__main__":
             train_loader = data_loader.PURELoader.PURELoader
         elif config.TRAIN.DATA.DATASET == "SCAMPS":
             train_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        ###################################
+        elif config.TRAIN.DATA.DATASET == "MMPD":
+            train_loader = data_loader.MMPDLoader.MMPDLoader
+        ###################################
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
@@ -149,6 +153,10 @@ if __name__ == "__main__":
             valid_loader = data_loader.PURELoader.PURELoader
         elif config.VALID.DATA.DATASET == "SCAMPS":
             valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        ###################################
+        elif config.VALID.DATA.DATASET == "MMPD":
+            valid_loader = data_loader.MMPDLoader.MMPDLoader
+        ###################################
         elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
                 raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
@@ -167,6 +175,10 @@ if __name__ == "__main__":
             test_loader = data_loader.PURELoader.PURELoader
         elif config.TEST.DATA.DATASET == "SCAMPS":
             test_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        ###################################
+        elif config.TEST.DATA.DATASET == "MMPD":
+            test_loader = data_loader.MMPDLoader.MMPDLoader
+        ###################################
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
@@ -229,6 +241,10 @@ if __name__ == "__main__":
             unsupervised_loader = data_loader.PURELoader.PURELoader
         elif config.UNSUPERVISED.DATA.DATASET == "SCAMPS":
             unsupervised_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        ###################################
+        elif config.UNSUPERVISED.DATA.DATASET == "MMPD":
+            unsupervised_loader = data_loader.MMPDLoader.MMPDLoader
+        ###################################
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, and SCAMPS.")
 
