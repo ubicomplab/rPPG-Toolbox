@@ -20,7 +20,6 @@ class PhysnetTrainer(BaseTrainer):
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.max_epoch_num = config.TRAIN.EPOCHS
-        self.num_train_batches = len(data_loader["train"])
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
@@ -32,12 +31,19 @@ class PhysnetTrainer(BaseTrainer):
 
         self.model = PhysNet_padding_Encoder_Decoder_MAX(
             frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
-        self.loss_model = Neg_Pearson()
-        self.optimizer = optim.Adam(
-            self.model.parameters(), lr=config.TRAIN.LR)
-        # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
-        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
+
+        if config.TOOLBOX_MODE == "train_and_test":
+            self.num_train_batches = len(data_loader["train"])
+            self.loss_model = Neg_Pearson()
+            self.optimizer = optim.Adam(
+                self.model.parameters(), lr=config.TRAIN.LR)
+            # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
+            self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
+        elif config.TOOLBOX_MODE == "only_test":
+            pass
+        else:
+            raise ValueError("PhysNet trainer initialized in incorrect toolbox mode!")
 
     def train(self, data_loader):
         """Training routine for model"""
