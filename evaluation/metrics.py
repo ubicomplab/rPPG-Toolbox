@@ -45,10 +45,10 @@ def calculate_metrics(predictions, labels, config):
         prediction = _reform_data_from_dict(predictions[index])
         label = _reform_data_from_dict(labels[index])
 
-        if config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
-                config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "Raw":
+        if config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
+                config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Raw":
             diff_flag_test = False
-        elif config.TRAIN.DATA.PREPROCESS.LABEL_TYPE == "DiffNormalized":
+        elif config.TEST.DATA.PREPROCESS.LABEL_TYPE == "DiffNormalized":
             diff_flag_test = True
         else:
             raise ValueError("Not supported label type in testing!")

@@ -21,7 +21,6 @@ class DeepPhysTrainer(BaseTrainer):
         super().__init__()
         self.device = torch.device(config.DEVICE)
         self.max_epoch_num = config.TRAIN.EPOCHS
-        self.num_train_batches = len(data_loader["train"])
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
@@ -29,15 +28,23 @@ class DeepPhysTrainer(BaseTrainer):
         self.config = config
         self.min_valid_loss = None
         self.best_epoch = 0
+        
+        if config.TOOLBOX_MODE == "train_and_test":
+            self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
+            self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
-        self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.H).to(self.device)
-        self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
-        self.criterion = torch.nn.MSELoss()
-        self.optimizer = optim.AdamW(
-            self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
-        # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
-        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
+            self.num_train_batches = len(data_loader["train"])
+            self.criterion = torch.nn.MSELoss()
+            self.optimizer = optim.AdamW(
+                self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
+            # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
+            self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
+        elif config.TOOLBOX_MODE == "only_test":
+            self.model = DeepPhys(img_size=config.TEST.DATA.PREPROCESS.H).to(self.device)
+            self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+        else:
+            raise ValueError("DeepPhys trainer initialized in incorrect toolbox mode!")
 
     def train(self, data_loader):
         """Training routine for model"""
