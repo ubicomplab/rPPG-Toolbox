@@ -193,7 +193,7 @@ if __name__ == "__main__":
         else:
             data_loader_dict['valid'] = None
 
-    elif config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
+    if config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
         # test_loader
         if config.TEST.DATA.DATASET == "COHFACE":
             # test_loader = data_loader.COHFACELoader.COHFACELoader
