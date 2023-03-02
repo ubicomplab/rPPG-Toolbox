@@ -2,13 +2,13 @@ BASE: ['']
 TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
-  EPOCHS: 30
+  EPOCHS: 10
   LR: 9e-3
   MODEL_FILE_NAME: MMPD_MMPD_UBFC_tscan
   DATA:
     FS: 30
     DATASET: MMPD
-    DO_PREPROCESS: True                    # if first time, should be true
+    DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data/rPPG_dataset/mini_MMPD"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset"      # Processed dataset save path, need to be updated
@@ -31,7 +31,7 @@ VALID:
   DATA:
     FS: 30
     DATASET: MMPD
-    DO_PREPROCESS: True                  # if first time, should be true
+    DO_PREPROCESS: False                 # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data/rPPG_dataset/mini_MMPD"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset"      # Processed dataset save path, need to be updated
@@ -56,7 +56,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: False               # if first time, should be true
+    DO_PREPROCESS: True              # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data1/acsp/toolbox_data/UBFC/RawData/"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset"    # Processed dataset save path, need to be updated
@@ -64,8 +64,8 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS :
-      DATA_TYPE: ['Normalized','Standardized']
-      LABEL_TYPE: Normalized
+      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
       DYNAMIC_DETECTION: False

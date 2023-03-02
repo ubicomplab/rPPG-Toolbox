@@ -56,7 +56,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: MMPD
-    DO_PREPROCESS: True                    # if first time, should be true
+    DO_PREPROCESS: False                   # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data/rPPG_dataset/mat_dataset"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset"      # Processed dataset save path, need to be updated
