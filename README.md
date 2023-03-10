@@ -87,6 +87,30 @@ Here are some explanation of parameters:
 # Dataset
 The toolbox supports three datasets, which are SCAMPS, UBFC, and PURE (COHFACE support will be added shortly). Cite corresponding papers when using.
 For now, we only recommend training with PURE or SCAMPS due to the level of synchronization and volume of the dataset.
+
+* [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
+* Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
+ "MMPD: Multi-Domain Mobile Video Physiology Dataset", arxiv, 2023
+    * In order to use this dataset in a deep model, you should organize the files as follows:
+    
+    -----------------
+         data/MMPD/
+         |   |-- subject1/
+         |       |-- p1_0.mat
+         |       |-- p1_1.mat
+         |       |...
+         |       |-- p1_19.mat
+         |   |-- subject2/
+         |       |-- p2_0.mat
+         |       |-- p2_1.mat
+         |       |...
+         |...
+         |   |-- subjectn/
+         |       |-- pn_0.mat
+         |       |-- pn_1.mat
+         |       |...
+    -----------------
+    
 * [SCAMPS](https://arxiv.org/abs/2206.04197)
   
     * D. McDuff, M. Wander, X. Liu, B. Hill, J. Hernandez, J. Lester, T. Baltrusaitis, "SCAMPS: Synthetics for Camera Measurement of Physiological Signals", Arxiv, 2022
@@ -126,30 +150,7 @@ For now, we only recommend training with PURE or SCAMPS due to the level of sync
          |       |-- vid.avi
          |       |-- ground_truth.txt
     -----------------
-* [COHFACE](https://www.idiap.ch/en/dataset/cohface)
-    * Guillaume Heusch, André Anjos, Sébastien Marcel, “A reproducible study on remote heart rate measurement”, arXiv, 2016.
-    * In order to use this dataset in a deep model, you should organize the files as follows:
-    -----------------
-         data/COHFACE/
-         |   |-- 1/
-         |      |-- 0/
-         |          |-- data.avi
-         |          |-- data.hdf5
-         |      |...
-         |      |-- 3/
-         |          |-- data.avi
-         |          |-- data.hdf5
-         |...
-         |   |-- n/
-         |      |-- 0/
-         |          |-- data.avi
-         |          |-- data.hdf5
-         |      |...
-         |      |-- 3/
-         |          |-- data.avi
-         |          |-- data.hdf5
-    -----------------
-    
+   
 * [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure)
     * Stricker, R., Müller, S., Gross, H.-M.Non-contact Video-based Pulse Rate Measurement on a Mobile Service Robot
 in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
@@ -169,27 +170,6 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
          |      |-- ii-jj.json
     -----------------
 
-* [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
-* Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
- "MMPD: Multi-Domain Mobile Video Physiology Dataset", arxiv, 2023
-    * In order to use this dataset in a deep model, you should organize the files as follows:
-    
-    -----------------
-         data/MMPD/
-         |   |-- subject1/
-         |       |-- p1_0.mat
-         |       |-- p1_1.mat
-         |       |...
-         |   |-- subject2/
-         |       |-- p2_0.mat
-         |       |-- p2_1.mat
-         |       |...
-         |...
-         |   |-- subjectn/
-         |       |-- pn_0.mat
-         |       |-- pn_1.mat
-         |       |...
-    -----------------
     
 ## Add A New Dataloader
 
