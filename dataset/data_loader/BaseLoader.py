@@ -206,7 +206,7 @@ class BaseLoader(Dataset):
         """
 
         detector = cv2.CascadeClassifier(
-            '/data/rPPG-Toolbox_new/dataset/haarcascade_frontalface_default.xml')
+            './dataset/haarcascade_frontalface_default.xml')
         face_zone = detector.detectMultiScale(frame)
         if len(face_zone) < 1:
             print("ERROR: No Face Detected")
