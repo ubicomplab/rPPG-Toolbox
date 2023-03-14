@@ -7,7 +7,6 @@ import cv2
 import glob
 import numpy as np
 import re
-import dlib
 
 from scipy.__config__ import get_info
 from .BaseLoader import BaseLoader
