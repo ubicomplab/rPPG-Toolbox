@@ -13,7 +13,6 @@ from .BaseLoader import BaseLoader
 from multiprocessing import Pool, Process, Value, Array, Manager
 from tqdm import tqdm
 import pandas as pd
-import skvideo.io
 import scipy.io as sio
 import sys
 import itertools
