@@ -138,10 +138,8 @@ if __name__ == "__main__":
             train_loader = data_loader.PURELoader.PURELoader
         elif config.TRAIN.DATA.DATASET == "SCAMPS":
             train_loader = data_loader.SCAMPSLoader.SCAMPSLoader
-        ###################################
         elif config.TRAIN.DATA.DATASET == "MMPD":
             train_loader = data_loader.MMPDLoader.MMPDLoader
-        ###################################
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
 
@@ -155,37 +153,12 @@ if __name__ == "__main__":
             valid_loader = data_loader.PURELoader.PURELoader
         elif config.VALID.DATA.DATASET == "SCAMPS":
             valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
-        ###################################
         elif config.VALID.DATA.DATASET == "MMPD":
             valid_loader = data_loader.MMPDLoader.MMPDLoader
-        ###################################
         elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
                 raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-
-        if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
-                print("Testing uses last epoch, validation dataset is not required.", end='\n\n')
-
-
-        # test_loader
-        if config.TEST.DATA.DATASET == "COHFACE":
-            # test_loader = data_loader.COHFACELoader.COHFACELoader
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-        elif config.TEST.DATA.DATASET == "UBFC":
-            test_loader = data_loader.UBFCLoader.UBFCLoader
-        elif config.TEST.DATA.DATASET == "PURE":
-            test_loader = data_loader.PURELoader.PURELoader
-        elif config.TEST.DATA.DATASET == "SCAMPS":
-            test_loader = data_loader.SCAMPSLoader.SCAMPSLoader
-        ###################################
-        elif config.TEST.DATA.DATASET == "MMPD":
-            test_loader = data_loader.MMPDLoader.MMPDLoader
-        ###################################
-        else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-
-        
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")      
 
         # Create and initialize the train dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
@@ -237,9 +210,11 @@ if __name__ == "__main__":
             test_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         elif config.TEST.DATA.DATASET == "MMPD":
             test_loader = data_loader.MMPDLoader.MMPDLoader
-        ###################################
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
+
+        if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
+            print("Testing uses last epoch, validation dataset is not required.", end='\n\n')   
 
         # Create and initialize the test dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
@@ -270,10 +245,8 @@ if __name__ == "__main__":
             unsupervised_loader = data_loader.PURELoader.PURELoader
         elif config.UNSUPERVISED.DATA.DATASET == "SCAMPS":
             unsupervised_loader = data_loader.SCAMPSLoader.SCAMPSLoader
-        ###################################
         elif config.UNSUPERVISED.DATA.DATASET == "MMPD":
             unsupervised_loader = data_loader.MMPDLoader.MMPDLoader
-        ###################################
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
 
