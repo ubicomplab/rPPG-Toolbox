@@ -4,12 +4,21 @@ UNSUPERVISED:
   METHOD: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   DATA:
+    INFO:
+      LIGHT: [1, 2, 3]  # 'LED-low','LED-high','Incandescent','Nature'
+      MOTION: [1] # 'Stationary', 'Rotation', 'Talking', 'Walking'
+      EXERCISE: [2] # True, False
+      SKIN_COLOR: [3] # 3, 4, 5, 6
+      GENDER: [1, 2]  # 'male','female'
+      GLASSER: [1, 2] # True, False
+      HAIR_COVER: [1, 2] # True, False
+      MAKEUP: [1, 2] # True, False
     FS: 30
-    DATASET: PURE
-    DO_PREPROCESS: False               # if first time, should be true
+    DATASET: MMPD
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDHWC
-    DATA_PATH: "/data1/acsp/toolbox_data/PURE/RawData"           # Raw dataset path, need to be updated
-    CACHED_PATH: "/data/rPPG_dataset/processed_dataset_makeup"   # Processed dataset save path, need to be updated
+    DATA_PATH:   "/data/rPPG_dataset/mat_dataset"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/data/rPPG_dataset/processed_dataset"      # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0

@@ -1,5 +1,5 @@
 BASE: ['']
-TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
@@ -8,7 +8,7 @@ TRAIN:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True               # if first time, should be true
+    DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/acsp/toolbox_data/PURE/RawData"           # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset_makeup"   # Processed dataset save path, need to be updated
@@ -31,7 +31,7 @@ VALID:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True                  # if first time, should be true
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/acsp/toolbox_data/PURE/RawData"           # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset_makeup"   # Processed dataset save path, need to be updated
@@ -56,7 +56,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True                    # if first time, should be true
+    DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/data1/acsp/toolbox_data/UBFC/RawData/"            # need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset_makeup"     # Processed dataset save path, need to be updated
@@ -87,4 +87,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-  MODEL_PATH:   ""
+  MODEL_PATH:   "/data/rPPG-Toolbox_MMPD/final_model_release/PURE_TSCAN.pth"

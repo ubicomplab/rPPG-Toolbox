@@ -1,5 +1,5 @@
 BASE: ['']
-TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
@@ -52,11 +52,20 @@ VALID:
       W: 72
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
-  USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
+  USE_LAST_EPOCH: False                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
+    INFO:
+      LIGHT: [1, 2, 3]  # 'LED-low','LED-high','Incandescent','Nature'
+      MOTION: [1] # 'Stationary', 'Rotation', 'Talking', 'Walking'
+      EXERCISE: [2] # True, False
+      SKIN_COLOR: [3] # 3, 4, 5, 6
+      GENDER: [1, 2]  # 'male','female'
+      GLASSER: [1, 2] # True, False
+      HAIR_COVER: [1, 2] # True, False
+      MAKEUP: [1, 2] # True, False
     FS: 30
     DATASET: MMPD
-    DO_PREPROCESS: False                   # if first time, should be true
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data/rPPG_dataset/mat_dataset"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset"      # Processed dataset save path, need to be updated
@@ -87,4 +96,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-  MODEL_PATH:   ""
+  MODEL_PATH:   "/data/rPPG-Toolbox_MMPD/final_model_release/PURE_TSCAN.pth"
