@@ -1,4 +1,4 @@
-## Publication
+## Reference
 
 ```
 @article{liu2022deep,
