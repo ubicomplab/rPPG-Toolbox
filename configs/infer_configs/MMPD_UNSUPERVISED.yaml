@@ -5,14 +5,14 @@ UNSUPERVISED:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   DATA:
     INFO:
-      LIGHT: [1, 2, 3]  # 'LED-low','LED-high','Incandescent','Nature'
-      MOTION: [1] # 'Stationary', 'Rotation', 'Talking', 'Walking'
-      EXERCISE: [2] # True, False
-      SKIN_COLOR: [3] # 3, 4, 5, 6
-      GENDER: [1, 2]  # 'male','female'
-      GLASSER: [1, 2] # True, False
-      HAIR_COVER: [1, 2] # True, False
-      MAKEUP: [1, 2] # True, False
+      LIGHT: [1, 2, 3]  # 1 - LED-Low, 2 - LED-high, 3 - Incandescent, 4 - Nature
+      MOTION: [1] # 1 - Stationary, 2 - Rotation, 3 - Talking, 4 - Walking
+      EXERCISE: [2] # 1 - True, 2 - False
+      SKIN_COLOR: [3] # Fitzpatrick Scale Skin Types - 3, 4, 5, 6
+      GENDER: [1, 2]  # 1 - Male, 2 - Female
+      GLASSER: [1, 2] # 1 - True, 2 - False
+      HAIR_COVER: [1, 2] # 1 - True, 2 - False
+      MAKEUP: [1, 2] # 1 - True, 2 - False
     FS: 30
     DATASET: MMPD
     DO_PREPROCESS: False                  # if first time, should be true
