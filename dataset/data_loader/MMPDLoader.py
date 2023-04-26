@@ -202,9 +202,9 @@ class MMPDLoader(BaseLoader):
             motion = 4
         
         exercise = ''
-        if information[2] == 'True' or information[2] == True:
+        if information[2] == 'True':
             exercise = 1
-        elif information[2] == 'False' or information[2] == False:
+        elif information[2] == 'False':
             exercise = 2
 
         skin_color = information[3][0][0]
@@ -216,21 +216,21 @@ class MMPDLoader(BaseLoader):
             gender = 2
 
         glasser = ''
-        if information[5] == 'True' or information[5] == True:
+        if information[5] == 'True':
             glasser = 1
-        elif information[5] == 'False' or information[5] == False:
+        elif information[5] == 'False':
             glasser = 2
 
         hair_cover = ''
-        if information[6] == 'True' or information[6] == True:
+        if information[6] == 'True':
             hair_cover = 1
-        elif information[6] == 'False' or information[6] == False:
+        elif information[6] == 'False':
             hair_cover = 2
         
         makeup = ''
-        if information[7] == 'True' or information[7] == True:
+        if information[7] == 'True':
             makeup = 1
-        elif information[7] == 'False' or information[7] == False:
+        elif information[7] == 'False':
             makeup = 2
 
         return light, motion ,exercise, skin_color, gender, glasser, hair_cover, makeup
