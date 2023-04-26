@@ -1,0 +1,30 @@
+BASE: ['']
+TOOLBOX_MODE: "unsupervised_method"      # "train_and_test"  or "only_test" or "unsupervised_method"
+UNSUPERVISED:
+  METHOD: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  DATA:
+    FS: 30
+    DATASET: PURE
+    DO_PREPROCESS: False               # if first time, should be true
+    DATA_FORMAT: NDHWC
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS :
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Raw
+      DO_CHUNK: False
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.5
+      H: 72
+      W: 72
+INFERENCE:
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+                  

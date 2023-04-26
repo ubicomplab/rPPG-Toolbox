@@ -1,0 +1,161 @@
+VideoID,Peak Detection,FFT,Preferred,Notes
+100,176.9512275,87.64160156,FFT,
+101,a,85.84570313,FFT,
+102,171.3190324,83.015625,FFT,
+103,181.0071568,83.015625,FFT,
+200,70.66223005,69.88085938,BOTH,
+201,71.56836967,69.0078125,BOTH,
+202,72.45643427,70.82519531,Peak Detection,
+203,70.96681286,70.8984375,Peak Detection,
+300,69.73011104,68.93652344,BOTH,
+301,71.35163536,71.04492188,BOTH,
+302,72.16958719,71.84375,Peak Detection,
+303,72.40867444,72.71386719,Peak Detection,
+400,57.72680311,56.71875,FFT,
+401,55.76774363,53.82714844,BOTH,
+402,54.63496211,53.8828125,BOTH,
+403,56.01262493,55.7734375,BOTH,
+500,73.65081018,72.86425781,Peak Detection,
+501,73.79570524,74.6796875,Peak Detection,
+502,75.52174761,73.734375,Peak Detection,
+503,76.10793776,75.46875,Peak Detection,
+600,62.5152017,61.38183594,Peak Detection,
+601,63.48117266,64.21484375,Peak Detection,
+602,63.89941061,63.3359375,BOTH,
+603,64.74140978,64.1484375,BOTH,
+700,61.06452885,59.5546875,Peak Detection,
+701,61.75761537,61.4453125,Peak Detection,
+702,62.31706834,62.32617188,Peak Detection,
+703,65.97116645,66.171875,Peak Detection,
+800,71.89497747,72.86425781,Peak Detection,
+801,75.76805166,76.5703125,Peak Detection,
+802,70.48822637,69.953125,BOTH,
+803,71.27607766,69.88085938,Peak Detection,
+900,74.33071683,74.72460938,Peak Detection,
+901,76.45514503,77.734375,Peak Detection,
+902,72.08047459,70.1484375,Peak Detection,
+903,72.63122552,71.296875,Peak Detection,
+1000,79.67675781,84.10695187,Peak Detection,
+1001,90.23632813,86.09479647,Peak Detection,
+1002,83.09179688,84.23816319,Peak Detection,
+1003,82.55664063,82.89067421,Peak Detection,
+1100,65.14453125,66.73125483,BOTH,
+1101,68.25878906,70.11611285,BOTH,
+1102,70.89257813,70.54611777,BOTH,
+1103,70.07714844,72.55932424,Peak Detection,
+1200,67.81054688,67.63101535,Peak Detection,
+1201,67.19726563,67.90668901,BOTH,
+1202,70.93261719,70.84101456,BOTH,
+1203,68.9765625,70.61636352,BOTH,
+1300,67.63101535,67.81054688,BOTH,
+1301,67.90668901,67.19726563,Peak Detection,
+1302,70.84101456,70.93261719,BOTH,
+1303,70.61636352,68.9765625,Peak Detection,
+1400,86.08249382,86.82714844,Peak Detection,
+1401,86.9015597,85.87109375,Peak Detection,
+1402,86.16793893,85.59375,BOTH,
+1403,85.94504792,85.95800781,BOTH,
+1500,91.05611966,90.8984375,BOTH,
+1501,85.06989074,87.00097656,Peak Detection,
+1502,85.40235538,84.390625,Peak Detection,
+1503,87.76962168,89.31152344,BOTH,
+1600,59.79898594,60.72363281,Peak Detection,
+1601,58.68604048,59.09375,Peak Detection,
+1602,58.20271845,57.7734375,BOTH,
+1603,59.37798607,59.51757813,BOTH,
+1700,117.9080239,116.0371094,Peak Detection,Remove the first 30 frames due to data corruption
+1701,138.1143964,119.140625,Peak Detection,Remove the first 30 frames due to data corruption
+1702,140.6938035,139.15625,Peak Detection,Remove the first 30 frames due to data corruption
+1703,62.25914732,62.96875,BOTH,Remove the first 30 frames due to data corruption
+1800,80.59190031,82.59277344,Peak Detection,Remove the first 30 frames due to data corruption
+1801,78.91928193,77.5,BOTH,Remove the first 30 frames due to data corruption
+1802,78.29215841,77.67773438,BOTH,Remove the first 30 frames due to data corruption
+1803,80.73776695,81.703125,BOTH,Remove the first 30 frames due to data corruption
+1900,143.6697152,134.234375,BOTH,Remove the first 30 frames due to data corruption
+1901,141.3415032,138.9609375,Peak Detection,Remove the first 30 frames due to data corruption
+1902,71.67391741,71.04492188,Peak Detection,Remove the first 30 frames due to data corruption
+1903,70.87311435,71.91796875,Peak Detection,Remove the first 30 frames due to data corruption
+2000,146.5135699,147.46875,Peak Detection,Remove the first 30 frames due to data corruption
+2001,76.0576017,76.5703125,Peak Detection,Remove the first 30 frames due to data corruption
+2002,78.58799064,78.54199219,BOTH,Remove the first 30 frames due to data corruption
+2003,76.34069401,75.625,BOTH,Remove the first 30 frames due to data corruption
+2100,68.05456453,86.96875,BOTH,Remove the first 30 frames due to data corruption
+2101,85.80043527,85.078125,Peak Detection,Remove the first 30 frames due to data corruption
+2102,92.08914754,92.54492188,BOTH,Remove the first 30 frames due to data corruption
+2103,90.94629677,89.13476563,Peak Detection,Remove the first 30 frames due to data corruption
+2200,120.9841145,121,BOTH,Remove the first 30 frames due to data corruption
+2201,124.2275056,123.9638672,BOTH,Remove the first 30 frames due to data corruption
+2202,132.8051914,125.8564453,Peak Detection,Remove the first 30 frames due to data corruption
+2203,145.3391429,133.5644531,Peak Detection,Remove the first 30 frames due to data corruption
+2300,83.40152511,82.15722656,BOTH,Remove the first 30 frames due to data corruption
+2301,87.43239344,88.00488281,Peak Detection,Remove the first 30 frames due to data corruption
+2302,85.84200793,84.99023438,BOTH,Remove the first 30 frames due to data corruption
+2303,86.13006746,85.93457031,BOTH,Remove the first 30 frames due to data corruption
+2400,96.53959714,93.5859375,Peak Detection,Remove the first 30 frames due to data corruption
+2401,99.31591,89.71191406,Peak Detection,Remove the first 30 frames due to data corruption
+2402,92.78836666,91.97949219,BOTH,Remove the first 30 frames due to data corruption
+2403,92.02794646,93.5859375,Peak Detection,Remove the first 30 frames due to data corruption
+2500,90.45144494,87.71191406,BOTH,Remove the first 30 frames due to data corruption
+2501,92.87340697,93.40625,Peak Detection,Remove the first 30 frames due to data corruption
+2502,90.77290837,90.09375,BOTH,Remove the first 30 frames due to data corruption
+2503,91.71746822,92.15625,BOTH,Remove the first 30 frames due to data corruption
+2600,88.50463628,87.53417969,Peak Detection,Remove the first 30 frames due to data corruption
+2601,95.93322632,96.9560547,Peak Detection,Remove the first 30 frames due to data corruption
+2602,93.69687047,101.5625,Peak Detection,Remove the first 30 frames due to data corruption
+2603,112.5891913,93.11621094,BOTH,Remove the first 30 frames due to data corruption
+2700,130.6951817,131.5146484,Peak Detection,Remove the first 30 frames due to data corruption
+2701,145.8450947,128.9736328,Peak Detection,Remove the first 30 frames due to data corruption
+2702,173.0048049,130.1220703,Peak Detection,Remove the first 30 frames due to data corruption
+2703,152.8007251,135.3515625,Peak Detection,Remove the first 30 frames due to data corruption
+2800,137.3495792,138.3837891,Peak Detection,Remove the first 30 frames due to data corruption
+2801,146.7555843,134.5283203,Peak Detection,Remove the first 30 frames due to data corruption
+2802,158.6156778,139.78125,Peak Detection,Remove the first 30 frames due to data corruption
+2803,152.8007251,135.3515625,Peak Detection,Remove the first 30 frames due to data corruption
+2900,232.9288782,94.28125,BOTH,Remove the first 30 frames due to data corruption
+2901,156.9801257,108.2548828,BOTH,Remove the first 30 frames due to data corruption
+2902,155.2350035,109.3242188,BOTH,Remove the first 30 frames due to data corruption
+2903,157.1155937,124.4663086,Peak Detection,Remove the first 30 frames due to data corruption
+3000,115.8148739,122.2871094,Peak Detection,Remove the first 30 frames due to data corruption
+3001,121.1151003,124.3476562,Peak Detection,Remove the first 30 frames due to data corruption
+3002,122.0053688,130.953125,Peak Detection,Remove the first 30 frames due to data corruption
+3003,127.8046875,123.2706096,BOTH,Remove the first 30 frames due to data corruption
+3100,120.7874811,103.2050781,Peak Detection,Remove the first 30 frames due to data corruption
+3101,143.9471813,106.2324219,BOTH,Remove the first 30 frames due to data corruption
+3102,114.7924818,103.7226562,Peak Detection,Remove the first 30 frames due to data corruption
+3103,138.4900322,105.1523438,Peak Detection,Remove the first 30 frames due to data corruption
+3200,121.7264218,121.75,BOTH,Remove the first 30 frames due to data corruption
+3201,126.3317735,129.359375,BOTH,Remove the first 30 frames due to data corruption
+3202,124.778292,125.9375,Peak Detection,Remove the first 30 frames due to data corruption
+3203,130.6342095,122.1855469,Peak Detection,Remove the first 30 frames due to data corruption
+3300,75.86947368,75.14257813,Peak Detection,Remove the first 30 frames due to data corruption
+3301,78.78928276,80.40625,Peak Detection,Remove the first 30 frames due to data corruption
+3302,79.18912237,78.15234375,Peak Detection,Remove the first 30 frames due to data corruption
+3303,76.02526316,76.25,Peak Detection,Remove the first 30 frames due to data corruption
+3400,116.117701,115.8007813,Peak Detection,Remove the first 30 frames due to data corruption
+3401,136.5046729,126.4570313,Peak Detection,Remove the first 30 frames due to data corruption
+3402,128.5658663,127.5878906,BOTH,Remove the first 30 frames due to data corruption
+3403,146.5827918,135.7597656,Peak Detection,Remove the first 30 frames due to data corruption
+3500,87.32891832,86.92382813,BOTH,Remove the first 30 frames due to data corruption
+3501,86.28365542,85.17578125,BOTH,Remove the first 30 frames due to data corruption
+3502,90.23632813,91.38813084,BOTH,Remove the first 30 frames due to data corruption
+3503,77.1714267,84.5625,BOTH,Remove the first 30 frames due to data corruption
+3600,91.66015625,92.46246832,BOTH,Remove the first 30 frames due to data corruption
+3601,96.72070313,97.74911522,Peak Detection,Remove the first 30 frames due to data corruption
+3602,90.89361702,93.59765625,Peak Detection,Remove the first 30 frames due to data corruption
+3603,94.67073092,97.71679688,Peak Detection,Remove the first 30 frames due to data corruption
+3700,123.7832359,127.6171875,Peak Detection,Remove the first 30 frames due to data corruption
+3701,132.9900471,75.703125,Peak Detection,Remove the first 30 frames due to data corruption
+3702,132.173913,149.5136719,Peak Detection,Remove the first 30 frames due to data corruption
+3703,132.2780075,136.265625,Peak Detection,Remove the first 30 frames due to data corruption
+3800,126.9585062,128.1943359,Peak Detection,Remove the first 30 frames due to data corruption
+3801,122.9603047,126.84375,Peak Detection,Remove the first 30 frames due to data corruption
+3802,126.2905482,124.0546875,BOTH,Remove the first 30 frames due to data corruption
+3803,130.1035401,131.8007813,Peak Detection,Remove the first 30 frames due to data corruption
+3900,124.7577002,117.7148437,Peak Detection,Remove the first 30 frames due to data corruption
+3901,130.0334551,131.5146484,Peak Detection,Remove the first 30 frames due to data corruption
+3902,132.3067068,128.0039063,Peak Detection,Remove the first 30 frames due to data corruption
+3903,136.4595627,120.0546875,Peak Detection,Remove the first 30 frames due to data corruption
+4000,128.4980745,128.0576172,BOTH,Remove the first 30 frames due to data corruption
+4001,122.7461774,121.4472666,BOTH,Remove the first 30 frames due to data corruption
+4002,123.630929,124.96875,BOTH,Remove the first 30 frames due to data corruption
+4003,128.2956689,127.8046875,BOTH,Remove the first 30 frames due to data corruption

@@ -1,0 +1,91 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 30
+  LR: 9e-3
+  MODEL_FILE_NAME: SCAMPS_SCAMPS_PURE_tscan
+  DATA:
+    FS: 30
+    DATASET: SCAMPS
+    DO_PREPROCESS: False               # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SCAMPS/RawData/Train"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS :
+      DATA_TYPE: ['DiffNormalized','Standardized']
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.5
+      H: 72
+      W: 72
+VALID:
+  DATA:
+    FS: 30
+    DATASET: SCAMPS
+    DO_PREPROCESS: False                  # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SCAMPS/RawData/Val"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.5
+      H: 72
+      W: 72
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  USE_LAST_EPOCH: True                     # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    FS: 30
+    DATASET: PURE
+    DO_PREPROCESS: False                    # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.5
+      H: 72
+      W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: Tscan
+  TSCAN:
+    FRAME_DEPTH: 10
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  MODEL_PATH:   ""
+                
