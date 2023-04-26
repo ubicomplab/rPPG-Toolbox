@@ -11,8 +11,8 @@ from scipy import linalg
 from unsupervised_methods import utils
 
 
-def GREEN(frames):
+def Green(frames):
     precessed_data = utils.process_video(frames)
-    BVP = precessed_data[:, 1, :]
-    BVP = BVP.reshape(-1)
-    return BVP
+    bvp = precessed_data[:, 1, :]
+    bvp = bvp.reshape(-1)
+    return bvp

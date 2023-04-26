@@ -7,12 +7,12 @@ from collections import OrderedDict
 import numpy as np
 import torch
 from evaluation.post_process import *
-from unsupervised_methods.methods.CHROME_DEHAAN import *
-from unsupervised_methods.methods.GREEN import *
-from unsupervised_methods.methods.ICA_POH import *
+from unsupervised_methods.methods.Chrome import *
+from unsupervised_methods.methods.Green import *
+from unsupervised_methods.methods.ICA import *
 from unsupervised_methods.methods.LGI import *
 from unsupervised_methods.methods.PBV import *
-from unsupervised_methods.methods.POS_WANG import *
+from unsupervised_methods.methods.Pos import *
 from tqdm import tqdm
 
 
@@ -31,13 +31,13 @@ def unsupervised_predict(config, data_loader, method_name):
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
             if method_name == "POS":
-                BVP = POS_WANG(data_input, config.UNSUPERVISED.DATA.FS)
+                BVP = Pos(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "CHROM":
-                BVP = CHROME_DEHAAN(data_input, config.UNSUPERVISED.DATA.FS)
+                BVP = Chrome(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "ICA":
-                BVP = ICA_POH(data_input, config.UNSUPERVISED.DATA.FS)
+                BVP = ICA(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "GREEN":
-                BVP = GREEN(data_input)
+                BVP = Green(data_input)
             elif method_name == "LGI":
                 BVP = LGI(data_input)
             elif method_name == "PBV":
