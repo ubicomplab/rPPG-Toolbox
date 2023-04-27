@@ -19,7 +19,7 @@ TRAIN:
       DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 180                 
+      CHUNK_LENGTH: 180
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
@@ -42,7 +42,7 @@ VALID:
       DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 180                 
+      CHUNK_LENGTH: 180
       DYNAMIC_DETECTION: False
       DYNAMIC_DETECTION_FREQUENCY : 180
       CROP_FACE: True
