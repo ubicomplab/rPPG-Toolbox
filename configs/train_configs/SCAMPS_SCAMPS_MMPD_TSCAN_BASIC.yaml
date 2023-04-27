@@ -10,11 +10,11 @@ TRAIN:
     DATASET: SCAMPS
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/acsp/toolbox_data/scamps/RawData/Train/"           # Raw dataset path, need to be updated
-    CACHED_PATH: "/data1/acsp/finalpreprocess/"     # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SCAMPS/RawData/Train"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
-    END: 0.8
+    END: 1.0
     PREPROCESS :
       DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
@@ -33,13 +33,13 @@ VALID:
     DATASET: SCAMPS
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/data1/acsp/toolbox_data/scamps/RawData/Train/"           # Raw dataset path, need to be updated
-    CACHED_PATH: "/data1/acsp/finalpreprocess/"     # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/SCAMPS/RawData/Val"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
-    BEGIN: 0.8
+    BEGIN: 0.0
     END: 1.0
-    PREPROCESS:
-      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+    PREPROCESS :
+      DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
@@ -54,9 +54,18 @@ TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
+    INFO:
+      LIGHT: [1, 2, 3]  # 1 - LED-Low, 2 - LED-high, 3 - Incandescent, 4 - Nature
+      MOTION: [1] # 1 - Stationary, 2 - Rotation, 3 - Talking, 4 - Walking
+      EXERCISE: [2] # 1 - True, 2 - False
+      SKIN_COLOR: [3] # Fitzpatrick Scale Skin Types - 3, 4, 5, 6
+      GENDER: [1, 2]  # 1 - Male, 2 - Female
+      GLASSER: [1, 2] # 1 - True, 2 - False
+      HAIR_COVER: [1, 2] # 1 - True, 2 - False
+      MAKEUP: [1, 2] # 1 - True, 2 - False
     FS: 30
     DATASET: MMPD
-    DO_PREPROCESS: True                    # if first time, should be true
+    DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH:   "/data/rPPG_dataset/mat_dataset"          # Raw dataset path, need to be updated
     CACHED_PATH: "/data/rPPG_dataset/processed_dataset"      # Processed dataset save path, need to be updated
@@ -64,7 +73,7 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180

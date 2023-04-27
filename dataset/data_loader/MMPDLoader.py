@@ -23,10 +23,10 @@ from scipy.signal import butter, filtfilt
 simplefilter(action='ignore', category=FutureWarning)
 
 class MMPDLoader(BaseLoader):
-    """The data loader for the UBFC dataset."""
+    """The data loader for the MMPD dataset."""
 
     def __init__(self, name, data_path, config_data):
-        """Initializes an UBFC dataloader.
+        """Initializes an MMPD dataloader.
             Args:
                 data_path(str): path of a folder which stores raw video and bvp data.
                 e.g. data_path should be mat_dataset" for below dataset structure:
@@ -49,7 +49,9 @@ class MMPDLoader(BaseLoader):
                 name(string): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
+        self.info = config_data.INFO
         super().__init__(name, data_path, config_data)
+
 
     def get_raw_data(self, raw_data_path):
         """Returns data directories under the path(For MMPD dataset)."""
@@ -106,10 +108,12 @@ class MMPDLoader(BaseLoader):
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """  Invoked by preprocess_dataset for multi_process.   """
-        filename = os.path.split(data_dirs[i]['path'])[-1]
-        saved_filename = 'subject' + str(data_dirs[i]['subject']) + '_' + str(data_dirs[i]['index'])
+        frames, bvps, light, motion, exercise, skin_color, gender, glasser, hair_cover, makeup \
+            = self.read_mat(data_dirs[i]['path'])
 
-        frames, bvps = self.read_mat(data_dirs[i]['path'])
+        saved_filename = 'subject' + str(data_dirs[i]['subject'])
+        saved_filename += f'_L{light}_MO{motion}_E{exercise}_S{skin_color}_GE{gender}_GL{glasser}_H{hair_cover}_MA{makeup}'
+
         frames = (np.round(frames * 255)).astype(np.uint8)
         target_length = frames.shape[0]
         bvps = BaseLoader.resample_ppg(bvps, target_length)
@@ -118,8 +122,7 @@ class MMPDLoader(BaseLoader):
         input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 
-    @staticmethod
-    def read_mat(mat_file):
+    def read_mat(self, mat_file):
         try:
             mat = sio.loadmat(mat_file)
         except:
@@ -127,5 +130,108 @@ class MMPDLoader(BaseLoader):
                 print(mat_file)
         frames = np.array(mat['video'])
         bvps = np.array(mat['GT_ppg']).T.reshape(-1)
-        return frames, bvps
+        light = mat['light']
+        motion = mat['motion']
+        exercise = mat['exercise']
+        skin_color = mat['skin_color']
+        gender = mat['gender']
+        glasser = mat['glasser']
+        hair_cover = mat['hair_cover']
+        makeup = mat['makeup']
+        information = [light, motion, exercise, skin_color, gender, glasser, hair_cover, makeup]
+        
+        light, motion, exercise, skin_color, gender, glasser, hair_cover, makeup = self.get_information(information)
+
+        return frames, bvps, light, motion, exercise, skin_color, gender, glasser, hair_cover, makeup
+    
+    def load_preprocessed_data(self):
+        """ Loads the preprocessed data listed in the file list.
+
+        Args:
+            None
+        Returns:
+            None
+        """
+        file_list_path = self.file_list_path  # get list of files in
+        file_list_df = pd.read_csv(file_list_path)
+        inputs_temp = file_list_df['input_files'].tolist()
+        inputs = []
+        for each_input in inputs_temp:
+            info = each_input.split(os.sep)[-1].split('_')
+            light = int(info[1][-1])
+            motion = int(info[2][-1])
+            exercise = int(info[3][-1])
+            skin_color = int(info[4][-1])
+            gender = int(info[5][-1])
+            glasser = int(info[6][-1])
+            hair_cover = int(info[7][-1])
+            makeup = int(info[8][-1])
+            if (light in self.info.LIGHT) and (motion in self.info.MOTION) and \
+                (exercise in self.info.EXERCISE) and (skin_color in self.info.SKIN_COLOR) and \
+                (gender in self.info.GENDER) and (glasser in self.info.GLASSER) and \
+                (hair_cover in self.info.HAIR_COVER) and (makeup in self.info.MAKEUP):
+                inputs.append(each_input)
+        if not inputs:
+            raise ValueError(self.dataset_name + ' dataset loading data error!')
+        inputs = sorted(inputs)  # sort input file name list
+        labels = [input_file.replace("input", "label") for input_file in inputs]
+        self.inputs = inputs
+        self.labels = labels
+        self.preprocessed_data_len = len(inputs)
+
+    @staticmethod
+    def get_information(information):
+        light = ''
+        if information[0] == 'LED-low':
+            light = 1
+        elif information[0] == 'LED-high':
+            light = 2
+        elif information[0] == 'Incandescent':
+            light = 3
+        elif information[0] == 'Nature':
+            light = 4
+
+        motion = ''
+        if information[1] == 'Stationary' or information[1] == 'Stationary (after exercise)':
+            motion = 1
+        elif information[1] == 'Rotation':
+            motion = 2
+        elif information[1] == 'Talking':
+            motion = 3
+        elif information[1] == 'Walking':
+            motion = 4
+        
+        exercise = ''
+        if information[2] == 'True':
+            exercise = 1
+        elif information[2] == 'False':
+            exercise = 2
+
+        skin_color = information[3][0][0]
+
+        gender = ''
+        if information[4] == 'male':
+            gender = 1
+        elif information[4] == 'female':
+            gender = 2
+
+        glasser = ''
+        if information[5] == 'True':
+            glasser = 1
+        elif information[5] == 'False':
+            glasser = 2
+
+        hair_cover = ''
+        if information[6] == 'True':
+            hair_cover = 1
+        elif information[6] == 'False':
+            hair_cover = 2
+        
+        makeup = ''
+        if information[7] == 'True':
+            makeup = 1
+        elif information[7] == 'False':
+            makeup = 2
+
+        return light, motion ,exercise, skin_color, gender, glasser, hair_cover, makeup
 
