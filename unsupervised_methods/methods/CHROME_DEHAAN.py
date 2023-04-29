@@ -22,7 +22,6 @@ def CHROME_DEHAAN(frames,FS):
     if(WinL % 2):
         WinL = WinL+1
     NWin = math.floor((FN-WinL//2)/(WinL//2))
-    S = np.zeros((NWin, 1))
     WinS = 0
     WinM = int(WinS+WinL//2)
     WinE = WinS+WinL
@@ -43,12 +42,9 @@ def CHROME_DEHAAN(frames,FS):
         SWin = Xf-Alpha*Yf
         SWin = np.multiply(SWin, signal.hanning(WinL))
 
-        if(i == -1):
-            S = SWin
-        else:
-            temp = SWin[:int(WinL//2)]
-            S[WinS:WinM] = S[WinS:WinM] + SWin[:int(WinL//2)]
-            S[WinM:WinE] = SWin[int(WinL//2):]
+        temp = SWin[:int(WinL//2)]
+        S[WinS:WinM] = S[WinS:WinM] + SWin[:int(WinL//2)]
+        S[WinM:WinE] = SWin[int(WinL//2):]
         WinS = WinM
         WinM = WinS+WinL//2
         WinE = WinS+WinL
