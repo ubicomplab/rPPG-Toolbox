@@ -97,7 +97,7 @@ Here are some explanation of parameters:
 * #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson']
 
 # Dataset
-The toolbox supports three datasets, which are SCAMPS, UBFC, and PURE (COHFACE support will be added shortly). Cite corresponding papers when using.
+The toolbox supports four datasets, which are SCAMPS, UBFC, PURE, and MMPD (COHFACE support will be added shortly). Cite corresponding papers when using.
 For now, we only recommend training with PURE or SCAMPS due to the level of synchronization and volume of the dataset.
 
 * [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
