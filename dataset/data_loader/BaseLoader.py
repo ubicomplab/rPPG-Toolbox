@@ -126,6 +126,101 @@ class BaseLoader(Dataset):
         """
         raise Exception("'split_raw_data' Not Implemented")
 
+    def rgb_process_video(frames):
+        """Calculates the average value of each frame."""
+        RGB = []
+        for frame in frames:
+            summation = np.sum(np.sum(frame, axis=0), axis=0)
+            RGB.append(summation / (frame.shape[0] * frame.shape[1]))
+        return np.asarray(RGB)
+
+    def detrend(input_signal, lambda_value):
+        """Removes linear trend from signal
+
+        Args:
+            input_signal(array): signal to detrend
+            lambda_value(float): detrend coeff
+        Returns:
+            filtered_signal(array): detrended signal
+        """
+        signal_length = input_signal.shape[0]
+        # observation matrix
+        H = np.identity(signal_length)
+        ones = np.ones(signal_length)
+        minus_twos = -2 * np.ones(signal_length)
+        diags_data = np.array([ones, minus_twos, ones])
+        diags_index = np.array([0, 1, 2])
+        D = sparse.spdiags(diags_data, diags_index,
+                    (signal_length - 2), signal_length).toarray()
+        filtered_signal = np.dot(
+            (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
+        return filtered_signal
+
+    def POS_WANG(frames, fs):
+        """Generated POS PPG signal from video
+
+        Args:
+            frames(List[array]): a video frames.
+            fs(int or float): Sampling rate of video
+        Returns:
+            BVP(array): POS PPG signal
+        """
+        WinSec = 1.6
+        RGB = rgb_process_video(frames)
+        N = RGB.shape[0]
+        H = np.zeros((1, N))
+        l = math.ceil(WinSec * fs)
+
+        for n in range(N):
+            m = n - l
+            if m >= 0:
+                Cn = np.true_divide(RGB[m:n, :], np.mean(RGB[m:n, :], axis=0))
+                Cn = np.mat(Cn).H
+                S = np.matmul(np.array([[0, 1, -1], [-2, 1, 1]]), Cn)
+                h = S[0, :] + (np.std(S[0, :]) / np.std(S[1, :])) * S[1, :]
+                mean_h = np.mean(h)
+                for temp in range(h.shape[1]):
+                    h[0, temp] = h[0, temp] - mean_h
+                H[0, m:n] = H[0, m:n] + (h[0])
+
+        BVP = H
+        BVP = detrend(np.mat(BVP).H, 100)
+        BVP = np.asarray(np.transpose(BVP))[0]
+
+        return BVP
+
+    def generate_pos_psuedo_labels(frames, fs=30):
+        """Generated POS-based PPG Psuedo Labels For Training
+
+        Args:
+            frames(List[array]): a video frames.
+            fs(int or float): Sampling rate of video
+        Returns:
+            env_norm_bvp: Hilbert envlope normalized POS PPG signal, filtered are HR frequency
+        """
+
+        # GENERATE POS PPG SIGNAL
+        fs = 25 # bp4d sampling rate: 25hz
+        bvp = POS_WANG(frames, fs) # generate POS PPG signal
+        bvp = np.array(bvp)
+
+        # FILTER POS PPG W/ 2nd ORDER BUTTERWORTH FILTER
+        min_freq = 0.70
+        max_freq = 3
+        b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
+        pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
+
+        # APPLY HILBERT NORMALIZATION TO NORMALIZE PPG AMPLITUDE
+        analytic_signal = signal.hilbert(pos_bvp)
+        amplitude_envelope = np.abs(analytic_signal)
+        env_norm_bvp = pos_bvp/amplitude_envelope
+
+        # Add New Fields to Data Mat File
+        data_dict['pos_bvp'] = pos_bvp
+        data_dict['pos_env_norm_bvp'] = env_norm_bvp
+
+        return env_norm_bvp # return data dict w/ POS psuedo labels
+    
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Parses and preprocesses all the raw data based on split.
 
