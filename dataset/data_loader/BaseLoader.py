@@ -10,13 +10,13 @@ import glob
 import os
 import re
 from math import ceil
+from scipy import signal
+from scipy import sparse
 from multiprocessing import Pool, Process, Value, Array, Manager
 
 import cv2
 import numpy as np
 import pandas as pd
-from scipy import signal
-from scipy import sparse
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
