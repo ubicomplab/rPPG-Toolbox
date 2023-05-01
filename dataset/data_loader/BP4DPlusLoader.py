@@ -155,16 +155,17 @@ class BP4DPlusLoader(BaseLoader):
         bvps = self.read_wave(data_dirs[i], config_preprocess, frames)
 
         target_length = frames.shape[0]
+        bvps = BaseLoader.resample_ppg(bvps, target_length)
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
         input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 
-    @staticmethod
-    def read_video(data_dir, config_preprocess):
+    def read_video(self, data_dir, config_preprocess):
         """Reads a video file, returns frames(T, H, W, 3) """
 
         video_file = os.path.join(data_dir['path'], '2D+3D', data_dir['subject']+'.zip') # video fname
-        trial = data_dir['index'][-1] # trial number (1-10)
+        trial = data_dir['index'].split('T')[-1] # trial number (1-10) of form
+        trial = 'T' + trial
 
         # grab each frame from zip file
         imgzip = open(video_file)
@@ -175,17 +176,18 @@ class BP4DPlusLoader(BaseLoader):
             for ele in zippedImgs.namelist():
                 ext = os.path.splitext(ele)[-1]
                 ele_task = str(ele).split('/')[1]
+
                 if ext == '.jpg' and ele_task == trial:
                     data = zippedImgs.read(ele)
-                    vid_frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
+                    frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
 
                     # downsample frames (otherwise processing time becomes WAY TOO LONG)
                     dim_h = config_preprocess.H
                     dim_w = config_preprocess.W
                     if dim_h == dim_w: # square crop
-                        vidLxL = cv2.resize(img_as_float(frame[int((frame.shape[0]-frame.shape[1])):,:,:]), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
+                        vid_LxL = cv2.resize(img_as_float(frame[int((frame.shape[0]-frame.shape[1])):,:,:]), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
                     else:
-                        vidLxL = cv2.resize(img_as_float(frame), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
+                        vid_LxL = cv2.resize(img_as_float(frame), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
 
                     # clip image values to range (1/255, 1)
                     vid_LxL[vid_LxL > 1] = 1
@@ -198,23 +200,23 @@ class BP4DPlusLoader(BaseLoader):
                     cnt += 1
         
         if cnt == 0:
-            return
-            
+            raise ValueError('EMPTY VIDEO', data_dir['index'])
+
         return np.asarray(frames)
 
-    @staticmethod
-    def read_wave(data_dir, config_preprocess, frames):
+    def read_wave(self, data_dir, config_preprocess, frames):
         """Reads a bvp signal file."""
 
         # GENERATE PPG PSUEDO LABELS
         if config_preprocess.USE_PSUEDO_PPG_LABEL:
-            label = generate_pos_psuedo_labels(frames, fs=25)
+            label = self.generate_pos_psuedo_labels(frames, fs=25)
 
         # READ IN PHYSIOLOGICAL LABELS TXT FILE DATA
         else:
             data_path = data_dir['path']
             subject = data_dir['subject'] # of format F008
-            trial = data_dir['index'][-3:] # of format T05
+            trial = data_dir['index'].split('T')[-1] # of format T5 or T10
+            trial = 'T' + trial
             base_path = os.path.join(data_path, "Physiology", subject, trial)
             label = np.array(pd.read_csv(os.path.join(base_path, "BP_mmHg.txt")).to_numpy().flatten())
 

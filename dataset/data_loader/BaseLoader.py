@@ -12,6 +12,7 @@ import re
 from math import ceil
 from scipy import signal
 from scipy import sparse
+import math
 from multiprocessing import Pool, Process, Value, Array, Manager
 
 import cv2
@@ -136,7 +137,7 @@ class BaseLoader(Dataset):
             RGB.append(summation / (frame.shape[0] * frame.shape[1]))
         return np.asarray(RGB)
 
-    def detrend(input_signal, lambda_value):
+    def detrend(self, input_signal, lambda_value):
         """Removes linear trend from signal
 
         Args:
@@ -158,7 +159,7 @@ class BaseLoader(Dataset):
             (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
         return filtered_signal
 
-    def POS_WANG(frames, fs):
+    def POS_WANG(self, frames, fs):
         """Generated POS PPG signal from video
 
         Args:
@@ -168,7 +169,7 @@ class BaseLoader(Dataset):
             BVP(array): POS PPG signal
         """
         WinSec = 1.6
-        RGB = rgb_process_video(frames)
+        RGB = self.rgb_process_video(frames)
         N = RGB.shape[0]
         H = np.zeros((1, N))
         l = math.ceil(WinSec * fs)
@@ -186,12 +187,12 @@ class BaseLoader(Dataset):
                 H[0, m:n] = H[0, m:n] + (h[0])
 
         BVP = H
-        BVP = detrend(np.mat(BVP).H, 100)
+        BVP = self.detrend(np.mat(BVP).H, 100)
         BVP = np.asarray(np.transpose(BVP))[0]
 
         return BVP
 
-    def generate_pos_psuedo_labels(frames, fs=30):
+    def generate_pos_psuedo_labels(self, frames, fs=30):
         """Generated POS-based PPG Psuedo Labels For Training
 
         Args:
@@ -203,7 +204,7 @@ class BaseLoader(Dataset):
 
         # GENERATE POS PPG SIGNAL
         fs = 25 # bp4d sampling rate: 25hz
-        bvp = POS_WANG(frames, fs) # generate POS PPG signal
+        bvp = self.POS_WANG(frames, fs) # generate POS PPG signal
         bvp = np.array(bvp)
 
         # FILTER POS PPG W/ 2nd ORDER BUTTERWORTH FILTER
@@ -216,10 +217,6 @@ class BaseLoader(Dataset):
         analytic_signal = signal.hilbert(pos_bvp)
         amplitude_envelope = np.abs(analytic_signal)
         env_norm_bvp = pos_bvp/amplitude_envelope
-
-        # Add New Fields to Data Mat File
-        data_dict['pos_bvp'] = pos_bvp
-        data_dict['pos_env_norm_bvp'] = env_norm_bvp
 
         return env_norm_bvp # return data dict w/ POS psuedo labels
     
@@ -451,6 +448,9 @@ class BaseLoader(Dataset):
         print('Preprocessing dataset...')
         file_num = len(data_dirs)
         choose_range = range(0, file_num)
+
+        choose_range = range(0,1) # TODO ADDED FOR TESTING - GIRISH CHANGE
+
         pbar = tqdm(list(choose_range))
 
         # shared data resource
