@@ -1,21 +1,30 @@
-"""The dataloader for PURE datasets.
+"""The dataloader for BP4D+ datasets.
 
-Details for the PURE Dataset see https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure
-If you use this dataset, please cite the following publication:
-Stricker, R., Müller, S., Gross, H.-M.
-Non-contact Video-based Pulse Rate Measurement on a Mobile Service Robot
-in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
+Details for the BP4D+ Dataset see https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html
+If you use this dataset, please cite the following publications:
+Xing Zhang, Lijun Yin, Jeff Cohn, Shaun Canavan, Michael Reale, Andy Horowitz, Peng Liu, and Jeff Girard
+“BP4D-Spontaneous: A high resolution spontaneous 3D dynamic facial expression database”
+Image and Vision Computing, 32 (2014), pp. 692-706  (special issue of the Best of FG13)
+
+AND
+
+Xing Zhang, Lijun Yin, Jeff Cohn, Shaun Canavan, Michael Reale, Andy Horowitz, and Peng Liu
+“A high resolution spontaneous 3D dynamic facial expression database”
+The 10th IEEE International Conference on Automatic Face and Gesture Recognition (FG13),  April, 2013. 
 """
 import glob
-import glob
-import json
+import zipfile
 import os
 import re
 
 import cv2
+from skimage.util import img_as_float
 import numpy as np
+import pandas as pd
 from dataset.data_loader.BaseLoader import BaseLoader
 from tqdm import tqdm
+
+from dataset.data_loader.BaseLoader import BaseLoader
 
 
 class BP4DPlusLoader(BaseLoader):
@@ -133,8 +142,7 @@ class BP4DPlusLoader(BaseLoader):
         for i in subj_range:
             subj_num = subj_list[i]
             subj_files = data_info[subj_num]
-            data_dirs_new += subj_files  # add file information to file_list (tuple of fname, subj ID, trial num,
-            # chunk num)
+            data_dirs_new += subj_files 
 
         return data_dirs_new
 
