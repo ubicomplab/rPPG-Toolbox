@@ -19,7 +19,7 @@ from tqdm import tqdm
 
 
 class BP4DPlusLoader(BaseLoader):
-    """The data loader for the PURE dataset."""
+    """The data loader for the BP4D+ dataset."""
 
     def __init__(self, name, data_path, config_data):
         """Initializes an BP4D+ dataloader.
@@ -27,17 +27,49 @@ class BP4DPlusLoader(BaseLoader):
                 data_path(str): path of a folder which stores raw video and bvp data.
                 e.g. data_path should be "RawData" for below dataset structure:
                 -----------------
-                     RawData/
-                     |   |-- 01-01/
-                     |      |-- 01-01/
-                     |      |-- 01-01.json
-                     |   |-- 01-02/
-                     |      |-- 01-02/
-                     |      |-- 01-02.json
-                     |...
-                     |   |-- ii-jj/
-                     |      |-- ii-jj/
-                     |      |-- ii-jj.json
+                    RawData/
+                    |   |-- 2D+3D/
+                    |       |-- F001.zip/
+                    |       |-- F002.zip
+                    |       |...
+                    |   |-- 2DFeatures/
+                    |       |-- F001_T1.mat
+                    |       |-- F001_T2.mat
+                    |       |...
+                    |   |-- 3DFeatures/
+                    |       |-- F001_T1.mat
+                    |       |-- F001_T2.mat
+                    |       |...
+                    |   |-- AUCoding/
+                    |       |-- AU_INT/
+                    |            |-- AU06/
+                    |               |-- F001_T1_AU06.csv
+                    |               |...
+                    |           |...
+                    |       |-- AU_OCC/
+                    |           |-- F00_T1.csv 
+                    |           |...
+                    |   |-- IRFeatures/
+                    |       |-- F001_T1.txt
+                    |       |...
+                    |   |-- Physiology/
+                    |       |-- F001/
+                    |           |-- T1/
+                    |               |-- BP_mmHg.txt
+                    |               |-- microsiemens.txt
+                    |               |--LA Mean BP_mmHg.txt
+                    |               |--LA Systolic BP_mmHg.txt
+                    |               |-- BP Dia_mmHg.txt
+                    |               |-- Pulse Rate_BPM.txt
+                    |               |-- Resp_Volts.txt
+                    |               |-- Respiration Rate_BPM.txt
+                    |       |...
+                    |   |-- Thermal/
+                    |       |-- F001/
+                    |           |-- T1.mv
+                    |           |...
+                    |       |...
+                    |   |-- BP4D+UserGuide_v0.2.pdf
                 -----------------
                 name(str): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
@@ -47,24 +79,24 @@ class BP4DPlusLoader(BaseLoader):
     def get_raw_data(self, data_path):
         """Returns data directories under the path(For PURE dataset)."""
 
-        # GET ALL SUBJECT TRIALS IN DATASET
+        # get all subj trials in dataset
         f_subj_trials = glob.glob(os.path.join(data_path, "Physiology", "F*", "T*"))
         m_subj_trials = glob.glob(os.path.join(data_path, "Physiology", "M*", "T*"))
         subj_trials = f_subj_trials + m_subj_trials
 
-        # SPLIT PATH UP INTO INFORMATION (SUBJECT, TRIAL, ETC.)
+        # split path up into information (subject, trial, etc.)
         data_dirs = list()
         for trial_path in subj_trials:
             trial_data = trial_path.split(os.sep)
             index = trial_data[-2] + trial_data[-1] # should be of format: F008T8
             trial = trial_data[-1] # trial number 
             subj_sex = index[0] # subject biological sex
-            subject = index[0:4] # subject number (by sex)
+            subject = index[0:4] # subject number (by sex) F001
             
             # append information to data dirs list
             data_dirs.append({"index": index, "path": data_path, "subject": subject})
 
-        # RETURN DATA DIRS 
+        # return data dirs
         return data_dirs
 
     def split_raw_data(self, data_dirs, begin, end):
@@ -87,7 +119,7 @@ class BP4DPlusLoader(BaseLoader):
             # append a tuple of the filename, subject num, trial num, and chunk num
             data_info[subject].append({"index": index, "path": data_dir, "subject": subject})
 
-        subj_list = list(data_info.keys())  # all subjects by number ID (1-27)
+        subj_list = list(data_info.keys())  # all subjects by number ID 
         subj_list = sorted(subj_list)
         num_subjs = len(subj_list)  # number of unique subjects
 
@@ -111,14 +143,8 @@ class BP4DPlusLoader(BaseLoader):
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
         
-        frames = self.read_video(
-            data_dir,
-            config_preprocess)
-
-
-        bvps = self.read_wave(
-            os.path.join(data_dirs[i]['path'], "{0}.json".format(filename)))
-
+        frames = self.read_video(data_dirs[i], config_preprocess)
+        bvps = self.read_wave(data_dirs[i], config_preprocess, frames)
 
         target_length = frames.shape[0]
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
@@ -132,7 +158,7 @@ class BP4DPlusLoader(BaseLoader):
         video_file = os.path.join(data_dir['path'], '2D+3D', data_dir['subject']+'.zip') # video fname
         trial = data_dir['index'][-1] # trial number (1-10)
 
-        # GRAB EACH FRAME FROM ZIP FILE
+        # grab each frame from zip file
         imgzip = open(video_file)
         zipfile_path = video_file
 
