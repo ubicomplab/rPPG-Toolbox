@@ -208,7 +208,7 @@ class BP4DPlusLoader(BaseLoader):
 
                     # downsample frames (otherwise processing time becomes WAY TOO LONG)
                     dim_w = min(2*config_preprocess.W, frame.shape[1])
-                    dim_h = int(dim_w * frame.shape[1]/frame.shape[0])
+                    dim_h = int(dim_w * frame.shape[0]/frame.shape[1])
                     frame = cv2.resize(frame, (dim_h,dim_w), interpolation=cv2.INTER_AREA)
                     frame = np.expand_dims(frame, axis=0)
 
