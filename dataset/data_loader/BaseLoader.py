@@ -129,7 +129,7 @@ class BaseLoader(Dataset):
         """
         raise Exception("'split_raw_data' Not Implemented")
 
-    def rgb_process_video(frames):
+    def rgb_process_video(self, frames):
         """Calculates the average value of each frame."""
         RGB = []
         for frame in frames:
@@ -448,9 +448,6 @@ class BaseLoader(Dataset):
         print('Preprocessing dataset...')
         file_num = len(data_dirs)
         choose_range = range(0, file_num)
-
-        choose_range = range(0,1) # TODO ADDED FOR TESTING - GIRISH CHANGE
-
         pbar = tqdm(list(choose_range))
 
         # shared data resource

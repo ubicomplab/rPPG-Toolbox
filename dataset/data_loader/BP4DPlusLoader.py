@@ -85,8 +85,25 @@ class BP4DPlusLoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
+    # REMOVE ALREADY PREPROCESSED FILES FROM DATA DIRS LIST
+    def adjust_data_dirs(self, data_dirs):
+        cached_path = self.cached_path
+        file_list = glob.glob(os.path.join(cached_path, '*label*.npy'))
+        trial_list = [f.replace(cached_path, '').split('_')[0].replace(os.sep, '') for f in file_list]
+        trial_list = list(set(trial_list)) # get a list of completed video trials
+
+        adjusted_data_dirs = []
+        for d in data_dirs:
+            idx = d['index']
+
+            if not idx in trial_list: # if trial has already been processed
+                adjusted_data_dirs.append(d)
+
+        return adjusted_data_dirs
+
     def get_raw_data(self, data_path):
-        """Returns data directories under the path(For PURE dataset)."""
+        """Returns data directories under the path(For PURE dataset).
+        NOTE: There are 5 videos in BP4D+ with length of less than 180 frames."""
 
         # get all subj trials in dataset
         f_subj_trials = glob.glob(os.path.join(data_path, "Physiology", "F*", "T*"))
@@ -101,9 +118,15 @@ class BP4DPlusLoader(BaseLoader):
             trial = trial_data[-1] # trial number 
             subj_sex = index[0] # subject biological sex
             subject = index[0:4] # subject number (by sex) F001
+
+            if index == 'F042T11':
+                continue
             
             # append information to data dirs list
             data_dirs.append({"index": index, "path": data_path, "subject": subject})
+
+        # adjust data_dirs: dont re-generate already generated datafiles
+        # data_dirs = self.adjust_data_dirs(data_dirs)
 
         # return data dirs
         return data_dirs
@@ -172,6 +195,7 @@ class BP4DPlusLoader(BaseLoader):
         zipfile_path = video_file
 
         cnt = 0
+        frames=list()
         with zipfile.ZipFile(zipfile_path, "r") as zippedImgs:
             for ele in zippedImgs.namelist():
                 ext = os.path.splitext(ele)[-1]
@@ -180,28 +204,22 @@ class BP4DPlusLoader(BaseLoader):
                 if ext == '.jpg' and ele_task == trial:
                     data = zippedImgs.read(ele)
                     frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                     # downsample frames (otherwise processing time becomes WAY TOO LONG)
-                    dim_h = config_preprocess.H
-                    dim_w = config_preprocess.W
-                    if dim_h == dim_w: # square crop
-                        vid_LxL = cv2.resize(img_as_float(frame[int((frame.shape[0]-frame.shape[1])):,:,:]), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
-                    else:
-                        vid_LxL = cv2.resize(img_as_float(frame), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
+                    dim_w = min(2*config_preprocess.W, frame.shape[1])
+                    dim_h = int(dim_w * frame.shape[1]/frame.shape[0])
+                    frame = cv2.resize(frame, (dim_h,dim_w), interpolation=cv2.INTER_AREA)
+                    frame = np.expand_dims(frame, axis=0)
 
-                    # clip image values to range (1/255, 1)
-                    vid_LxL[vid_LxL > 1] = 1
-                    vid_LxL[vid_LxL < 1./255] = 1./255
-                    vid_LxL = np.expand_dims(vid_LxL, axis=0)
                     if cnt == 0:
-                        frames = vid_LxL
+                        frames = frame
                     else:
-                        frames = np.concatenate((frames, vid_LxL), axis=0)
+                        frames = np.concatenate((frames, frame), axis=0)
                     cnt += 1
         
         if cnt == 0:
             raise ValueError('EMPTY VIDEO', data_dir['index'])
-
         return np.asarray(frames)
 
     def read_wave(self, data_dir, config_preprocess, frames):
