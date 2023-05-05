@@ -126,7 +126,7 @@ class BP4DPlusLoader(BaseLoader):
             data_dirs.append({"index": index, "path": data_path, "subject": subject})
 
         # adjust data_dirs: dont re-generate already generated datafiles
-        # data_dirs = self.adjust_data_dirs(data_dirs)
+        data_dirs = self.adjust_data_dirs(data_dirs)
 
         # return data dirs
         return data_dirs
@@ -171,7 +171,6 @@ class BP4DPlusLoader(BaseLoader):
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """ Invoked by preprocess_dataset for multi_process. """
-        filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
         
         frames = self.read_video(data_dirs[i], config_preprocess)
@@ -209,7 +208,7 @@ class BP4DPlusLoader(BaseLoader):
                     # downsample frames (otherwise processing time becomes WAY TOO LONG)
                     dim_w = min(2*config_preprocess.W, frame.shape[1])
                     dim_h = int(dim_w * frame.shape[0]/frame.shape[1])
-                    frame = cv2.resize(frame, (dim_h,dim_w), interpolation=cv2.INTER_AREA)
+                    frame = cv2.resize(frame, (dim_w,dim_h), interpolation=cv2.INTER_AREA)
                     frame = np.expand_dims(frame, axis=0)
 
                     if cnt == 0:
@@ -238,4 +237,4 @@ class BP4DPlusLoader(BaseLoader):
             base_path = os.path.join(data_path, "Physiology", subject, trial)
             label = np.array(pd.read_csv(os.path.join(base_path, "BP_mmHg.txt")).to_numpy().flatten())
 
-        return label  
+        return label
