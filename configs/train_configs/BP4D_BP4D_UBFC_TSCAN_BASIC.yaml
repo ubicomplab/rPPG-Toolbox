@@ -8,7 +8,7 @@ TRAIN:
   DATA:
     FS: 25
     DATASET: BP4DPlus
-    DO_PREPROCESS: True               # if first time, should be true
+    DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "F:\\BP4D+_v0.2"                   # Raw dataset path, need to be updated
     CACHED_PATH: "F:\\PreprocessedData" #"/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
