@@ -12,6 +12,7 @@ Xing Zhang, Lijun Yin, Jeff Cohn, Shaun Canavan, Michael Reale, Andy Horowitz, a
 “A high resolution spontaneous 3D dynamic facial expression database”
 The 10th IEEE International Conference on Automatic Face and Gesture Recognition (FG13),  April, 2013. 
 """
+
 import glob
 import zipfile
 import os
@@ -123,7 +124,7 @@ class BP4DPlusLoader(BaseLoader):
                 continue
             
             # append information to data dirs list
-            data_dirs.append({"index": index, "path": data_path, "subject": subject})
+            # data_dirs.append({"index": index, "path": data_path, "subject": subject})
 
         # adjust data_dirs: dont re-generate already generated datafiles
         data_dirs = self.adjust_data_dirs(data_dirs)
