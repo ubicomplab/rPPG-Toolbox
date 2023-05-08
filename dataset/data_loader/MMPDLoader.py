@@ -190,6 +190,9 @@ class MMPDLoader(BaseLoader):
             light = 3
         elif information[0] == 'Nature':
             light = 4
+        else:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! "
+            "The following lighting label is not supported: {0}".format(information[0]))
 
         motion = ''
         if information[1] == 'Stationary' or information[1] == 'Stationary (after exercise)':
@@ -198,40 +201,64 @@ class MMPDLoader(BaseLoader):
             motion = 2
         elif information[1] == 'Talking':
             motion = 3
-        elif information[1] == 'Walking':
+        # 'Watching Videos' is an erroneous label from older versions of the MMPD dataset, 
+        #  it should be handled as 'Walking'.
+        elif information[1] == 'Walking' or information[1] == 'Watching Videos':
             motion = 4
+        else:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! " 
+            "The following motion label is not supported: {0}".format(information[1]))
         
         exercise = ''
         if information[2] == 'True':
             exercise = 1
         elif information[2] == 'False':
             exercise = 2
+        else:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! "
+            "The following exercise label is not supported: {0}".format(information[2]))
 
         skin_color = information[3][0][0]
+
+        if skin_color != 3 and skin_color != 4 and skin_color != 5 and skin_color != 6:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! "
+            "The following skin_color label is not supported: {0}".format(information[3][0][0]))
 
         gender = ''
         if information[4] == 'male':
             gender = 1
         elif information[4] == 'female':
             gender = 2
+        else:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! "
+            "The following gender label is not supported: {0}".format(information[4]))
 
         glasser = ''
         if information[5] == 'True':
             glasser = 1
         elif information[5] == 'False':
             glasser = 2
+        else:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! "
+            "The following glasser label is not supported: {0}".format(information[5]))
 
         hair_cover = ''
         if information[6] == 'True':
             hair_cover = 1
         elif information[6] == 'False':
             hair_cover = 2
+        else:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! "
+            "The following hair_cover label is not supported: {0}".format(information[6]))
         
         makeup = ''
         if information[7] == 'True':
             makeup = 1
         elif information[7] == 'False':
             makeup = 2
+        else:
+            raise ValueError("Error with MMPD or Mini-MMPD dataset labels! "
+            "The following makeup label is not supported: {0}".format(information[7]))
 
         return light, motion ,exercise, skin_color, gender, glasser, hair_cover, makeup
 
