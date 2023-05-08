@@ -86,8 +86,9 @@ class BP4DPlusLoader(BaseLoader):
         """
         super().__init__(name, data_path, config_data)
 
-    # REMOVE ALREADY PREPROCESSED FILES FROM DATA DIRS LIST
     def adjust_data_dirs(self, data_dirs):
+        """ Reads data folder and only preprocess files that have not already been preprocessed."""
+
         cached_path = self.cached_path
         file_list = glob.glob(os.path.join(cached_path, '*label*.npy'))
         trial_list = [f.replace(cached_path, '').split('_')[0].replace(os.sep, '') for f in file_list]
@@ -120,14 +121,12 @@ class BP4DPlusLoader(BaseLoader):
             subj_sex = index[0] # subject biological sex
             subject = index[0:4] # subject number (by sex) F001
 
+            # this filename exists but the file does not... weird...
             if index == 'F042T11':
                 continue
             
             # append information to data dirs list
-            # data_dirs.append({"index": index, "path": data_path, "subject": subject})
-
-        # adjust data_dirs: dont re-generate already generated datafiles
-        data_dirs = self.adjust_data_dirs(data_dirs)
+            data_dirs.append({"index": index, "path": data_path, "subject": subject})
 
         # return data dirs
         return data_dirs
@@ -225,11 +224,11 @@ class BP4DPlusLoader(BaseLoader):
     def read_wave(self, data_dir, config_preprocess, frames):
         """Reads a bvp signal file."""
 
-        # GENERATE PPG PSUEDO LABELS
+        # generate PPG psuedo labels
         if config_preprocess.USE_PSUEDO_PPG_LABEL:
             label = self.generate_pos_psuedo_labels(frames, fs=25)
 
-        # READ IN PHYSIOLOGICAL LABELS TXT FILE DATA
+        # read in physiological labels txt file data
         else:
             data_path = data_dir['path']
             subject = data_dir['subject'] # of format F008

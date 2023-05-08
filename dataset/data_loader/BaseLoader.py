@@ -202,21 +202,20 @@ class BaseLoader(Dataset):
             env_norm_bvp: Hilbert envlope normalized POS PPG signal, filtered are HR frequency
         """
 
-        # GENERATE POS PPG SIGNAL
-        fs = 25 # bp4d sampling rate: 25hz
+        # generate POS PPG signal
         bvp = self.POS_WANG(frames, fs) # generate POS PPG signal
         bvp = np.array(bvp)
 
-        # FILTER POS PPG W/ 2nd ORDER BUTTERWORTH FILTER
+        # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
         min_freq = 0.70
         max_freq = 3
         b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
         pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
 
-        # APPLY HILBERT NORMALIZATION TO NORMALIZE PPG AMPLITUDE
-        analytic_signal = signal.hilbert(pos_bvp)
-        amplitude_envelope = np.abs(analytic_signal)
-        env_norm_bvp = pos_bvp/amplitude_envelope
+        # apply hilbert normalization to normalize PPG amplitude
+        analytic_signal = signal.hilbert(pos_bvp) 
+        amplitude_envelope = np.abs(analytic_signal) # derive envelope signal
+        env_norm_bvp = pos_bvp/amplitude_envelope # normalize by env
 
         return env_norm_bvp # return data dict w/ POS psuedo labels
     
@@ -516,7 +515,7 @@ class BaseLoader(Dataset):
             None (this function does save a file-list .csv file to self.file_list_path)
         """
 
-        # Get data split based on begin and end indices.
+        # get data split based on begin and end indices.
         data_dirs_subset = self.split_raw_data(data_dirs, begin, end)
 
         # generate a list of unique raw-data file names
