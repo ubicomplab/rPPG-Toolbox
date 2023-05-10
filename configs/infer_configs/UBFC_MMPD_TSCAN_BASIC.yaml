@@ -46,4 +46,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-  MODEL_PATH:   "/data/rPPG-Toolbox_MMPD/final_model_release/UBFC_TSCAN.pth"
+  MODEL_PATH:   "./final_model_release/UBFC_TSCAN.pth"
