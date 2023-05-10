@@ -1,10 +1,10 @@
 BASE: ['']
-TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
   LR: 9e-3
-  MODEL_FILE_NAME: BP4D_BP4D_tscan
+  MODEL_FILE_NAME: BP4D_BP4D_deepphys
   DATA:
     FS: 25
     DATASET: BP4DPlus
@@ -58,7 +58,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True                    # if first time, should be true
+    DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"          # need to be updated
     CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"    # Processed dataset save path, need to be updated
@@ -83,10 +83,8 @@ LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: Tscan
-  TSCAN:
-    FRAME_DEPTH: 10
+  NAME: DeepPhys
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-  MODEL_PATH:   ""
+  MODEL_PATH:   "./PreTrainedModels/BP4DPlus_SizeW72_SizeH72_ClipLength180_DataTypeDiffNormalized_Standardized_LabelTypeDiffNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/BP4D_BP4D_deepphys_Epoch29.pth"

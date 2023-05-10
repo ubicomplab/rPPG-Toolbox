@@ -64,6 +64,7 @@ class BaseLoader(Dataset):
             self.preprocess_dataset(self.raw_data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
             if not os.path.exists(self.cached_path):
+                print('GIRISH TEST', self.cached_path)
                 raise ValueError(self.dataset_name,
                                  'Please set DO_PREPROCESS to True. Preprocessed directory does not exist!')
             if not os.path.exists(self.file_list_path):
