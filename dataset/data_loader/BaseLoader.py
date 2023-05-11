@@ -12,6 +12,7 @@ import re
 from math import ceil
 from scipy import signal
 from scipy import sparse
+from unsupervised_methods.methods import POS_WANG
 import math
 from multiprocessing import Pool, Process, Value, Array, Manager
 
@@ -160,7 +161,7 @@ class BaseLoader(Dataset):
             (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
         return filtered_signal
 
-    def POS_WANG(self, frames, fs):
+    def POS_WANG_TEMP(self, frames, fs):
         """Generated POS PPG signal from video
 
         Args:
@@ -204,14 +205,16 @@ class BaseLoader(Dataset):
         """
 
         # generate POS PPG signal
-        bvp = self.POS_WANG(frames, fs) # generate POS PPG signal
-        bvp = np.array(bvp)
+        # bvp = self.POS_WANG(frames, fs) # generate POS PPG signal
+        # bvp = np.array(bvp)
 
-        # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
-        min_freq = 0.70
-        max_freq = 3
-        b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
-        pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
+        # # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
+        # min_freq = 0.70
+        # max_freq = 3
+        # b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
+        # pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
+
+        pos_bvp = POS_WANG.POS_WANG(frames, fs) # generate POS PPG signal
 
         # apply hilbert normalization to normalize PPG amplitude
         analytic_signal = signal.hilbert(pos_bvp) 

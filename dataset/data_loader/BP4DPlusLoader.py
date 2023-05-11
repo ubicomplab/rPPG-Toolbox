@@ -128,6 +128,9 @@ class BP4DPlusLoader(BaseLoader):
             # append information to data dirs list
             data_dirs.append({"index": index, "path": data_path, "subject": subject})
 
+        # adjust data directories if dataset already partially preprocessed
+        data_dirs = self.adjust_data_dirs(data_dirs)
+
         # return data dirs
         return data_dirs
 
