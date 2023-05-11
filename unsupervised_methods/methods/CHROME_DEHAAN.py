@@ -32,7 +32,7 @@ def CHROME_DEHAAN(frames,FS):
         RGBBase = np.mean(RGB[WinS:WinE, :], axis=0)
         RGBNorm = np.zeros((WinE-WinS, 3))
         for temp in range(WinS, WinE):
-            RGBNorm[temp-WinS] = np.true_divide(RGB[temp], RGBBase)-1
+            RGBNorm[temp-WinS] = np.true_divide(RGB[temp], RGBBase)
         Xs = np.squeeze(3*RGBNorm[:, 0]-2*RGBNorm[:, 1])
         Ys = np.squeeze(1.5*RGBNorm[:, 0]+RGBNorm[:, 1]-1.5*RGBNorm[:, 2])
         Xf = signal.filtfilt(B, A, Xs, axis=0)
