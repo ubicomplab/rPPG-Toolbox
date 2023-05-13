@@ -205,16 +205,34 @@ class BaseLoader(Dataset):
         """
 
         # generate POS PPG signal
-        # bvp = self.POS_WANG(frames, fs) # generate POS PPG signal
-        # bvp = np.array(bvp)
+        WinSec = 1.6
+        RGB = self.rgb_process_video(frames)
+        N = RGB.shape[0]
+        H = np.zeros((1, N))
+        l = math.ceil(WinSec * fs)
 
-        # # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
-        # min_freq = 0.70
-        # max_freq = 3
-        # b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
-        # pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
+        for n in range(N):
+            m = n - l
+            if m >= 0:
+                Cn = np.true_divide(RGB[m:n, :], np.mean(RGB[m:n, :], axis=0))
+                Cn = np.mat(Cn).H
+                S = np.matmul(np.array([[0, 1, -1], [-2, 1, 1]]), Cn)
+                h = S[0, :] + (np.std(S[0, :]) / np.std(S[1, :])) * S[1, :]
+                mean_h = np.mean(h)
+                for temp in range(h.shape[1]):
+                    h[0, temp] = h[0, temp] - mean_h
+                H[0, m:n] = H[0, m:n] + (h[0])
 
-        pos_bvp = POS_WANG.POS_WANG(frames, fs) # generate POS PPG signal
+        bvp = H
+        bvp = self.detrend(np.mat(bvp).H, 100)
+        bvp = np.asarray(np.transpose(bvp))[0]
+
+        # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
+         # min freq of 0.7Hz was experimentally found to work better than 0.75Hz
+        min_freq = 0.70
+        max_freq = 3
+        b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
+        pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
 
         # apply hilbert normalization to normalize PPG amplitude
         analytic_signal = signal.hilbert(pos_bvp) 
