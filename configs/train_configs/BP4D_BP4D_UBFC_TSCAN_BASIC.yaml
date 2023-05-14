@@ -1,5 +1,5 @@
 BASE: ['']
-TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test" 
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
@@ -58,7 +58,7 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC
-    DO_PREPROCESS: True                    # if first time, should be true
+    DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"          # need to be updated
     CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"    # Processed dataset save path, need to be updated

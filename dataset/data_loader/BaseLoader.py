@@ -228,7 +228,7 @@ class BaseLoader(Dataset):
         bvp = np.asarray(np.transpose(bvp))[0]
 
         # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
-         # min freq of 0.7Hz was experimentally found to work better than 0.75Hz
+        # min freq of 0.7Hz was experimentally found to work better than 0.75Hz
         min_freq = 0.70
         max_freq = 3
         b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
