@@ -13,6 +13,7 @@ from math import ceil
 from scipy import signal
 from scipy import sparse
 from unsupervised_methods.methods import POS_WANG
+from unsupervised_methods import utils
 import math
 from multiprocessing import Pool, Process, Value, Array, Manager
 
@@ -131,69 +132,6 @@ class BaseLoader(Dataset):
         """
         raise Exception("'split_raw_data' Not Implemented")
 
-    def rgb_process_video(self, frames):
-        """Calculates the average value of each frame."""
-        RGB = []
-        for frame in frames:
-            summation = np.sum(np.sum(frame, axis=0), axis=0)
-            RGB.append(summation / (frame.shape[0] * frame.shape[1]))
-        return np.asarray(RGB)
-
-    def detrend(self, input_signal, lambda_value):
-        """Removes linear trend from signal
-
-        Args:
-            input_signal(array): signal to detrend
-            lambda_value(float): detrend coeff
-        Returns:
-            filtered_signal(array): detrended signal
-        """
-        signal_length = input_signal.shape[0]
-        # observation matrix
-        H = np.identity(signal_length)
-        ones = np.ones(signal_length)
-        minus_twos = -2 * np.ones(signal_length)
-        diags_data = np.array([ones, minus_twos, ones])
-        diags_index = np.array([0, 1, 2])
-        D = sparse.spdiags(diags_data, diags_index,
-                    (signal_length - 2), signal_length).toarray()
-        filtered_signal = np.dot(
-            (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
-        return filtered_signal
-
-    def POS_WANG_TEMP(self, frames, fs):
-        """Generated POS PPG signal from video
-
-        Args:
-            frames(List[array]): a video frames.
-            fs(int or float): Sampling rate of video
-        Returns:
-            BVP(array): POS PPG signal
-        """
-        WinSec = 1.6
-        RGB = self.rgb_process_video(frames)
-        N = RGB.shape[0]
-        H = np.zeros((1, N))
-        l = math.ceil(WinSec * fs)
-
-        for n in range(N):
-            m = n - l
-            if m >= 0:
-                Cn = np.true_divide(RGB[m:n, :], np.mean(RGB[m:n, :], axis=0))
-                Cn = np.mat(Cn).H
-                S = np.matmul(np.array([[0, 1, -1], [-2, 1, 1]]), Cn)
-                h = S[0, :] + (np.std(S[0, :]) / np.std(S[1, :])) * S[1, :]
-                mean_h = np.mean(h)
-                for temp in range(h.shape[1]):
-                    h[0, temp] = h[0, temp] - mean_h
-                H[0, m:n] = H[0, m:n] + (h[0])
-
-        BVP = H
-        BVP = self.detrend(np.mat(BVP).H, 100)
-        BVP = np.asarray(np.transpose(BVP))[0]
-
-        return BVP
-
     def generate_pos_psuedo_labels(self, frames, fs=30):
         """Generated POS-based PPG Psuedo Labels For Training
 
@@ -206,7 +144,7 @@ class BaseLoader(Dataset):
 
         # generate POS PPG signal
         WinSec = 1.6
-        RGB = self.rgb_process_video(frames)
+        RGB = POS_WANG._process_video(frames)
         N = RGB.shape[0]
         H = np.zeros((1, N))
         l = math.ceil(WinSec * fs)
@@ -224,7 +162,7 @@ class BaseLoader(Dataset):
                 H[0, m:n] = H[0, m:n] + (h[0])
 
         bvp = H
-        bvp = self.detrend(np.mat(bvp).H, 100)
+        bvp = utils.detrend(np.mat(bvp).H, 100)
         bvp = np.asarray(np.transpose(bvp))[0]
 
         # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
