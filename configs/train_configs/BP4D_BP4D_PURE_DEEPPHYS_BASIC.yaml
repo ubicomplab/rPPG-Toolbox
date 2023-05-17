@@ -20,9 +20,9 @@ TRAIN:
       DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 180
+      CHUNK_LENGTH: 128
       DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
+      DYNAMIC_DETECTION_FREQUENCY : 128
       CROP_FACE: True
       LARGE_FACE_BOX: True
       LARGE_BOX_COEF: 1.5
