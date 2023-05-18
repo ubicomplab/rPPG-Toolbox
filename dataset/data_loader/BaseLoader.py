@@ -207,15 +207,16 @@ class BaseLoader(Dataset):
             bvps_clips(np.array): processed bvp (ppg) labels by frames
         """
         # resize frames and crop for face region
-        frames = self.face_crop_resize(
+        frames = self.crop_face_resize(
             frames,
-            config_preprocess.DYNAMIC_DETECTION,
-            config_preprocess.DYNAMIC_DETECTION_FREQUENCY,
-            config_preprocess.W,
-            config_preprocess.H,
-            config_preprocess.LARGE_FACE_BOX,
-            config_preprocess.CROP_FACE,
-            config_preprocess.LARGE_BOX_COEF)
+            config_preprocess.CROP_FACE.DO_CROP_FACE,
+            config_preprocess.CROP_FACE.USE_LARGE_FACE_BOX,
+            config_preprocess.CROP_FACE.LARGE_BOX_COEF,
+            config_preprocess.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION,
+            config_preprocess.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY,
+            config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
+            config_preprocess.RESIZE.W,
+            config_preprocess.RESIZE.H)
         # Check data transformation type
         data = list()  # Video data
         for data_type in config_preprocess.DATA_TYPE:
@@ -277,8 +278,8 @@ class BaseLoader(Dataset):
             face_box_coor[3] = larger_box_coef * face_box_coor[3]
         return face_box_coor
 
-    def face_crop_resize(self, frames, use_dynamic_detection, detection_freq, width, height,
-                         use_larger_box, use_face_detection, larger_box_coef):
+    def crop_face_resize(self, frames, use_face_detection, use_larger_box, larger_box_coef, use_dynamic_detection, 
+                         detection_freq, use_median_box, width, height):
         """Crop face and resize frames.
 
         Args:
@@ -309,6 +310,10 @@ class BaseLoader(Dataset):
             else:
                 face_region_all.append([0, 0, frames.shape[1], frames.shape[2]])
         face_region_all = np.asarray(face_region_all, dtype='int')
+        if use_median_box:
+            # Generate a median bounding box based on all detected face regions
+            face_region_median = np.median(face_region_all, axis=0).astype('int')
+
 
         # Frame Resizing
         resized_frames = np.zeros((frames.shape[0], height, width, 3))
@@ -319,7 +324,10 @@ class BaseLoader(Dataset):
             else:  # use the first region obtrained from the first frame.
                 reference_index = 0
             if use_face_detection:
-                face_region = face_region_all[reference_index]
+                if use_median_box:
+                    face_region = face_region_median
+                else:
+                    face_region = face_region_all[reference_index]
                 frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
                         max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
             resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
