@@ -10,8 +10,8 @@ TRAIN:
     DATASET: BP4DPlus
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/girishvn/datasets/BP4DPlusFull"                   # Raw dataset path, need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData" #"/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/BP4DPlus/RawData"  
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
@@ -34,8 +34,8 @@ VALID:
     DATASET: BP4DPlus
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/girishvn/datasets/BP4DPlusFull"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/BP4DPlus/RawData"  
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
@@ -60,8 +60,8 @@ TEST:
     DATASET: UBFC
     DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"          # need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0

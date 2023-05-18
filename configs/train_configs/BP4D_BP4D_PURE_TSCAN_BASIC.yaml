@@ -10,8 +10,8 @@ TRAIN:
     DATASET: BP4DPlus
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/girishvn/datasets/BP4DPlusFull"                   # Raw dataset path, need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData" #"/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/BP4DPlus/RawData"  
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
@@ -34,8 +34,8 @@ VALID:
     DATASET: BP4DPlus
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/girishvn/datasets/BP4DPlusFull"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/BP4DPlus/RawData"  
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
@@ -58,15 +58,15 @@ TEST:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: False                    # if first time, should be true
+    DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"                     # Raw dataset path, need to be updated
     CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
-    END: 1.0
+    END: 0.8
     PREPROCESS:
-      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
@@ -89,4 +89,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-  MODEL_PATH:   "./PreTrainedModels/BP4DPlus_SizeW72_SizeH72_ClipLength180_DataTypeDiffNormalized_Standardized_LabelTypeDiffNormalized_Large_boxTrue_Large_size1.5_Dyamic_DetFalse_det_len180/BP4D_BP4D_tscan_Epoch29.pth"
+  MODEL_PATH: ""
