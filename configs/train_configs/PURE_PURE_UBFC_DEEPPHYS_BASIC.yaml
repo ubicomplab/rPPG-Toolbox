@@ -20,13 +20,17 @@ TRAIN:
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
-      DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: True
-      LARGE_FACE_BOX: True
-      LARGE_BOX_COEF: 1.5
-      H: 72
-      W: 72
+      CROP_FACE:
+        DO_CROP_FACE: True
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
 VALID:
   DATA:
     FS: 30
@@ -43,13 +47,17 @@ VALID:
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
-      DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: True
-      LARGE_FACE_BOX: True
-      LARGE_BOX_COEF: 1.5
-      H: 72
-      W: 72
+      CROP_FACE:
+        DO_CROP_FACE: True
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
@@ -68,13 +76,17 @@ TEST:
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
-      DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: True
-      LARGE_FACE_BOX: True
-      LARGE_BOX_COEF: 1.5
-      H: 72
-      W: 72
+      CROP_FACE:
+        DO_CROP_FACE: True
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
 DEVICE: cuda:0
 NUM_OF_GPU_TRAIN: 1
 LOG:

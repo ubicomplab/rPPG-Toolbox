@@ -56,13 +56,17 @@ _C.TRAIN.DATA.PREPROCESS = CN()
 _C.TRAIN.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
 _C.TRAIN.DATA.PREPROCESS.DO_CHUNK = True
 _C.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH = 180
-_C.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
-_C.TRAIN.DATA.PREPROCESS.CROP_FACE = True
-_C.TRAIN.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.TRAIN.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
-_C.TRAIN.DATA.PREPROCESS.W = 128
-_C.TRAIN.DATA.PREPROCESS.H = 128
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE = CN()
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.TRAIN.DATA.PREPROCESS.RESIZE = CN()
+_C.TRAIN.DATA.PREPROCESS.RESIZE.W = 128
+_C.TRAIN.DATA.PREPROCESS.RESIZE.H = 128
 _C.TRAIN.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TRAIN.DATA.PREPROCESS.LABEL_TYPE = ''
 # -----------------------------------------------------------------------------
@@ -95,13 +99,17 @@ _C.VALID.DATA.PREPROCESS = CN()
 _C.VALID.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
 _C.VALID.DATA.PREPROCESS.DO_CHUNK = True
 _C.VALID.DATA.PREPROCESS.CHUNK_LENGTH = 180
-_C.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
-_C.VALID.DATA.PREPROCESS.CROP_FACE = True
-_C.VALID.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.VALID.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
-_C.VALID.DATA.PREPROCESS.W = 128
-_C.VALID.DATA.PREPROCESS.H = 128
+_C.VALID.DATA.PREPROCESS.CROP_FACE = CN()
+_C.VALID.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
+_C.VALID.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
+_C.VALID.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
+_C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
+_C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
+_C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
+_C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.VALID.DATA.PREPROCESS.RESIZE = CN()
+_C.VALID.DATA.PREPROCESS.RESIZE.W = 128
+_C.VALID.DATA.PREPROCESS.RESIZE.H = 128
 _C.VALID.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.VALID.DATA.PREPROCESS.LABEL_TYPE = ''
 
@@ -138,13 +146,17 @@ _C.TEST.DATA.PREPROCESS = CN()
 _C.VALID.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
 _C.TEST.DATA.PREPROCESS.DO_CHUNK = True
 _C.TEST.DATA.PREPROCESS.CHUNK_LENGTH = 180
-_C.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
-_C.TEST.DATA.PREPROCESS.CROP_FACE = True
-_C.TEST.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.TEST.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
-_C.TEST.DATA.PREPROCESS.W = 128
-_C.TEST.DATA.PREPROCESS.H = 128
+_C.TEST.DATA.PREPROCESS.CROP_FACE = CN()
+_C.TEST.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
+_C.TEST.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
+_C.TEST.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
+_C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
+_C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
+_C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
+_C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.TEST.DATA.PREPROCESS.RESIZE = CN()
+_C.TEST.DATA.PREPROCESS.RESIZE.W = 128
+_C.TEST.DATA.PREPROCESS.RESIZE.H = 128
 _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
 
@@ -179,13 +191,17 @@ _C.UNSUPERVISED.DATA.END = 1.0
 _C.UNSUPERVISED.DATA.PREPROCESS = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.DO_CHUNK = True
 _C.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH = 180
-_C.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION = True
-_C.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY  = 180
-_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE = True
-_C.UNSUPERVISED.DATA.PREPROCESS.LARGE_FACE_BOX = True
-_C.UNSUPERVISED.DATA.PREPROCESS.LARGE_BOX_COEF = 1.5
-_C.UNSUPERVISED.DATA.PREPROCESS.W = 128
-_C.UNSUPERVISED.DATA.PREPROCESS.H = 128
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.UNSUPERVISED.DATA.PREPROCESS.RESIZE = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W = 128
+_C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.H = 128
 _C.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE = ''
 
@@ -271,13 +287,15 @@ def update_config(config, args):
 
     if config.TRAIN.DATA.EXP_DATA_NAME == '':
         config.TRAIN.DATA.EXP_DATA_NAME = "_".join([config.TRAIN.DATA.DATASET, "SizeW{0}".format(
-            str(config.TRAIN.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.TRAIN.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+            str(config.TRAIN.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.TRAIN.DATA.PREPROCESS.RESIZE.W)), "ClipLength{0}".format(
             str(config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.TRAIN.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.TRAIN.DATA.PREPROCESS.LABEL_TYPE),
-                                      "Large_box{0}".format(config.TRAIN.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.TRAIN.DATA.PREPROCESS.LARGE_BOX_COEF),
-                                      "Dyamic_Det{0}".format(config.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                        "det_len{0}".format(config.TRAIN.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
+                                      "Crop_face{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
+                                      "Large_box{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
+                                      "Large_size{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
+                                      "Dyamic_Det{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
+                                        "det_len{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
+                                        "Median_face_box{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX)
                                               ])
     config.TRAIN.DATA.CACHED_PATH = os.path.join(config.TRAIN.DATA.CACHED_PATH, config.TRAIN.DATA.EXP_DATA_NAME)
 
@@ -301,13 +319,15 @@ def update_config(config, args):
 
         if config.VALID.DATA.EXP_DATA_NAME == '':
             config.VALID.DATA.EXP_DATA_NAME = "_".join([config.VALID.DATA.DATASET, "SizeW{0}".format(
-                str(config.VALID.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.VALID.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+                str(config.VALID.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.VALID.DATA.PREPROCESS.RESIZE.W)), "ClipLength{0}".format(
                 str(config.VALID.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.VALID.DATA.PREPROCESS.DATA_TYPE)),
                                         "LabelType{0}".format(config.VALID.DATA.PREPROCESS.LABEL_TYPE),
-                                        "Large_box{0}".format(config.VALID.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                        "Large_size{0}".format(config.VALID.DATA.PREPROCESS.LARGE_BOX_COEF),
-                                        "Dyamic_Det{0}".format(config.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                            "det_len{0}".format(config.VALID.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
+                                        "Crop_face{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
+                                        "Large_box{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
+                                        "Large_size{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
+                                        "Dyamic_Det{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
+                                          "det_len{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
+                                          "Median_face_box{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX)
                                                 ])
         config.VALID.DATA.CACHED_PATH = os.path.join(config.VALID.DATA.CACHED_PATH, config.VALID.DATA.EXP_DATA_NAME)
 
@@ -332,13 +352,15 @@ def update_config(config, args):
 
     if config.TEST.DATA.EXP_DATA_NAME == '':
         config.TEST.DATA.EXP_DATA_NAME = "_".join([config.TEST.DATA.DATASET, "SizeW{0}".format(
-            str(config.TEST.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.TEST.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+            str(config.TEST.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.TEST.DATA.PREPROCESS.RESIZE.H)), "ClipLength{0}".format(
             str(config.TEST.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.TEST.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.TEST.DATA.PREPROCESS.LABEL_TYPE),
-                                      "Large_box{0}".format(config.TEST.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.TEST.DATA.PREPROCESS.LARGE_BOX_COEF),
-                                      "Dyamic_Det{0}".format(config.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                        "det_len{0}".format(config.TEST.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY )
+                                      "Crop_face{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
+                                      "Large_box{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
+                                      "Large_size{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
+                                      "Dyamic_Det{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
+                                        "det_len{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
+                                        "Median_face_box{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX)
                                               ])
     config.TEST.DATA.CACHED_PATH = os.path.join(config.TEST.DATA.CACHED_PATH, config.TEST.DATA.EXP_DATA_NAME)
 
@@ -362,13 +384,15 @@ def update_config(config, args):
 
     if config.UNSUPERVISED.DATA.EXP_DATA_NAME == '':
         config.UNSUPERVISED.DATA.EXP_DATA_NAME = "_".join([config.UNSUPERVISED.DATA.DATASET, "SizeW{0}".format(
-            str(config.UNSUPERVISED.DATA.PREPROCESS.W)), "SizeH{0}".format(str(config.UNSUPERVISED.DATA.PREPROCESS.W)), "ClipLength{0}".format(
+            str(config.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W)), "ClipLength{0}".format(
             str(config.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE)),
                                       "LabelType{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE),
-                                      "Large_box{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LARGE_FACE_BOX),
-                                      "Large_size{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LARGE_BOX_COEF),
-                                      "Dyamic_Det{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION),
-                                        "det_len{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.DYNAMIC_DETECTION_FREQUENCY),
+                                      "Crop_face{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
+                                      "Large_box{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
+                                      "Large_size{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
+                                      "Dyamic_Det{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
+                                        "det_len{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
+                                        "Median_face_box{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX),
                                         "unsupervised"
                                               ])
     config.UNSUPERVISED.DATA.CACHED_PATH = os.path.join(config.UNSUPERVISED.DATA.CACHED_PATH, config.UNSUPERVISED.DATA.EXP_DATA_NAME)

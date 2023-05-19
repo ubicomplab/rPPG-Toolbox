@@ -27,13 +27,17 @@ UNSUPERVISED:
       LABEL_TYPE: Raw
       DO_CHUNK: False
       CHUNK_LENGTH: 180
-      DYNAMIC_DETECTION: False
-      DYNAMIC_DETECTION_FREQUENCY : 180
-      CROP_FACE: True
-      LARGE_FACE_BOX: True
-      LARGE_BOX_COEF: 1.5
-      H: 72
-      W: 72
+      CROP_FACE:
+        DO_CROP_FACE: True
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
 INFERENCE:
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
                   
