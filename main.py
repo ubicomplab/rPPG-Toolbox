@@ -125,14 +125,10 @@ if __name__ == "__main__":
     print('Configuration:')
     print(config, end='\n\n')
 
-    data_loader_dict = dict()
+    data_loader_dict = dict() # dictionary of data loaders 
     if config.TOOLBOX_MODE == "train_and_test":
-        # neural method dataloader
         # train_loader
-        if config.TRAIN.DATA.DATASET == "COHFACE":
-            # train_loader = data_loader.COHFACELoader.COHFACELoader
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-        elif config.TRAIN.DATA.DATASET == "UBFC":
+        if config.TRAIN.DATA.DATASET == "UBFC":
             train_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.TRAIN.DATA.DATASET == "PURE":
             train_loader = data_loader.PURELoader.PURELoader
@@ -140,25 +136,10 @@ if __name__ == "__main__":
             train_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         elif config.TRAIN.DATA.DATASET == "MMPD":
             train_loader = data_loader.MMPDLoader.MMPDLoader
+        elif config.TRAIN.DATA.DATASET == "BP4DPlus":
+            train_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-
-        # valid_loader
-        if config.VALID.DATA.DATASET == "COHFACE":
-            # valid_loader = data_loader.COHFACELoader.COHFACELoader
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-        elif config.VALID.DATA.DATASET == "UBFC":
-            valid_loader = data_loader.UBFCLoader.UBFCLoader
-        elif config.VALID.DATA.DATASET == "PURE":
-            valid_loader = data_loader.PURELoader.PURELoader
-        elif config.VALID.DATA.DATASET == "SCAMPS":
-            valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
-        elif config.VALID.DATA.DATASET == "MMPD":
-            valid_loader = data_loader.MMPDLoader.MMPDLoader
-        elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
-                raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
-        else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")      
 
         # Create and initialize the train dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
@@ -178,6 +159,22 @@ if __name__ == "__main__":
             )
         else:
             data_loader_dict['train'] = None
+
+        # valid_loader
+        if config.VALID.DATA.DATASET == "UBFC":
+            valid_loader = data_loader.UBFCLoader.UBFCLoader
+        elif config.VALID.DATA.DATASET == "PURE":
+            valid_loader = data_loader.PURELoader.PURELoader
+        elif config.VALID.DATA.DATASET == "SCAMPS":
+            valid_loader = data_loader.SCAMPSLoader.SCAMPSLoader
+        elif config.VALID.DATA.DATASET == "MMPD":
+            valid_loader = data_loader.MMPDLoader.MMPDLoader
+        elif config.VALID.DATA.DATASET == "BP4DPlus":
+            valid_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
+        elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
+                raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
+        else:
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")      
 
         # Create and initialize the valid dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
@@ -199,10 +196,7 @@ if __name__ == "__main__":
 
     if config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
         # test_loader
-        if config.TEST.DATA.DATASET == "COHFACE":
-            # test_loader = data_loader.COHFACELoader.COHFACELoader
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-        elif config.TEST.DATA.DATASET == "UBFC":
+        if config.TEST.DATA.DATASET == "UBFC":
             test_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.TEST.DATA.DATASET == "PURE":
             test_loader = data_loader.PURELoader.PURELoader
@@ -210,6 +204,8 @@ if __name__ == "__main__":
             test_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         elif config.TEST.DATA.DATASET == "MMPD":
             test_loader = data_loader.MMPDLoader.MMPDLoader
+        elif config.TEST.DATA.DATASET == "BP4DPlus":
+            test_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
 

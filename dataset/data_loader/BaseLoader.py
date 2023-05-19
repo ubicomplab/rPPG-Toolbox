@@ -10,6 +10,11 @@ import glob
 import os
 import re
 from math import ceil
+from scipy import signal
+from scipy import sparse
+from unsupervised_methods.methods import POS_WANG
+from unsupervised_methods import utils
+import math
 from multiprocessing import Pool, Process, Value, Array, Manager
 
 import cv2
@@ -52,12 +57,12 @@ class BaseLoader(Dataset):
         self.preprocessed_data_len = 0
         self.data_format = config_data.DATA_FORMAT
         self.do_preprocess = config_data.DO_PREPROCESS
-        self.raw_data_dirs = self.get_raw_data(self.raw_data_path)
 
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
         assert (config_data.END < 1 or config_data.END == 1)
         if config_data.DO_PREPROCESS:
+            self.raw_data_dirs = self.get_raw_data(self.raw_data_path)
             self.preprocess_dataset(self.raw_data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
             if not os.path.exists(self.cached_path):
@@ -65,6 +70,7 @@ class BaseLoader(Dataset):
                                  'Please set DO_PREPROCESS to True. Preprocessed directory does not exist!')
             if not os.path.exists(self.file_list_path):
                 print('File list does not exist... generating now...')
+                self.raw_data_dirs = self.get_raw_data(self.raw_data_path)
                 self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN, config_data.END)
                 print('File list generated.', end='\n\n')
 
@@ -126,6 +132,53 @@ class BaseLoader(Dataset):
         """
         raise Exception("'split_raw_data' Not Implemented")
 
+    def generate_pos_psuedo_labels(self, frames, fs=30):
+        """Generated POS-based PPG Psuedo Labels For Training
+
+        Args:
+            frames(List[array]): a video frames.
+            fs(int or float): Sampling rate of video
+        Returns:
+            env_norm_bvp: Hilbert envlope normalized POS PPG signal, filtered are HR frequency
+        """
+
+        # generate POS PPG signal
+        WinSec = 1.6
+        RGB = POS_WANG._process_video(frames)
+        N = RGB.shape[0]
+        H = np.zeros((1, N))
+        l = math.ceil(WinSec * fs)
+
+        for n in range(N):
+            m = n - l
+            if m >= 0:
+                Cn = np.true_divide(RGB[m:n, :], np.mean(RGB[m:n, :], axis=0))
+                Cn = np.mat(Cn).H
+                S = np.matmul(np.array([[0, 1, -1], [-2, 1, 1]]), Cn)
+                h = S[0, :] + (np.std(S[0, :]) / np.std(S[1, :])) * S[1, :]
+                mean_h = np.mean(h)
+                for temp in range(h.shape[1]):
+                    h[0, temp] = h[0, temp] - mean_h
+                H[0, m:n] = H[0, m:n] + (h[0])
+
+        bvp = H
+        bvp = utils.detrend(np.mat(bvp).H, 100)
+        bvp = np.asarray(np.transpose(bvp))[0]
+
+        # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
+        # min freq of 0.7Hz was experimentally found to work better than 0.75Hz
+        min_freq = 0.70
+        max_freq = 3
+        b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
+        pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
+
+        # apply hilbert normalization to normalize PPG amplitude
+        analytic_signal = signal.hilbert(pos_bvp) 
+        amplitude_envelope = np.abs(analytic_signal) # derive envelope signal
+        env_norm_bvp = pos_bvp/amplitude_envelope # normalize by env
+
+        return env_norm_bvp # return data dict w/ POS psuedo labels
+    
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Parses and preprocesses all the raw data based on split.
 
@@ -422,7 +475,7 @@ class BaseLoader(Dataset):
             None (this function does save a file-list .csv file to self.file_list_path)
         """
 
-        # Get data split based on begin and end indices.
+        # get data split based on begin and end indices.
         data_dirs_subset = self.split_raw_data(data_dirs, begin, end)
 
         # generate a list of unique raw-data file names
