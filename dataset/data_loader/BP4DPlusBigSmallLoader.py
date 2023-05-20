@@ -35,6 +35,13 @@ import numpy as np
 import pandas as pd
 import pickle 
 
+from unsupervised_methods.methods import POS_WANG
+from unsupervised_methods import utils
+from scipy import signal
+from scipy import sparse
+import math
+from math import ceil
+
 from dataset.data_loader.BaseLoader import BaseLoader
 from tqdm import tqdm
 
@@ -44,7 +51,7 @@ from dataset.data_loader.BaseLoader import BaseLoader
 class BP4DPlusBigSmallLoader(BaseLoader):
     """The data loader for the BP4D+ dataset."""
 
-    def __init__(self, dataset_name, raw_data_path, config_data):
+    def __init__(self, name, data_path, config_data):
         """Initializes an BP4D+ dataloader.
             Args:
                 data_path(str): path of a folder which stores raw video and bvp data.
@@ -100,15 +107,14 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
         self.inputs = list()
         self.labels = list()
-        self.dataset_name = dataset_name
-        self.raw_data_path = raw_data_path
+        self.dataset_name = name
+        self.raw_data_path = data_path
         self.cached_path = config_data.CACHED_PATH
         self.file_list_path = config_data.FILE_LIST_PATH
         self.preprocessed_data_len = 0
         self.data_format = config_data.DATA_FORMAT
         self.do_preprocess = config_data.DO_PREPROCESS
         
-
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
         assert (config_data.END < 1 or config_data.END == 1)
@@ -121,7 +127,8 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                                  'Please set DO_PREPROCESS to True. Preprocessed directory does not exist!')
             if not os.path.exists(self.file_list_path):
                 print('File list does not exist... generating now...')
-                self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN, config_data.END)
+                self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN,
+                                                 config_data.END, config_data.FOLD_PATH)
                 print('File list generated.', end='\n\n')
 
             self.load_preprocessed_data()
@@ -138,7 +145,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         data_dirs = self.get_raw_data(config_data)
 
         # REMOVE ALREADY PREPROCESSED SUBJECTS
-        data_dirs = self.adjust_data_dirs(data_dirs, config_data)
+        # data_dirs = self.adjust_data_dirs(data_dirs, config_data)
 
         # CREATE CACHED DATA PATH
         cached_path = config_data.CACHED_PATH
@@ -155,7 +162,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
     def get_raw_data(self, config_data):
         """Returns data directories under the path(For PURE dataset)."""
 
-        data_path = config_data.RAW_DATA_PATH # get raw data path
+        data_path = config_data.DATA_PATH # get raw data path
 
         # GET ALL SUBJECT TRIALS IN DATASET
         f_subj_trials = glob.glob(os.path.join(data_path, "Physiology", "F*", "T*"))
@@ -207,7 +214,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
         # CONSTRUCT DATA DICTIONARY FOR VIDEO TRIAL
         data_dict = self.construct_data_dict(data_dir_info, config_data) # construct a dictionary of ALL labels and video frames (of equal length)
-        data_dict = self.generate_psuedo_labels(data_dict) # adds POS psuedo BVP labels to dataset
+        data_dict = self.generate_pos_psuedo_labels(data_dict, fs=config_data.FS)
         
         # SEPERATE DATA INTO VIDEO FRAMES AND LABELS ARRAY
         frames = self.read_video(data_dict) # read in the video frames
@@ -215,17 +222,84 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         if frames.shape[0] != labels.shape[0]: # check if data and labels are the same length
             raise ValueError(' Preprocessing dataset subprocess: frame and label time axis not the same')
         
+        raise ValueError('GIRISH KILLLLLLLLL')
+
         # PREPROCESS VIDEO FRAMES AND LABELS (eg. DIFF-NORM, RAW_STD)
-        big_clips, small_clips, labels_clips = preprocess(frames, labels, config_data)
+        big_clips, small_clips, labels_clips = self.preprocess(frames, labels, config_data)
 
         # SAVE PREPROCESSED FILE CHUNKS
-        count, input_name_list, label_name_list = save_multi_process(big_clips, small_clips, labels_clips, saved_filename, config_data)
+        count, input_name_list, label_name_list = self.save_multi_process(big_clips, small_clips, labels_clips, saved_filename, config_data)
 
         file_list_dict[i] = input_name_list
 
 
 
-    def construct_data_dict(self, data_dir_info, config_preprocess):
+    def generate_pos_psuedo_labels(self, data_dict, fs=30):
+        """Generated POS-based PPG Psuedo Labels For Training
+
+        Args:
+            frames(List[array]): a video frames.
+            fs(int or float): Sampling rate of video
+        Returns:
+            env_norm_bvp: Hilbert envlope normalized POS PPG signal, filtered are HR frequency
+        """
+
+        frames = data_dict['X']
+
+        # generate POS PPG signal
+        WinSec = 1.6
+        RGB = POS_WANG._process_video(frames)
+        N = RGB.shape[0]
+        H = np.zeros((1, N))
+        l = math.ceil(WinSec * fs)
+
+        for n in range(N):
+            m = n - l
+            if m >= 0:
+                Cn = np.true_divide(RGB[m:n, :], np.mean(RGB[m:n, :], axis=0))
+                Cn = np.mat(Cn).H
+                S = np.matmul(np.array([[0, 1, -1], [-2, 1, 1]]), Cn)
+                h = S[0, :] + (np.std(S[0, :]) / np.std(S[1, :])) * S[1, :]
+                mean_h = np.mean(h)
+                for temp in range(h.shape[1]):
+                    h[0, temp] = h[0, temp] - mean_h
+                H[0, m:n] = H[0, m:n] + (h[0])
+
+        bvp = H
+        bvp = utils.detrend(np.mat(bvp).H, 100)
+        bvp = np.asarray(np.transpose(bvp))[0]
+
+        # AGGRESSIVELY FILTER PPG SIGNAL
+        hr_arr = data_dict['HR_bpm'] # get hr freq from GT label
+        avg_hr_bpm = np.sum(hr_arr)/len(hr_arr) # calculate avg hr for the entire trial
+        hr_freq = avg_hr_bpm / 60 # divide beats per min by 60, to get beats pers secone
+        halfband = 20 / fs # half bandwith to account for HR variation (accounts for +/- 20 bpm variation from mean HR)
+
+        # MAX BANDWIDTH [0.70, 3]Hz = [42, 180]BPM (BANDWIDTH MAY BE SMALLER)
+        min_freq = hr_freq - halfband # calculate min cutoff frequency
+        if min_freq < 0.70:
+            min_freq = 0.70
+        max_freq = hr_freq + halfband # calculate max cutoff frequency
+        if max_freq > 3:
+            max_freq = 3
+
+        # FILTER POS PPG W/ 2nd ORDER BUTTERWORTH FILTER
+        b, a = signal.butter(2, [(min_freq) / fs * 2, (max_freq) / fs * 2], btype='bandpass')
+        pos_bvp = signal.filtfilt(b, a, bvp.astype(np.double))
+
+        # APPLY HILBERT NORMALIZATION TO NORMALIZE PPG AMPLITUDE
+        analytic_signal = signal.hilbert(pos_bvp)
+        amplitude_envelope = np.abs(analytic_signal)
+        env_norm_bvp = pos_bvp/amplitude_envelope
+
+        data_dict['pos_bvp'] = pos_bvp
+        data_dict['pos_env_norm_bvp'] = env_norm_bvp
+
+        return data_dict # return data dict w/ POS psuedo labels
+
+
+
+    def construct_data_dict(self, data_dir_info, config_data):
 
         # GET TRIAL NUMBER 
         trial = data_dir_info['trial']
@@ -234,18 +308,17 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         data_dict = dict()
 
         # READ IN RAW VIDEO FRAMES
-        data_dict = self.read_raw_vid_frames(data_dir_info, config_preprocess, data_dict)
+        data_dict = self.read_raw_vid_frames(data_dir_info, config_data, data_dict)
 
         # READ IN RAW PHYSIOLOGICAL SIGNAL LABELS 
         data_dict = self.read_raw_phys_labels(data_dir_info, data_dict)
 
         # READ IN ACTION UNIT (AU) LABELS (if trial in [1, 6, 7, 8]: trials w/ AU labels)
         if trial in ['T1', 'T6', 'T7', 'T8']:
-            data_dict, start_np_idx, end_np_idx = self.read_au_labels(data_dir_info, config_preprocess, data_dict)
+            data_dict, start_np_idx, end_np_idx = self.read_au_labels(data_dir_info, config_data, data_dict)
 
             # CROP DATAFRAME W/ AU START END
-            if config_preprocess['AU_SUBSET']: # if using only the AU dataset subset
-                data_dict = self.crop_au_subset_data(data_dict, start_np_idx, end_np_idx)
+            data_dict = self.crop_au_subset_data(data_dict, start_np_idx, end_np_idx)
 
         # FRAMES AND LABELS SHOULD BE OF THE SAME LENGTH
         for k in data_dict.keys():
@@ -268,8 +341,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
 
 
-    def read_raw_vid_frames(self, data_dir_info, config_preprocess, data_dict):
-
+    def read_raw_vid_frames(self, data_dir_info, config_data, data_dict):
         data_path = data_dir_info['path']
         subject_trial = data_dir_info['index'][0:4]
         trial = data_dir_info['trial']
@@ -288,8 +360,9 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                     data = zippedImgs.read(ele)
                     vid_frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
 
-                    dim_h = config_preprocess['BIG_H']
-                    dim_w = config_preprocess['BIG_W']
+                    dim_h = config_data.PREPROCESS.BIGSMALL_RESIZE.BIG_H
+                    dim_w = config_data.PREPROCESS.BIGSMALL_RESIZE.BIG_W
+
                     vid_LxL = self.downsample_frame(vid_frame, dim_h=dim_h, dim_w=dim_w) # downsample frames (otherwise processing time becomes WAY TOO LONG)
 
                     # clip image values to range (1/255, 1)
@@ -354,11 +427,11 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
 
 
-    def read_au_labels(self, data_dir_info, config_preprocess, data_dict):
+    def read_au_labels(self, data_dir_info, config_data, data_dict):
 
         # DATA PATH INFO    
         subj_idx = data_dir_info['index']
-        base_path = config_preprocess['RAW_DATA_PATH']
+        base_path = config_data.DATA_PATH
         AU_OCC_url = os.path.join(base_path, 'AUCoding', "AU_OCC", subj_idx[0:4] + '_' + subj_idx[4:] + '.csv')
 
         # DATA CHUNK LENGTH
@@ -423,7 +496,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         
 
 
-    def crop_au_subset_data(data_dict, start, end):
+    def crop_au_subset_data(self, data_dict, start, end):
 
         keys = data_dict.keys()
 
@@ -432,4 +505,44 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             data_dict[k] = data_dict[k][start:end+1] # start and end frames are inclusive 
 
         return data_dict
+    
+
+
+    # GET VIDEO FRAMES FROM DATA DICTIONARY
+    def read_video(self, data_dict):
+        """ Reads a video file, returns frames (N,H,W,3) """
+        frames = data_dict['X']
+        return np.asarray(frames)
+
+
+
+    # GET VIDEO LABELS FROM DATA DICTIONARY AND FORMAT AS ARRAY
+    def read_labels(self, data_dict):
+        """Reads labels corresponding to video file."""
+        f = data_dict
+        keys = list(f.keys())
+        data_len = f['X'].shape[0] # get the video data length
+        keys.remove('X') # remove X from the processed keys (not a label)
+
+        # Init labels array
+        labels = np.ones((data_len, 49)) # 47 tasks from original dataset, and added psuedo labels: 'pos_bvp','pos_env_norm_bvp'
+        labels = -1*labels # make all values -1 originally
+
+        # LABELS BY INDEX IN OUTPUT LABELS NPY ARRAY
+        # 0: bp_wave, 1: hr_bpm, 2: systolic_bp, 3: diastolic_bp, 4: mean_bp,
+        # 5: resp_wave, 6: resp_bpm, 7: eda, [8,47]: AUs, 'pos_bvp', 'pos_env_norm_bvp'
+        labels_order_list = ['bp_wave', 'HR_bpm', 'systolic_bp', 'diastolic_bp', 'mean_bp', 'resp_wave', 'resp_bpm', 'eda', 
+                                'AU01', 'AU02', 'AU04', 'AU05', 'AU06', 'AU06int', 'AU07', 'AU09', 'AU10', 'AU10int', 'AU11', 'AU12', 'AU12int', 
+                                'AU13', 'AU14', 'AU14int', 'AU15', 'AU16', 'AU17', 'AU17int', 'AU18', 'AU19', 'AU20', 'AU22', 'AU23', 'AU24', 
+                                'AU27', 'AU28', 'AU29', 'AU30', 'AU31', 'AU32', 'AU33', 'AU34', 'AU35', 'AU36', 'AU37', 'AU38', 'AU39', 
+                                'pos_bvp','pos_env_norm_bvp']
+
+        # ADDING LABELS TO DATA ARRAY
+        # If Label DNE Then Array Is -1 Filled For That Label
+        # Note: BP4D does not have AU labels for all trials: These fields are thus COMPLETELY -1 filled for these trials
+        for i in range(len(labels_order_list)):
+            if labels_order_list[i] in keys:
+                labels[:, i] = f[labels_order_list[i]]
+
+        return np.asarray(labels) # Return labels as np array
 
