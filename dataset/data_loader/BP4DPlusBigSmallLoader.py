@@ -221,8 +221,6 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         labels = self.read_labels(data_dict) # read in video labels 
         if frames.shape[0] != labels.shape[0]: # check if data and labels are the same length
             raise ValueError(' Preprocessing dataset subprocess: frame and label time axis not the same')
-        
-        raise ValueError('GIRISH KILLLLLLLLL')
 
         # PREPROCESS VIDEO FRAMES AND LABELS (eg. DIFF-NORM, RAW_STD)
         big_clips, small_clips, labels_clips = self.preprocess(frames, labels, config_data)
@@ -246,7 +244,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
         frames = data_dict['X']
 
-        # generate POS PPG signal
+        # GENERATE POS PPG SIGNAL
         WinSec = 1.6
         RGB = POS_WANG._process_video(frames)
         N = RGB.shape[0]
@@ -360,8 +358,8 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                     data = zippedImgs.read(ele)
                     vid_frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
 
-                    dim_h = config_data.PREPROCESS.BIGSMALL_RESIZE.BIG_H
-                    dim_w = config_data.PREPROCESS.BIGSMALL_RESIZE.BIG_W
+                    dim_h = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_H
+                    dim_w = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_W
 
                     vid_LxL = self.downsample_frame(vid_frame, dim_h=dim_h, dim_w=dim_w) # downsample frames (otherwise processing time becomes WAY TOO LONG)
 
@@ -545,4 +543,192 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                 labels[:, i] = f[labels_order_list[i]]
 
         return np.asarray(labels) # Return labels as np array
+    
+
+
+    def preprocess(self, frames, labels, config_data):
+
+        config_preprocess = config_data.PREPROCESS
+        
+        #######################################
+        ########## PROCESSING FRAMES ##########
+        #######################################
+
+        # RESIZE FRAMES TO BIG SIZE  (144x144 DEFAULT)
+        frames = self.crop_face_resize(
+                        frames,
+                        config_preprocess.CROP_FACE.DO_CROP_FACE,
+                        config_preprocess.CROP_FACE.USE_LARGE_FACE_BOX,
+                        config_preprocess.CROP_FACE.LARGE_BOX_COEF,
+                        config_preprocess.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION,
+                        config_preprocess.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY,
+                        config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
+                        config_preprocess.BIGSMALL.RESIZE.BIG_W,
+                        config_preprocess.BIGSMALL.RESIZE.BIG_H)
+
+        # PROCESS BIG FRAMES
+        big_data = list()
+        for data_type in config_preprocess.BIGSMALL.BIG_DATA_TYPE:
+            f_c = frames.copy()
+            if data_type == "Raw":
+                big_data.append(f_c)
+            elif data_type == "DiffNormalized":
+                big_data.append(BaseLoader.diff_normalize_data(f_c))
+            elif data_type == "Standardized":
+                big_data.append(BaseLoader.standardized_data(f_c))
+            else:
+                raise ValueError("Unsupported data type!")
+        big_data = np.concatenate(big_data, axis=-1)  # concatenate all channels
+
+        # PROCESS SMALL FRAMES
+        small_data = list()
+        for data_type in config_preprocess.BIGSMALL.SMALL_DATA_TYPE:
+            f_c = frames.copy()
+            if data_type == "Raw":
+                small_data.append(f_c)
+            elif data_type == "DiffNormalized":
+                small_data.append(BaseLoader.diff_normalize_data(f_c))
+            elif data_type == "Standardized":
+                small_data.append(BaseLoader.standardized_data(f_c))
+            else:
+                raise ValueError("Unsupported data type!")
+        small_data = np.concatenate(small_data, axis=-1)  # concatenate all channels
+
+        # RESIZE SMALL FRAMES TO LOWER RESOLUTION (9x9 DEFAULT)
+        small_data = self.crop_face_resize(
+                        small_data,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        config_preprocess.BIGSMALL.RESIZE.SMALL_W,
+                        config_preprocess.BIGSMALL.RESIZE.SMALL_H)
+
+        ######################################
+        ########## PROCESSED LABELS ##########
+        ######################################
+
+        # EXTRACT LABELS FROM ARRAY
+        bp_wave = labels[:, 0]
+        hr = labels[:, 1]
+        bp_sys = labels[:, 2]
+        bp_dia = labels [:, 3]
+        bp_mean = labels [:, 4]
+        resp_wave = labels[:, 5]
+        rr = labels[:, 6]
+        eda = labels[:, 7]
+        au = labels[:, 8:47]
+        pos_bvp = labels[:, 47]
+        pos_env_norm_bvp = labels[:, 48]
+
+        # REMOVE BP OUTLIERS
+        bp_sys[bp_sys < 5] = 5
+        bp_sys[bp_sys > 250] = 250
+        bp_dia[bp_dia < 5] = 5
+        bp_dia[bp_dia > 200] = 200
+
+        # REMOVE EDA OUTLIERS
+        eda[eda < 1] = 1
+        eda[eda > 40] = 40
+
+        # REMOVE AU -1 LABELS IN AU SUBSET
+        if np.average(au) != -1:
+            au[np.where(au != 0) and np.where(au != 1)] = 0
+            labels[:, 8:47] = au
+
+        if config_preprocess['LABEL_TYPE'] == "Raw":
+            pass
+
+        elif config_preprocess['LABEL_TYPE'] == "DiffNormalized":
+
+            bp_wave = BaseLoader.diff_normalize_label(bp_wave)
+            labels[:, 0] = bp_wave
+
+            resp_wave = BaseLoader.diff_normalize_label(resp_wave)
+            labels[:, 5] = resp_wave
+
+            pos_bvp = BaseLoader.diff_normalize_label(pos_bvp)
+            labels[:, 47] = pos_bvp
+
+            pos_env_norm_bvp = BaseLoader.diff_normalize_label(pos_env_norm_bvp)
+            labels[:, 48] = pos_env_norm_bvp
+
+        elif config_preprocess['LABEL_TYPE'] == "Standardized":
+
+            bp_wave = BaseLoader.standardized_label(bp_wave)
+            labels[:, 0] = bp_wave
+
+            resp_wave = BaseLoader.standardized_label(resp_wave)
+            labels[:, 5] = resp_wave
+
+            pos_bvp = BaseLoader.standardized_label(pos_bvp)
+            labels[:, 47] = pos_bvp
+
+            pos_env_norm_bvp = BaseLoader.standardized_label(pos_env_norm_bvp)
+            labels[:, 48] = pos_env_norm_bvp       
+
+        ######################################
+        ######## CHUNK DATA / LABELS #########
+        ######################################
+        
+        # Chunk clips and labels
+        if config_preprocess.DO_CHUNK:
+            chunk_len = config_preprocess.CHUNK_LENGTH
+            big_clips, small_clips, labels_clips = self.chunk(big_data, small_data, labels, chunk_len)
+        else:
+            big_clips = np.array([big_data])
+            small_clips = np.array([small_data])
+            labels_clips = np.array([labels])
+
+        ######################################
+        ########### RETURN CHUNKS ############
+        ######################################
+        return big_clips, small_clips, labels_clips
+    
+
+
+    def chunk(self, big_frames, small_frames, labels, chunk_len):
+        """Chunks the data into clips."""
+
+        clip_num = labels.shape[0] // chunk_len
+        big_clips = [big_frames[i * chunk_len:(i + 1) * chunk_len] for i in range(clip_num)]
+        small_clips = [small_frames[i * chunk_len:(i + 1) * chunk_len] for i in range(clip_num)]
+        labels_clips = [labels[i * chunk_len:(i + 1) * chunk_len] for i in range(clip_num)]
+
+        return np.array(big_clips), np.array(small_clips), np.array(labels_clips)
+    
+
+
+    def save_multi_process(big_clips, small_clips, label_clips, filename, config_preprocess):
+        """Saves the preprocessing data."""
+        cached_path = config_preprocess.CACHED_PATH
+        if not os.path.exists(cached_path):
+            os.makedirs(cached_path, exist_ok=True)
+        count = 0
+        input_path_name_list = []
+        label_path_name_list = []
+        for i in range(len(label_clips)):
+            assert (len(big_clips) == len(label_clips) and len(small_clips) == len(label_clips))
+            
+            input_path_name = cached_path + os.sep + \
+                                "{0}_input{1}.pickle".format(filename, str(count))
+
+            label_path_name = cached_path + os.sep + \
+                                "{0}_label{1}.npy".format(filename, str(count))
+
+            frames_dict = dict()
+            frames_dict[0] = big_clips[i]
+            frames_dict[1] = small_clips[i]
+
+            input_path_name_list.append(input_path_name)
+            label_path_name_list.append(label_path_name)
+
+            np.save(label_path_name, label_clips[i]) # save out labels npy file
+            with open(input_path_name, 'wb') as handle: # save out frame dict pickle file
+                pickle.dump(frames_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            count += 1 # count of processed clips
+
+        return count, input_path_name_list, label_path_name_list
 
