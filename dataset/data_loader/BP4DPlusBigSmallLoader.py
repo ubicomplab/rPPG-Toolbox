@@ -120,7 +120,8 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         assert (config_data.END < 1 or config_data.END == 1)
 
         if config_data.DO_PREPROCESS:
-            self.preprocess_dataset(config_data)
+            self.raw_data_dirs = self.get_raw_data(self.raw_data_path)
+            self.preprocess_dataset(self.raw_data_dirs, config_data, config_data.BEGIN, config_data.END)
         else:
             if not os.path.exists(self.cached_path):
                 raise ValueError(self.dataset_name,
@@ -128,21 +129,20 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             if not os.path.exists(self.file_list_path):
                 print('File list does not exist... generating now...')
                 self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN,
-                                                 config_data.END, config_data.FOLD_PATH)
+                                                 config_data.END, config_data)
                 print('File list generated.', end='\n\n')
 
             self.load_preprocessed_data()
-
         print('Cached Data Path', self.cached_path, end='\n\n')
         print('File List Path', self.file_list_path)
         print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
 
 
-    def preprocess_dataset(self, config_data):
+    def preprocess_dataset(self, data_dirs, config_data, begin, end):
         print('Starting Preprocessing...')
 
         # GET DATASET INFORMATION (PATHS AND OTHER META DATA REGARDING ALL VIDEO TRIALS)
-        data_dirs = self.get_raw_data(config_data)
+        data_dirs_split = self.split_raw_data(data_dirs, begin, end)  # partition dataset 
 
         # REMOVE ALREADY PREPROCESSED SUBJECTS
         # data_dirs = self.adjust_data_dirs(data_dirs, config_data)
@@ -153,10 +153,18 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             os.makedirs(cached_path, exist_ok=True)
 
         # READ RAW DATA, PREPROCESS, AND SAVE PROCESSED DATA FILES
-        file_list_dict = self.multi_process_manager(data_dirs, config_data)
+        file_list_dict = self.multi_process_manager(data_dirs_split, config_data)
+
+        self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN,
+                                        config_data.END, config_data)  # build file list
+        self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
+        print("Total Number of raw files preprocessed:", len(data_dirs_split), end='\n\n')
+        print("Num loaded files", self.preprocessed_data_len)
 
         #TODO build file lists
         print("DONE Preprocessing!")
+        print('')
+        raise ValueError('GIRISH KILL')
 
 
     def split_raw_data(self, data_dirs, begin, end):
@@ -170,14 +178,17 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         # get info about the dataset: subject list and num vids per subject
         data_info = dict()
         for data in data_dirs:
+            idx_subj = data['index'][0:4]
             subject = data['subject']
-            data_dir = data['path']
+            data_path = data['path']
             index = data['index']
+            trial = data['trial']
+            subj_sex = data['sex']
             # creates a dictionary of data_dirs indexed by subject number
-            if subject not in data_info:  # if subject not in the data info dictionary
-                data_info[subject] = []  # make an emplty list for that subject
+            if idx_subj not in data_info:  # if subject not in the data info dictionary
+                data_info[idx_subj] = []  # make an emplty list for that subject
             # append a tuple of the filename, subject num, trial num, and chunk num
-            data_info[subject].append({"index": index, "path": data_dir, "subject": subject})
+            data_info[idx_subj].append({"index": index, "path": data_path, "subject": subject, "trial": trial, "sex": subj_sex})
 
         subj_list = list(data_info.keys())  # all subjects by number ID (1-27)
         subj_list = sorted(subj_list)
@@ -200,10 +211,8 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         
 
 
-    def get_raw_data(self, config_data):
+    def get_raw_data(self, data_path):
         """Returns data directories under the path(For PURE dataset)."""
-
-        data_path = config_data.DATA_PATH # get raw data path
 
         # GET ALL SUBJECT TRIALS IN DATASET
         f_subj_trials = glob.glob(os.path.join(data_path, "Physiology", "F*", "T*"))
@@ -777,4 +786,63 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         print('')
 
         return count, input_path_name_list, label_path_name_list
+    
+
+
+    def build_file_list_retroactive(self, data_dirs, begin, end, config_data):
+        """ If a file list has not already been generated for a specific data split build a list of files 
+        used by the dataloader for the data split. Eg. list of files used for 
+        train / val / test. Also saves the list to a .csv file.
+
+        Args:
+            data_dirs(List[str]): a list of video_files.
+            begin(float): index of begining during train/val split.
+            end(float): index of ending during train/val split.
+        Returns:
+            None (this function does save a file-list .csv file to self.file_list_path)
+        """
+
+        # get data split based on begin and end indices.
+        data_dirs_subset = self.split_raw_data(data_dirs, begin, end)
+
+        # generate a list of unique raw-data file names
+        filename_list = []
+        for i in range(len(data_dirs_subset)):
+            filename_list.append(data_dirs_subset[i]['index'])
+        filename_list = list(set(filename_list))  # ensure all indexes are unique
+
+        # generate a list of all preprocessed / chunked data files
+        file_list = []
+        for fname in filename_list:
+            processed_file_data = list(glob.glob(self.cached_path + os.sep + "{0}_input*.pickle".format(fname)))
+            file_list += processed_file_data
+
+        if not file_list:
+            raise ValueError(self.dataset_name,
+                             'File list empty. Check preprocessed data folder exists and is not empty.')
+
+        file_list_df = pd.DataFrame(file_list, columns=['input_files'])
+        os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
+        file_list_df.to_csv(self.file_list_path)  # save file list to .csv
+
+
+
+    def load_preprocessed_data(self):
+        """ Loads the preprocessed data listed in the file list.
+
+        Args:
+            None
+        Returns:
+            None
+        """
+        file_list_path = self.file_list_path  # get list of files in
+        file_list_df = pd.read_csv(file_list_path)
+        inputs = file_list_df['input_files'].tolist()
+        if not inputs:
+            raise ValueError(self.dataset_name + ' dataset loading data error!')
+        inputs = sorted(inputs)  # sort input file name list
+        labels = [input_file.replace("input", "label").replace('.pickle', '.npy') for input_file in inputs]
+        self.inputs = inputs
+        self.labels = labels
+        self.preprocessed_data_len = len(inputs)
 
