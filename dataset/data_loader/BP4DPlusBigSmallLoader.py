@@ -159,6 +159,47 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         print("DONE Preprocessing!")
 
 
+    def split_raw_data(self, data_dirs, begin, end):
+        """Returns a subset of data dirs, split with begin and end values, 
+        and ensures no overlapping subjects between splits"""
+
+        # return the full directory
+        if begin == 0 and end == 1:
+            return data_dirs
+
+        # get info about the dataset: subject list and num vids per subject
+        data_info = dict()
+        for data in data_dirs:
+            subject = data['subject']
+            data_dir = data['path']
+            index = data['index']
+            # creates a dictionary of data_dirs indexed by subject number
+            if subject not in data_info:  # if subject not in the data info dictionary
+                data_info[subject] = []  # make an emplty list for that subject
+            # append a tuple of the filename, subject num, trial num, and chunk num
+            data_info[subject].append({"index": index, "path": data_dir, "subject": subject})
+
+        subj_list = list(data_info.keys())  # all subjects by number ID (1-27)
+        subj_list = sorted(subj_list)
+        num_subjs = len(subj_list)  # number of unique subjects
+
+        # get split of data set (depending on start / end)
+        subj_range = list(range(0, num_subjs))
+        if begin != 0 or end != 1:
+            subj_range = list(range(int(begin * num_subjs), int(end * num_subjs)))
+
+        # compile file list
+        data_dirs_new = []
+        for i in subj_range:
+            subj_num = subj_list[i]
+            subj_files = data_info[subj_num]
+            data_dirs_new += subj_files  # add file information to file_list (tuple of fname, subj ID, trial num,
+            # chunk num)
+
+        return data_dirs_new
+        
+
+
     def get_raw_data(self, config_data):
         """Returns data directories under the path(For PURE dataset)."""
 
@@ -701,7 +742,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
     
 
 
-    def save_multi_process(big_clips, small_clips, label_clips, filename, config_preprocess):
+    def save_multi_process(self, big_clips, small_clips, label_clips, filename, config_preprocess):
         """Saves the preprocessing data."""
         cached_path = config_preprocess.CACHED_PATH
         if not os.path.exists(cached_path):
@@ -729,6 +770,11 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             with open(input_path_name, 'wb') as handle: # save out frame dict pickle file
                 pickle.dump(frames_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
             count += 1 # count of processed clips
+
+
+        print('')
+        print('INPUT PATH NAMES', input_path_name_list) # TODO - GIRISH REMOVE
+        print('')
 
         return count, input_path_name_list, label_path_name_list
 
