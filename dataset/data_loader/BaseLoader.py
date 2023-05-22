@@ -424,13 +424,6 @@ class BaseLoader(Dataset):
         p_list = []  # list of processes
         running_num = 0  # number of running processes
 
-        # TODO - GIRISH FOR TEST - REMOVE
-        # file_num = 1
-        # choose_range = range(0, file_num)
-        # pbar = tqdm(list(choose_range))
-        # multi_process_quota = 1
-        # TODO - GIRISH FOR TEST - REMOVE
-
         # in range of number of files to process
         for i in choose_range:
             process_flag = True

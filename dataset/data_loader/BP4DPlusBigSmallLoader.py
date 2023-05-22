@@ -128,6 +128,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                                  'Please set DO_PREPROCESS to True. Preprocessed directory does not exist!')
             if not os.path.exists(self.file_list_path):
                 print('File list does not exist... generating now...')
+                self.raw_data_dirs = self.get_raw_data(self.raw_data_path)
                 self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN,
                                                  config_data.END, config_data)
                 print('File list generated.', end='\n\n')
@@ -142,29 +143,28 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         print('Starting Preprocessing...')
 
         # GET DATASET INFORMATION (PATHS AND OTHER META DATA REGARDING ALL VIDEO TRIALS)
-        #data_dirs_split = self.split_raw_data(data_dirs, begin, end)  # partition dataset 
+        data_dirs = self.split_raw_data(data_dirs, begin, end)  # partition dataset 
 
         # REMOVE ALREADY PREPROCESSED SUBJECTS
-        data_dirs_split = self.adjust_data_dirs(data_dirs, config_data)
+        data_dirs = self.adjust_data_dirs(data_dirs, config_data)
 
         # CREATE CACHED DATA PATH
         cached_path = config_data.CACHED_PATH
         if not os.path.exists(cached_path):
             os.makedirs(cached_path, exist_ok=True)
 
+        print('LEN DATA DIRS', len(data_dirs))
+
         # READ RAW DATA, PREPROCESS, AND SAVE PROCESSED DATA FILES
-        file_list_dict = self.multi_process_manager(data_dirs_split, config_data)
+        file_list_dict = self.multi_process_manager(data_dirs, config_data)
 
         self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN,
                                         config_data.END, config_data)  # build file list
+        
         self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
-        print("Total Number of raw files preprocessed:", len(data_dirs_split), end='\n\n')
+        print("Total Number of raw files preprocessed:", len(data_dirs), end='\n\n')
         print("Num loaded files", self.preprocessed_data_len)
 
-        #TODO build file lists
-        print("DONE Preprocessing!")
-        print('')
-        raise ValueError('GIRISH KILL')
 
 
     def split_raw_data(self, data_dirs, begin, end):
@@ -230,6 +230,9 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
             # If processesing AU Subset only process trials T1, T6, T7, T8 (only ones that have AU labels)
             if not trial in ['T1', 'T6', 'T7', 'T8']:
+                continue
+
+            if index == 'F041T7': # data sample has mismatch length for video frames and AU labels
                 continue
             
             # append information to data dirs list
@@ -366,12 +369,6 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         if trial in ['T1', 'T6', 'T7', 'T8']:
             data_dict, start_np_idx, end_np_idx = self.read_au_labels(data_dir_info, config_data, data_dict)
 
-            print('')
-            print('data_dir_info', data_dir_info['index'])
-            print('X SHAPE', data_dict['X'].shape[0])
-            print('START', start_np_idx, 'END', end_np_idx)
-            print('')
-
             # CROP DATAFRAME W/ AU START END
             data_dict = self.crop_au_subset_data(data_dict, start_np_idx, end_np_idx)
 
@@ -448,7 +445,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         trial = data_dir_info['trial'] # of format T05
         base_path = os.path.join(data_path, "Physiology", subject, trial)
 
-        len_Xsub = data_dict['X'].shape[0] # TODO WHAT IS THE CORRECT FRAME INDEX?????????
+        len_Xsub = data_dict['X'].shape[0]
 
         # READ IN PHYSIOLOGICAL LABELS TXT FILE DATA
         try:
@@ -836,9 +833,19 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
 
     def split_raw_data_by_fold(self, data_dirs, fold_path):
-        pass
 
+        fold_df = pd.read_csv(fold_path)
+        fold_subjs = list(set(list(fold_df.subjects)))
 
+        fold_data_dirs = []
+        for d in data_dirs:
+            idx = d['index']
+            subj = idx[0:4]
+
+            if subj in fold_subjs: # if trial has already been processed
+                fold_data_dirs.append(d)
+
+        return fold_data_dirs
 
 
 
