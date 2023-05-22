@@ -145,7 +145,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         data_dirs_split = self.split_raw_data(data_dirs, begin, end)  # partition dataset 
 
         # REMOVE ALREADY PREPROCESSED SUBJECTS
-        # data_dirs = self.adjust_data_dirs(data_dirs, config_data)
+        data_dirs_split = self.adjust_data_dirs(data_dirs_split, config_data)
 
         # CREATE CACHED DATA PATH
         cached_path = config_data.CACHED_PATH
@@ -241,19 +241,36 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
 
     def adjust_data_dirs(self, data_dirs, config_preprocess):
+
+        # file_list = glob.glob(os.path.join(config_preprocess.CACHED_PATH, '*label*.npy'))
         file_list = glob.glob(os.path.join(config_preprocess.CACHED_PATH, '*label*.npy'))
+
+
+
+
         trial_list = [f.replace(config_preprocess.CACHED_PATH, '').split('_')[0].replace(os.sep, '') for f in file_list]
         trial_list = list(set(trial_list)) # get a list of completed video trials
 
         for d in data_dirs:
             idx = d['index']
 
+            if idx == 'F001T6':
+                print('')
+                print('HEY!')
+                print('')
+
             if idx in trial_list: # if trial has already been processed
                 data_dirs.remove(d)
 
+                if idx == 'F001T6':
+                    print('')
+                    print('HO!')
+                    print('')
+
+        raise ValueError('KILL')
+
         return data_dirs
     
-
 
 
     def preprocess_dataset_subprocess(self, data_dirs, config_data, i, file_list_dict):
@@ -277,6 +294,16 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
         # SAVE PREPROCESSED FILE CHUNKS
         count, input_name_list, label_name_list = self.save_multi_process(big_clips, small_clips, labels_clips, saved_filename, config_data)
+
+        print('SAVED FILENAME', saved_filename)
+        print('LEN BIG CLIPS', len(big_clips))
+        print('SHAPE BIG CLIPS', big_clips[0].shape)
+
+
+        print('')
+        print('FINISHED SAVING!!!!')
+        print('')
+        raise ValueError('GIRISH KILLLLLLLL')
 
         file_list_dict[i] = input_name_list
 
@@ -780,11 +807,6 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                 pickle.dump(frames_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
             count += 1 # count of processed clips
 
-
-        print('')
-        print('INPUT PATH NAMES', input_path_name_list) # TODO - GIRISH REMOVE
-        print('')
-
         return count, input_path_name_list, label_path_name_list
     
 
@@ -805,6 +827,9 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         # get data split based on begin and end indices.
         data_dirs_subset = self.split_raw_data(data_dirs, begin, end)
 
+        if config_data.FOLD.FOLD_NAME and config_data.FOLD.FOLD_PATH:
+            data_dirs_subset = self.split_raw_data_by_fold(data_dirs_subset, config_data.FOLD.FOLD_PATH)
+
         # generate a list of unique raw-data file names
         filename_list = []
         for i in range(len(data_dirs_subset)):
@@ -824,6 +849,12 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         file_list_df = pd.DataFrame(file_list, columns=['input_files'])
         os.makedirs(os.path.dirname(self.file_list_path), exist_ok=True)
         file_list_df.to_csv(self.file_list_path)  # save file list to .csv
+
+
+    def split_raw_data_by_fold(self, data_dirs, fold_path):
+        pass
+
+
 
 
 
