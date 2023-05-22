@@ -142,10 +142,10 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         print('Starting Preprocessing...')
 
         # GET DATASET INFORMATION (PATHS AND OTHER META DATA REGARDING ALL VIDEO TRIALS)
-        data_dirs_split = self.split_raw_data(data_dirs, begin, end)  # partition dataset 
+        #data_dirs_split = self.split_raw_data(data_dirs, begin, end)  # partition dataset 
 
         # REMOVE ALREADY PREPROCESSED SUBJECTS
-        data_dirs_split = self.adjust_data_dirs(data_dirs_split, config_data)
+        data_dirs_split = self.adjust_data_dirs(data_dirs, config_data)
 
         # CREATE CACHED DATA PATH
         cached_path = config_data.CACHED_PATH
@@ -238,39 +238,23 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         # RETURN DATA DIRS 
         return data_dirs
 
-
-
+    
     def adjust_data_dirs(self, data_dirs, config_preprocess):
+        """ Reads data folder and only preprocess files that have not already been preprocessed."""
 
-        # file_list = glob.glob(os.path.join(config_preprocess.CACHED_PATH, '*label*.npy'))
-        file_list = glob.glob(os.path.join(config_preprocess.CACHED_PATH, '*label*.npy'))
-
-
-
-
-        trial_list = [f.replace(config_preprocess.CACHED_PATH, '').split('_')[0].replace(os.sep, '') for f in file_list]
+        cached_path = config_preprocess.CACHED_PATH
+        file_list = glob.glob(os.path.join(cached_path, '*label*.npy'))
+        trial_list = [f.replace(cached_path, '').split('_')[0].replace(os.sep, '') for f in file_list]
         trial_list = list(set(trial_list)) # get a list of completed video trials
 
+        adjusted_data_dirs = []
         for d in data_dirs:
             idx = d['index']
 
-            if idx == 'F001T6':
-                print('')
-                print('HEY!')
-                print('')
+            if not idx in trial_list: # if trial has already been processed
+                adjusted_data_dirs.append(d)
 
-            if idx in trial_list: # if trial has already been processed
-                data_dirs.remove(d)
-
-                if idx == 'F001T6':
-                    print('')
-                    print('HO!')
-                    print('')
-
-        raise ValueError('KILL')
-
-        return data_dirs
-    
+        return adjusted_data_dirs
 
 
     def preprocess_dataset_subprocess(self, data_dirs, config_data, i, file_list_dict):
@@ -294,16 +278,6 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
         # SAVE PREPROCESSED FILE CHUNKS
         count, input_name_list, label_name_list = self.save_multi_process(big_clips, small_clips, labels_clips, saved_filename, config_data)
-
-        print('SAVED FILENAME', saved_filename)
-        print('LEN BIG CLIPS', len(big_clips))
-        print('SHAPE BIG CLIPS', big_clips[0].shape)
-
-
-        print('')
-        print('FINISHED SAVING!!!!')
-        print('')
-        raise ValueError('GIRISH KILLLLLLLL')
 
         file_list_dict[i] = input_name_list
 
@@ -392,14 +366,24 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         if trial in ['T1', 'T6', 'T7', 'T8']:
             data_dict, start_np_idx, end_np_idx = self.read_au_labels(data_dir_info, config_data, data_dict)
 
+            print('')
+            print('data_dir_info', data_dir_info['index'])
+            print('X SHAPE', data_dict['X'].shape[0])
+            print('START', start_np_idx, 'END', end_np_idx)
+            print('')
+
             # CROP DATAFRAME W/ AU START END
             data_dict = self.crop_au_subset_data(data_dict, start_np_idx, end_np_idx)
 
         # FRAMES AND LABELS SHOULD BE OF THE SAME LENGTH
+        shape_mismatch = False
         for k in data_dict.keys():
             if not data_dict[k].shape[0] == data_dict['X'].shape[0]:
-                print('Shape Mismatch', k, data_dict[k].shape[0])
-                raise ValueError('Shape Mismatch')
+                print('Shape Mismatch', k, data_dict[k].shape[0], 'Frames Len', data_dict['X'].shape[0])
+                shape_mismatch  = True
+
+        if shape_mismatch:        
+            raise ValueError('Shape Mismatch')
 
         return data_dict
     
