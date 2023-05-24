@@ -153,8 +153,6 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         if not os.path.exists(cached_path):
             os.makedirs(cached_path, exist_ok=True)
 
-        print('LEN DATA DIRS', len(data_dirs))
-
         # READ RAW DATA, PREPROCESS, AND SAVE PROCESSED DATA FILES
         file_list_dict = self.multi_process_manager(data_dirs, config_data)
 
@@ -389,11 +387,11 @@ class BP4DPlusBigSmallLoader(BaseLoader):
     def downsample_frame(self, frame, dim_h=144, dim_w=144):
 
         if dim_h == dim_w: # square crop
-            vidLxL = cv2.resize(img_as_float(frame[int((frame.shape[0]-frame.shape[1])):,:,:]), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
+            vidLxL = cv2.resize(frame[int((frame.shape[0]-frame.shape[1])):,:,:], (dim_h,dim_w), interpolation=cv2.INTER_AREA)
         else:
-            vidLxL = cv2.resize(img_as_float(frame), (dim_h,dim_w), interpolation=cv2.INTER_AREA)
+            vidLxL = cv2.resize(frame, (dim_h,dim_w), interpolation=cv2.INTER_AREA)
 
-        return cv2.cvtColor(vidLxL.astype('float32'), cv2.COLOR_BGR2RGB)
+        return vidLxL
 
 
 
@@ -412,29 +410,29 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             for ele in zippedImgs.namelist():
                 ext = os.path.splitext(ele)[-1]
                 ele_task = str(ele).split('/')[1]
+
                 if ext == '.jpg' and ele_task == trial:
                     data = zippedImgs.read(ele)
-                    vid_frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
+                    frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                     dim_h = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_H
                     dim_w = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_W
 
-                    vid_LxL = self.downsample_frame(vid_frame, dim_h=dim_h, dim_w=dim_w) # downsample frames (otherwise processing time becomes WAY TOO LONG)
+                    frame = self.downsample_frame(frame, dim_h=dim_h, dim_w=dim_w) # downsample frames (otherwise processing time becomes WAY TOO LONG)
+                    frame = np.expand_dims(frame, axis=0)
 
-                    # clip image values to range (1/255, 1)
-                    vid_LxL[vid_LxL > 1] = 1
-                    vid_LxL[vid_LxL < 1./255] = 1./255
-                    vid_LxL = np.expand_dims(vid_LxL, axis=0)
+                    # If frames are empty
                     if cnt == 0:
-                        Xsub = vid_LxL
+                        frames = frame
                     else:
-                        Xsub = np.concatenate((Xsub, vid_LxL), axis=0)
+                        frames = np.concatenate((frames, frame), axis=0)
                     cnt += 1
         
         if cnt == 0:
-            return
-        
-        data_dict['X'] = Xsub
+            raise ValueError('EMPTY VIDEO', data_dir_info['index'])
+    
+        data_dict['X'] = np.asarray(frames)
         return data_dict
 
 
