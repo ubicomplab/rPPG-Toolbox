@@ -4,7 +4,7 @@ TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 180
   EPOCHS: 5
-  LR: 9e-3
+  LR: 1e-3
   MODEL_FILE_NAME: BP4D_BP4D_bigsmall_fold1
   DATA:
     FS: 25

@@ -6,7 +6,9 @@ import torch.optim as optim
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 from neural_methods import loss
 from neural_methods.model.BigSmall import BigSmall
-# from multitask_eval.metrics import calculate_bvp_metrics, calculate_resp_metrics, calculate_au_metrics
+from evaluation.bigsmall_multitask_metrics import (calculate_bvp_metrics, 
+                                                   calculate_resp_metrics, 
+                                                   calculate_au_metrics)
 
 # Other Imports
 from collections import OrderedDict
@@ -14,13 +16,12 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-
 class BigSmallTrainer(BaseTrainer):
 
     def define_model(self, config):
 
         # BIG SMALL SLOW FAST 
-        model = BigSmallSlowFastWTSM(out_size=len(config.DATA.TRAIN.LABELS.USED_LABELS), n_segment=3)
+        model = BigSmall(n_segment=3)
 
         if self.using_TSM:
             self.frame_depth = 3 # 3 # default for TSCAN is 10 - consider changing later...
@@ -67,6 +68,14 @@ class BigSmallTrainer(BaseTrainer):
         labels = labels.to(self.device)
         data = (big_data, small_data)
         return data, labels
+
+
+    def get_label_idxs(self, label_list, used_labels):
+        label_idxs = []
+        for l in used_labels:
+            idx = label_list.index(l)
+            label_idxs.append(idx)
+        return label_idxs
 
 
 
@@ -121,8 +130,6 @@ class BigSmallTrainer(BaseTrainer):
         print('Init BigSmall Multitask Trainer')
         print('')
 
-        raise ValueError('GIRISH KILLLLLLL') # TODO REMOVE THIS - JUST FOR TEST
-
         self.config = config # save config file
 
         # SET UP GPU COMPUTE DEVICE (GPU OR CPU)
@@ -143,66 +150,57 @@ class BigSmallTrainer(BaseTrainer):
         self.model = self.model.to(self.device) # send model to primary GPU
 
         # TRAINING PARAMETERS
-        self.batch_size = config.MODEL_SPECS.TRAIN.BATCH_SIZE
-        self.max_epoch_num = config.MODEL_SPECS.TRAIN.EPOCHS
-        self.LR = config.MODEL_SPECS.TRAIN.LR
+        self.batch_size = config.TRAIN.BATCH_SIZE
+        self.max_epoch_num = config.TRAIN.EPOCHS
+        self.LR = config.TRAIN.LR
         self.num_train_batches = len(data_loader["train"])
 
         # Set Loss and Optimizer
-        self.criterionAU = loss.loss_utils.set_loss(loss_name='BCEWithLogitsBP4DAU', device=self.device)
-        self.criterionBVP = loss.loss_utils.set_loss(loss_name='MSE', device=self.device)
-        self.criterionRESP = loss.loss_utils.set_loss(loss_name='MSE', device=self.device)
+        AU_weights = torch.as_tensor([9.64, 11.74, 16.77, 1.05, 0.53, 0.56, 
+                                      0.75, 0.69, 8.51, 6.94, 5.03, 25.00]).to(self.device)
+
+        self.criterionAU = torch.nn.BCEWithLogitsLoss(pos_weight=AU_weights).to(self.device)
+        self.criterionBVP = torch.nn.MSELoss().to(self.device)
+        self.criterionRESP = torch.nn.MSELoss().to(self.device)
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.LR, weight_decay=0)
         
         # MODEL INFO (SAVED MODEL DIR, CHUNK LEN, BEST EPOCH)
-        self.model_dir = config.MODEL_SPECS.MODEL.MODEL_DIR
-        self.model_file_name = config.MODEL_SPECS.TRAIN.MODEL_FILE_NAME
-        self.chunk_len = config.DATA.TRAIN.PREPROCESS.CHUNK_LENGTH
+        self.model_dir = config.MODEL.MODEL_DIR
+        self.model_file_name = config.TRAIN.MODEL_FILE_NAME
+        self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
 
-        self.run_validation = self.config.MODEL_SPECS.VALID.RUN_VALIDATION
-        self.model_to_use =  self.config.MODEL_SPECS.TEST.MODEL_TO_USE # either 'last_epoch' or 'best_epoch'
+        # Epoch To Use For Test
         self.used_epoch = 0
 
-        # SAVED OUTPUT LOGGING INFO
-        self.save_data = config.SAVE_DATA.SAVE_DATA
-        self.save_train = config.SAVE_DATA.SAVE_TRAIN
-        self.save_test = config.SAVE_DATA.SAVE_TEST
-        self.save_metrics = config.SAVE_DATA.SAVE_METRICS
-
-        self.save_data_path = config.SAVE_DATA.PATH
-        self.data_dict = dict() # dictionary to save
-        self.data_dict['config'] = self.config # save config file
-
         # INDICES CORRESPONDING TO USED LABELS 
-        train_au_label_list = [label for label in config.DATA.TRAIN.LABELS.USED_LABELS if 'AU' in label]
-        valid_au_label_list = [label for label in config.DATA.VALID.LABELS.USED_LABELS if 'AU' in label]
-        test_au_label_list = [label for label in config.DATA.TEST.LABELS.USED_LABELS if 'AU' in label]
+        label_list = ['bp_wave', 'HR_bpm', 'systolic_bp', 'diastolic_bp', 'mean_bp', 
+                      'resp_wave', 'resp_bpm', 'eda', 
+                      'AU01', 'AU02', 'AU04', 'AU05', 'AU06', 'AU06int', 'AU07', 'AU09', 'AU10', 'AU10int', 
+                      'AU11', 'AU12', 'AU12int', 'AU13', 'AU14', 'AU14int', 'AU15', 'AU16', 'AU17', 'AU17int', 
+                      'AU18', 'AU19', 'AU20', 'AU22', 'AU23', 'AU24', 'AU27', 'AU28', 'AU29', 'AU30', 'AU31', 
+                      'AU32', 'AU33', 'AU34', 'AU35', 'AU36', 'AU37', 'AU38', 'AU39',
+                      'pos_bvp','pos_env_norm_bvp']
 
-        train_bvp_label_list = [label for label in config.DATA.TRAIN.LABELS.USED_LABELS if 'bvp' in label]
-        valid_bvp_label_list = [label for label in config.DATA.VALID.LABELS.USED_LABELS if 'bvp' in label]
-        test_bvp_label_list = [label for label in config.DATA.TEST.LABELS.USED_LABELS if 'bvp' in label]
+        used_labels = ['AU01', 'AU02', 'AU04', 'AU06', 'AU07', 'AU10', 'AU12',
+                       'AU14', 'AU15', 'AU17', 'AU23', 'AU24', 
+                        'pos_env_norm_bvp', 'resp_wave']
 
-        train_resp_label_list = [label for label in config.DATA.TRAIN.LABELS.USED_LABELS if 'resp' in label]
-        valid_resp_label_list = [label for label in config.DATA.VALID.LABELS.USED_LABELS if 'resp' in label]
-        test_resp_label_list = [label for label in config.DATA.TEST.LABELS.USED_LABELS if 'resp' in label]
+        au_label_list = [label for label in used_labels if 'AU' in label]
+        bvp_label_list = [label for label in used_labels if 'bvp' in label]
+        resp_label_list = [label for label in used_labels if 'resp' in label]
 
-        self.label_idx_train_au = self.get_label_idxs(config.DATA.TRAIN.LABELS.LABEL_LIST, train_au_label_list)
-        self.label_idx_valid_au = self.get_label_idxs(config.DATA.VALID.LABELS.LABEL_LIST, valid_au_label_list)
-        self.label_idx_test_au = self.get_label_idxs(config.DATA.TEST.LABELS.LABEL_LIST, test_au_label_list)
 
-        self.label_idx_train_bvp = self.get_label_idxs(config.DATA.TRAIN.LABELS.LABEL_LIST, train_bvp_label_list)
-        self.label_idx_valid_bvp = self.get_label_idxs(config.DATA.VALID.LABELS.LABEL_LIST, valid_bvp_label_list)
-        self.label_idx_test_bvp = self.get_label_idxs(config.DATA.TEST.LABELS.LABEL_LIST, test_bvp_label_list)
+        self.label_idx_train_au = self.get_label_idxs(label_list, au_label_list)
+        self.label_idx_valid_au = self.get_label_idxs(label_list, au_label_list)
+        self.label_idx_test_au = self.get_label_idxs(label_list, au_label_list)
 
-        self.label_idx_train_resp = self.get_label_idxs(config.DATA.TRAIN.LABELS.LABEL_LIST, train_resp_label_list)
-        self.label_idx_valid_resp = self.get_label_idxs(config.DATA.VALID.LABELS.LABEL_LIST, valid_resp_label_list)
-        self.label_idx_test_resp = self.get_label_idxs(config.DATA.TEST.LABELS.LABEL_LIST, test_resp_label_list)
+        self.label_idx_train_bvp = self.get_label_idxs(label_list, bvp_label_list)
+        self.label_idx_valid_bvp = self.get_label_idxs(label_list, bvp_label_list)
+        self.label_idx_test_bvp = self.get_label_idxs(label_list, bvp_label_list)
 
-        print('Used Labels:', config.DATA.TRAIN.LABELS.USED_LABELS)
-        print('Training Indices AU:', self.label_idx_train_au)
-        print('Training Indices BVP:', self.label_idx_train_bvp)
-        print('Training Indices Resp:', self.label_idx_train_resp)
-        print('')
+        self.label_idx_train_resp = self.get_label_idxs(label_list, resp_label_list)
+        self.label_idx_valid_resp = self.get_label_idxs(label_list, resp_label_list)
+        self.label_idx_test_resp = self.get_label_idxs(label_list, resp_label_list)
 
 
 
@@ -287,8 +285,8 @@ class BigSmallTrainer(BaseTrainer):
             # SAVE MODEL FOR THIS EPOCH
             self.save_model(epoch)
 
-            # VALIDATION (ENABLED)
-            if self.run_validation or self.model_to_use == 'best_epoch':
+            # VALIDATION (IF ENABLED)
+            if not self.config.TEST.USE_LAST_EPOCH:
 
                 # Get validation losses
                 valid_loss, valid_au_loss, valid_bvp_loss, valid_resp_loss = self.valid(data_loader)
@@ -311,17 +309,6 @@ class BigSmallTrainer(BaseTrainer):
                 self.used_epoch = epoch
 
             print('')
-
-        # IF SAVING OUTPUT DATA
-        if self.save_data:
-            self.data_dict['train_loss'] = train_loss_dict
-            self.data_dict['train_au_loss'] = train_au_loss_dict
-            self.data_dict['train_bvp_loss'] = train_bvp_loss_dict
-            self.data_dict['train_resp_loss'] = train_resp_loss_dict
-            self.data_dict['val_loss'] = val_loss_dict 
-            self.data_dict['val_au_loss'] = val_au_loss_dict
-            self.data_dict['val_bvp_loss'] = val_bvp_loss_dict
-            self.data_dict['val_resp_loss'] = val_resp_loss_dict
 
         # PRINT MODEL TO BE USED FOR TESTING
         print("Used model trained epoch:{}, val_loss:{}".format(self.used_epoch, min_valid_loss))
@@ -387,7 +374,7 @@ class BigSmallTrainer(BaseTrainer):
             raise ValueError("No data for test")
 
         # Change chunk length to be test chunk length
-        self.chunk_len = self.config.DATA.TEST.PREPROCESS.CHUNK_LENGTH 
+        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
 
         # ARRAYS TO SAVE (PREDICTIONS AND METRICS ARRAYS)
         preds_dict_au = dict()
@@ -467,15 +454,6 @@ class BigSmallTrainer(BaseTrainer):
                     labels_resp = np.ones((batch_size, len(self.label_idx_train_resp)))
                     labels_resp = -1 * labels_resp
                     # labels_resp = torch.from_numpy(labels_resp)
-                
-                # IF TEST PREDICTION DATA TO BE SAVED - MOVE FROM GPU TO CPU
-                if self.save_data and self.save_test:
-                    au_out = au_out.to('cpu')
-                    labels_au = labels_au.to('cpu') 
-                    bvp_out = bvp_out.to('cpu')
-                    labels_bvp = labels_bvp.to('cpu')
-                    resp_out = resp_out.to('cpu')
-                    labels_resp = labels_resp.to('cpu')
 
                 # ITERATE THROUGH BATCH, SORT, AND ADD TO CORRECT DICTIONARY
                 for idx in range(batch_size):
@@ -504,41 +482,11 @@ class BigSmallTrainer(BaseTrainer):
                     preds_dict_resp[subj_index][sort_index] = resp_out[idx * self.chunk_len:(idx + 1) * self.chunk_len]
                     labels_dict_resp[subj_index][sort_index] = labels_resp[idx * self.chunk_len:(idx + 1) * self.chunk_len]
 
-        # REFORM DATA
-        preds_dict_au, labels_dict_au = self.reform_preds_labels(preds_dict_au, labels_dict_au, flatten=False)
-        preds_dict_bvp, labels_dict_bvp = self.reform_preds_labels(preds_dict_bvp, labels_dict_bvp)
-        preds_dict_resp, labels_dict_resp = self.reform_preds_labels(preds_dict_resp, labels_dict_resp)
+        # Calculate Eval Metrics
+        bvp_metric_dict = calculate_bvp_metrics(preds_dict_bvp, labels_dict_bvp, self.config)
+        resp_metric_dict = calculate_resp_metrics(preds_dict_resp, labels_dict_resp, self.config)
+        au_metric_dict = calculate_au_metrics(preds_dict_au, labels_dict_au, self.config)
 
-        # CALCULATE METRICS ON PREDICTIONS
-        if self.config.MODEL_SPECS.TEST.BVP_METRICS: # run metrics, if not empty list
-            print('BVP Metrics:')
-            bvp_metric_dict = calculate_bvp_metrics(preds_dict_bvp, labels_dict_bvp, self.config)
-            if self.save_metrics:
-                self.data_dict['bvp_metrics'] = bvp_metric_dict
-            print('')
-
-        if self.config.MODEL_SPECS.TEST.RESP_METRICS: # run metrics, if not empty list
-            print('Resp Metrics:')
-            resp_metric_dict = calculate_resp_metrics(preds_dict_resp, labels_dict_resp, self.config)
-            if self.save_metrics:
-                self.data_dict['resp_metrics'] = resp_metric_dict
-            print('')
-
-        if self.config.MODEL_SPECS.TEST.AU_METRICS: # run metrics, if not empty list
-            print('AU Metrics:')
-            au_metric_dict = calculate_au_metrics(preds_dict_au, labels_dict_au, self.config)
-            if self.save_metrics:
-                self.data_dict['au_metrics'] = au_metric_dict
-            print('')
         
-
-
-
-
-
-
-
-
-
 
 
