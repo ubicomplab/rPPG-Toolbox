@@ -15,8 +15,9 @@ TRAIN:
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 0.8
-    PREPROCESS :
+    PREPROCESS:
       DATA_TYPE: ['DiffNormalized','Standardized']
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
@@ -44,6 +45,7 @@ VALID:
     END: 1.0
     PREPROCESS:
       DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 180
