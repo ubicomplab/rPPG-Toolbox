@@ -132,6 +132,12 @@ class BaseLoader(Dataset):
         """
         raise Exception("'split_raw_data' Not Implemented")
 
+    def read_npy_video(self, video_file):
+        """Reads a video file in the numpy format (.npy), returns frames(T,H,W,3)"""
+        frames = np.load(video_file[0])
+        frames = [(np.round(frame*255)).astype(np.uint8)[..., :3] for frame in frames]
+        return np.asarray(frames)
+
     def generate_pos_psuedo_labels(self, frames, fs=30):
         """Generated POS-based PPG Psuedo Labels For Training
 

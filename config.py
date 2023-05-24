@@ -5,7 +5,7 @@
 # Written by Ze Liu
 # --------------------------------------------------------'
 
-import os
+import os, re
 import yaml
 from yacs.config import CfgNode as CN
 
@@ -54,6 +54,9 @@ _C.TRAIN.DATA.END = 1.0
 # Train Data preprocessing
 _C.TRAIN.DATA.PREPROCESS = CN()
 _C.TRAIN.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
+_C.TRAIN.DATA.PREPROCESS.DATA_TYPE = ['']
+_C.TRAIN.DATA.PREPROCESS.DATA_AUG = ['None']
+_C.TRAIN.DATA.PREPROCESS.LABEL_TYPE = ''
 _C.TRAIN.DATA.PREPROCESS.DO_CHUNK = True
 _C.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE = CN()
@@ -67,8 +70,6 @@ _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.TRAIN.DATA.PREPROCESS.RESIZE = CN()
 _C.TRAIN.DATA.PREPROCESS.RESIZE.W = 128
 _C.TRAIN.DATA.PREPROCESS.RESIZE.H = 128
-_C.TRAIN.DATA.PREPROCESS.DATA_TYPE = ['']
-_C.TRAIN.DATA.PREPROCESS.LABEL_TYPE = ''
 # -----------------------------------------------------------------------------
 # Valid settings
 # -----------------------------------------------------------------------------\
@@ -97,6 +98,9 @@ _C.VALID.DATA.END = 1.0
 # Valid Data preprocessing
 _C.VALID.DATA.PREPROCESS = CN()
 _C.VALID.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
+_C.VALID.DATA.PREPROCESS.DATA_TYPE = ['']
+_C.VALID.DATA.PREPROCESS.DATA_AUG = ['None']
+_C.VALID.DATA.PREPROCESS.LABEL_TYPE = ''
 _C.VALID.DATA.PREPROCESS.DO_CHUNK = True
 _C.VALID.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.VALID.DATA.PREPROCESS.CROP_FACE = CN()
@@ -110,9 +114,6 @@ _C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.VALID.DATA.PREPROCESS.RESIZE = CN()
 _C.VALID.DATA.PREPROCESS.RESIZE.W = 128
 _C.VALID.DATA.PREPROCESS.RESIZE.H = 128
-_C.VALID.DATA.PREPROCESS.DATA_TYPE = ['']
-_C.VALID.DATA.PREPROCESS.LABEL_TYPE = ''
-
 
 # -----------------------------------------------------------------------------
 # Test settings
@@ -144,6 +145,9 @@ _C.TEST.DATA.END = 1.0
 # Test Data preprocessing
 _C.TEST.DATA.PREPROCESS = CN()
 _C.VALID.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
+_C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
+_C.TEST.DATA.PREPROCESS.DATA_AUG = ['None']
+_C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
 _C.TEST.DATA.PREPROCESS.DO_CHUNK = True
 _C.TEST.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.TEST.DATA.PREPROCESS.CROP_FACE = CN()
@@ -157,8 +161,6 @@ _C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.TEST.DATA.PREPROCESS.RESIZE = CN()
 _C.TEST.DATA.PREPROCESS.RESIZE.W = 128
 _C.TEST.DATA.PREPROCESS.RESIZE.H = 128
-_C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
-_C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
 
 # -----------------------------------------------------------------------------
 # Unsupervised method settings
@@ -189,6 +191,9 @@ _C.UNSUPERVISED.DATA.BEGIN = 0.0
 _C.UNSUPERVISED.DATA.END = 1.0
 # Unsupervised Data preprocessing
 _C.UNSUPERVISED.DATA.PREPROCESS = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE = ['']
+_C.UNSUPERVISED.DATA.PREPROCESS.DATA_AUG = ['None']
+_C.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE = ''
 _C.UNSUPERVISED.DATA.PREPROCESS.DO_CHUNK = True
 _C.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE = CN()
@@ -202,8 +207,6 @@ _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W = 128
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.H = 128
-_C.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE = ['']
-_C.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE = ''
 
 ### -----------------------------------------------------------------------------
 # Model settings
@@ -289,6 +292,7 @@ def update_config(config, args):
         config.TRAIN.DATA.EXP_DATA_NAME = "_".join([config.TRAIN.DATA.DATASET, "SizeW{0}".format(
             str(config.TRAIN.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.TRAIN.DATA.PREPROCESS.RESIZE.W)), "ClipLength{0}".format(
             str(config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.TRAIN.DATA.PREPROCESS.DATA_TYPE)),
+                                      "DataAug{0}".format("_".join(config.TRAIN.DATA.PREPROCESS.DATA_AUG)),
                                       "LabelType{0}".format(config.TRAIN.DATA.PREPROCESS.LABEL_TYPE),
                                       "Crop_face{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                       "Large_box{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
@@ -321,6 +325,7 @@ def update_config(config, args):
             config.VALID.DATA.EXP_DATA_NAME = "_".join([config.VALID.DATA.DATASET, "SizeW{0}".format(
                 str(config.VALID.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.VALID.DATA.PREPROCESS.RESIZE.W)), "ClipLength{0}".format(
                 str(config.VALID.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.VALID.DATA.PREPROCESS.DATA_TYPE)),
+                                        "DataAug{0}".format("_".join(config.VALID.DATA.PREPROCESS.DATA_AUG)),
                                         "LabelType{0}".format(config.VALID.DATA.PREPROCESS.LABEL_TYPE),
                                         "Crop_face{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                         "Large_box{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
@@ -354,6 +359,7 @@ def update_config(config, args):
         config.TEST.DATA.EXP_DATA_NAME = "_".join([config.TEST.DATA.DATASET, "SizeW{0}".format(
             str(config.TEST.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.TEST.DATA.PREPROCESS.RESIZE.H)), "ClipLength{0}".format(
             str(config.TEST.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.TEST.DATA.PREPROCESS.DATA_TYPE)),
+                                      "DataAug{0}".format("_".join(config.TEST.DATA.PREPROCESS.DATA_AUG)),
                                       "LabelType{0}".format(config.TEST.DATA.PREPROCESS.LABEL_TYPE),
                                       "Crop_face{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                       "Large_box{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
@@ -378,6 +384,26 @@ def update_config(config, args):
                          Please turn DO_PREPROCESS to False or delete existing TEST dataset FILE_LIST_PATH .csv file.')
     
 
+    # UPDATE MODEL_FILE_NAME IF NEEDED
+    if any(aug != 'None' for aug in config.TRAIN.DATA.PREPROCESS.DATA_AUG + config.VALID.DATA.PREPROCESS.DATA_AUG + config.TEST.DATA.PREPROCESS.DATA_AUG):
+        # Check if the initial MODEL_FILE_NAME follows the expected pattern
+        if re.match(r'^[^_]+_[^_]+_[^_]+_[^_]+$', config.TRAIN.MODEL_FILE_NAME):
+            if 'Motion' in config.TRAIN.DATA.PREPROCESS.DATA_AUG:
+                model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
+                model_file_name_parts[0] = 'MA-' + model_file_name_parts[0]
+                config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
+            if 'Motion' in config.VALID.DATA.PREPROCESS.DATA_AUG:
+                model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
+                model_file_name_parts[1] = 'MA-' + model_file_name_parts[1]
+                config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
+            if 'Motion' in config.TEST.DATA.PREPROCESS.DATA_AUG:
+                model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
+                model_file_name_parts[2] = 'MA-' + model_file_name_parts[2]
+                config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
+        else:
+            raise ValueError(f'MODEL_FILE_NAME does not follow expected naming pattern of [TRAIN_SET]_[VALID_SET]_[TEST_SET]! \
+                             \nReceived {config.TRAIN.MODEL_FILE_NAME}.')
+
     # UPDATE UNSUPERVISED PATHS
     if config.UNSUPERVISED.DATA.FILE_LIST_PATH == default_UNSUPERVISED_FILE_LIST_PATH:
         config.UNSUPERVISED.DATA.FILE_LIST_PATH = os.path.join(config.UNSUPERVISED.DATA.CACHED_PATH, 'DataFileLists')
@@ -386,6 +412,7 @@ def update_config(config, args):
         config.UNSUPERVISED.DATA.EXP_DATA_NAME = "_".join([config.UNSUPERVISED.DATA.DATASET, "SizeW{0}".format(
             str(config.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W)), "SizeH{0}".format(str(config.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W)), "ClipLength{0}".format(
             str(config.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH)), "DataType{0}".format("_".join(config.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE)),
+                                      "DataAug{0}".format("_".join(config.UNSUPERVISED.DATA.PREPROCESS.DATA_AUG)),
                                       "LabelType{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE),
                                       "Crop_face{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                       "Large_box{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
