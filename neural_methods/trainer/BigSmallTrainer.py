@@ -121,6 +121,8 @@ class BigSmallTrainer(BaseTrainer):
         print('Init BigSmall Multitask Trainer')
         print('')
 
+        raise ValueError('GIRISH KILLLLLLL') # TODO REMOVE THIS - JUST FOR TEST
+
         self.config = config # save config file
 
         # SET UP GPU COMPUTE DEVICE (GPU OR CPU)

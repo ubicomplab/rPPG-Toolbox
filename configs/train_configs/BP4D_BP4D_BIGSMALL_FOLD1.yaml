@@ -8,8 +8,8 @@ TRAIN:
   MODEL_FILE_NAME: BP4D_BP4D_bigsmall_fold1
   DATA:
     FS: 25
-    DATASET: BP4DPlus
-    DO_PREPROCESS: True              # if first time, should be true
+    DATASET: BP4DPlusBigSmall
+    DO_PREPROCESS: False              # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: /gscratch/ubicomp/girishvn/datasets/BP4D+_v0.2"  
     CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"    # Processed dataset save path, need to be updated
@@ -42,7 +42,7 @@ TRAIN:
 VALID:
   DATA:
     FS: 25
-    DATASET: BP4DPlus
+    DATASET: BP4DPlusBigSmall
     DO_PREPROCESS: False              # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: /gscratch/ubicomp/girishvn/datasets/BP4D+_v0.2"  
@@ -78,7 +78,7 @@ TEST:
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 25
-    DATASET: BP4DPlus
+    DATASET: BP4DPlusBigSmall
     DO_PREPROCESS: False              # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: /gscratch/ubicomp/girishvn/datasets/BP4D+_v0.2"  
