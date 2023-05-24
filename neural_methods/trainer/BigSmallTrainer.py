@@ -5,8 +5,8 @@ import torch
 import torch.optim as optim
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 from neural_methods import loss
-from neural_methods.model.Final_Models import BigSmall
-from multitask_eval.metrics import calculate_bvp_metrics, calculate_resp_metrics, calculate_au_metrics
+from neural_methods.model.BigSmall import BigSmall
+# from multitask_eval.metrics import calculate_bvp_metrics, calculate_resp_metrics, calculate_au_metrics
 
 # Other Imports
 from collections import OrderedDict
