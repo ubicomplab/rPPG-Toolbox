@@ -71,6 +71,8 @@ def train_and_test(config, data_loader_dict):
         model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'DeepPhys':
         model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'BigSmall':
+        model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.train(data_loader_dict)
@@ -87,6 +89,8 @@ def test(config, data_loader_dict):
         model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'DeepPhys':
         model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'BigSmall':
+        model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.test(data_loader_dict)
