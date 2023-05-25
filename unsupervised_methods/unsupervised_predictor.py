@@ -45,16 +45,34 @@ def unsupervised_predict(config, data_loader, method_name):
             else:
                 raise ValueError("unsupervised method name wrong!")
 
-            if config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                gt_hr, pre_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False,
-                                                                fs=config.UNSUPERVISED.DATA.FS, hr_method='Peak')
-                predict_hr_peak_all.append(pre_hr)
-                gt_hr_peak_all.append(gt_hr)
-            if config.INFERENCE.EVALUATION_METHOD == "FFT":
-                gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP, labels_input, diff_flag=False,
-                                                                   fs=config.UNSUPERVISED.DATA.FS, hr_method='FFT')
-                predict_hr_fft_all.append(pre_fft_hr)
-                gt_hr_fft_all.append(gt_fft_hr)
+            video_frame_size = test_batch[0].shape[1]
+            if config.INFERENCE.EVALUATION_WINDOW.USE_SMALLER_WINDOW:
+                window_frame_size = config.INFERENCE.EVALUATION_WINDOW.WINDOW_SIZE * config.UNSUPERVISED.DATA.FS
+                if window_frame_size > video_frame_size:
+                    window_frame_size = video_frame_size
+            else:
+                window_frame_size = video_frame_size
+
+            for i in range(0, len(BVP), window_frame_size):
+                BVP_window = BVP[i:i+window_frame_size]
+                label_window = labels_input[i:i+window_frame_size]
+
+                if len(BVP_window) < 9:
+                    print(f"Window frame size of {len(BVP_window)} is smaller than minimum pad length of 9. Window ignored!")
+                    continue
+
+                if config.INFERENCE.EVALUATION_METHOD == "peak detection":
+                    gt_hr, pre_hr = calculate_metric_per_video(BVP_window, label_window, diff_flag=False,
+                                                                    fs=config.UNSUPERVISED.DATA.FS, hr_method='Peak')
+                    gt_hr_peak_all.append(gt_hr)
+                    predict_hr_peak_all.append(pre_hr)
+                elif config.INFERENCE.EVALUATION_METHOD == "FFT":
+                    gt_fft_hr, pre_fft_hr = calculate_metric_per_video(BVP_window, label_window, diff_flag=False,
+                                                                    fs=config.UNSUPERVISED.DATA.FS, hr_method='FFT')
+                    gt_hr_fft_all.append(gt_fft_hr)
+                    predict_hr_fft_all.append(pre_fft_hr)
+                else:
+                    raise ValueError("Inference evaluation method name wrong!")
     print("Used Unsupervised Method: " + method_name)
     if config.INFERENCE.EVALUATION_METHOD == "peak detection":
         predict_hr_peak_all = np.array(predict_hr_peak_all)

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import torch
 from evaluation.post_process import *
+from tqdm import tqdm
 
 
 def read_label(dataset):
@@ -41,25 +42,46 @@ def calculate_metrics(predictions, labels, config):
     gt_hr_fft_all = list()
     predict_hr_peak_all = list()
     gt_hr_peak_all = list()
-    for index in predictions.keys():
+    for index in tqdm(predictions.keys()):
         prediction = _reform_data_from_dict(predictions[index])
         label = _reform_data_from_dict(labels[index])
 
-        if config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
-                config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Raw":
-            diff_flag_test = False
-        elif config.TEST.DATA.PREPROCESS.LABEL_TYPE == "DiffNormalized":
-            diff_flag_test = True
+        video_frame_size = prediction.shape[0]
+        if config.INFERENCE.EVALUATION_WINDOW.USE_SMALLER_WINDOW:
+            window_frame_size = config.INFERENCE.EVALUATION_WINDOW.WINDOW_SIZE * config.TEST.DATA.FS
+            if window_frame_size > video_frame_size:
+                window_frame_size = video_frame_size
         else:
-            raise ValueError("Not supported label type in testing!")
-        gt_hr_fft, pred_hr_fft = calculate_metric_per_video(
-            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='FFT')
-        gt_hr_peak, pred_hr_peak = calculate_metric_per_video(
-            prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='Peak')
-        gt_hr_fft_all.append(gt_hr_fft)
-        predict_hr_fft_all.append(pred_hr_fft)
-        predict_hr_peak_all.append(pred_hr_peak)
-        gt_hr_peak_all.append(gt_hr_peak)
+            window_frame_size = video_frame_size
+
+        for i in range(0, len(prediction), window_frame_size):
+            pred_window = prediction[i:i+window_frame_size]
+            label_window = label[i:i+window_frame_size]
+
+            if len(pred_window) < 9:
+                print(f"Window frame size of {len(pred_window)} is smaller than minimum pad length of 9. Window ignored!")
+                continue
+
+            if config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
+                    config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Raw":
+                diff_flag_test = False
+            elif config.TEST.DATA.PREPROCESS.LABEL_TYPE == "DiffNormalized":
+                diff_flag_test = True
+            else:
+                raise ValueError("Unsupported label type in testing!")
+            
+            if config.INFERENCE.EVALUATION_METHOD == "peak detection":
+                gt_hr_peak, pred_hr_peak = calculate_metric_per_video(
+                    prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='Peak')
+                gt_hr_peak_all.append(gt_hr_peak)
+                predict_hr_peak_all.append(pred_hr_peak)
+            elif config.INFERENCE.EVALUATION_METHOD == "FFT":
+                gt_hr_fft, pred_hr_fft = calculate_metric_per_video(
+                    prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='FFT')
+                gt_hr_fft_all.append(gt_hr_fft)
+                predict_hr_fft_all.append(pred_hr_fft)
+            else:
+                raise ValueError("Inference evaluation method name wrong!")
     predict_hr_peak_all = np.array(predict_hr_peak_all)
     predict_hr_fft_all = np.array(predict_hr_fft_all)
     gt_hr_peak_all = np.array(gt_hr_peak_all)
