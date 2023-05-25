@@ -76,7 +76,7 @@ class BigSmall(nn.Module):
         self.big_dropout1 = nn.Dropout(self.dropout_rate1)
         self.big_avg_pooling2 = nn.AvgPool2d(self.pool_size)
         self.big_dropout2 = nn.Dropout(self.dropout_rate2)
-        self.big_avg_pooling3 = nn.AvgPool2d(2 * self.pool_size)
+        self.big_avg_pooling3 = nn.AvgPool2d((4,4))
         self.big_dropout3 = nn.Dropout(self.dropout_rate3)
 
         # TSM layers

@@ -5,7 +5,7 @@ TRAIN:
   BATCH_SIZE: 180
   EPOCHS: 5
   LR: 1e-3
-  MODEL_FILE_NAME: BP4D_BP4D_bigsmall_fold1
+  MODEL_FILE_NAME: BP4D_BP4D_bigsmall_fold2
   DATA:
     FS: 25
     DATASET: BP4DPlusBigSmall
@@ -15,8 +15,8 @@ TRAIN:
     CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"  # Processed dataset save path, need to be updated
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
-      FOLD_NAME: 'Fold1_Train'
-      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split1_Train_Subjects.csv'
+      FOLD_NAME: 'Fold2_Train'
+      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split2_Train_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
       LABEL_TYPE: DiffNormalized
@@ -49,8 +49,8 @@ VALID:
     CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"  # Processed dataset save path, need to be updated
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
-      FOLD_NAME: 'Fold1_Test'
-      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
+      FOLD_NAME: 'Fold2_Test'
+      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split2_Test_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
       LABEL_TYPE: DiffNormalized
@@ -85,8 +85,8 @@ TEST:
     CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"  # Processed dataset save path, need to be updated
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
-      FOLD_NAME: 'Fold1_Test'
-      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
+      FOLD_NAME: 'Fold2_Test'
+      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split2_Test_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
       LABEL_TYPE: DiffNormalized
@@ -121,4 +121,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 180
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-  MODEL_PATH: "./PreTrainedModels/BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox/BP4D_BP4D_bigsmall_fold1_Epoch0.pth"
+  MODEL_PATH: ""

@@ -133,7 +133,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                                                  config_data.END, config_data)
                 print('File list generated.', end='\n\n')
 
-            self.load_preprocessed_data()
+            self.load()
         print('Cached Data Path', self.cached_path, end='\n\n')
         print('File List Path', self.file_list_path)
         print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
@@ -159,7 +159,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         self.build_file_list_retroactive(self.raw_data_dirs, config_data.BEGIN,
                                         config_data.END, config_data)  # build file list
         
-        self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
+        self.load()  # load all data and corresponding labels (sorted for consistency)
         print("Total Number of raw files preprocessed:", len(data_dirs), end='\n\n')
         print("Num loaded files", self.preprocessed_data_len)
 
@@ -847,7 +847,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
 
 
-    def load_preprocessed_data(self):
+    def load(self):
         """ Loads the preprocessed data listed in the file list.
 
         Args:
@@ -865,4 +865,33 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         self.inputs = inputs
         self.labels = labels
         self.preprocessed_data_len = len(inputs)
+
+
+    def __getitem__(self, index):
+        """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
+
+        with open(self.inputs[index], 'rb') as handle:
+            data = pickle.load(handle)
+
+        # format data shapes
+        if self.data_format == 'NDCHW':
+            data[0] = np.float32(np.transpose(data[0], (0, 3, 1, 2)))
+            data[1] = np.float32(np.transpose(data[1], (0, 3, 1, 2)))
+        elif self.data_format == 'NCDHW':
+            data[0] = np.float32(np.transpose(data[0], (3, 0, 1, 2)))
+            data[1] = np.float32(np.transpose(data[1], (3, 0, 1, 2)))
+        elif self.data_format == 'NDHWC':
+            pass
+        else:
+            raise ValueError('Unsupported Data Format!')
+
+        label = np.load(self.labels[index])
+        label = np.float32(label)
+        
+        item_path = self.inputs[index]
+        item_path_filename = item_path.split(os.sep)[-1]
+        split_idx = item_path_filename.index('_')
+        filename = item_path_filename[:split_idx]
+        chunk_id = item_path_filename[split_idx + 6:].split('.')[0]
+        return data, label, filename, chunk_id
 

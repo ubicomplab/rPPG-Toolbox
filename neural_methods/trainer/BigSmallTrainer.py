@@ -60,8 +60,6 @@ class BigSmallTrainer(BaseTrainer):
 
         return data, labels
 
-
-
     def send_data_to_device(self, data, labels):
         big_data = data[0].to(self.device)
         small_data = data[1].to(self.device)
@@ -153,7 +151,6 @@ class BigSmallTrainer(BaseTrainer):
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.LR = config.TRAIN.LR
-        self.num_train_batches = len(data_loader["train"])
 
         # Set Loss and Optimizer
         AU_weights = torch.as_tensor([9.64, 11.74, 16.77, 1.05, 0.53, 0.56, 
@@ -386,7 +383,7 @@ class BigSmallTrainer(BaseTrainer):
 
         # IF ONLY_TEST MODE LOAD PRETRAINED MODEL
         if self.config.TOOLBOX_MODE == "only_test":
-            model_path = self.config.MODEL_SPECS.TEST.MODEL_PATH
+            model_path = self.config.INFERENCE.MODEL_PATH
             print("Testing uses pretrained model!")
             print('Model path:', model_path)
             if not os.path.exists(model_path):

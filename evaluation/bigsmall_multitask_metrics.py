@@ -2,7 +2,32 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics import f1_score
-from evaluation.metrics import calculate_metrics
+from evaluation.metrics import calculate_metrics, _reform_data_from_dict
+from evaluation.post_process import _detrend, _next_power_of_2
+
+import scipy
+import scipy.io
+from scipy.signal import butter
+from scipy.sparse import spdiags
+
+
+def _calculate_fft_rr(resp_signal, fs=30, low_pass=0.08, high_pass=0.5):
+    """Calculate heart rate based on PPG using Fast Fourier transform (FFT)."""
+    resp_signal = np.expand_dims(resp_signal, 0)
+    N = _next_power_of_2(resp_signal.shape[1])
+    f_resp, pxx_resp = scipy.signal.periodogram(resp_signal, fs=fs, nfft=N, detrend=False)
+    fmask_resp = np.argwhere((f_resp >= low_pass) & (f_resp <= high_pass))
+    mask_resp = np.take(f_resp, fmask_resp)
+    mask_pxx = np.take(pxx_resp, fmask_resp)
+    fft_rr = np.take(mask_resp, np.argmax(mask_pxx, 0))[0] * 60
+    return fft_rr
+
+
+def _calculate_peak_rr(resp_signal, fs):
+    """Calculate heart rate based on PPG using peak detection."""
+    resp_peaks, _ = scipy.signal.find_peaks(resp_signal)
+    rr_peak = 60 / (np.mean(np.diff(resp_peaks)) / fs)
+    return rr_peak
 
 
 def calculate_resp_metrics_per_video(predictions, labels, fs=30, diff_flag=True, use_bandpass=True, rr_method='FFT'):
@@ -16,7 +41,7 @@ def calculate_resp_metrics_per_video(predictions, labels, fs=30, diff_flag=True,
     if use_bandpass:
         # bandpass filter between [0.08, 0.5] Hz
         # equals [5, 30] breaths per min
-        [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2], btype='bandpass')
+        [b, a] = butter(1, [0.08 / fs * 2, 0.5 / fs * 2], btype='bandpass')
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
     if rr_method == 'FFT':
@@ -115,20 +140,23 @@ def calculate_resp_metrics(predictions, labels, config):
                 raise ValueError("Your evaluation method is not supported yet! Support FFT and peak detection now ")
 
         else:
-            raise ValueError("Wrong Test Metric Type")
+            # raise ValueError("Wrong Test Metric Type")
+            pass
 
 
 def _reform_au_data_from_dict(predictions, labels, flatten=True):
     for index in predictions.keys():
-        predictions[index] = self.reform_data_from_dict(predictions[index], flatten=flatten)
-        labels[index] = self.reform_data_from_dict(labels[index], flatten=flatten)
+        predictions[index] = _reform_data_from_dict(predictions[index], flatten=flatten)
+        labels[index] = _reform_data_from_dict(labels[index], flatten=flatten)
 
     return predictions, labels
 
 
 def calculate_au_metrics(preds, labels, config):
 
-    preds, labels = _reform_au_data_from_dict(preds, labels, flatten=False)
+    for index in preds.keys():
+        preds[index] = _reform_data_from_dict(preds[index], flatten=False)
+        labels[index] = _reform_data_from_dict(labels[index], flatten=False)
 
     metrics_dict = dict()
     all_trial_preds = []
@@ -141,7 +169,7 @@ def calculate_au_metrics(preds, labels, config):
     all_trial_preds = np.concatenate(all_trial_preds, axis=0)
     all_trial_labels = np.concatenate(all_trial_labels, axis=0)
 
-    for metric in config.MODEL_SPECS.TEST.AU_METRICS:
+    for metric in config.TEST.METRICS:
 
         if metric == '12AUF1':
 
@@ -186,4 +214,5 @@ def calculate_au_metrics(preds, labels, config):
             print('Average Acc:', avg_acc/len(named_AU))
 
         else:
-            print('This AU metric does not exit')
+            pass
+            # print('This AU metric does not exit')
