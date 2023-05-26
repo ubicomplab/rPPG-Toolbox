@@ -82,50 +82,54 @@ def calculate_metrics(predictions, labels, config):
                 predict_hr_fft_all.append(pred_hr_fft)
             else:
                 raise ValueError("Inference evaluation method name wrong!")
-    predict_hr_peak_all = np.array(predict_hr_peak_all)
-    predict_hr_fft_all = np.array(predict_hr_fft_all)
-    gt_hr_peak_all = np.array(gt_hr_peak_all)
-    gt_hr_fft_all = np.array(gt_hr_fft_all)
-    for metric in config.TEST.METRICS:
-        if metric == "MAE":
-            if config.INFERENCE.EVALUATION_METHOD == "FFT":
+
+    if config.INFERENCE.EVALUATION_METHOD == "FFT":
+        gt_hr_fft_all = np.array(gt_hr_fft_all)
+        predict_hr_fft_all = np.array(predict_hr_fft_all)
+        num_test_samples = len(predict_hr_fft_all)
+        for metric in config.TEST.METRICS:
+            if metric == "MAE":
                 MAE_FFT = np.mean(np.abs(predict_hr_fft_all - gt_hr_fft_all))
-                print("FFT MAE (FFT Label):{0}".format(MAE_FFT))
-            elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                MAE_PEAK = np.mean(np.abs(predict_hr_peak_all - gt_hr_peak_all))
-                print("Peak MAE (Peak Label):{0}".format(MAE_PEAK))
-            else:
-                raise ValueError("Your evaluation method is not supported yet! Support FFT and peak detection now ")
-
-        elif metric == "RMSE":
-            if config.INFERENCE.EVALUATION_METHOD == "FFT":
+                standard_error = np.std(np.abs(predict_hr_fft_all - gt_hr_fft_all)) / np.sqrt(num_test_samples)
+                print("FFT MAE (FFT Label): {0} +/- {1}".format(MAE_FFT, standard_error))
+            elif metric == "RMSE":
                 RMSE_FFT = np.sqrt(np.mean(np.square(predict_hr_fft_all - gt_hr_fft_all)))
-                print("FFT RMSE (FFT Label):{0}".format(RMSE_FFT))
-            elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - gt_hr_peak_all)))
-                print("PEAK RMSE (Peak Label):{0}".format(RMSE_PEAK))
-            else:
-                raise ValueError("Your evaluation method is not supported yet! Support FFT and peak detection now ")
-
-        elif metric == "MAPE":
-            if config.INFERENCE.EVALUATION_METHOD == "FFT":
+                standard_error = np.std(np.square(predict_hr_fft_all - gt_hr_fft_all)) / np.sqrt(num_test_samples)
+                print("FFT RMSE (FFT Label): {0} +/- {1}".format(RMSE_FFT, standard_error))
+            elif metric == "MAPE":
                 MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - gt_hr_fft_all) / gt_hr_fft_all)) * 100
-                print("FFT MAPE (FFT Label):{0}".format(MAPE_FFT))
-            elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - gt_hr_peak_all) / gt_hr_peak_all)) * 100
-                print("PEAK MAPE (Peak Label):{0}".format(MAPE_PEAK))
-            else:
-                raise ValueError("Your evaluation method is not supported yet! Support FFT and peak detection now ")
-
-        elif metric == "Pearson":
-            if config.INFERENCE.EVALUATION_METHOD == "FFT":
+                standard_error = np.std(np.abs((predict_hr_fft_all - gt_hr_fft_all) / gt_hr_fft_all)) / np.sqrt(num_test_samples) * 100
+                print("FFT MAPE (FFT Label): {0} +/- {1}".format(MAPE_FFT, standard_error))
+            elif metric == "Pearson":
                 Pearson_FFT = np.corrcoef(predict_hr_fft_all, gt_hr_fft_all)
-                print("FFT Pearson (FFT Label):{0}".format(Pearson_FFT[0][1]))
-            elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                Pearson_PEAK = np.corrcoef(predict_hr_peak_all, gt_hr_peak_all)
-                print("PEAK Pearson  (Peak Label):{0}".format(Pearson_PEAK[0][1]))
+                correlation_coefficient = Pearson_FFT[0][1]
+                standard_error = np.sqrt((1 - correlation_coefficient**2) / (num_test_samples - 2))
+                print("FFT Pearson (FFT Label): {0} +/- {1}".format(correlation_coefficient, standard_error))
             else:
-                raise ValueError("Your evaluation method is not supported yet! Support FFT and peak detection now ")
-
-        else:
-            raise ValueError("Wrong Test Metric Type")
+                raise ValueError("Wrong Test Metric Type")
+    elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
+        gt_hr_peak_all = np.array(gt_hr_peak_all)
+        predict_hr_peak_all = np.array(predict_hr_peak_all)
+        num_test_samples = len(predict_hr_peak_all)
+        for metric in config.TEST.METRICS:
+            if metric == "MAE":
+                MAE_PEAK = np.mean(np.abs(predict_hr_peak_all - gt_hr_peak_all))
+                standard_error = np.std(np.abs(predict_hr_peak_all - gt_hr_peak_all)) / np.sqrt(num_test_samples)
+                print("Peak MAE (Peak Label): {0} +/- {1}".format(MAE_PEAK, standard_error))
+            elif metric == "RMSE":
+                RMSE_PEAK = np.sqrt(np.mean(np.square(predict_hr_peak_all - gt_hr_peak_all)))
+                standard_error = np.std(np.square(predict_hr_peak_all - gt_hr_peak_all)) / np.sqrt(num_test_samples)
+                print("PEAK RMSE (Peak Label): {0} +/- {1}".format(RMSE_PEAK, standard_error))
+            elif metric == "MAPE":
+                MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - gt_hr_peak_all) / gt_hr_peak_all)) * 100
+                standard_error = np.std(np.abs((predict_hr_peak_all - gt_hr_peak_all) / gt_hr_peak_all)) / np.sqrt(num_test_samples) * 100
+                print("PEAK MAPE (Peak Label): {0} +/- {1}".format(MAPE_PEAK, standard_error))
+            elif metric == "Pearson":
+                Pearson_PEAK = np.corrcoef(predict_hr_peak_all, gt_hr_peak_all)
+                correlation_coefficient = Pearson_PEAK[0][1]
+                standard_error = np.sqrt((1 - correlation_coefficient**2) / (num_test_samples - 2))
+                print("PEAK Pearson (Peak Label): {0} +/- {1}".format(correlation_coefficient, standard_error))
+            else:
+                raise ValueError("Wrong Test Metric Type")
+    else:
+        raise ValueError("Inference evaluation method name wrong!")
