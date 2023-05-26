@@ -387,18 +387,27 @@ def update_config(config, args):
     # UPDATE MODEL_FILE_NAME IF NEEDED
     if any(aug != 'None' for aug in config.TRAIN.DATA.PREPROCESS.DATA_AUG + config.VALID.DATA.PREPROCESS.DATA_AUG + config.TEST.DATA.PREPROCESS.DATA_AUG):
         # Check if the initial MODEL_FILE_NAME follows the expected pattern
-        if re.match(r'^[^_]+_[^_]+_[^_]+_[^_]+$', config.TRAIN.MODEL_FILE_NAME):
+        if re.match(r'^[^_]+(_[^_]+)?(_[^_]+)?_[^_]+$', config.TRAIN.MODEL_FILE_NAME):
+            model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
+            if model_file_name_parts[2] == config.TEST.DATA.DATASET:
+                train_name_idx = 0
+                valid_name_idx = 1
+                test_name_idx = 2
+            else:
+                train_name_idx = 0
+                valid_name_idx = None
+                test_name_idx = 1
             if 'Motion' in config.TRAIN.DATA.PREPROCESS.DATA_AUG:
                 model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
-                model_file_name_parts[0] = 'MA-' + model_file_name_parts[0]
+                model_file_name_parts[train_name_idx] = 'MA-' + model_file_name_parts[train_name_idx]
                 config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
-            if 'Motion' in config.VALID.DATA.PREPROCESS.DATA_AUG:
+            if 'Motion' in config.VALID.DATA.PREPROCESS.DATA_AUG and valid_name_part is not None:
                 model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
-                model_file_name_parts[1] = 'MA-' + model_file_name_parts[1]
+                model_file_name_parts[valid_name_idx] = 'MA-' + model_file_name_parts[valid_name_idx]
                 config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
             if 'Motion' in config.TEST.DATA.PREPROCESS.DATA_AUG:
                 model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
-                model_file_name_parts[2] = 'MA-' + model_file_name_parts[2]
+                model_file_name_parts[test_name_idx] = 'MA-' + model_file_name_parts[test_name_idx]
                 config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
         else:
             raise ValueError(f'MODEL_FILE_NAME does not follow expected naming pattern of [TRAIN_SET]_[VALID_SET]_[TEST_SET]! \
