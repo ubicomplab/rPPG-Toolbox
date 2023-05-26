@@ -69,8 +69,16 @@ class UBFCLoader(BaseLoader):
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
 
-        frames = self.read_video(
-            os.path.join(data_dirs[i]['path'],"vid.avi"))
+        if 'None' in config_preprocess.DATA_AUG:
+            # Utilize dataset-specific function to read video
+            frames = self.read_video(
+                os.path.join(data_dirs[i]['path'],"vid.avi"))
+        elif 'Motion' in config_preprocess.DATA_AUG:
+            # Utilize general function to read video in .npy format
+            frames = self.read_npy_video(
+                glob.glob(os.path.join(data_dirs[i]['path'],'*.npy')))
+        else:
+            raise ValueError(f'Unsupported DATA_AUG specified for {self.dataset_name} dataset! Received {config_preprocess.DATA_AUG}.')
         bvps = self.read_wave(
             os.path.join(data_dirs[i]['path'],"ground_truth.txt"))
             
