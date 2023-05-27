@@ -2,7 +2,7 @@ BASE: ['']
 TOOLBOX_MODE: "unsupervised_method"      # "train_and_test"  or "only_test" or "unsupervised_method"
 UNSUPERVISED:
   METHOD: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
-  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
   DATA:
     FS: 30
     DATASET: PURE
@@ -32,4 +32,6 @@ UNSUPERVISED:
         W: 72
 INFERENCE:
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-                  
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
