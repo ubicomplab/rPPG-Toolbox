@@ -42,8 +42,8 @@ class WTSM(nn.Module):
 class BigSmall(nn.Module):
 
     def __init__(self, in_channels=3, nb_filters1=32, nb_filters2=64, kernel_size=3, 
-                 dropout_rate1=0.25, dropout_rate2=0.5, dropout_rate3=0.5, pool_size=(2, 2),
-                 nb_dense=128, out_size_bvp = 1, out_size_resp = 1, out_size_au=12, n_segment=3):
+                 dropout_rate1=0.25, dropout_rate2=0.5, dropout_rate3=0.5, pool_size1=(2, 2), pool_size2=(4,4),
+                 nb_dense=128, out_size_bvp=1, out_size_resp=1, out_size_au=12, n_segment=3):
 
         super(BigSmall, self).__init__()
 
@@ -52,7 +52,8 @@ class BigSmall(nn.Module):
         self.dropout_rate1 = dropout_rate1
         self.dropout_rate2 = dropout_rate2
         self.dropout_rate3 = dropout_rate3
-        self.pool_size = pool_size
+        self.pool_size1 = pool_size1
+        self.pool_size2 = pool_size2
         self.nb_filters1 = nb_filters1
         self.nb_filters2 = nb_filters2
         self.nb_dense = nb_dense
@@ -72,11 +73,11 @@ class BigSmall(nn.Module):
         self.big_conv6 = nn.Conv2d(self.nb_filters2, self.nb_filters2, kernel_size=self.kernel_size, padding=(1, 1), bias=True)
 
         # Big Avg Pooling / Dropout Layers
-        self.big_avg_pooling1 = nn.AvgPool2d(self.pool_size)
+        self.big_avg_pooling1 = nn.AvgPool2d(self.pool_size1)
         self.big_dropout1 = nn.Dropout(self.dropout_rate1)
-        self.big_avg_pooling2 = nn.AvgPool2d(self.pool_size)
+        self.big_avg_pooling2 = nn.AvgPool2d(self.pool_size1)
         self.big_dropout2 = nn.Dropout(self.dropout_rate2)
-        self.big_avg_pooling3 = nn.AvgPool2d((4,4))
+        self.big_avg_pooling3 = nn.AvgPool2d(self.pool_size2)
         self.big_dropout3 = nn.Dropout(self.dropout_rate3)
 
         # TSM layers

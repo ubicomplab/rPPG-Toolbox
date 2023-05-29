@@ -20,16 +20,15 @@ class BigSmallTrainer(BaseTrainer):
 
     def define_model(self, config):
 
-        # BIG SMALL SLOW FAST 
+        # BIG SMALL
         model = BigSmall(n_segment=3)
 
         if self.using_TSM:
-            self.frame_depth = 3 # 3 # default for TSCAN is 10 - consider changing later...
+            self.frame_depth = 3 # 3 # default for TSCAN is 10 - consider changing later... TODO
             self.base_len = self.num_of_gpu * self.frame_depth 
-            print("USING TIME SHIFT MODULE LOGIC")  
+            print("USING TIME SHIFT MODULE LOGIC\n\n")  
 
         return model
-
 
     def format_data_shape(self, data, labels):
         # reshape big data
@@ -98,30 +97,6 @@ class BigSmallTrainer(BaseTrainer):
         print('')
 
 
-
-    def reform_data_from_dict(self, data, flatten):
-        sort_data = sorted(data.items(), key=lambda x: x[0])
-        sort_data = [i[1] for i in sort_data]
-        sort_data = torch.cat(sort_data, dim=0)
-
-        if flatten:
-            sort_data = np.reshape(sort_data.cpu(), (-1))
-        else:
-            sort_data = np.array(sort_data.cpu())
-
-        return sort_data
-
-
-
-    def reform_preds_labels(self, predictions, labels, flatten=True):
-        for index in predictions.keys():
-            predictions[index] = self.reform_data_from_dict(predictions[index], flatten=flatten)
-            labels[index] = self.reform_data_from_dict(labels[index], flatten=flatten)
-
-        return predictions, labels
-
-
-
     def __init__(self, config, data_loader):
 
         print('')
@@ -178,12 +153,13 @@ class BigSmallTrainer(BaseTrainer):
                       'AU32', 'AU33', 'AU34', 'AU35', 'AU36', 'AU37', 'AU38', 'AU39',
                       'pos_bvp','pos_env_norm_bvp']
 
-        used_labels = ['AU01', 'AU02', 'AU04', 'AU06', 'AU07', 'AU10', 'AU12',
+        used_labels = ['bp_wave', 'AU01', 'AU02', 'AU04', 'AU06', 'AU07', 'AU10', 'AU12',
                        'AU14', 'AU15', 'AU17', 'AU23', 'AU24', 
                         'pos_env_norm_bvp', 'resp_wave']
 
         au_label_list = [label for label in used_labels if 'AU' in label]
-        bvp_label_list = [label for label in used_labels if 'bvp' in label]
+        bvp_label_list_train = [label for label in used_labels if 'bvp' in label]
+        bvp_label_list_test = [label for label in used_labels if 'bp_wave' in label]
         resp_label_list = [label for label in used_labels if 'resp' in label]
 
 
@@ -193,7 +169,7 @@ class BigSmallTrainer(BaseTrainer):
 
         self.label_idx_train_bvp = self.get_label_idxs(label_list, bvp_label_list)
         self.label_idx_valid_bvp = self.get_label_idxs(label_list, bvp_label_list)
-        self.label_idx_test_bvp = self.get_label_idxs(label_list, bvp_label_list)
+        self.label_idx_test_bvp = self.get_label_idxs(label_list, bvp_label_list_test)
 
         self.label_idx_train_resp = self.get_label_idxs(label_list, resp_label_list)
         self.label_idx_valid_resp = self.get_label_idxs(label_list, resp_label_list)
@@ -437,7 +413,7 @@ class BigSmallTrainer(BaseTrainer):
                 TEST_BVP = False
                 if len(self.label_idx_test_bvp) > 0: # if test dataset has BVP
                     TEST_BVP = True
-                    labels_bvp = labels[:, 0] # TODO use bpwave as label for BVP pseudo input
+                    labels_bvp = labels[:, self.label_idx_test_bvp] #labels[:, 0] # TODO use bpwave as label for BVP pseudo input
                 else: # if not set whole BVP labels array to -1
                     labels_bvp = np.ones((batch_size, len(self.label_idx_train_bvp)))
                     labels_bvp = -1 * labels_bvp
