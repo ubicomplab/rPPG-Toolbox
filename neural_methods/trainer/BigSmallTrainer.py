@@ -20,13 +20,12 @@ class BigSmallTrainer(BaseTrainer):
 
     def define_model(self, config):
 
-        # BIG SMALL
+        # BigSmall Model
         model = BigSmall(n_segment=3)
 
         if self.using_TSM:
-            self.frame_depth = 3 # 3 # default for TSCAN is 10 - consider changing later... TODO
+            self.frame_depth = config.MODEL.BIGSMALL.FRAME_DEPTH
             self.base_len = self.num_of_gpu * self.frame_depth 
-            print("USING TIME SHIFT MODULE LOGIC\n\n")  
 
         return model
 
@@ -47,7 +46,7 @@ class BigSmallTrainer(BaseTrainer):
         N_label, D_label, C_label = labels.shape
         labels = labels.view(N_label * D_label, C_label)
 
-        # TODO If using TSM modules - reshape for GPU - change how this is used...
+        # If using temporal shift module
         if self.using_TSM:
             data_big = data_big[:(N * D) // self.base_len * self.base_len]
             data_small = data_small[:(N * D) // self.base_len * self.base_len]
@@ -58,6 +57,7 @@ class BigSmallTrainer(BaseTrainer):
         labels = torch.unsqueeze(labels, dim=-1)
 
         return data, labels
+
 
     def send_data_to_device(self, data, labels):
         big_data = data[0].to(self.device)
@@ -75,8 +75,6 @@ class BigSmallTrainer(BaseTrainer):
         return label_idxs
 
 
-
-    # TODO add this to save model so data parallel is NOT innate
     def remove_data_parallel(self, old_state_dict):
         new_state_dict = OrderedDict()
 
@@ -85,7 +83,6 @@ class BigSmallTrainer(BaseTrainer):
             new_state_dict[name] = v
         
         return new_state_dict
-
 
 
     def save_model(self, index):
@@ -100,12 +97,11 @@ class BigSmallTrainer(BaseTrainer):
     def __init__(self, config, data_loader):
 
         print('')
-        print('Init BigSmall Multitask Trainer')
-        print('')
+        print('Init BigSmall Multitask Trainer\n\n')
 
         self.config = config # save config file
 
-        # SET UP GPU COMPUTE DEVICE (GPU OR CPU)
+        # Set up GPU/CPU compute device
         if torch.cuda.is_available() and config.NUM_OF_GPU_TRAIN > 0:
             self.device = torch.device(config.DEVICE) # set device to primary GPU
             self.num_of_gpu = config.NUM_OF_GPU_TRAIN # set number of used GPUs
@@ -113,7 +109,7 @@ class BigSmallTrainer(BaseTrainer):
             self.device = "cpu" # if no GPUs set device is CPU
             self.num_of_gpu = 0 # no GPUs used
 
-        # DEFINING MODEL
+        # Defining model
         self.using_TSM = True
         self.model = self.define_model(config) # define the model
 
@@ -122,7 +118,7 @@ class BigSmallTrainer(BaseTrainer):
 
         self.model = self.model.to(self.device) # send model to primary GPU
 
-        # TRAINING PARAMETERS
+        # Training parameters
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.max_epoch_num = config.TRAIN.EPOCHS
         self.LR = config.TRAIN.LR
@@ -136,7 +132,7 @@ class BigSmallTrainer(BaseTrainer):
         self.criterionRESP = torch.nn.MSELoss().to(self.device)
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.LR, weight_decay=0)
         
-        # MODEL INFO (SAVED MODEL DIR, CHUNK LEN, BEST EPOCH)
+        # Model info (saved more dir, chunk len, best epoch, etc.)
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
@@ -144,7 +140,7 @@ class BigSmallTrainer(BaseTrainer):
         # Epoch To Use For Test
         self.used_epoch = 0
 
-        # INDICES CORRESPONDING TO USED LABELS 
+        # Indicies corresponding to used labels
         label_list = ['bp_wave', 'HR_bpm', 'systolic_bp', 'diastolic_bp', 'mean_bp', 
                       'resp_wave', 'resp_bpm', 'eda', 
                       'AU01', 'AU02', 'AU04', 'AU05', 'AU06', 'AU06int', 'AU07', 'AU09', 'AU10', 'AU10int', 
@@ -157,11 +153,11 @@ class BigSmallTrainer(BaseTrainer):
                        'AU14', 'AU15', 'AU17', 'AU23', 'AU24', 
                         'pos_env_norm_bvp', 'resp_wave']
 
+        # Get indicies for labels from npy array
         au_label_list = [label for label in used_labels if 'AU' in label]
         bvp_label_list_train = [label for label in used_labels if 'bvp' in label]
         bvp_label_list_test = [label for label in used_labels if 'bp_wave' in label]
         resp_label_list = [label for label in used_labels if 'resp' in label]
-
 
         self.label_idx_train_au = self.get_label_idxs(label_list, au_label_list)
         self.label_idx_valid_au = self.get_label_idxs(label_list, au_label_list)
@@ -174,7 +170,6 @@ class BigSmallTrainer(BaseTrainer):
         self.label_idx_train_resp = self.get_label_idxs(label_list, resp_label_list)
         self.label_idx_valid_resp = self.get_label_idxs(label_list, resp_label_list)
         self.label_idx_test_resp = self.get_label_idxs(label_list, resp_label_list)
-
 
 
     def train(self, data_loader):

@@ -11,6 +11,17 @@ from scipy.signal import butter
 from scipy.sparse import spdiags
 
 
+
+
+# PPG Metrics
+def calculate_bvp_metrics(predictions, labels, config):
+    print('=====================')
+    print('==== PPG Metrics ====')
+    print('=====================')
+    calculate_metrics(predictions, labels, config)
+    print('')
+
+# Resp Metrics
 def _calculate_fft_rr(resp_signal, fs=30, low_pass=0.08, high_pass=0.5):
     """Calculate heart rate based on PPG using Fast Fourier transform (FFT)."""
     resp_signal = np.expand_dims(resp_signal, 0)
@@ -21,7 +32,6 @@ def _calculate_fft_rr(resp_signal, fs=30, low_pass=0.08, high_pass=0.5):
     mask_pxx = np.take(pxx_resp, fmask_resp)
     fft_rr = np.take(mask_resp, np.argmax(mask_pxx, 0))[0] * 60
     return fft_rr
-
 
 def _calculate_peak_rr(resp_signal, fs):
     """Calculate heart rate based on PPG using peak detection."""
@@ -53,16 +63,6 @@ def calculate_resp_metrics_per_video(predictions, labels, fs=30, diff_flag=True,
     else:
         raise ValueError('Please use FFT or Peak to calculate your RR.')
     return rr_label, rr_pred
-
-
-def calculate_bvp_metrics(predictions, labels, config):
-    print('=====================')
-    print('==== PPG Metrics ====')
-    print('=====================')
-    calculate_metrics(predictions, labels, config)
-    print('')
-
-
 
 def calculate_resp_metrics(predictions, labels, config):
     """Calculate Respiration Metrics (MAE, RMSE, MAPE, Pearson Coef.)."""
@@ -143,7 +143,7 @@ def calculate_resp_metrics(predictions, labels, config):
             # raise ValueError("Wrong Test Metric Type")
             pass
 
-
+# AU Metrics
 def _reform_au_data_from_dict(predictions, labels, flatten=True):
     for index in predictions.keys():
         predictions[index] = _reform_data_from_dict(predictions[index], flatten=flatten)
@@ -188,7 +188,9 @@ def calculate_au_metrics(preds, labels, config):
             acc_dict = dict()
             avg_acc = 0  
             print('')
-            print('=== AU F1 ===')
+            print('=====================')
+            print('======= AU F1 =======')
+            print('=====================')
             print('AU | F1')
             print('AU | F1 | Avg Val | Avg Label Val')
             for au in named_AU:
