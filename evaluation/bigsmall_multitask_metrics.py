@@ -49,9 +49,9 @@ def calculate_resp_metrics_per_video(predictions, labels, fs=30, diff_flag=True,
         predictions = _detrend(predictions, 100)
         labels = _detrend(labels, 100)
     if use_bandpass:
-        # bandpass filter between [0.08, 0.5] Hz
-        # equals [5, 30] breaths per min
-        [b, a] = butter(1, [0.08 / fs * 2, 0.5 / fs * 2], btype='bandpass')
+        # bandpass filter between [0.13, 0.5] Hz
+        # equals [8, 30] breaths per min
+        [b, a] = butter(1, [0.13 / fs * 2, 0.5 / fs * 2], btype='bandpass')
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
     if rr_method == 'FFT':
@@ -212,6 +212,7 @@ def calculate_au_metrics(preds, labels, config):
             metrics_dict['12AUF1'] = f1_dict
             metrics_dict['12AUAcc'] = acc_dict
 
+            print('')
             print('Average F1:', avg_f1/len(named_AU))
             print('Average Acc:', avg_acc/len(named_AU))
 

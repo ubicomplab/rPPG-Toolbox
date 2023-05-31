@@ -16,7 +16,7 @@ TRAIN:
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
       FOLD_NAME: 'Fold1_Train'
-      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split1_Train_Subjects.csv'
+      FOLD_PATH: './dataset/BP4D_BigSmall_Subject_Splits/Split1_Train_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
       LABEL_TYPE: DiffNormalized
@@ -50,7 +50,7 @@ VALID:
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
       FOLD_NAME: 'Fold1_Test'
-      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
+      FOLD_PATH: './dataset/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
       LABEL_TYPE: DiffNormalized
@@ -86,7 +86,7 @@ TEST:
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
       FOLD_NAME: 'Fold1_Test'
-      FOLD_PATH: './dataset/data_loader/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
+      FOLD_PATH: './dataset/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
       LABEL_TYPE: DiffNormalized

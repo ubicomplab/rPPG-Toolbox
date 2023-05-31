@@ -163,8 +163,8 @@ class BigSmallTrainer(BaseTrainer):
         self.label_idx_valid_au = self.get_label_idxs(label_list, au_label_list)
         self.label_idx_test_au = self.get_label_idxs(label_list, au_label_list)
 
-        self.label_idx_train_bvp = self.get_label_idxs(label_list, bvp_label_list)
-        self.label_idx_valid_bvp = self.get_label_idxs(label_list, bvp_label_list)
+        self.label_idx_train_bvp = self.get_label_idxs(label_list, bvp_label_list_train)
+        self.label_idx_valid_bvp = self.get_label_idxs(label_list, bvp_label_list_train)
         self.label_idx_test_bvp = self.get_label_idxs(label_list, bvp_label_list_test)
 
         self.label_idx_train_resp = self.get_label_idxs(label_list, resp_label_list)
