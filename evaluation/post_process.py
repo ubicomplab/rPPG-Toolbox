@@ -90,7 +90,10 @@ def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.
     signal_power_rem = np.sum(pxx_remainder)
 
     # Calculate the SNR as the ratio of the areas
-    SNR = mag2db((signal_power_hm1 + signal_power_hm2) / signal_power_rem)
+    if not signal_power_rem == 0: # catches divide by 0 runtime warning 
+        SNR = mag2db((signal_power_hm1 + signal_power_hm2) / signal_power_rem)
+    else:
+        SNR = 0
     return SNR
 
 def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_bandpass=True, hr_method='FFT'):

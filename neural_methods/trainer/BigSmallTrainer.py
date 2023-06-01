@@ -8,7 +8,7 @@ from neural_methods import loss
 from neural_methods.model.BigSmall import BigSmall
 from evaluation.bigsmall_multitask_metrics import (calculate_bvp_metrics, 
                                                    calculate_resp_metrics, 
-                                                   calculate_au_metrics)
+                                                   calculate_bp4d_au_metrics)
 
 # Other Imports
 from collections import OrderedDict
@@ -453,7 +453,7 @@ class BigSmallTrainer(BaseTrainer):
         # Calculate Eval Metrics
         bvp_metric_dict = calculate_bvp_metrics(preds_dict_bvp, labels_dict_bvp, self.config)
         resp_metric_dict = calculate_resp_metrics(preds_dict_resp, labels_dict_resp, self.config)
-        au_metric_dict = calculate_au_metrics(preds_dict_au, labels_dict_au, self.config)
+        au_metric_dict = calculate_bp4d_au_metrics(preds_dict_au, labels_dict_au, self.config)
 
         
 
