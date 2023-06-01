@@ -131,6 +131,8 @@ class BigSmallTrainer(BaseTrainer):
         self.criterionBVP = torch.nn.MSELoss().to(self.device)
         self.criterionRESP = torch.nn.MSELoss().to(self.device)
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.LR, weight_decay=0)
+
+        # self.scaler = torch.cuda.amp.GradScaler() # Loss scalar
         
         # Model info (saved more dir, chunk len, best epoch, etc.)
         self.model_dir = config.MODEL.MODEL_DIR
@@ -224,9 +226,14 @@ class BigSmallTrainer(BaseTrainer):
                 bvp_loss = self.criterionBVP(bvp_out, labels[:, self.label_idx_train_bvp, 0]) # bvp loss
                 resp_loss =  self.criterionRESP(resp_out, labels[:, self.label_idx_train_resp, 0]) # resp loss 
                 loss = au_loss  + bvp_loss + resp_loss # sum losses 
-                loss.backward()
+                loss.backward() 
+                self.optimizer.step()
+                # self.scaler.scale(loss).backward() # Loss scaling
+                # self.scaler.step(self.optimizer)
+                # self.scaler.update()
 
-                self.optimizer.step() # Step the optimizer
+
+                
 
                 # UPDATE RUNNING LOSS AND PRINTED TERMINAL OUTPUT AND SAVED LOSSES
                 train_loss.append(loss.item())
@@ -408,7 +415,7 @@ class BigSmallTrainer(BaseTrainer):
                 TEST_BVP = False
                 if len(self.label_idx_test_bvp) > 0: # if test dataset has BVP
                     TEST_BVP = True
-                    labels_bvp = labels[:, self.label_idx_test_bvp] #labels[:, 0] # TODO use bpwave as label for BVP pseudo input
+                    labels_bvp = labels[:, self.label_idx_test_bvp]
                 else: # if not set whole BVP labels array to -1
                     labels_bvp = np.ones((batch_size, len(self.label_idx_train_bvp)))
                     labels_bvp = -1 * labels_bvp
