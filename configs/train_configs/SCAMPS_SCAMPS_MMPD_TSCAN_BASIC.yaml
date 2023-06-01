@@ -15,7 +15,6 @@ TRAIN:
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
-    FOLD_FILE: "" # generate file list from samples used for the fold
     PREPROCESS :
       DATA_TYPE: ['DiffNormalized','Standardized']
       LABEL_TYPE: DiffNormalized
