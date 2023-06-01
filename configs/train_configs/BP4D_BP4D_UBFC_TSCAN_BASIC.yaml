@@ -62,7 +62,7 @@ VALID:
         W: 72
       W: 72
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
@@ -102,4 +102,7 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
   MODEL_PATH:   ""

@@ -132,6 +132,18 @@ class BaseLoader(Dataset):
         """
         raise Exception("'split_raw_data' Not Implemented")
 
+    def read_npy_video(self, video_file):
+        """Reads a video file in the numpy format (.npy), returns frames(T,H,W,3)"""
+        frames = np.load(video_file[0])
+        if np.issubdtype(frames.dtype, np.integer) and np.min(frames) >= 0 and np.max(frames) <= 255:
+            processed_frames = [frame.astype(np.uint8)[..., :3] for frame in frames]
+        elif np.issubdtype(frames.dtype, np.floating) and np.min(frames) >= 0.0 and np.max(frames) <= 1.0:
+            processed_frames = [(np.round(frame * 255)).astype(np.uint8)[..., :3] for frame in frames]
+        else:
+            raise Exception(f'Loaded frames are of an incorrect type or range of values! '\
+            + f'Received frames of type {frames.dtype} and range {np.min(frames)} to {np.max(frames)}.')
+        return np.asarray(processed_frames)
+
     def generate_pos_psuedo_labels(self, frames, fs=30):
         """Generated POS-based PPG Psuedo Labels For Training
 

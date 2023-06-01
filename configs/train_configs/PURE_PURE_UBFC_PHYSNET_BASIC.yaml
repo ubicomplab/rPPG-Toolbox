@@ -15,8 +15,9 @@ TRAIN:
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 0.8
-    PREPROCESS :
+    PREPROCESS:
       DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
@@ -42,8 +43,9 @@ VALID:
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
-    PREPROCESS :
+    PREPROCESS:
       DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
@@ -59,7 +61,7 @@ VALID:
         H: 72
         W: 72
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
   USE_LAST_EPOCH: True                   # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
@@ -71,7 +73,7 @@ TEST:
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
-    PREPROCESS :
+    PREPROCESS:
       DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
@@ -99,4 +101,7 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
   MODEL_PATH: ""
