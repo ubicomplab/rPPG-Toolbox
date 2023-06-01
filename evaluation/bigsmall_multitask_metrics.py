@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, precision_recall_fscore_support
+
 from evaluation.metrics import calculate_metrics, _reform_data_from_dict
 from evaluation.post_process import _detrend, _next_power_of_2
 
@@ -9,8 +10,6 @@ import scipy
 import scipy.io
 from scipy.signal import butter
 from scipy.sparse import spdiags
-
-
 
 
 # PPG Metrics
@@ -183,7 +182,7 @@ def calculate_au_metrics(preds, labels, config):
                 AU_data['preds'][named_AU[i]] = all_trial_preds[:, i]
 
             # Calculate F1
-            f1_dict = dict()  
+            metric_dict = dict()  
             avg_f1 = 0
             acc_dict = dict()
             avg_acc = 0  
@@ -191,30 +190,41 @@ def calculate_au_metrics(preds, labels, config):
             print('=====================')
             print('======= AU F1 =======')
             print('=====================')
-            print('AU | F1')
-            print('AU | F1 | Avg Val | Avg Label Val')
+            print('AU | F1 | Precision')
             for au in named_AU:
                 preds = np.array(AU_data['preds'][au])
                 preds[preds < 0.5] = 0
                 preds[preds >= 0.5] = 1
                 labels = np.array(AU_data['labels'][au])
-                f1 = f1_score(labels, preds)*100
-                f1_dict[au] = (f1, np.sum(preds)/len(preds), np.sum(labels)/len(labels))
+
+                precision, recall, f1, support = precision_recall_fscore_support(labels, preds, beta=1.0)
+
+                f1 = f1[1]
+                precision = precision[1]
+                recall = recall[1]
+
+                f1 = f1*100
+                precision = precision*100
+                recall = recall*100
+
+                #f1 = f1_score(labels, preds)*100
+                metric_dict[au] = (f1, precision, recall)
                 avg_f1 += f1
-                print(au, f1, np.sum(preds)/len(preds), np.sum(labels)/len(labels))
+                print(au, f1, precision)
 
                 # get AU accuracy
-                acc = sum(1 for x,y in zip(preds,labels) if x == y) / len(labels)
+                acc = sum(1 for x,y in zip(preds,labels) if x == y) / len(labels) * 100
                 acc_dict[au] = acc
                 avg_acc += acc
 
             # Save Dictionary
-            metrics_dict['12AUF1'] = f1_dict
+            metrics_dict['12AUF1'] = avg_f1
             metrics_dict['12AUAcc'] = acc_dict
 
             print('')
-            print('Average F1:', avg_f1/len(named_AU))
-            print('Average Acc:', avg_acc/len(named_AU))
+            print('Mean F1:', avg_f1/len(named_AU))
+            print('Mean Acc:', avg_acc/len(named_AU))
+            print('')
 
         else:
             pass

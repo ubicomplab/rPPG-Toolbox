@@ -1,5 +1,5 @@
 BASE: ['']
-TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
 
 TRAIN:
   BATCH_SIZE: 180
@@ -123,4 +123,4 @@ MODEL:
 INFERENCE:
   BATCH_SIZE: 180
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
-  MODEL_PATH: "./PreTrainedModels/BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox/BP4D_BP4D_bigsmall_fold1_Epoch0.pth"
+  MODEL_PATH: "./PreTrainedModels/BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox/BP4D_BP4D_bigsmall_fold1_Epoch4.pth"
