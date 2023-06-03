@@ -101,7 +101,7 @@ The toolbox supports four datasets, which are SCAMPS, UBFC, PURE, and MMPD (COHF
 For now, we only recommend training with PURE or SCAMPS due to the level of synchronization and volume of the dataset.
 
 * [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
-* Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
+    * Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
  "MMPD: Multi-Domain Mobile Video Physiology Dataset", arxiv, 2023
     * In order to use this dataset in a deep model, you should organize the files as follows:
     
@@ -164,7 +164,7 @@ For now, we only recommend training with PURE or SCAMPS due to the level of sync
     -----------------
    
 * [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure)
-    * Stricker, R., Müller, S., Gross, H.-M.Non-contact Video-based Pulse Rate Measurement on a Mobile Service Robot
+    * Stricker, R., Müller, S., Gross, H.-M.Non-contact "Video-based Pulse Rate Measurement on a Mobile Service Robot"
 in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
     * In order to use this dataset in a deep model, you should organize the files as follows:
     
@@ -180,6 +180,61 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
          |   |-- ii-jj/
          |      |-- ii-jj/
          |      |-- ii-jj.json
+    -----------------
+    
+* [BP4D+](https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html)
+    * Zhang, X., Yin, L., Cohn J., Canavan, S., Reale, M., Horowitz, A., Liu, P., and Girard, J.,
+“BP4D-Spontaneous: A high resolution spontaneous 3D dynamic facial expression database”
+Image and Vision Computing, 32 (2014), pp. 692-706  (special issue of the Best of FG13)
+    * Zhang, X., Yin, L., Cohn J., Canavan, S., Reale, M., Horowitz, A., Liu, P.,
+“A high resolution spontaneous 3D dynamic facial expression database”
+The 10th IEEE International Conference on Automatic Face and Gesture Recognition (FG13),  April, 2013
+    * In order to use this dataset in a deep model, you should organize the files as follows:
+
+    -----------------
+        RawData/
+        |   |-- 2D+3D/
+        |       |-- F001.zip/
+        |       |-- F002.zip
+        |       |...
+        |   |-- 2DFeatures/
+        |       |-- F001_T1.mat
+        |       |-- F001_T2.mat
+        |       |...
+        |   |-- 3DFeatures/
+        |       |-- F001_T1.mat
+        |       |-- F001_T2.mat
+        |       |...
+        |   |-- AUCoding/
+        |       |-- AU_INT/
+        |            |-- AU06/
+        |               |-- F001_T1_AU06.csv
+        |               |...
+        |           |...
+        |       |-- AU_OCC/
+        |           |-- F00_T1.csv 
+        |           |...
+        |   |-- IRFeatures/
+        |       |-- F001_T1.txt
+        |       |...
+        |   |-- Physiology/
+        |       |-- F001/
+        |           |-- T1/
+        |               |-- BP_mmHg.txt
+        |               |-- microsiemens.txt
+        |               |--LA Mean BP_mmHg.txt
+        |               |--LA Systolic BP_mmHg.txt
+        |               |-- BP Dia_mmHg.txt
+        |               |-- Pulse Rate_BPM.txt
+        |               |-- Resp_Volts.txt
+        |               |-- Respiration Rate_BPM.txt
+        |       |...
+        |   |-- Thermal/
+        |       |-- F001/
+        |           |-- T1.mv
+        |           |...
+        |       |...
+        |   |-- BP4D+UserGuide_v0.2.pdf
     -----------------
 
     
