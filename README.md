@@ -149,6 +149,7 @@ For now, we only recommend training with PURE or SCAMPS due to the level of sync
   
     * S. Bobbia, R. Macwan, Y. Benezeth, A. Mansouri, J. Dubois, "Unsupervised skin tissue segmentation for remote photoplethysmography", Pattern Recognition Letters, 2017.
     * In order to use this dataset in a deep model, you should organize the files as follows:
+    
     -----------------
          data/UBFC/
          |   |-- subject1/
@@ -169,7 +170,7 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
     * In order to use this dataset in a deep model, you should organize the files as follows:
     
     -----------------
-        data/PURE/
+         data/PURE/
          |   |-- 01-01/
          |      |-- 01-01/
          |      |-- 01-01.json
@@ -193,48 +194,48 @@ The 10th IEEE International Conference on Automatic Face and Gesture Recognition
 
     -----------------
         RawData/
-        |   |-- 2D+3D/
-        |       |-- F001.zip/
-        |       |-- F002.zip
-        |       |...
-        |   |-- 2DFeatures/
-        |       |-- F001_T1.mat
-        |       |-- F001_T2.mat
-        |       |...
-        |   |-- 3DFeatures/
-        |       |-- F001_T1.mat
-        |       |-- F001_T2.mat
-        |       |...
-        |   |-- AUCoding/
-        |       |-- AU_INT/
-        |            |-- AU06/
-        |               |-- F001_T1_AU06.csv
-        |               |...
-        |           |...
-        |       |-- AU_OCC/
-        |           |-- F00_T1.csv 
-        |           |...
-        |   |-- IRFeatures/
-        |       |-- F001_T1.txt
-        |       |...
-        |   |-- Physiology/
-        |       |-- F001/
-        |           |-- T1/
-        |               |-- BP_mmHg.txt
-        |               |-- microsiemens.txt
-        |               |--LA Mean BP_mmHg.txt
-        |               |--LA Systolic BP_mmHg.txt
-        |               |-- BP Dia_mmHg.txt
-        |               |-- Pulse Rate_BPM.txt
-        |               |-- Resp_Volts.txt
-        |               |-- Respiration Rate_BPM.txt
-        |       |...
-        |   |-- Thermal/
-        |       |-- F001/
-        |           |-- T1.mv
-        |           |...
-        |       |...
-        |   |-- BP4D+UserGuide_v0.2.pdf
+         |   |-- 2D+3D/
+         |       |-- F001.zip/
+         |       |-- F002.zip
+         |       |...
+         |   |-- 2DFeatures/
+         |       |-- F001_T1.mat
+         |       |-- F001_T2.mat
+         |       |...
+         |   |-- 3DFeatures/
+         |       |-- F001_T1.mat
+         |       |-- F001_T2.mat
+         |       |...
+         |   |-- AUCoding/
+         |       |-- AU_INT/
+         |            |-- AU06/
+         |               |-- F001_T1_AU06.csv
+         |               |...
+         |           |...
+         |       |-- AU_OCC/
+         |           |-- F00_T1.csv 
+         |           |...
+         |   |-- IRFeatures/
+         |       |-- F001_T1.txt
+         |       |...
+         |   |-- Physiology/
+         |       |-- F001/
+         |           |-- T1/
+         |               |-- BP_mmHg.txt
+         |               |-- microsiemens.txt
+         |               |--LA Mean BP_mmHg.txt
+         |               |--LA Systolic BP_mmHg.txt
+         |               |-- BP Dia_mmHg.txt
+         |               |-- Pulse Rate_BPM.txt
+         |               |-- Resp_Volts.txt
+         |               |-- Respiration Rate_BPM.txt
+         |       |...
+         |   |-- Thermal/
+         |       |-- F001/
+         |           |-- T1.mv
+         |           |...
+         |       |...
+         |   |-- BP4D+UserGuide_v0.2.pdf
     -----------------
 
     
@@ -245,11 +246,11 @@ The 10th IEEE International Conference on Automatic Face and Gesture Recognition
 * Step2 : Implement the required functions, including:
 
   ```python
-  def preprocess_dataset(self, config_preprocess)
+  def preprocess_dataset(self, config_preprocess):
   ```
   ```python
   @staticmethod
-  def read_video(video_file)
+  def read_video(video_file):
   ```
   ```python
   @staticmethod
@@ -258,4 +259,15 @@ The 10th IEEE International Conference on Automatic Face and Gesture Recognition
 
 * Step3 :[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * Step4 :Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
+
+## Extending The Toolbox To Multitasking (BigSmall)
+
+We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
+* Narayanswamy, G., Liu, Y., Yang, Y., Ma, C., Liu, X., McDuff, D., Patel, S. "BigSmall: Efficient Multi-Task Learning For Physiological Measurements" https://arxiv.org/abs/2303.11573
+
+The BigSmall model is trained and evaluated (in this toolbox) using the AU label subset of the BP4D+ dataset (as described in the original BigSmall publication). To train and evaluate this multi-task model use the following:
+
+*
+*
+*
 
