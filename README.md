@@ -265,9 +265,11 @@ The 10th IEEE International Conference on Automatic Face and Gesture Recognition
 We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
 * Narayanswamy, G., Liu, Y., Yang, Y., Ma, C., Liu, X., McDuff, D., Patel, S. "BigSmall: Efficient Multi-Task Learning For Physiological Measurements" https://arxiv.org/abs/2303.11573
 
-The BigSmall model is trained and evaluated (in this toolbox) using the AU label subset of the BP4D+ dataset (as described in the original BigSmall publication). To train and evaluate this multi-task model use the following:
+The BigSmall model is trained and evaluated (in this toolbox) on the AU label subset (described in the BigSmall publication) of the BP4D+ dataset using a 3-fold cross validation method (using the same folds used in the BigSmall publication). To train and evaluate this multi-task model use the following:
 
-*
-*
-*
+* STEP 1: Download the BP4D+ by emailing the authors found [here](https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html).
+
+* STEP 2: Modify `./configs/train_configs/BP4D_BP4D_BIGSMALL_FOLD1.yaml` to train the first fold (config files also exist for the 2nd and 3rd fold).
+
+* STEP 3: Run `python main.py --config_file ./configs/train_configs/BP4D_BP4D_BIGSMALL_FOLD1.yaml `
 
