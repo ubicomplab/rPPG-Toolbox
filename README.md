@@ -185,13 +185,7 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
     -----------------
     
 * [BP4D+](https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html)
-    * Zhang, X., Yin, L., Cohn J., Canavan, S., Reale, M., Horowitz, A., Liu, P., and Girard, J.,
-“BP4D-Spontaneous: A high resolution spontaneous 3D dynamic facial expression database”
-Image and Vision Computing, 32 (2014), pp. 692-706  (special issue of the Best of FG13)
-    * Zhang, X., Yin, L., Cohn J., Canavan, S., Reale, M., Horowitz, A., Liu, P.,
-“A high resolution spontaneous 3D dynamic facial expression database”
-The 10th IEEE International Conference on Automatic Face and Gesture Recognition (FG13),  April, 2013
-    * In order to use this dataset in a deep model, you should organize the files as follows:
+    * Zhang, Z., Girard, J., Wu, Y., Zhang, X., Liu, P., Ciftci, U., Canavan, S., Reale, M., Horowitz, A., Yang, H., Cohn, J., Ji, Q., Yin, L. "Multimodal Spontaneous Emotion Corpus for Human Behavior Analysis", IEEE International Conference on Computer Vision and Pattern Recognition (CVPR) 2016.   
 
     -----------------
         RawData/
