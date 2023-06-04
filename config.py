@@ -51,6 +51,9 @@ _C.TRAIN.DATA.DO_PREPROCESS = False
 _C.TRAIN.DATA.DATA_FORMAT = 'NDCHW'
 _C.TRAIN.DATA.BEGIN = 0.0
 _C.TRAIN.DATA.END = 1.0
+_C.TRAIN.DATA.FOLD = CN()
+_C.TRAIN.DATA.FOLD.FOLD_NAME = ''
+_C.TRAIN.DATA.FOLD.FOLD_PATH = ''
 # Train Data preprocessing
 _C.TRAIN.DATA.PREPROCESS = CN()
 _C.TRAIN.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
@@ -70,6 +73,14 @@ _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.TRAIN.DATA.PREPROCESS.RESIZE = CN()
 _C.TRAIN.DATA.PREPROCESS.RESIZE.W = 128
 _C.TRAIN.DATA.PREPROCESS.RESIZE.H = 128
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL = CN()
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL.BIG_DATA_TYPE = ['']
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL.SMALL_DATA_TYPE = ['']
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE = CN()
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_W = 144
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_H = 144
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
+_C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 # -----------------------------------------------------------------------------
 # Valid settings
 # -----------------------------------------------------------------------------\
@@ -95,6 +106,9 @@ _C.VALID.DATA.DO_PREPROCESS = False
 _C.VALID.DATA.DATA_FORMAT = 'NDCHW'
 _C.VALID.DATA.BEGIN = 0.0
 _C.VALID.DATA.END = 1.0
+_C.VALID.DATA.FOLD = CN()
+_C.VALID.DATA.FOLD.FOLD_NAME = ''
+_C.VALID.DATA.FOLD.FOLD_PATH = ''
 # Valid Data preprocessing
 _C.VALID.DATA.PREPROCESS = CN()
 _C.VALID.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
@@ -114,6 +128,14 @@ _C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.VALID.DATA.PREPROCESS.RESIZE = CN()
 _C.VALID.DATA.PREPROCESS.RESIZE.W = 128
 _C.VALID.DATA.PREPROCESS.RESIZE.H = 128
+_C.VALID.DATA.PREPROCESS.BIGSMALL = CN()
+_C.VALID.DATA.PREPROCESS.BIGSMALL.BIG_DATA_TYPE = ['']
+_C.VALID.DATA.PREPROCESS.BIGSMALL.SMALL_DATA_TYPE = ['']
+_C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE = CN()
+_C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_W = 144
+_C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_H = 144
+_C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
+_C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 
 # -----------------------------------------------------------------------------
 # Test settings
@@ -142,9 +164,12 @@ _C.TEST.DATA.DO_PREPROCESS = False
 _C.TEST.DATA.DATA_FORMAT = 'NDCHW'
 _C.TEST.DATA.BEGIN = 0.0
 _C.TEST.DATA.END = 1.0
+_C.TEST.DATA.FOLD = CN()
+_C.TEST.DATA.FOLD.FOLD_NAME = ''
+_C.TEST.DATA.FOLD.FOLD_PATH = ''
 # Test Data preprocessing
 _C.TEST.DATA.PREPROCESS = CN()
-_C.VALID.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
+_C.TEST.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
 _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TEST.DATA.PREPROCESS.DATA_AUG = ['None']
 _C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
@@ -161,6 +186,14 @@ _C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.TEST.DATA.PREPROCESS.RESIZE = CN()
 _C.TEST.DATA.PREPROCESS.RESIZE.W = 128
 _C.TEST.DATA.PREPROCESS.RESIZE.H = 128
+_C.TEST.DATA.PREPROCESS.BIGSMALL = CN()
+_C.TEST.DATA.PREPROCESS.BIGSMALL.BIG_DATA_TYPE = ['']
+_C.TEST.DATA.PREPROCESS.BIGSMALL.SMALL_DATA_TYPE = ['']
+_C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE = CN()
+_C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_W = 144
+_C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_H = 144
+_C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
+_C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 
 # -----------------------------------------------------------------------------
 # Unsupervised method settings
@@ -189,6 +222,9 @@ _C.UNSUPERVISED.DATA.DO_PREPROCESS = False
 _C.UNSUPERVISED.DATA.DATA_FORMAT = 'NDCHW'
 _C.UNSUPERVISED.DATA.BEGIN = 0.0
 _C.UNSUPERVISED.DATA.END = 1.0
+_C.UNSUPERVISED.DATA.FOLD = CN()
+_C.UNSUPERVISED.DATA.FOLD.FOLD_NAME = ''
+_C.UNSUPERVISED.DATA.FOLD.FOLD_PATH = ''
 # Unsupervised Data preprocessing
 _C.UNSUPERVISED.DATA.PREPROCESS = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE = ['']
@@ -235,6 +271,12 @@ _C.MODEL.TSCAN.FRAME_DEPTH = 10
 # -----------------------------------------------------------------------------
 _C.MODEL.EFFICIENTPHYS = CN()
 _C.MODEL.EFFICIENTPHYS.FRAME_DEPTH = 10
+
+# -----------------------------------------------------------------------------
+# Model Settings for BigSmall
+# -----------------------------------------------------------------------------
+_C.MODEL.BIGSMALL = CN()
+_C.MODEL.BIGSMALL.FRAME_DEPTH = 3
 
 # -----------------------------------------------------------------------------
 # Inference settings
@@ -308,10 +350,12 @@ def update_config(config, args):
 
     name, ext = os.path.splitext(config.TRAIN.DATA.FILE_LIST_PATH)
     if not ext: # no file extension
+        FOLD_STR = '_' + config.TRAIN.DATA.FOLD.FOLD_NAME if config.TRAIN.DATA.FOLD.FOLD_NAME else ''
         config.TRAIN.DATA.FILE_LIST_PATH = os.path.join(config.TRAIN.DATA.FILE_LIST_PATH, \
                                                         config.TRAIN.DATA.EXP_DATA_NAME + '_' + \
                                                         str(config.TRAIN.DATA.BEGIN) + '_' + \
-                                                        str(config.TRAIN.DATA.END) + '.csv')
+                                                        str(config.TRAIN.DATA.END) + \
+                                                        FOLD_STR + '.csv')
     elif ext != '.csv':
         raise ValueError('TRAIN dataset FILE_LIST_PATH must either be a directory path or a .csv file name')
     
@@ -341,10 +385,12 @@ def update_config(config, args):
 
         name, ext = os.path.splitext(config.VALID.DATA.FILE_LIST_PATH)
         if not ext:  # no file extension
+            FOLD_STR = '_' + config.VALID.DATA.FOLD.FOLD_NAME if config.VALID.DATA.FOLD.FOLD_NAME else ''
             config.VALID.DATA.FILE_LIST_PATH = os.path.join(config.VALID.DATA.FILE_LIST_PATH, \
                                                             config.VALID.DATA.EXP_DATA_NAME + '_' + \
                                                             str(config.VALID.DATA.BEGIN) + '_' + \
-                                                            str(config.VALID.DATA.END) + '.csv')
+                                                            str(config.VALID.DATA.END) + \
+                                                            FOLD_STR + '.csv')
         elif ext != '.csv':
             raise ValueError('VALIDATION dataset FILE_LIST_PATH must either be a directory path or a .csv file name')
 
@@ -375,10 +421,12 @@ def update_config(config, args):
 
     name, ext = os.path.splitext(config.TEST.DATA.FILE_LIST_PATH)
     if not ext: # no file extension
+        FOLD_STR = '_' + config.TEST.DATA.FOLD.FOLD_NAME if config.TEST.DATA.FOLD.FOLD_NAME else ''
         config.TEST.DATA.FILE_LIST_PATH = os.path.join(config.TEST.DATA.FILE_LIST_PATH, \
                                                        config.TEST.DATA.EXP_DATA_NAME + '_' + \
                                                        str(config.TEST.DATA.BEGIN) + '_' + \
-                                                       str(config.TEST.DATA.END) + '.csv')
+                                                       str(config.TEST.DATA.END) + \
+                                                       FOLD_STR + '.csv')
     elif ext != '.csv':
         raise ValueError('TEST dataset FILE_LIST_PATH must either be a directory path or a .csv file name')
 
@@ -438,10 +486,12 @@ def update_config(config, args):
 
     name, ext = os.path.splitext(config.UNSUPERVISED.DATA.FILE_LIST_PATH)
     if not ext: # no file extension
+        FOLD_STR = '_' + config.UNSUPERVISED.DATA.FOLD.FOLD_NAME if config.UNSUPERVISED.DATA.FOLD.FOLD_NAME else ''
         config.UNSUPERVISED.DATA.FILE_LIST_PATH = os.path.join(config.UNSUPERVISED.DATA.FILE_LIST_PATH, \
-                                                         config.UNSUPERVISED.DATA.EXP_DATA_NAME + '_' + \
-                                                         str(config.UNSUPERVISED.DATA.BEGIN) + '_' + \
-                                                         str(config.UNSUPERVISED.DATA.END) + '.csv')
+                                                        config.UNSUPERVISED.DATA.EXP_DATA_NAME + '_' + \
+                                                        str(config.UNSUPERVISED.DATA.BEGIN) + '_' + \
+                                                        str(config.UNSUPERVISED.DATA.END) + \
+                                                        FOLD_STR + '.csv')
     elif ext != '.csv':
         raise ValueError('UNSUPERVISED dataset FILE_LIST_PATH must either be a directory path or a .csv file name')
 

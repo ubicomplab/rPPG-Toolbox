@@ -71,6 +71,8 @@ def train_and_test(config, data_loader_dict):
         model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'DeepPhys':
         model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'BigSmall':
+        model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.train(data_loader_dict)
@@ -87,6 +89,8 @@ def test(config, data_loader_dict):
         model_trainer = trainer.EfficientPhysTrainer.EfficientPhysTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'DeepPhys':
         model_trainer = trainer.DeepPhysTrainer.DeepPhysTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'BigSmall':
+        model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.test(data_loader_dict)
@@ -138,11 +142,14 @@ if __name__ == "__main__":
             train_loader = data_loader.MMPDLoader.MMPDLoader
         elif config.TRAIN.DATA.DATASET == "BP4DPlus":
             train_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
+        elif config.TRAIN.DATA.DATASET == "BP4DPlusBigSmall":
+            train_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
 
         # Create and initialize the train dataloader given the correct toolbox mode,
-        # a supported dataset name, and a valid dataset path
+        # a supported dataset name, and a valid dataset paths
         if (config.TRAIN.DATA.DATASET and config.TRAIN.DATA.DATA_PATH):
 
             train_data_loader = train_loader(
@@ -171,11 +178,14 @@ if __name__ == "__main__":
             valid_loader = data_loader.MMPDLoader.MMPDLoader
         elif config.VALID.DATA.DATASET == "BP4DPlus":
             valid_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
+        elif config.VALID.DATA.DATASET == "BP4DPlusBigSmall":
+            valid_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
-                raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
+            raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")      
-
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
+        
         # Create and initialize the valid dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
         if (config.VALID.DATA.DATASET and config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH):
@@ -206,9 +216,12 @@ if __name__ == "__main__":
             test_loader = data_loader.MMPDLoader.MMPDLoader
         elif config.TEST.DATA.DATASET == "BP4DPlus":
             test_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
+        elif config.TEST.DATA.DATASET == "BP4DPlusBigSmall":
+            test_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
+        
         if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
             print("Testing uses last epoch, validation dataset is not required.", end='\n\n')   
 
@@ -232,10 +245,7 @@ if __name__ == "__main__":
 
     elif config.TOOLBOX_MODE == "unsupervised_method":
         # unsupervised method dataloader
-        if config.UNSUPERVISED.DATA.DATASET == "COHFACE":
-            # unsupervised_loader = data_loader.COHFACELoader.COHFACELoader
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-        elif config.UNSUPERVISED.DATA.DATASET == "UBFC":
+        if config.UNSUPERVISED.DATA.DATASET == "UBFC":
             unsupervised_loader = data_loader.UBFCLoader.UBFCLoader
         elif config.UNSUPERVISED.DATA.DATASET == "PURE":
             unsupervised_loader = data_loader.PURELoader.PURELoader
@@ -243,9 +253,12 @@ if __name__ == "__main__":
             unsupervised_loader = data_loader.SCAMPSLoader.SCAMPSLoader
         elif config.UNSUPERVISED.DATA.DATASET == "MMPD":
             unsupervised_loader = data_loader.MMPDLoader.MMPDLoader
+        elif config.UNSUPERVISED.DATA.DATASET == "BP4DPlus":
+            unsupervised_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, and SCAMPS.")
-
+            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+                             SCAMPS, BP4D+.")
+        
         unsupervised_data = unsupervised_loader(
             name="unsupervised",
             data_path=config.UNSUPERVISED.DATA.DATA_PATH,

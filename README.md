@@ -83,6 +83,7 @@ Here are some explanation of parameters:
   * `BEGIN" & "END`: The portion of the dataset used for training/validation/testing. For example, if the `DATASET` is PURE, `BEGIN` is 0.0 and `END` is 0.8 under the TRAIN, the first 80% PURE is used for training the network. If the `DATASET` is PURE, `BEGIN` is 0.8 and `END` is 1.0 under the VALID, the last 20% PURE is used as the validation set. It is worth noting that validation and training sets don't have overlapping subjects.  
   * `DATA_TYPE`: How to preprocess the video data
   * `LABEL_TYPE`: How to preprocess the label data
+  *  `USE_PSUEDO_PPG_LABEL`: If `True` use POS generated PPG psuedo labels instead of dataset ground truth heart singal waveform
   * `DO_CHUNK`: Whether to split the raw data into smaller chunks
   * `CHUNK_LENGTH`: The length of each chunk (number of frames)
   * `CROP_FACE`: Whether to perform face detection
@@ -101,7 +102,7 @@ The toolbox supports four datasets, which are SCAMPS, UBFC, PURE, and MMPD (COHF
 For now, we only recommend training with PURE or SCAMPS due to the level of synchronization and volume of the dataset.
 
 * [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
-* Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
+    * Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
  "MMPD: Multi-Domain Mobile Video Physiology Dataset", arxiv, 2023
     * In order to use this dataset in a deep model, you should organize the files as follows:
     
@@ -149,6 +150,7 @@ For now, we only recommend training with PURE or SCAMPS due to the level of sync
   
     * S. Bobbia, R. Macwan, Y. Benezeth, A. Mansouri, J. Dubois, "Unsupervised skin tissue segmentation for remote photoplethysmography", Pattern Recognition Letters, 2017.
     * In order to use this dataset in a deep model, you should organize the files as follows:
+    
     -----------------
          data/UBFC/
          |   |-- subject1/
@@ -164,12 +166,12 @@ For now, we only recommend training with PURE or SCAMPS due to the level of sync
     -----------------
    
 * [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure)
-    * Stricker, R., Müller, S., Gross, H.-M.Non-contact Video-based Pulse Rate Measurement on a Mobile Service Robot
+    * Stricker, R., Müller, S., Gross, H.-M.Non-contact "Video-based Pulse Rate Measurement on a Mobile Service Robot"
 in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
     * In order to use this dataset in a deep model, you should organize the files as follows:
     
     -----------------
-        data/PURE/
+         data/PURE/
          |   |-- 01-01/
          |      |-- 01-01/
          |      |-- 01-01.json
@@ -181,6 +183,55 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
          |      |-- ii-jj/
          |      |-- ii-jj.json
     -----------------
+    
+* [BP4D+](https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html)
+    * Zhang, Z., Girard, J., Wu, Y., Zhang, X., Liu, P., Ciftci, U., Canavan, S., Reale, M., Horowitz, A., Yang, H., Cohn, J., Ji, Q., Yin, L. "Multimodal Spontaneous Emotion Corpus for Human Behavior Analysis", IEEE International Conference on Computer Vision and Pattern Recognition (CVPR) 2016.   
+
+    -----------------
+        RawData/
+         |   |-- 2D+3D/
+         |       |-- F001.zip/
+         |       |-- F002.zip
+         |       |...
+         |   |-- 2DFeatures/
+         |       |-- F001_T1.mat
+         |       |-- F001_T2.mat
+         |       |...
+         |   |-- 3DFeatures/
+         |       |-- F001_T1.mat
+         |       |-- F001_T2.mat
+         |       |...
+         |   |-- AUCoding/
+         |       |-- AU_INT/
+         |            |-- AU06/
+         |               |-- F001_T1_AU06.csv
+         |               |...
+         |           |...
+         |       |-- AU_OCC/
+         |           |-- F00_T1.csv 
+         |           |...
+         |   |-- IRFeatures/
+         |       |-- F001_T1.txt
+         |       |...
+         |   |-- Physiology/
+         |       |-- F001/
+         |           |-- T1/
+         |               |-- BP_mmHg.txt
+         |               |-- microsiemens.txt
+         |               |--LA Mean BP_mmHg.txt
+         |               |--LA Systolic BP_mmHg.txt
+         |               |-- BP Dia_mmHg.txt
+         |               |-- Pulse Rate_BPM.txt
+         |               |-- Resp_Volts.txt
+         |               |-- Respiration Rate_BPM.txt
+         |       |...
+         |   |-- Thermal/
+         |       |-- F001/
+         |           |-- T1.mv
+         |           |...
+         |       |...
+         |   |-- BP4D+UserGuide_v0.2.pdf
+    -----------------
 
     
 ## Add A New Dataloader
@@ -190,11 +241,11 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
 * Step2 : Implement the required functions, including:
 
   ```python
-  def preprocess_dataset(self, config_preprocess)
+  def preprocess_dataset(self, config_preprocess):
   ```
   ```python
   @staticmethod
-  def read_video(video_file)
+  def read_video(video_file):
   ```
   ```python
   @staticmethod
@@ -203,4 +254,19 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
 
 * Step3 :[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * Step4 :Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
+
+# Extending The Toolbox To Multitasking
+
+## BigSmall
+
+We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
+* Narayanswamy, G., Liu, Y., Yang, Y., Ma, C., Liu, X., McDuff, D., Patel, S. "BigSmall: Efficient Multi-Task Learning For Physiological Measurements" https://arxiv.org/abs/2303.11573
+
+The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), and facial action (multilabel AU classification). The model is trained and evaluated (in this toolbox) on the AU label subset (described in the BigSmall publication) of the BP4D+ dataset, using a 3-fold cross validation method (using the same folds as in the BigSmall publication).
+
+* STEP 1: Download the BP4D+ by emailing the authors found [here](https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html).
+
+* STEP 2: Modify `./configs/train_configs/BP4D_BP4D_BIGSMALL_FOLD1.yaml` to train the first fold (config files also exist for the 2nd and 3rd fold).
+
+* STEP 3: Run `python main.py --config_file ./configs/train_configs/BP4D_BP4D_BIGSMALL_FOLD1.yaml `
 
