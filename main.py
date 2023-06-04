@@ -38,25 +38,25 @@ def seed_worker(worker_id):
 def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
-                        default="configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
+                        default="configs/train_configs/PURE_PURE_UBFC-rPPG_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
     '''Neural Method Sample YAMSL LIST:
-      SCAMPS_SCAMPS_UBFC_TSCAN_BASIC.yaml
-      SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml
-      SCAMPS_SCAMPS_UBFC_PHYSNET_BASIC.yaml
+      SCAMPS_SCAMPS_UBFC-rPPG_TSCAN_BASIC.yaml
+      SCAMPS_SCAMPS_UBFC-rPPG_DEEPPHYS_BASIC.yaml
+      SCAMPS_SCAMPS_UBFC-rPPG_PHYSNET_BASIC.yaml
       SCAMPS_SCAMPS_PURE_DEEPPHYS_BASIC.yaml
       SCAMPS_SCAMPS_PURE_TSCAN_BASIC.yaml
       SCAMPS_SCAMPS_PURE_PHYSNET_BASIC.yaml
-      PURE_PURE_UBFC_TSCAN_BASIC.yaml
-      PURE_PURE_UBFC_DEEPPHYS_BASIC.yaml
-      PURE_PURE_UBFC_PHYSNET_BASIC.yaml
+      PURE_PURE_UBFC-rPPG_TSCAN_BASIC.yaml
+      PURE_PURE_UBFC-rPPG_DEEPPHYS_BASIC.yaml
+      PURE_PURE_UBFC-rPPG_PHYSNET_BASIC.yaml
       PURE_PURE_MMPD_TSCAN_BASIC.yaml
-      UBFC_UBFC_PURE_TSCAN_BASIC.yaml
-      UBFC_UBFC_PURE_DEEPPHYS_BASIC.yaml
-      UBFC_UBFC_PURE_PHYSNET_BASIC.yaml
-      MMPD_MMPD_UBFC_TSCAN_BASIC.yaml
+      UBFC-rPPG_UBFC-rPPG_PURE_TSCAN_BASIC.yaml
+      UBFC-rPPG_UBFC-rPPG_PURE_DEEPPHYS_BASIC.yaml
+      UBFC-rPPG_UBFC-rPPG_PURE_PHYSNET_BASIC.yaml
+      MMPD_MMPD_UBFC-rPPG_TSCAN_BASIC.yaml
     Unsupervised Method Sample YAMSL LIST:
       PURE_UNSUPERVISED.yaml
-      UBFC_UNSUPERVISED.yaml
+      UBFC-rPPG_UNSUPERVISED.yaml
     '''
     return parser
 
@@ -132,8 +132,8 @@ if __name__ == "__main__":
     data_loader_dict = dict() # dictionary of data loaders 
     if config.TOOLBOX_MODE == "train_and_test":
         # train_loader
-        if config.TRAIN.DATA.DATASET == "UBFC":
-            train_loader = data_loader.UBFCLoader.UBFCLoader
+        if config.TRAIN.DATA.DATASET == "UBFC-rPPG":
+            train_loader = data_loader.UBFCrPPGLoader.UBFCrPPGLoader
         elif config.TRAIN.DATA.DATASET == "PURE":
             train_loader = data_loader.PURELoader.PURELoader
         elif config.TRAIN.DATA.DATASET == "SCAMPS":
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         elif config.TRAIN.DATA.DATASET == "BP4DPlusBigSmall":
             train_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+            raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
                              SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
 
         # Create and initialize the train dataloader given the correct toolbox mode,
@@ -168,8 +168,8 @@ if __name__ == "__main__":
             data_loader_dict['train'] = None
 
         # valid_loader
-        if config.VALID.DATA.DATASET == "UBFC":
-            valid_loader = data_loader.UBFCLoader.UBFCLoader
+        if config.VALID.DATA.DATASET == "UBFC-rPPG":
+            valid_loader = data_loader.UBFCrPPGLoader.UBFCrPPGLoader
         elif config.VALID.DATA.DATASET == "PURE":
             valid_loader = data_loader.PURELoader.PURELoader
         elif config.VALID.DATA.DATASET == "SCAMPS":
@@ -183,7 +183,7 @@ if __name__ == "__main__":
         elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
             raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+            raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
                              SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
         
         # Create and initialize the valid dataloader given the correct toolbox mode,
@@ -206,8 +206,8 @@ if __name__ == "__main__":
 
     if config.TOOLBOX_MODE == "train_and_test" or config.TOOLBOX_MODE == "only_test":
         # test_loader
-        if config.TEST.DATA.DATASET == "UBFC":
-            test_loader = data_loader.UBFCLoader.UBFCLoader
+        if config.TEST.DATA.DATASET == "UBFC-rPPG":
+            test_loader = data_loader.UBFCrPPGLoader.UBFCrPPGLoader
         elif config.TEST.DATA.DATASET == "PURE":
             test_loader = data_loader.PURELoader.PURELoader
         elif config.TEST.DATA.DATASET == "SCAMPS":
@@ -219,7 +219,7 @@ if __name__ == "__main__":
         elif config.TEST.DATA.DATASET == "BP4DPlusBigSmall":
             test_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+            raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
                              SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
         
         if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
@@ -245,8 +245,8 @@ if __name__ == "__main__":
 
     elif config.TOOLBOX_MODE == "unsupervised_method":
         # unsupervised method dataloader
-        if config.UNSUPERVISED.DATA.DATASET == "UBFC":
-            unsupervised_loader = data_loader.UBFCLoader.UBFCLoader
+        if config.UNSUPERVISED.DATA.DATASET == "UBFC-rPPG":
+            unsupervised_loader = data_loader.UBFCrPPGLoader.UBFCrPPGLoader
         elif config.UNSUPERVISED.DATA.DATASET == "PURE":
             unsupervised_loader = data_loader.PURELoader.PURELoader
         elif config.UNSUPERVISED.DATA.DATASET == "SCAMPS":
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         elif config.UNSUPERVISED.DATA.DATASET == "BP4DPlus":
             unsupervised_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         else:
-            raise ValueError("Unsupported dataset! Currently supporting UBFC, PURE, MMPD, \
+            raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
                              SCAMPS, BP4D+.")
         
         unsupervised_data = unsupervised_loader(
