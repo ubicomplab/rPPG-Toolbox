@@ -1,0 +1,119 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 30
+  LR: 9e-3
+  MODEL_FILE_NAME: UBFC_UBFC_PURE_deepphys
+  DATA:
+    FS: 30
+    DATASET: UBFC-rPPG
+    DO_PREPROCESS: False               # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC-rPPG/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 0.8
+    PREPROCESS:
+      DATA_TYPE: ['DiffNormalized','Standardized']
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      CROP_FACE:
+        DO_CROP_FACE: True
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
+VALID:
+  DATA:
+    FS: 30
+    DATASET: UBFC-rPPG
+    DO_PREPROCESS: False                  # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC-rPPG/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.8
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      CROP_FACE:
+        DO_CROP_FACE: True
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
+  USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    FILTERING:
+      USE_EXCLUSION_LIST: True
+      EXCLUSION_LIST: [
+      's3_T1', 's8_T1', 's9_T1', 's26_T1', 's28_T1', 's30_T1', 's31_T1', 's32_T1',
+      's33_T1', 's40_T1', 's52_T1', 's53_T1', 's54_T1', 's56_T1', 's1_T2', 's4_T2',
+      's6_T2', 's8_T2', 's9_T2', 's11_T2', 's12_T2', 's13_T2', 's14_T2', 's19_T2',
+      's21_T2', 's22_T2', 's25_T2', 's26_T2', 's27_T2', 's28_T2', 's31_T2', 's32_T2',
+      's33_T2', 's35_T2', 's38_T2', 's39_T2', 's41_T2', 's42_T2', 's45_T2', 's47_T2',
+      's48_T2', 's52_T2', 's53_T2', 's55_T2', 's5_T3', 's8_T3', 's9_T3', 's10_T3',
+      's13_T3', 's14_T3', 's17_T3', 's22_T3', 's25_T3', 's26_T3', 's28_T3', 's30_T3',
+      's32_T3', 's33_T3', 's35_T3', 's37_T3', 's40_T3', 's47_T3', 's48_T3', 's49_T3',
+      's50_T3', 's52_T3', 's53_T3']
+      SELECT_TASKS: True
+      TASK_LIST: ['T1', 'T2', 'T3']
+    FS: 35
+    DATASET: UBFC-PHYS
+    DO_PREPROCESS: False                    # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC-PHYS/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: [ 'DiffNormalized','Standardized' ]
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      CROP_FACE:
+        DO_CROP_FACE: True
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: DeepPhys
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
+  MODEL_PATH:   ""
