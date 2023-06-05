@@ -39,7 +39,7 @@ def add_args(parser):
     """Adds arguments for parser."""
     parser.add_argument('--config_file', required=False,
                         default="configs/train_configs/PURE_PURE_UBFC-rPPG_TSCAN_BASIC.yaml", type=str, help="The name of the model.")
-    '''Neural Method Sample YAMSL LIST:
+    '''Neural Method Sample YAML LIST:
       SCAMPS_SCAMPS_UBFC-rPPG_TSCAN_BASIC.yaml
       SCAMPS_SCAMPS_UBFC-rPPG_DEEPPHYS_BASIC.yaml
       SCAMPS_SCAMPS_UBFC-rPPG_PHYSNET_BASIC.yaml
@@ -54,7 +54,7 @@ def add_args(parser):
       UBFC-rPPG_UBFC-rPPG_PURE_DEEPPHYS_BASIC.yaml
       UBFC-rPPG_UBFC-rPPG_PURE_PHYSNET_BASIC.yaml
       MMPD_MMPD_UBFC-rPPG_TSCAN_BASIC.yaml
-    Unsupervised Method Sample YAMSL LIST:
+    Unsupervised Method Sample YAML LIST:
       PURE_UNSUPERVISED.yaml
       UBFC-rPPG_UNSUPERVISED.yaml
     '''
@@ -144,9 +144,11 @@ if __name__ == "__main__":
             train_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         elif config.TRAIN.DATA.DATASET == "BP4DPlusBigSmall":
             train_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
+        elif config.TRAIN.DATA.DATASET == "UBFC-PHYS":
+            train_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
 
         # Create and initialize the train dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset paths
@@ -180,11 +182,13 @@ if __name__ == "__main__":
             valid_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         elif config.VALID.DATA.DATASET == "BP4DPlusBigSmall":
             valid_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
+        elif config.VALID.DATA.DATASET == "UBFC-PHYS":
+            valid_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
         elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
             raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
         
         # Create and initialize the valid dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
@@ -218,9 +222,11 @@ if __name__ == "__main__":
             test_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         elif config.TEST.DATA.DATASET == "BP4DPlusBigSmall":
             test_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
+        elif config.TEST.DATA.DATASET == "UBFC-PHYS":
+            test_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing).")
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
         
         if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
             print("Testing uses last epoch, validation dataset is not required.", end='\n\n')   
@@ -255,9 +261,11 @@ if __name__ == "__main__":
             unsupervised_loader = data_loader.MMPDLoader.MMPDLoader
         elif config.UNSUPERVISED.DATA.DATASET == "BP4DPlus":
             unsupervised_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
+        elif config.UNSUPERVISED.DATA.DATASET == "UBFC-PHYS":
+            unsupervised_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+.")
+                             SCAMPS, BP4D+, and UBFC-PHYS.")
         
         unsupervised_data = unsupervised_loader(
             name="unsupervised",
