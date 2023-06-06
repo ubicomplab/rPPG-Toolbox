@@ -69,6 +69,7 @@ class UBFCrPPGLoader(BaseLoader):
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
 
+        # Read Frames
         if 'None' in config_preprocess.DATA_AUG:
             # Utilize dataset-specific function to read video
             frames = self.read_video(
@@ -79,8 +80,13 @@ class UBFCrPPGLoader(BaseLoader):
                 glob.glob(os.path.join(data_dirs[i]['path'],'*.npy')))
         else:
             raise ValueError(f'Unsupported DATA_AUG specified for {self.dataset_name} dataset! Received {config_preprocess.DATA_AUG}.')
-        bvps = self.read_wave(
-            os.path.join(data_dirs[i]['path'],"ground_truth.txt"))
+
+        # Read Labels
+        if config_preprocess.USE_PSUEDO_PPG_LABEL:
+            bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+        else:
+            bvps = self.read_wave(
+                os.path.join(data_dirs[i]['path'],"ground_truth.txt"))
             
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
         input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)

@@ -129,7 +129,12 @@ class MMPDLoader(BaseLoader):
             for _ in range(20):
                 print(mat_file)
         frames = np.array(mat['video'])
-        bvps = np.array(mat['GT_ppg']).T.reshape(-1)
+
+        if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
+            bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+        else: 
+            bvps = np.array(mat['GT_ppg']).T.reshape(-1)
+
         light = mat['light']
         motion = mat['motion']
         exercise = mat['exercise']

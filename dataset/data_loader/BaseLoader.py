@@ -2,7 +2,7 @@
 
 Provides a pytorch-style data-loader for end-to-end training pipelines.
 Extend the class to support specific datasets.
-Dataset already supported: UBFC-rPPG, PURE, SCAMPS, BP4D, and UBFC-PHYS.
+Dataset already supported: UBFC-rPPG, PURE, SCAMPS, BP4D+, and UBFC-PHYS.
 
 """
 import csv
@@ -57,6 +57,7 @@ class BaseLoader(Dataset):
         self.preprocessed_data_len = 0
         self.data_format = config_data.DATA_FORMAT
         self.do_preprocess = config_data.DO_PREPROCESS
+        self.config_data = config_data
 
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
@@ -66,6 +67,7 @@ class BaseLoader(Dataset):
             self.preprocess_dataset(self.raw_data_dirs, config_data.PREPROCESS, config_data.BEGIN, config_data.END)
         else:
             if not os.path.exists(self.cached_path):
+                print('CACHED_PATH:', self.cached_path)
                 raise ValueError(self.dataset_name,
                                  'Please set DO_PREPROCESS to True. Preprocessed directory does not exist!')
             if not os.path.exists(self.file_list_path):
@@ -189,7 +191,7 @@ class BaseLoader(Dataset):
         amplitude_envelope = np.abs(analytic_signal) # derive envelope signal
         env_norm_bvp = pos_bvp/amplitude_envelope # normalize by env
 
-        return env_norm_bvp # return data dict w/ POS psuedo labels
+        return np.array(env_norm_bvp) # return POS psuedo labels
     
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Parses and preprocesses all the raw data based on split.

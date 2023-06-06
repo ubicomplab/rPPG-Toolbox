@@ -11,8 +11,8 @@ TRAIN:
     DATASET: BP4DPlusBigSmall
     DO_PREPROCESS: False              # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH:  /gscratch/ubicomp/girishvn/datasets/BP4D+_v0.2" 
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"  # Processed dataset save path, need to be updated
+    DATA_PATH:  "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/BP4DPlus/RawData" 
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"  # Processed dataset save path, need to be updated
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
       FOLD_NAME: 'Fold3_Train'
@@ -45,8 +45,8 @@ VALID:
     DATASET: BP4DPlusBigSmall
     DO_PREPROCESS: False              # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH:  /gscratch/ubicomp/girishvn/datasets/BP4D+_v0.2" 
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"  # Processed dataset save path, need to be updated
+    DATA_PATH:  "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/BP4DPlus/RawData" 
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"  # Processed dataset save path, need to be updated
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
       FOLD_NAME: 'Fold3_Test'
@@ -81,8 +81,8 @@ TEST:
     DATASET: BP4DPlusBigSmall
     DO_PREPROCESS: False              # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH:  /gscratch/ubicomp/girishvn/datasets/BP4D+_v0.2" 
-    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData"  # Processed dataset save path, need to be updated
+    DATA_PATH:  "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/BP4DPlus/RawData" 
+    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"  # Processed dataset save path, need to be updated
     EXP_DATA_NAME: "BigSmall_BP4DPlus_Big144_Small9_ChunkLen3_AUSubset_rPPGToolbox"
     FOLD:
       FOLD_NAME: 'Fold3_Test'

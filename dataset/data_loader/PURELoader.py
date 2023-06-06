@@ -102,6 +102,7 @@ class PURELoader(BaseLoader):
         filename = os.path.split(data_dirs[i]['path'])[-1]
         saved_filename = data_dirs[i]['index']
 
+        # Read Frames
         if 'None' in config_preprocess.DATA_AUG:
             # Utilize dataset-specific function to read video
             frames = self.read_video(
@@ -112,8 +113,14 @@ class PURELoader(BaseLoader):
                 glob.glob(os.path.join(data_dirs[i]['path'], filename, '*.npy')))
         else:
             raise ValueError(f'Unsupported DATA_AUG specified for {self.dataset_name} dataset! Received {config_preprocess.DATA_AUG}.')
-        bvps = self.read_wave(
-            os.path.join(data_dirs[i]['path'], "{0}.json".format(filename)))
+
+        # Read Labels
+        if config_preprocess.USE_PSUEDO_PPG_LABEL:
+            bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+        else:
+            bvps = self.read_wave(
+                os.path.join(data_dirs[i]['path'], "{0}.json".format(filename)))
+
         target_length = frames.shape[0]
         bvps = BaseLoader.resample_ppg(bvps, target_length)
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)

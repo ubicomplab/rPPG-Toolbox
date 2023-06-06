@@ -63,16 +63,24 @@ class COHFACELoader(BaseLoader):
 
     def preprocess_dataset(self, data_dirs, config_preprocess):
         """Preprocesses the raw data."""
+
+        # Read Video Frames
         file_num = len(data_dirs)
         for i in range(file_num):
             frames = self.read_video(
                 os.path.join(
                     data_dirs[i]["path"],
                     "data.avi"))
-            bvps = self.read_wave(
-                os.path.join(
-                    data_dirs[i]["path"],
-                    "data.hdf5"))
+
+            # Read Labels
+            if config_preprocess.USE_PSUEDO_PPG_LABEL:
+                bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+            else:
+                bvps = self.read_wave(
+                        os.path.join(
+                        data_dirs[i]["path"],
+                        "data.hdf5"))
+            
             target_length = frames.shape[0]
             bvps = BaseLoader.resample_ppg(bvps, target_length)
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)

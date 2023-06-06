@@ -242,6 +242,7 @@ _C.UNSUPERVISED.DATA.FOLD.FOLD_NAME = ''
 _C.UNSUPERVISED.DATA.FOLD.FOLD_PATH = ''
 # Unsupervised Data preprocessing
 _C.UNSUPERVISED.DATA.PREPROCESS = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL = False
 _C.UNSUPERVISED.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.UNSUPERVISED.DATA.PREPROCESS.DATA_AUG = ['None']
 _C.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE = ''
@@ -478,6 +479,10 @@ def update_config(config, args):
         else:
             raise ValueError(f'MODEL_FILE_NAME does not follow expected naming pattern of [TRAIN_SET]_[VALID_SET]_[TEST_SET]! \
                              \nReceived {config.TRAIN.MODEL_FILE_NAME}.')
+
+    # ENSURE USE_PSEUDO_LABELS IS NOT TRUE FOR UNSUPERVISED METHODS
+    if config.TOOLBOX_MODE == 'unsupervised_method' and config.UNSUPERVISED.DATA.PREPROCESS.USE_PSUEDO_PPG_LABEL == True:
+        raise ValueError('Pseudo PPG labels are NOT supported for unsupervised methods.')
 
     # UPDATE UNSUPERVISED PATHS
     if config.UNSUPERVISED.DATA.FILE_LIST_PATH == default_UNSUPERVISED_FILE_LIST_PATH:

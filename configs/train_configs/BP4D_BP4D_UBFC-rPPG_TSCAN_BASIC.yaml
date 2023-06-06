@@ -60,7 +60,6 @@ VALID:
       RESIZE:
         H: 72
         W: 72
-      W: 72
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
