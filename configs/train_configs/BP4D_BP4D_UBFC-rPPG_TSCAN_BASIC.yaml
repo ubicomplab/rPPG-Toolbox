@@ -1,5 +1,5 @@
 BASE: ['']
-TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test" 
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test" 
 TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 30
@@ -60,7 +60,6 @@ VALID:
       RESIZE:
         H: 72
         W: 72
-      W: 72
 TEST:
   METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
