@@ -77,27 +77,32 @@ Here are some explanation of parameters:
 * #### TOOLBOX_MODE: 
   * `train_and_test`: train on the dataset and use the newly trained model to test.
   * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
-* #### TRAIN / VALID / TEST / UNSUPERVISED DATA: 
+* #### TRAIN / VALID / TEST / UNSUPERVISED DATA:
+  * `USE_EXCLUSION_LIST`: If `True`, utilize a provided list to exclude preprocessed videos
+  * `SELECT_TASKS`: If `True`, explicitly select tasks to load 
   * `DATA_PATH`: The input path of raw data
   * `CACHED_PATH`: The output path to preprocessed data. This path also houses a directory of .csv files containing data paths to files loaded by the dataloader. This filelist (found in default at CACHED_PATH/DataFileLists). These can be viewed for users to understand which files are used in each data split (train/val/test)
   * `EXP_DATA_NAME` If it is "", the toolbox generates a EXP_DATA_NAME based on other defined parameters. Otherwise, it uses the user-defined EXP_DATA_NAME.  
   * `BEGIN" & "END`: The portion of the dataset used for training/validation/testing. For example, if the `DATASET` is PURE, `BEGIN` is 0.0 and `END` is 0.8 under the TRAIN, the first 80% PURE is used for training the network. If the `DATASET` is PURE, `BEGIN` is 0.8 and `END` is 1.0 under the VALID, the last 20% PURE is used as the validation set. It is worth noting that validation and training sets don't have overlapping subjects.  
   * `DATA_TYPE`: How to preprocess the video data
-  * `DATA_AUG`: If present, the type of data augmentation already applied to video data
+  * `DATA_AUG`: If present, the type of generative data augmentation applied to video data
   * `LABEL_TYPE`: How to preprocess the label data
   *  `USE_PSUEDO_PPG_LABEL`: If `True` use POS generated PPG psuedo labels instead of dataset ground truth heart singal waveform
   * `DO_CHUNK`: Whether to split the raw data into smaller chunks
   * `CHUNK_LENGTH`: The length of each chunk (number of frames)
-  * `CROP_FACE`: Whether to perform face detection
-  * `DYNAMIC_DETECTION`: If False, face detection is only performed at the first frame and the detected box is used to crop the video for all of the subsequent frames. If True, face detection is performed at a specific frequency which is defined by `DYNAMIC_DETECTION_FREQUENCY`. 
-  * `DYNAMIC_DETECTION_FREQUENCY`: The frequency of face detection (number of frames) if DYNAMIC_DETECTION is True
+  * `DO_CROP_FACE`: Whether to perform face detection
+  * `DYNAMIC_DETECTION`: If `False`, face detection is only performed at the first frame and the detected box is used to crop the video for all of the subsequent frames. If `True`, face detection is performed at a specific frequency which is defined by `DYNAMIC_DETECTION_FREQUENCY`. 
+  * `DYNAMIC_DETECTION_FREQUENCY`: The frequency of face detection (number of frames) if DYNAMIC_DETECTION is `True`
+  * `USE_MEDIAN_FACE_BOX`: If `True` and `DYNAMIC_DETECTION` is `True`, use the detected face boxs throughout each video to create a single, median face box per video.
   * `LARGE_FACE_BOX`: Whether to enlarge the rectangle of the detected face region in case the detected box is not large enough for some special cases (e.g., motion videos)
-  * `LARGE_BOX_COEF`: The coefficient of enlarging. See more details at `https://github.com/ubicomplab/rPPG-Toolbox/blob/main/dataset/data_loader/BaseLoader.py#L162-L165`. 
+  * `LARGE_BOX_COEF`: The coefficient to scale the face box if `LARGE_FACE_BOX` is `True`.
 
   
-* #### MODEL : Set used model (support Deepphys / TSCAN / Physnet right now) and their parameters.
+* #### MODEL : Set used model (Deepphys, TSCAN, Physnet, EfficientPhys, and BigSmall and their paramaters are supported).
 * #### UNSUPERVISED METHOD: Set used unsupervised method. Example: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
 * #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson']
+* #### INFERENCE:
+  * `USE_SMALLER_WINDOW`: If `True`, use an evaluation window smaller than the video length for evaluation.
 
 # Dataset
 The toolbox supports four datasets, which are SCAMPS, UBFC, PURE, and MMPD (COHFACE support will be added shortly). Cite corresponding papers when using.
