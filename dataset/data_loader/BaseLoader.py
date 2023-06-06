@@ -2,7 +2,7 @@
 
 Provides a pytorch-style data-loader for end-to-end training pipelines.
 Extend the class to support specific datasets.
-Dataset already supported: UBFC-rPPG, PURE, SCAMPS, BP4D, and UBFC-PHYS.
+Dataset already supported: UBFC-rPPG, PURE, SCAMPS, BP4D+, and UBFC-PHYS.
 
 """
 import csv
