@@ -57,6 +57,7 @@ class BaseLoader(Dataset):
         self.preprocessed_data_len = 0
         self.data_format = config_data.DATA_FORMAT
         self.do_preprocess = config_data.DO_PREPROCESS
+        self.config_data = config_data
 
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
@@ -189,7 +190,7 @@ class BaseLoader(Dataset):
         amplitude_envelope = np.abs(analytic_signal) # derive envelope signal
         env_norm_bvp = pos_bvp/amplitude_envelope # normalize by env
 
-        return env_norm_bvp # return data dict w/ POS psuedo labels
+        return np.array(env_norm_bvp) # return POS psuedo labels
     
     def preprocess_dataset(self, data_dirs, config_preprocess, begin, end):
         """Parses and preprocesses all the raw data based on split.

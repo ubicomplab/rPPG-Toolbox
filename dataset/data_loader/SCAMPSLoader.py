@@ -71,9 +71,17 @@ class SCAMPSLoader(BaseLoader):
         """ Invoked by preprocess_dataset() for multi_process. """
         matfile_path = data_dirs[i]['path']
         saved_filename = data_dirs[i]['index']
+
+        # Read Frames
         frames = self.read_video(matfile_path)
         frames = (np.round(frames * 255)).astype(np.uint8)
-        bvps = self.read_wave(matfile_path)
+
+        # Read Labels
+        if config_preprocess.USE_PSUEDO_PPG_LABEL:
+            bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+        else:
+            bvps = self.read_wave(matfile_path)
+
         frames_clips, bvps_clips = self.preprocess(
             frames, bvps, config_preprocess)
         input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
@@ -86,8 +94,16 @@ class SCAMPSLoader(BaseLoader):
         for i in pbar:
             matfile_path = data_dirs[i]['path']
             pbar.set_description("Processing %s" % matfile_path)
+
+            # Read Frames
             frames = self.read_video(matfile_path)
-            bvps = self.read_wave(matfile_path)
+
+            # Read Labels
+            if config_preprocess.USE_PSUEDO_PPG_LABEL:
+                bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+            else:
+                bvps = self.read_wave(matfile_path)
+                
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
             self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]['index'])
 
