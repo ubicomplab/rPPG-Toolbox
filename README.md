@@ -1,4 +1,5 @@
 ## Reference
+![rPPG-Toolbox Logo](./toolbox_logo.png)
 
 ```
 @article{liu2022deep,
