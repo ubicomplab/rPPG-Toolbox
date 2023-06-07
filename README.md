@@ -202,7 +202,7 @@ For example, if you want to run The model trained on PURE and tested on UBFC, us
 
 If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
-# Example of neural network training
+# Examples of neural network training
 
 Please use config files under `./configs/train_configs`
 
@@ -236,7 +236,7 @@ Note1: Preprocessing requires only once; thus turn it off on the yaml file when 
 Note2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
 
-# Predicting BVP signal and calculate heart rate on UBFC with POS/CHROME/ICA/GREEN/PBV/LGI
+# Inference with Unsupervised Methods 
 
 STEP1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
@@ -280,7 +280,7 @@ Here are some explanation of parameters:
   * `USE_SMALLER_WINDOW`: If `True`, use an evaluation window smaller than the video length for evaluation.
 
     
-## Add A New Dataloader
+# How to add a new dataset? 
 
 * Step1 : Create a new python file in dataset/data_loader, e.g. MyLoader.py
 
@@ -305,7 +305,7 @@ Here are some explanation of parameters:
 
 Supervised rPPG training requires high fidelity synchronous PPG waveform labels. However not all datasets contain such high quality labels. In these cases we offer the option to train on synchronous PPG "pseudo" labels derived through a signal processing methodology. These labels are produced by using POS-generated PPG waveforms, which are then bandpass filtered around the normal heart-rate frequencies, and finally amplitude normalized using a Hilbert-signal envelope. The tight filtering and envelope normalization results in a strong periodic proxy signal, but at the cost of limited signal morphology.
 
-![pseudo_labels](./figures/pseudo_labels.png)
+![pseudo_labels](./figures/rppgtoolbox_ppg_psuedo_labels.png)
 
 # Motion Augmented Training
 
