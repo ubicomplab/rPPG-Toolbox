@@ -177,7 +177,7 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
           |       |-- bvp_sn_T2.csv
     -----------------
 
-## Benchmark
+## Benchmarks
 
 The table shows  Mean Absolute Error (MAE) and Mean Absolute Percent Error (MAPE) performance across all the algorithms and datasets:
 
@@ -185,13 +185,13 @@ The table shows  Mean Absolute Error (MAE) and Mean Absolute Percent Error (MAPE
 
 # Setup
 
-STEP1: `bash setup.sh` 
+STEP 1: `bash setup.sh` 
 
-STEP2: `conda activate rppg-toolbox` 
+STEP 2: `conda activate rppg-toolbox` 
 
-STEP3: `pip install -r requirements.txt` 
+STEP 3: `pip install -r requirements.txt` 
 
-# Example of using pre-trained models 
+# Example of Using Pre-trained Models 
 
 Please use config files under `./configs/infer_configs`
 
@@ -199,49 +199,49 @@ For example, if you want to run The model trained on PURE and tested on UBFC, us
 
 If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
-# Examples of neural network training
+# Examples of Neural Network Training
 
 Please use config files under `./configs/train_configs`
 
-## Train on PURE and test on UBFC with TSCAN 
+## Training on PURE and Testing on UBFC With TSCAN 
 
-STEP1: Download the PURE raw data by asking the [paper authors](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure).
+STEP 1: Download the PURE raw data by asking the [paper authors](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure).
 
-STEP2: Download the UBFC raw data via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
+STEP 2: Download the UBFC raw data via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP3: Modify `./configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
+STEP 3: Modify `./configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
 
-STEP4: Run `python main.py --config_file ./configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
+STEP 4: Run `python main.py --config_file ./configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
 
-Note1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
+Note 1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
 
-Note2: The example yaml setting will allow 80% of PURE to train and 20% of PURE to valid. 
+Note 2: The example yaml setting will allow 80% of PURE to train and 20% of PURE to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
 
-## Training on SCAMPS and testing on UBFC with DeepPhys
+## Training on SCAMPS and testing on UBFC With DeepPhys
 
-STEP1: Download the SCAMPS via this [link](https://github.com/danmcduff/scampsdataset) and split it into train/val/test folders.
+STEP 1: Download the SCAMPS via this [link](https://github.com/danmcduff/scampsdataset) and split it into train/val/test folders.
 
-STEP2: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
+STEP 2: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP3: Modify `./configs/train_configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml` 
+STEP 3: Modify `./configs/train_configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml` 
 
-STEP4: Run `python main.py --config_file ./configs/train_configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
+STEP 4: Run `python main.py --config_file ./configs/train_configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
 
-Note1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
+Note 1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
 
-Note2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
+Note 2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
 
-# Inference with Unsupervised Methods 
+# Inference With Unsupervised Methods 
 
-STEP1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
+STEP 1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP3: Modify `./configs/infer_configs/UBFC_UNSUPERVISED.yaml` 
+STEP 3: Modify `./configs/infer_configs/UBFC_UNSUPERVISED.yaml` 
 
-STEP4: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
+STEP 4: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
-# Yaml File Setting
+# YAML File Setting
 The rPPG-Toolbox uses yaml file to control all parameters for training and evaluation. 
 You can modify the existing yaml files to meet your own training and testing requirements.
 
@@ -277,7 +277,7 @@ Here are some explanation of parameters:
   * `USE_SMALLER_WINDOW`: If `True`, use an evaluation window smaller than the video length for evaluation.
 
     
-# How to add a new dataset? 
+# Adding a New Dataset
 
 * STEP 1: Create a new python file in dataset/data_loader, e.g. MyLoader.py
 
@@ -319,7 +319,7 @@ If you use the aforementioned functionality, please remember to cite the followi
 
 Refer to this [BibTeX](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox#scroll-citation) for quick inclusion into a `.bib` file.
 
-# Extending The Toolbox To Multitasking with BigSmall
+# Extending the Toolbox to Multitasking With BigSmall
 
 We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
 * Narayanswamy, G., Liu, Y., Yang, Y., Ma, C., Liu, X., McDuff, D., Patel, S. "BigSmall: Efficient Multi-Task Learning For Physiological Measurements" https://arxiv.org/abs/2303.11573
