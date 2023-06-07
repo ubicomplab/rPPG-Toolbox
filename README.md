@@ -241,7 +241,7 @@ Note 1: Preprocessing requires only once; thus turn it off on the yaml file when
 Note 2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
 
-# zap: Inference With Unsupervised Methods 
+# :zap: Inference With Unsupervised Methods 
 
 STEP 1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
