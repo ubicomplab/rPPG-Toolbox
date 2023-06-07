@@ -1,4 +1,4 @@
-![rPPG-Toolbox Logo](./toolbox_logo.png)
+![rPPG-Toolbox Logo](./figures/toolbox_logo.png)
 
 # Introduction
 
@@ -327,3 +327,7 @@ The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), 
 
 * STEP 3: Run `python main.py --config_file ./configs/train_configs/BP4D_BP4D_BIGSMALL_FOLD1.yaml `
 
+# License
+<a href="https://www.licenses.ai/source-code-license">
+  <img src="https://images.squarespace-cdn.com/content/v1/5c2a6d5c45776e85d1482a7e/1546750722018-T7QVBTM15DQMBJF6A62M/RAIL+Final.png" alt="License: Responsible AI" width="30%">
+</a>
