@@ -1,15 +1,190 @@
-## Reference
 ![rPPG-Toolbox Logo](./toolbox_logo.png)
 
-```
-@article{liu2022deep,
-  title={Deep physiological sensing toolbox},
-  author={Liu, Xin and Zhang, Xiaoyu and Narayanswamy, Girish and Zhang, Yuzhe and Wang, Yuntao and Patel, Shwetak and McDuff, Daniel},
-  journal={arXiv preprint arXiv:2210.00716},
-  year={2022}
-}
-```
+# Introduction
 
+**rPPG-Toolbox** is a open-sourced platform for camera-based physiological sensing or remote photoplethysmography (rPPG). 
+
+![Overview of the rPPG](./figures/algorithm.png)
+
+
+rPPG-Toolbox not only benchmark the **existing state-of-the-art neural and unsupervised methods** but also supports flexible and repid development of your own algorithms. 
+
+![Overview of the toolbox](./figures/toolbox_overview.png)
+
+
+# Algorithms
+rPPG-Toolbox currently supports the following algorithms: 
+
+* Traditional Unsupervised Algorithms
+  - [Remote plethysmographic imaging using ambient light (GREEN)](https://pdfs.semanticscholar.org/7cb4/46d61a72f76e774b696515c55c92c7aa32b6.pdf?_gl=1*1q7hzyz*_ga*NTEzMzk5OTY3LjE2ODYxMDg1MjE.*_ga_H7P4ZT52H5*MTY4NjEwODUyMC4xLjAuMTY4NjEwODUyMS41OS4wLjA), by Verkruysse *et al.*, 2008
+  - [Advancements in noncontact multiparameter physiological measurements using a webcam (ICA)](https://affect.media.mit.edu/pdfs/11.Poh-etal-TBME.pdf), by Poh *et al.*, 2011
+  - [Robust pulse rate from chrominance-based rppg (CHROM)](https://ieeexplore.ieee.org/document/6523142), by Haan *et al.*, 2013
+  - [Local group invariance for heart rate estimation from face videos in the wild (LGI)](https://openaccess.thecvf.com/content_cvpr_2018_workshops/papers/w27/Pilz_Local_Group_Invariance_CVPR_2018_paper.pdf), by Pilz *et al.*, 2018
+  - [Improved motion robustness of remote-PPG by using the blood volume pulse signature (PBV)](https://iopscience.iop.org/article/10.1088/0967-3334/35/9/1913), by Haan *et al.*, 2014
+  - [Algorithmic principles of remote ppg (POS)](https://ieeexplore.ieee.org/document/7565547), by Wang *et al.*, 2016
+
+
+* Supervised Neural Algorithms 
+  - [DeepPhys: Video-Based Physiological Measurement Using Convolutional Attention Networks (DeepPhys)](https://openaccess.thecvf.com/content_ECCV_2018/papers/Weixuan_Chen_DeepPhys_Video-Based_Physiological_ECCV_2018_paper.pdf), by Chen *et al.*, 2018
+  - [Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks (PhysNet)](https://bmvc2019.org/wp-content/uploads/papers/0186-paper.pdf), by Yu *et al.*, 2019
+  - [Multi-Task Temporal Shift Attention Networks for On-Device Contactless Vitals Measurement (TS-CAN)](https://papers.nips.cc/paper/2020/file/e1228be46de6a0234ac22ded31417bc7-Paper.pdf), by Liu *et al.*, 2020
+  - [EfficientPhys: Enabling Simple, Fast and Accurate Camera-Based Cardiac Measurement (EfficientPhys)](https://openaccess.thecvf.com/content/WACV2023/papers/Liu_EfficientPhys_Enabling_Simple_Fast_and_Accurate_Camera-Based_Cardiac_Measurement_WACV_2023_paper.pdf), by Liu *et al.*, 2023
+  - [BigSmall: Efficient Multi-Task Learning for Disparate Spatial and Temporal Physiological Measurements
+ (BigSmall)](https://arxiv.org/abs/2303.11573), by Narayanswamy *et al.*, 2023
+
+
+# Datasets
+The toolbox supports four datasets, which are SCAMPS, UBFC, PURE, BP4D+, UBFC-Phys and MMPD. Cite corresponding papers when using.
+For now, we only recommend training with UBFC, PURE or SCAMPS due to the level of synchronization and volume of the dataset. **In order to use this dataset in a deep model, you should organize the files as follows:**
+
+* [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
+    * Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu, "MMPD: Multi-Domain Mobile Video Physiology Dataset", IEEE EMBC, 2023
+    -----------------
+         data/MMPD/
+         |   |-- subject1/
+         |       |-- p1_0.mat
+         |       |-- p1_1.mat
+         |       |...
+         |       |-- p1_19.mat
+         |   |-- subject2/
+         |       |-- p2_0.mat
+         |       |-- p2_1.mat
+         |       |...
+         |...
+         |   |-- subjectn/
+         |       |-- pn_0.mat
+         |       |-- pn_1.mat
+         |       |...
+    -----------------
+    
+* [SCAMPS](https://arxiv.org/abs/2206.04197)
+    * D. McDuff, M. Wander, X. Liu, B. Hill, J. Hernandez, J. Lester, T. Baltrusaitis, "SCAMPS: Synthetics for Camera Measurement of Physiological Signals", NeurIPS, 2022
+    -----------------
+         data/SCAMPS/Train/
+            |-- P00001.mat
+            |-- P00002.mat
+         |...
+         data/SCAMPS/Val/
+            |-- P00001.mat
+            |-- P00002.mat
+         |...
+         data/SCAMPS/Test/
+            |-- P00001.mat
+            |-- P00002.mat
+         |...
+    -----------------
+
+* [UBFC](https://sites.google.com/view/ybenezeth/ubfcrppg)
+    * S. Bobbia, R. Macwan, Y. Benezeth, A. Mansouri, J. Dubois, "Unsupervised skin tissue segmentation for remote photoplethysmography", Pattern Recognition Letters, 2017.
+    -----------------
+         data/UBFC/
+         |   |-- subject1/
+         |       |-- vid.avi
+         |       |-- ground_truth.txt
+         |   |-- subject2/
+         |       |-- vid.avi
+         |       |-- ground_truth.txt
+         |...
+         |   |-- subjectn/
+         |       |-- vid.avi
+         |       |-- ground_truth.txt
+    -----------------
+   
+* [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure)
+    * Stricker, R., Müller, S., Gross, H.-M.Non-contact "Video-based Pulse Rate Measurement on a Mobile Service Robot"
+in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
+    -----------------
+         data/PURE/
+         |   |-- 01-01/
+         |      |-- 01-01/
+         |      |-- 01-01.json
+         |   |-- 01-02/
+         |      |-- 01-02/
+         |      |-- 01-02.json
+         |...
+         |   |-- ii-jj/
+         |      |-- ii-jj/
+         |      |-- ii-jj.json
+    -----------------
+    
+* [BP4D+](https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html)
+    * Zhang, Z., Girard, J., Wu, Y., Zhang, X., Liu, P., Ciftci, U., Canavan, S., Reale, M., Horowitz, A., Yang, H., Cohn, J., Ji, Q., Yin, L. "Multimodal Spontaneous Emotion Corpus for Human Behavior Analysis", IEEE International Conference on Computer Vision and Pattern Recognition (CVPR) 2016.   
+    -----------------
+        RawData/
+         |   |-- 2D+3D/
+         |       |-- F001.zip/
+         |       |-- F002.zip
+         |       |...
+         |   |-- 2DFeatures/
+         |       |-- F001_T1.mat
+         |       |-- F001_T2.mat
+         |       |...
+         |   |-- 3DFeatures/
+         |       |-- F001_T1.mat
+         |       |-- F001_T2.mat
+         |       |...
+         |   |-- AUCoding/
+         |       |-- AU_INT/
+         |            |-- AU06/
+         |               |-- F001_T1_AU06.csv
+         |               |...
+         |           |...
+         |       |-- AU_OCC/
+         |           |-- F00_T1.csv 
+         |           |...
+         |   |-- IRFeatures/
+         |       |-- F001_T1.txt
+         |       |...
+         |   |-- Physiology/
+         |       |-- F001/
+         |           |-- T1/
+         |               |-- BP_mmHg.txt
+         |               |-- microsiemens.txt
+         |               |--LA Mean BP_mmHg.txt
+         |               |--LA Systolic BP_mmHg.txt
+         |               |-- BP Dia_mmHg.txt
+         |               |-- Pulse Rate_BPM.txt
+         |               |-- Resp_Volts.txt
+         |               |-- Respiration Rate_BPM.txt
+         |       |...
+         |   |-- Thermal/
+         |       |-- F001/
+         |           |-- T1.mv
+         |           |...
+         |       |...
+         |   |-- BP4D+UserGuide_v0.2.pdf
+    -----------------
+
+* [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys)
+    * Sabour, R. M., Benezeth, Y., De Oliveira, P., Chappe, J., & Yang, F. (2021). Ubfc-phys: A multimodal database for psychophysiological studies of social stress. IEEE Transactions on Affective Computing.  
+    -----------------
+          RawData/
+          |   |-- s1/
+          |       |-- vid_s1_T1.avi
+          |       |-- vid_s1_T2.avi
+          |       |...
+          |       |-- bvp_s1_T1.csv
+          |       |-- bvp_s1_T2.csv
+          |   |-- s2/
+          |       |-- vid_s2_T1.avi
+          |       |-- vid_s2_T2.avi
+          |       |...
+          |       |-- bvp_s2_T1.csv
+          |       |-- bvp_s2_T2.csv
+          |...
+          |   |-- sn/
+          |       |-- vid_sn_T1.avi
+          |       |-- vid_sn_T2.avi
+          |       |...
+          |       |-- bvp_sn_T1.csv
+          |       |-- bvp_sn_T2.csv
+    -----------------
+
+## Benchmark
+
+The table shows  Mean Absolute Error (MAE) and Mean Absolute Percent Error (MAPE) performance across all the algorithms and datasets:
+
+![The overview of the results](./figures/results.png)
 
 # Setup
 
@@ -104,173 +279,6 @@ Here are some explanation of parameters:
 * #### INFERENCE:
   * `USE_SMALLER_WINDOW`: If `True`, use an evaluation window smaller than the video length for evaluation.
 
-# Dataset
-The toolbox supports four datasets, which are SCAMPS, UBFC, PURE, and MMPD (COHFACE support will be added shortly). Cite corresponding papers when using.
-For now, we only recommend training with PURE or SCAMPS due to the level of synchronization and volume of the dataset.
-
-* [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
-    * Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu.  
- "MMPD: Multi-Domain Mobile Video Physiology Dataset", arxiv, 2023
-    * In order to use this dataset in a deep model, you should organize the files as follows:
-    
-    -----------------
-         data/MMPD/
-         |   |-- subject1/
-         |       |-- p1_0.mat
-         |       |-- p1_1.mat
-         |       |...
-         |       |-- p1_19.mat
-         |   |-- subject2/
-         |       |-- p2_0.mat
-         |       |-- p2_1.mat
-         |       |...
-         |...
-         |   |-- subjectn/
-         |       |-- pn_0.mat
-         |       |-- pn_1.mat
-         |       |...
-    -----------------
-    
-* [SCAMPS](https://arxiv.org/abs/2206.04197)
-  
-    * D. McDuff, M. Wander, X. Liu, B. Hill, J. Hernandez, J. Lester, T. Baltrusaitis, "SCAMPS: Synthetics for Camera Measurement of Physiological Signals", Arxiv, 2022
-    * In order to use this dataset in a deep model, you should organize the files as follows:
-    -----------------
-         data/SCAMPS/Train/
-            |-- P00001.mat
-            |-- P00002.mat
-            |-- P00003.mat
-         |...
-         data/SCAMPS/Val/
-            |-- P00001.mat
-            |-- P00002.mat
-            |-- P00003.mat
-         |...
-         data/SCAMPS/Test/
-            |-- P00001.mat
-            |-- P00002.mat
-            |-- P00003.mat
-         |...
-    -----------------
-
-* [UBFC](https://sites.google.com/view/ybenezeth/ubfcrppg)
-  
-    * S. Bobbia, R. Macwan, Y. Benezeth, A. Mansouri, J. Dubois, "Unsupervised skin tissue segmentation for remote photoplethysmography", Pattern Recognition Letters, 2017.
-    * In order to use this dataset in a deep model, you should organize the files as follows:
-    
-    -----------------
-         data/UBFC/
-         |   |-- subject1/
-         |       |-- vid.avi
-         |       |-- ground_truth.txt
-         |   |-- subject2/
-         |       |-- vid.avi
-         |       |-- ground_truth.txt
-         |...
-         |   |-- subjectn/
-         |       |-- vid.avi
-         |       |-- ground_truth.txt
-    -----------------
-   
-* [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure)
-    * Stricker, R., Müller, S., Gross, H.-M.Non-contact "Video-based Pulse Rate Measurement on a Mobile Service Robot"
-in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication (Ro-Man 2014), Edinburgh, Scotland, UK, pp. 1056 - 1062, IEEE 2014
-    * In order to use this dataset in a deep model, you should organize the files as follows:
-    
-    -----------------
-         data/PURE/
-         |   |-- 01-01/
-         |      |-- 01-01/
-         |      |-- 01-01.json
-         |   |-- 01-02/
-         |      |-- 01-02/
-         |      |-- 01-02.json
-         |...
-         |   |-- ii-jj/
-         |      |-- ii-jj/
-         |      |-- ii-jj.json
-    -----------------
-    
-* [BP4D+](https://www.cs.binghamton.edu/~lijun/Research/3DFE/3DFE_Analysis.html)
-    * Zhang, Z., Girard, J., Wu, Y., Zhang, X., Liu, P., Ciftci, U., Canavan, S., Reale, M., Horowitz, A., Yang, H., Cohn, J., Ji, Q., Yin, L. "Multimodal Spontaneous Emotion Corpus for Human Behavior Analysis", IEEE International Conference on Computer Vision and Pattern Recognition (CVPR) 2016.   
-
-    -----------------
-        RawData/
-         |   |-- 2D+3D/
-         |       |-- F001.zip/
-         |       |-- F002.zip
-         |       |...
-         |   |-- 2DFeatures/
-         |       |-- F001_T1.mat
-         |       |-- F001_T2.mat
-         |       |...
-         |   |-- 3DFeatures/
-         |       |-- F001_T1.mat
-         |       |-- F001_T2.mat
-         |       |...
-         |   |-- AUCoding/
-         |       |-- AU_INT/
-         |            |-- AU06/
-         |               |-- F001_T1_AU06.csv
-         |               |...
-         |           |...
-         |       |-- AU_OCC/
-         |           |-- F00_T1.csv 
-         |           |...
-         |   |-- IRFeatures/
-         |       |-- F001_T1.txt
-         |       |...
-         |   |-- Physiology/
-         |       |-- F001/
-         |           |-- T1/
-         |               |-- BP_mmHg.txt
-         |               |-- microsiemens.txt
-         |               |--LA Mean BP_mmHg.txt
-         |               |--LA Systolic BP_mmHg.txt
-         |               |-- BP Dia_mmHg.txt
-         |               |-- Pulse Rate_BPM.txt
-         |               |-- Resp_Volts.txt
-         |               |-- Respiration Rate_BPM.txt
-         |       |...
-         |   |-- Thermal/
-         |       |-- F001/
-         |           |-- T1.mv
-         |           |...
-         |       |...
-         |   |-- BP4D+UserGuide_v0.2.pdf
-    -----------------
-
-* [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys)
-    * Sabour, R. M., Benezeth, Y., De Oliveira, P., Chappe, J., & Yang, F. (2021). Ubfc-phys: A multimodal database for psychophysiological studies of social stress. IEEE Transactions on Affective Computing.  
-
-    -----------------
-          RawData/
-          |   |-- s1/
-          |       |-- vid_s1_T1.avi
-          |       |-- vid_s1_T2.avi
-          |       |-- vid_s1_T3.avi
-          |       |...
-          |       |-- bvp_s1_T1.csv
-          |       |-- bvp_s1_T2.csv
-          |       |-- bvp_s1_T3.csv
-          |   |-- s2/
-          |       |-- vid_s2_T1.avi
-          |       |-- vid_s2_T2.avi
-          |       |-- vid_s2_T3.avi
-          |       |...
-          |       |-- bvp_s2_T1.csv
-          |       |-- bvp_s2_T2.csv
-          |       |-- bvp_s2_T3.csv
-          |...
-          |   |-- sn/
-          |       |-- vid_sn_T1.avi
-          |       |-- vid_sn_T2.avi
-          |       |-- vid_sn_T3.avi
-          |       |...
-          |       |-- bvp_sn_T1.csv
-          |       |-- bvp_sn_T2.csv
-          |       |-- bvp_sn_T3.csv
-    -----------------
     
 ## Add A New Dataloader
 
@@ -293,6 +301,12 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
 * Step3 :[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * Step4 :Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
 
+# Weakly Supervised Training 
+
+Supervised rPPG training requires high fidelity synchronous PPG waveform labels. However not all datasets contain such high quality labels. In these cases we offer the option to train on synchronous PPG "pseudo" labels derived through a signal processing methodology. These labels are produced by using POS-generated PPG waveforms, which are then bandpass filtered around the normal heart-rate frequencies, and finally amplitude normalized using a Hilbert-signal envelope. The tight filtering and envelope normalization results in a strong periodic proxy signal, but at the cost of limited signal morphology.
+
+![pseudo_labels](./figures/pseudo_labels.png)
+
 # Motion Augmented Training
 
 The usage of synthetic data in the training of machine learning models for medical applications is becoming a key tool that warrants further research. In addition to providing support for the fully synthetic dataset [SCAMPS](https://arxiv.org/abs/2206.04197), we provide provide support for synthetic, motion-augmented versions of the [UBFC](https://sites.google.com/view/ybenezeth/ubfcrppg), [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure), [SCAMPS](https://arxiv.org/abs/2206.04197), and [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) datasets for further exploration toward the use of synthetic data for training rPPG models. The synthetic, motion-augmented datasets are generated using the [MA-rPPG Video Toolbox](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox), an open-source motion augmentation pipeline targeted for increasing motion diversity in rPPG videos. You can generate and utilize the aforementioned motion-augmented datasets using the steps below.
@@ -303,9 +317,7 @@ The usage of synthetic data in the training of machine learning models for medic
 
 * STEP 3: Run the corresponding config file. Your saved model's filename will have `MA` appended to the corresponding data splits that are motion-augmented.
 
-# Extending The Toolbox To Multitasking
-
-## BigSmall
+# Extending The Toolbox To Multitasking with BigSmall
 
 We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
 * Narayanswamy, G., Liu, Y., Yang, Y., Ma, C., Liu, X., McDuff, D., Patel, S. "BigSmall: Efficient Multi-Task Learning For Physiological Measurements" https://arxiv.org/abs/2303.11573
