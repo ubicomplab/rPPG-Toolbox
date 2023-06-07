@@ -2,13 +2,12 @@
 
 # Introduction
 
-**rPPG-Toolbox** is a open-sourced platform for camera-based physiological sensing or remote photoplethysmography (rPPG). 
+**rPPG-Toolbox** is an open-source platform designed for camera-based physiological sensing, also known as remote photoplethysmography (rPPG). 
 
 ![Overview of the rPPG](./figures/algorithm.png)
 
 
-rPPG-Toolbox not only benchmark the **existing state-of-the-art neural and unsupervised methods** but also supports flexible and repid development of your own algorithms. 
-
+rPPG-Toolbox not only benchmarks the **existing state-of-the-art neural and unsupervised methods**, but it also supports flexible and rapid development of your own algorithms.
 ![Overview of the toolbox](./figures/toolbox_overview.png)
 
 
@@ -34,9 +33,7 @@ rPPG-Toolbox currently supports the following algorithms:
 
 
 # Datasets
-The toolbox supports four datasets, which are SCAMPS, UBFC, PURE, BP4D+, UBFC-Phys and MMPD. Cite corresponding papers when using.
-For now, we only recommend training with UBFC, PURE or SCAMPS due to the level of synchronization and volume of the dataset. **In order to use this dataset in a deep model, you should organize the files as follows:**
-
+The toolbox supports six datasets, namely SCAMPS, UBFC, PURE, BP4D+, UBFC-Phys, and MMPD. Please cite the corresponding papers when using these datasets. For now, we recommend training with UBFC, PURE, or SCAMPS due to the level of synchronization and volume of the datasets. **To use these datasets in a deep learning model, you should organize the files as follows.**
 * [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
     * Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu, "MMPD: Multi-Domain Mobile Video Physiology Dataset", IEEE EMBC, 2023
     -----------------
