@@ -1,6 +1,14 @@
+<p align="center">
+:fire: Please remember to :star: this repo if you find it useful and cite our work if you end up using it in your work! :fire:
+</p>
+<p align="center">
+:fire: If you have any questions or concerns, please create an <a href="https://github.com/ubicomplab/rPPG-Toolbox/issues">issue</a> :memo:! :fire:
+</p>
+
+
 ![rPPG-Toolbox Logo](./figures/toolbox_logo.png)
 
-# Introduction
+# :wave: Introduction
 
 **rPPG-Toolbox** is an open-source platform designed for camera-based physiological sensing, also known as remote photoplethysmography (rPPG). 
 
@@ -11,7 +19,7 @@ rPPG-Toolbox not only benchmarks the **existing state-of-the-art neural and unsu
 ![Overview of the toolbox](./figures/toolbox_overview.png)
 
 
-# Algorithms
+# :notebook: Algorithms
 rPPG-Toolbox currently supports the following algorithms: 
 
 * Traditional Unsupervised Algorithms
@@ -32,7 +40,7 @@ rPPG-Toolbox currently supports the following algorithms:
  (BigSmall)](https://arxiv.org/abs/2303.11573), by Narayanswamy *et al.*, 2023
 
 
-# Datasets
+# :file_folder: Datasets
 The toolbox supports six datasets, namely SCAMPS, UBFC, PURE, BP4D+, UBFC-Phys, and MMPD. Please cite the corresponding papers when using these datasets. For now, we recommend training with UBFC, PURE, or SCAMPS due to the level of synchronization and volume of the datasets. **To use these datasets in a deep learning model, you should organize the files as follows.**
 * [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
     * Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu, "MMPD: Multi-Domain Mobile Video Physiology Dataset", IEEE EMBC, 2023
@@ -177,13 +185,13 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
           |       |-- bvp_sn_T2.csv
     -----------------
 
-## Benchmarks
+## :bar_chart: Benchmarks
 
 The table shows  Mean Absolute Error (MAE) and Mean Absolute Percent Error (MAPE) performance across all the algorithms and datasets:
 
 ![The overview of the results](./figures/results.png)
 
-# Setup
+# :wrench: Setup
 
 STEP 1: `bash setup.sh` 
 
@@ -191,7 +199,7 @@ STEP 2: `conda activate rppg-toolbox`
 
 STEP 3: `pip install -r requirements.txt` 
 
-# Example of Using Pre-trained Models 
+# :computer: Example of Using Pre-trained Models 
 
 Please use config files under `./configs/infer_configs`
 
@@ -199,7 +207,7 @@ For example, if you want to run The model trained on PURE and tested on UBFC, us
 
 If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
-# Examples of Neural Network Training
+# :computer: Examples of Neural Network Training
 
 Please use config files under `./configs/train_configs`
 
@@ -233,7 +241,7 @@ Note 1: Preprocessing requires only once; thus turn it off on the yaml file when
 Note 2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
 After training, it will use the best model(with the least validation loss) to test on UBFC.
 
-# Inference With Unsupervised Methods 
+# zap: Inference With Unsupervised Methods 
 
 STEP 1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
@@ -241,7 +249,7 @@ STEP 3: Modify `./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
 STEP 4: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
-# YAML File Setting
+# :scroll: YAML File Setting
 The rPPG-Toolbox uses yaml file to control all parameters for training and evaluation. 
 You can modify the existing yaml files to meet your own training and testing requirements.
 
@@ -277,7 +285,7 @@ Here are some explanation of parameters:
   * `USE_SMALLER_WINDOW`: If `True`, use an evaluation window smaller than the video length for evaluation.
 
     
-# Adding a New Dataset
+# :open_file_folder: Adding a New Dataset
 
 * STEP 1: Create a new python file in dataset/data_loader, e.g. MyLoader.py
 
@@ -298,13 +306,13 @@ Here are some explanation of parameters:
 * STEP 3:[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * STEP 4:Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
 
-# Weakly Supervised Training 
+# :green_book: Weakly Supervised Training 
 
 Supervised rPPG training requires high fidelity synchronous PPG waveform labels. However not all datasets contain such high quality labels. In these cases we offer the option to train on synchronous PPG "pseudo" labels derived through a signal processing methodology. These labels are produced by using POS-generated PPG waveforms, which are then bandpass filtered around the normal heart-rate frequencies, and finally amplitude normalized using a Hilbert-signal envelope. The tight filtering and envelope normalization results in a strong periodic proxy signal, but at the cost of limited signal morphology.
 
 ![pseudo_labels](./figures/rppgtoolbox_ppg_psuedo_labels.png)
 
-# Motion Augmented Training
+# :blue_book: Motion Augmented Training
 
 The usage of synthetic data in the training of machine learning models for medical applications is becoming a key tool that warrants further research. In addition to providing support for the fully synthetic dataset [SCAMPS](https://arxiv.org/abs/2206.04197), we provide provide support for synthetic, motion-augmented versions of the [UBFC](https://sites.google.com/view/ybenezeth/ubfcrppg), [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure), [SCAMPS](https://arxiv.org/abs/2206.04197), and [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) datasets for further exploration toward the use of synthetic data for training rPPG models. The synthetic, motion-augmented datasets are generated using the [MA-rPPG Video Toolbox](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox), an open-source motion augmentation pipeline targeted for increasing motion diversity in rPPG videos. You can generate and utilize the aforementioned motion-augmented datasets using the steps below.
 
@@ -323,7 +331,7 @@ Refer to this [BibTeX](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox#scroll-
   <img src="./figures/ma_rppg_video_toolbox_teaser.gif" alt="Examples of motion augmentation applied to subjects in the UBFC-rPPG dataset." />
 </p>
 
-# Extending the Toolbox to Multitasking With BigSmall
+# :orange_book: Extending the Toolbox to Multitasking With BigSmall
 
 We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
 * Narayanswamy, G., Liu, Y., Yang, Y., Ma, C., Liu, X., McDuff, D., Patel, S. "BigSmall: Efficient Multi-Task Learning For Physiological Measurements" https://arxiv.org/abs/2303.11573
