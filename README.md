@@ -331,7 +331,7 @@ Refer to this [BibTeX](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox#scroll-
   <img src="./figures/ma_rppg_video_toolbox_teaser.gif" alt="Examples of motion augmentation applied to subjects in the UBFC-rPPG dataset." />
 </p>
 
-# :orange_book: Extending the Toolbox to Multitasking With BigSmall
+# :orange_book: Extending the Toolbox to Multi-Tasking With BigSmall
 
 We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
 * Narayanswamy, G., Liu, Y., Yang, Y., Ma, C., Liu, X., McDuff, D., Patel, S. "BigSmall: Efficient Multi-Task Learning For Physiological Measurements" https://arxiv.org/abs/2303.11573
@@ -343,6 +343,10 @@ The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), 
 * STEP 2: Modify `./configs/train_configs/BP4D_BP4D_BIGSMALL_FOLD1.yaml` to train the first fold (config files also exist for the 2nd and 3rd fold).
 
 * STEP 3: Run `python main.py --config_file ./configs/train_configs/BP4D_BP4D_BIGSMALL_FOLD1.yaml `
+
+<p align="center">
+  <img src="./figures/bigsmall_ex1.gif" alt="Example Multi-Task Output From BigSmall." />
+</p>
 
 # License
 <a href="https://www.licenses.ai/source-code-license">
