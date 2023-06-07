@@ -319,6 +319,10 @@ If you use the aforementioned functionality, please remember to cite the followi
 
 Refer to this [BibTeX](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox#scroll-citation) for quick inclusion into a `.bib` file.
 
+<p align="center">
+  <img src="./figures/ma_rppg_video_toolbox_teaser.gif" alt="Examples of motion augmentation applied to subjects in the UBFC-rPPG dataset." />
+</p>
+
 # Extending the Toolbox to Multitasking With BigSmall
 
 We implement [BigSmall](https://girishvn.github.io/BigSmall/) as an example to show how this toolbox may be extended to support physiological multitasking. If you use this functionality please cite the following publication: 
