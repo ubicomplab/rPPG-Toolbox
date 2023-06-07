@@ -279,9 +279,9 @@ Here are some explanation of parameters:
     
 # How to add a new dataset? 
 
-* Step1 : Create a new python file in dataset/data_loader, e.g. MyLoader.py
+* STEP 1: Create a new python file in dataset/data_loader, e.g. MyLoader.py
 
-* Step2 : Implement the required functions, including:
+* STEP 2: Implement the required functions, including:
 
   ```python
   def preprocess_dataset(self, config_preprocess):
@@ -295,8 +295,8 @@ Here are some explanation of parameters:
   def read_wave(bvp_file):
   ```
 
-* Step3 :[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
-* Step4 :Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
+* STEP 3:[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
+* STEP 4:Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
 
 # Weakly Supervised Training 
 
@@ -313,6 +313,11 @@ The usage of synthetic data in the training of machine learning models for medic
 * STEP 2: Using any config file of your choice in this toolbox, modify the `DATA_AUG` parameter (set to `'None'` by default) to `'Motion'`. Currently, only `train_configs` that utilize the UBFC-rPPG or PURE datasets have this parameter visible, but you can also modify other config files to add the `DATA_AUG` parameter below the `DATA_TYPE` parameter that is visible in all config files. This will enable the proper funciton for loading motion-augmented data that is in the `.npy` format.
 
 * STEP 3: Run the corresponding config file. Your saved model's filename will have `MA` appended to the corresponding data splits that are motion-augmented.
+
+If you use the aforementioned functionality, please remember to cite the following in addition to citing the rPPG-Toolbox:
+* Paruchuri, A., Liu, X., Pan, Y., Patel, S., McDuff, D., & Sengupta, S. (2023). Motion Matters: Neural Motion Transfer for Better Camera Physiological Sensing. arXiv preprint arXiv:2303.12059.
+
+Refer to this [BibTeX](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox#scroll-citation) for quick inclusion into a `.bib` file.
 
 # Extending The Toolbox To Multitasking with BigSmall
 
