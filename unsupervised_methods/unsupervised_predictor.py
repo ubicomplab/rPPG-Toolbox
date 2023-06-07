@@ -103,7 +103,7 @@ def unsupervised_predict(config, data_loader, method_name):
             elif metric == "SNR":
                 SNR_FFT = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
-                print("FFT SNR (FFT Label): {0} +/- {1}".format(SNR_FFT, standard_error))
+                print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_FFT, standard_error))
             else:
                 raise ValueError("Wrong Test Metric Type")
     elif config.INFERENCE.EVALUATION_METHOD == "FFT":
@@ -132,7 +132,7 @@ def unsupervised_predict(config, data_loader, method_name):
             elif metric == "SNR":
                 SNR_PEAK = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
-                print("FFT SNR (FFT Label): {0} +/- {1}".format(SNR_PEAK, standard_error))
+                print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_PEAK, standard_error))
             else:
                 raise ValueError("Wrong Test Metric Type")
     else:
