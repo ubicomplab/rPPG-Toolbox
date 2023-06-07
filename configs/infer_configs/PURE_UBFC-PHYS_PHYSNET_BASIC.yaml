@@ -37,9 +37,9 @@ TEST:
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
-          DO_DYNAMIC_DETECTION: False
+          DO_DYNAMIC_DETECTION: True
           DYNAMIC_DETECTION_FREQUENCY : 32
-          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+          USE_MEDIAN_FACE_BOX: True    # This should be used ONLY if dynamic detection is used
       RESIZE:
         H: 72
         W: 72
@@ -58,4 +58,4 @@ INFERENCE:
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
     WINDOW_SIZE: 10        # In seconds
-  MODEL_PATH: "./final_model_release/PURE_PhysNet_Normalized.pth"
+  MODEL_PATH: "./final_model_release/PURE_PhysNet_DiffNormalized.pth"

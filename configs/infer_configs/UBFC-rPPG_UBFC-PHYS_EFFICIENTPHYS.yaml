@@ -31,15 +31,15 @@ TEST:
       DATA_TYPE: ['Standardized']
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 180
+      CHUNK_LENGTH: 210
       CROP_FACE:
         DO_CROP_FACE: True
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
-          DO_DYNAMIC_DETECTION: False
-          DYNAMIC_DETECTION_FREQUENCY : 30
-          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+          DO_DYNAMIC_DETECTION: True
+          DYNAMIC_DETECTION_FREQUENCY : 35
+          USE_MEDIAN_FACE_BOX: True    # This should be used ONLY if dynamic detection is used
       RESIZE:
         H: 72
         W: 72
