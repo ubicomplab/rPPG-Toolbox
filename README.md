@@ -203,7 +203,7 @@ STEP 3: `pip install -r requirements.txt`
 
 Please use config files under `./configs/infer_configs`
 
-For example, if you want to run The model trained on PURE and tested on UBFC, use `python main.py --config_file ./configs/infer_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml`
+For example, if you want to run The model trained on PURE and tested on UBFC, use `python main.py --config_file ./configs/infer_configs/PURE_UBFC-rPPG_TSCAN_BASIC.yaml`
 
 If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
