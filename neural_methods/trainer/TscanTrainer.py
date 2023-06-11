@@ -141,7 +141,7 @@ class TscanTrainer(BaseTrainer):
         if self.config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
-            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH))
+            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=torch.device('cpu')))
             print("Testing uses pretrained model!")
         else:
             if self.config.TEST.USE_LAST_EPOCH:
@@ -159,8 +159,12 @@ class TscanTrainer(BaseTrainer):
 
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
+        print('DATALOADER LEN:', len(data_loader['test']))
+        count = 0
         with torch.no_grad():
             for _, test_batch in enumerate(data_loader['test']):
+                count +=1
+                print('COUNT:', count)
                 batch_size = test_batch[0].shape[0]
                 data_test, labels_test = test_batch[0].to(
                     self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
