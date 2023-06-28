@@ -348,6 +348,20 @@ The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), 
   <img src="./figures/bigsmall_ex1.gif" alt="Example Multi-Task Output From BigSmall." />
 </p>
 
+# :scroll: Citation
+If you find our [paper](https://arxiv.org/abs/2210.00716) or this toolbox useful for your research, please cite our work.
+
+```
+@misc{liu2022rppgtoolbox,
+    title={rPPG-Toolbox: Deep Remote PPG Toolbox},
+    author={Xin Liu and Girish Narayanswamy and Akshay Paruchuri and Xiaoyu Zhang and Jiankai Tang and Yuzhe Zhang and Yuntao Wang and Soumyadip Sengupta and Shwetak Patel and Daniel McDuff},
+    year={2022},
+    eprint={2210.00716},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
+
 # License
 <a href="https://www.licenses.ai/source-code-license">
   <img src="https://images.squarespace-cdn.com/content/v1/5c2a6d5c45776e85d1482a7e/1546750722018-T7QVBTM15DQMBJF6A62M/RAIL+Final.png" alt="License: Responsible AI" width="30%">
