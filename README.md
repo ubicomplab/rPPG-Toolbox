@@ -349,7 +349,7 @@ The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), 
 </p>
 
 # :scroll: Citation
-If you find our [paper]([https://arxiv.org/abs/2303.12059](https://arxiv.org/abs/2210.00716)) or this toolbox useful for your research, please cite our work.
+If you find our [paper](https://arxiv.org/abs/2210.00716) or this toolbox useful for your research, please cite our work.
 
 ```
 @misc{liu2022rppgtoolbox,
