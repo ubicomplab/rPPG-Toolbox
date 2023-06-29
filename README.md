@@ -352,13 +352,13 @@ The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), 
 If you find our [paper](https://arxiv.org/abs/2210.00716) or this toolbox useful for your research, please cite our work.
 
 ```
-@misc{liu2022rppgtoolbox,
-    title={rPPG-Toolbox: Deep Remote PPG Toolbox},
-    author={Xin Liu and Girish Narayanswamy and Akshay Paruchuri and Xiaoyu Zhang and Jiankai Tang and Yuzhe Zhang and Yuntao Wang and Soumyadip Sengupta and Shwetak Patel and Daniel McDuff},
-    year={2022},
-    eprint={2210.00716},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
+@misc{liu2023rppgtoolbox,
+      title={rPPG-Toolbox: Deep Remote PPG Toolbox}, 
+      author={Xin Liu and Girish Narayanswamy and Akshay Paruchuri and Xiaoyu Zhang and Jiankai Tang and Yuzhe Zhang and Yuntao Wang and Soumyadip Sengupta and Shwetak Patel and Daniel McDuff},
+      year={2023},
+      eprint={2210.00716},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
 
