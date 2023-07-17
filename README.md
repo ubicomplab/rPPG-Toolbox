@@ -245,9 +245,9 @@ After training, it will use the best model(with the least validation loss) to te
 
 STEP 1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP 3: Modify `./configs/infer_configs/UBFC_UNSUPERVISED.yaml` 
+STEP 2: Modify `./configs/infer_configs/UBFC_UNSUPERVISED.yaml` 
 
-STEP 4: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
+STEP 3: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
 
 # :scroll: YAML File Setting
 The rPPG-Toolbox uses yaml file to control all parameters for training and evaluation. 
