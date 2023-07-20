@@ -41,7 +41,7 @@ rPPG-Toolbox currently supports the following algorithms:
 
 
 # :file_folder: Datasets
-The toolbox supports six datasets, namely SCAMPS, UBFC, PURE, BP4D+, UBFC-Phys, and MMPD. Please cite the corresponding papers when using these datasets. For now, we recommend training with UBFC, PURE, or SCAMPS due to the level of synchronization and volume of the datasets. **To use these datasets in a deep learning model, you should organize the files as follows.**
+The toolbox supports six datasets, namely SCAMPS, UBFC-rPPG, PURE, BP4D+, UBFC-Phys, and MMPD. Please cite the corresponding papers when using these datasets. For now, we recommend training with UBFC-rPPG, PURE, or SCAMPS due to the level of synchronization and volume of the datasets. **To use these datasets in a deep learning model, you should organize the files as follows.**
 * [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset)
     * Jiankai Tang, Kequan Chen, Yuntao Wang, Yuanchun Shi, Shwetak Patel, Daniel McDuff, Xin Liu, "MMPD: Multi-Domain Mobile Video Physiology Dataset", IEEE EMBC, 2023
     -----------------
@@ -79,10 +79,10 @@ The toolbox supports six datasets, namely SCAMPS, UBFC, PURE, BP4D+, UBFC-Phys, 
          |...
     -----------------
 
-* [UBFC](https://sites.google.com/view/ybenezeth/ubfcrppg)
+* [UBFC-rPPG](https://sites.google.com/view/ybenezeth/ubfcrppg)
     * S. Bobbia, R. Macwan, Y. Benezeth, A. Mansouri, J. Dubois, "Unsupervised skin tissue segmentation for remote photoplethysmography", Pattern Recognition Letters, 2017.
     -----------------
-         data/UBFC/
+         data/UBFC-rPPG/
          |   |-- subject1/
          |       |-- vid.avi
          |       |-- ground_truth.txt
@@ -203,47 +203,47 @@ STEP 3: `pip install -r requirements.txt`
 
 Please use config files under `./configs/infer_configs`
 
-For example, if you want to run The model trained on PURE and tested on UBFC, use `python main.py --config_file ./configs/infer_configs/PURE_UBFC-rPPG_TSCAN_BASIC.yaml`
+For example, if you want to run The model trained on PURE and tested on UBFC-rPPG, use `python main.py --config_file ./configs/infer_configs/PURE_UBFC-rPPG_TSCAN_BASIC.yaml`
 
-If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVISED.yaml`
+If you want to test unsupervised signal processing  methods, you can use `python main.py --config_file ./configs/infer_configs/UBFC-rPPG_UNSUPERVISED.yaml`
 
 # :computer: Examples of Neural Network Training
 
 Please use config files under `./configs/train_configs`
 
-## Training on PURE and Testing on UBFC With TSCAN 
+## Training on PURE and Testing on UBFC-rPPG With TSCAN 
 
 STEP 1: Download the PURE raw data by asking the [paper authors](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure).
 
-STEP 2: Download the UBFC raw data via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
+STEP 2: Download the UBFC-rPPG raw data via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP 3: Modify `./configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
+STEP 3: Modify `./configs/train_configs/PURE_PURE_UBFC-rPPG_TSCAN_BASIC.yaml` 
 
-STEP 4: Run `python main.py --config_file ./configs/train_configs/PURE_PURE_UBFC_TSCAN_BASIC.yaml` 
+STEP 4: Run `python main.py --config_file ./configs/train_configs/PURE_PURE_UBFC-rPPG_TSCAN_BASIC.yaml` 
 
 Note 1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
 
 Note 2: The example yaml setting will allow 80% of PURE to train and 20% of PURE to valid. 
-After training, it will use the best model(with the least validation loss) to test on UBFC.
+After training, it will use the best model(with the least validation loss) to test on UBFC-rPPG.
 
-## Training on SCAMPS and testing on UBFC With DeepPhys
+## Training on SCAMPS and testing on UBFC-rPPG With DeepPhys
 
 STEP 1: Download the SCAMPS via this [link](https://github.com/danmcduff/scampsdataset) and split it into train/val/test folders.
 
-STEP 2: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
+STEP 2: Download the UBFC-rPPG via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
-STEP 3: Modify `./configs/train_configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml` 
+STEP 3: Modify `./configs/train_configs/SCAMPS_SCAMPS_UBFC-rPPG_DEEPPHYS_BASIC.yaml` 
 
-STEP 4: Run `python main.py --config_file ./configs/train_configs/SCAMPS_SCAMPS_UBFC_DEEPPHYS_BASIC.yaml`
+STEP 4: Run `python main.py --config_file ./configs/train_configs/SCAMPS_SCAMPS_UBFC-rPPG_DEEPPHYS_BASIC.yaml`
 
 Note 1: Preprocessing requires only once; thus turn it off on the yaml file when you train the network after the first time. 
 
 Note 2: The example yaml setting will allow 80% of SCAMPS to train and 20% of SCAMPS to valid. 
-After training, it will use the best model(with the least validation loss) to test on UBFC.
+After training, it will use the best model(with the least validation loss) to test on UBFC-rPPG.
 
 # :zap: Inference With Unsupervised Methods 
 
-STEP 1: Download the UBFC via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
+STEP 1: Download the UBFC-rPPG via [link](https://sites.google.com/view/ybenezeth/ubfcrppg)
 
 STEP 2: Modify `./configs/infer_configs/UBFC_UNSUPERVISED.yaml` 
 
@@ -276,6 +276,9 @@ Here are some explanation of parameters:
   * `USE_MEDIAN_FACE_BOX`: If `True` and `DYNAMIC_DETECTION` is `True`, use the detected face boxs throughout each video to create a single, median face box per video.
   * `LARGE_FACE_BOX`: Whether to enlarge the rectangle of the detected face region in case the detected box is not large enough for some special cases (e.g., motion videos)
   * `LARGE_BOX_COEF`: The coefficient to scale the face box if `LARGE_FACE_BOX` is `True`.
+  * `INFO`: This is a collection of parameters based on attributes of a dataset, such as gender, motion types, and skin color, that help select videos for inclusion in training, validation, or testing. Currently, only the [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset) dataset is supported for parameter-based video inclusion. Please refer to one of the config files involving the [MMPD](https://github.com/McJackTang/MMPD_rPPG_dataset) dataset for an example of using these parameters.
+  * `EXCLUSION_LIST`: A list that specifies videos to exclude, typically based on a unique identifier to a video such as the combination of a subject ID and a task ID. This is only used if `USE_EXCLUSION_LIST` is set to `True`. Currently this parameter is only tested with the [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) dataset. Please refer to one of the config files involving the [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) dataset for an example of using this parameter.
+  * `TASK_LIST`: A list to specify tasks to include when loading a dataset, allowing for selective inclusion of a subset of tasks or a single task in a dataset if desired. This is only used if `SELECT_TASKS` is set to `True`. Currently this parameter is only tested with the [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) dataset. Please refer to one of the config files involving the [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) dataset for an example of using this parameter.
 
   
 * #### MODEL : Set used model (Deepphys, TSCAN, Physnet, EfficientPhys, and BigSmall and their paramaters are supported).
@@ -314,7 +317,7 @@ Supervised rPPG training requires high fidelity synchronous PPG waveform labels.
 
 # :blue_book: Motion Augmented Training
 
-The usage of synthetic data in the training of machine learning models for medical applications is becoming a key tool that warrants further research. In addition to providing support for the fully synthetic dataset [SCAMPS](https://arxiv.org/abs/2206.04197), we provide provide support for synthetic, motion-augmented versions of the [UBFC](https://sites.google.com/view/ybenezeth/ubfcrppg), [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure), [SCAMPS](https://arxiv.org/abs/2206.04197), and [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) datasets for further exploration toward the use of synthetic data for training rPPG models. The synthetic, motion-augmented datasets are generated using the [MA-rPPG Video Toolbox](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox), an open-source motion augmentation pipeline targeted for increasing motion diversity in rPPG videos. You can generate and utilize the aforementioned motion-augmented datasets using the steps below.
+The usage of synthetic data in the training of machine learning models for medical applications is becoming a key tool that warrants further research. In addition to providing support for the fully synthetic dataset [SCAMPS](https://arxiv.org/abs/2206.04197), we provide provide support for synthetic, motion-augmented versions of the [UBFC-rPPG](https://sites.google.com/view/ybenezeth/ubfcrppg), [PURE](https://www.tu-ilmenau.de/universitaet/fakultaeten/fakultaet-informatik-und-automatisierung/profil/institute-und-fachgebiete/institut-fuer-technische-informatik-und-ingenieurinformatik/fachgebiet-neuroinformatik-und-kognitive-robotik/data-sets-code/pulse-rate-detection-dataset-pure), [SCAMPS](https://arxiv.org/abs/2206.04197), and [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) datasets for further exploration toward the use of synthetic data for training rPPG models. The synthetic, motion-augmented datasets are generated using the [MA-rPPG Video Toolbox](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox), an open-source motion augmentation pipeline targeted for increasing motion diversity in rPPG videos. You can generate and utilize the aforementioned motion-augmented datasets using the steps below.
 
 * STEP 1: Follow the instructions in the [README](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox/blob/main/README.md) of the [MA-rPPG Video Toolbox](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox) GitHub repo to generate any of the supported motion-augmented datasets. NOTE: You will have to have an original, unaugmented version of a dataset and driving video to generate a motion-augmented dataset. More information can be found [here](https://github.com/Roni-Lab/MA-rPPG-Video-Toolbox#file_folder-datasets). 
 
