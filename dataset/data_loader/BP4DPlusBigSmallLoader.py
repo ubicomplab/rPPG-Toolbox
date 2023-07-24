@@ -39,6 +39,7 @@ from unsupervised_methods.methods import POS_WANG
 from unsupervised_methods import utils
 from scipy import signal
 from scipy import sparse
+import scipy.io
 import math
 from math import ceil
 
@@ -357,6 +358,9 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         # BUILD DICTIONARY TO STORE FRAMES AND LABELS
         data_dict = dict()
 
+        # READ IN 2D FACIAL LANDMARKS
+        data_dict = self.read_raw_alignment_features(data_dir_info, data_dict)
+
         # READ IN RAW VIDEO FRAMES
         data_dict = self.read_raw_vid_frames(data_dir_info, config_data, data_dict)
 
@@ -392,7 +396,93 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             vidLxL = cv2.resize(frame, (dim_h,dim_w), interpolation=cv2.INTER_AREA)
 
         return vidLxL
+    
 
+    def calculate_biocular(self, data_dict):
+
+        input_land = np.loadtxt(list_path_prefix+'BP4D_combine_1_2_land.txt')
+
+        biocular = np.zeros(input_land.shape[0])
+
+        l_ocular_x = np.mean(input_land[:,np.arange(2*20-2,2*25,2)],1)
+        l_ocular_y = np.mean(input_land[:,np.arange(2*20-1,2*25,2)],1)
+        r_ocular_x = np.mean(input_land[:,np.arange(2*26-2,2*31,2)],1)
+        r_ocular_y = np.mean(input_land[:,np.arange(2*26-1,2*31,2)],1)
+        biocular = (l_ocular_x - r_ocular_x) ** 2 + (l_ocular_y - r_ocular_y) ** 2
+
+        np.savetxt(list_path_prefix+'BP4D_combine_1_2_biocular.txt', biocular, fmt='%f', delimiter='\t')
+    
+
+    def align_squarecrop_face_49pts(img, img_land_x, img_land_y, box_enlarge, img_size):
+        leftEye0 = (img_land_x[19] + img_land_x[20] + img_land_x[21] + img_land_x[22] + img_land_x[23] +
+                    img_land_x[24]) / 6.0
+        leftEye1 = (img_land_y[19] + img_land_y[20] + img_land_y[21] + img_land_y[22] +
+                    img_land_y[23] + img_land_y[24]) / 6.0
+        rightEye0 = (img_land_x[25] + img_land_x[26] + img_land_x[27] + img_land_x[28] + img_land_x[29] +
+                    img_land_x[30]) / 6.0
+        rightEye1 = (img_land_y[25] + img_land_y[26] + img_land_y[27] + img_land_y[28] +
+                    img_land_y[29] + img_land_y[30]) / 6.0
+        deltaX = (rightEye0 - leftEye0)
+        deltaY = (rightEye1 - leftEye1)
+        l = math.sqrt(deltaX * deltaX + deltaY * deltaY)
+        sinVal = deltaY / l
+        cosVal = deltaX / l
+        mat1 = np.mat([[cosVal, sinVal, 0], [-sinVal, cosVal, 0], [0, 0, 1]])
+
+        mat2 = np.mat([[leftEye0, leftEye1, 1], [rightEye0, rightEye1, 1], [img_land_x[13], img_land_y[13], 1],
+                    [img_land_x[31], img_land_y[31], 1], [img_land_x[37], img_land_y[7], 1]])
+        
+        mat2 = (mat1 * mat2.T).T
+
+        cx = float((max(mat2[:, 0]) + min(mat2[:, 0]))) * 0.5
+        cy = float((max(mat2[:, 1]) + min(mat2[:, 1]))) * 0.5
+
+        if (float(max(mat2[:, 0]) - min(mat2[:, 0])) > float(max(mat2[:, 1]) - min(mat2[:, 1]))):
+            halfSize = 0.5 * box_enlarge * float((max(mat2[:, 0]) - min(mat2[:, 0])))
+        else:
+            halfSize = 0.5 * box_enlarge * float((max(mat2[:, 1]) - min(mat2[:, 1])))
+
+        scale = (img_size - 1) / 2.0 / halfSize
+        mat3 = np.mat([[scale, 0, scale * (halfSize - cx)], [0, scale, scale * (halfSize - cy)], [0, 0, 1]])
+        mat = mat3 * mat1
+
+        aligned_img = cv2.warpAffine(img, mat[0:2, :], (img_size, img_size), cv2.INTER_LINEAR, borderValue=(128, 128, 128))
+
+        land_3d = np.ones((len(img_land_x), 3))
+        land_3d[:, 0] = img_land_x
+        land_3d[:, 1] = img_land_y    
+        mat_land_3d = np.mat(land_3d)
+        new_land = np.array((mat * mat_land_3d.T).T)
+        new_land_x = new_land[:,0]
+        new_land_y = new_land[:,1]
+
+        return aligned_img, new_land_x, new_land_y
+
+    
+
+    def read_raw_alignment_features(self, data_dir_info, data_dict):
+        data_path = data_dir_info['path'] # base path
+        subject_str = data_dir_info['index'][0:4] # of format F008
+        trial = data_dir_info['trial'] # of format T1 or T10, etc.
+
+        # Read in 2D landmark information
+        feat_2D_path = os.path.join(data_path, '2DFeatures', subject_str +'_' + trial + '.mat')
+        mat = scipy.io.loadmat(feat_2D_path)
+
+        # get all 49 landmark points (this number is BP4D+ specific)
+        nf = mat['fit'].shape[-1] # number of frames
+        feat_x = np.zeros((nf,49))
+        feat_y = np.zeros((nf,49))
+
+        for f in range(nf):
+            for l in range(49):
+                feat_x[f,l] = mat['fit']['pts_2d'][0][f][l][0]
+                feat_y[f,l] = mat['fit']['pts_2d'][0][f][l][1]
+
+        data_dict['facial_2d_landmarks_x'] = feat_x
+        data_dict['facial_2d_landmarks_y'] = feat_y
+
+        return data_dict
 
 
     def read_raw_vid_frames(self, data_dir_info, config_data, data_dict):
@@ -404,8 +494,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         imgzip = open(os.path.join(data_path, '2D+3D', subject_trial+'.zip'))
         zipfile_path = os.path.join(data_path, '2D+3D', subject_trial+'.zip')
 
-        cnt = 0
-
+        cnt = 0 # frame count / index
         with zipfile.ZipFile(zipfile_path, "r") as zippedImgs:
             for ele in zippedImgs.namelist():
                 ext = os.path.splitext(ele)[-1]
@@ -419,8 +508,21 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                     dim_h = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_H
                     dim_w = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_W
 
-                    frame = self.downsample_frame(frame, dim_h=dim_h, dim_w=dim_w) # downsample frames (otherwise processing time becomes WAY TOO LONG)
-                    frame = np.expand_dims(frame, axis=0)
+                    if config_data.PREPROCESS.CROP_FACE.FACE_ALIGN:
+                        img_land_x = data_dict['facial_2d_landmarks_x'][cnt, :]
+                        img_land_y = data_dict['facial_2d_landmarks_y'][cnt, :]
+                        box_enlarge = 2 # TODO: This is hardcoded - not sure what to change this to
+                        frame, new_land_x, new_land_y = self.align_squarecrop_face_49pts(frame, 
+                                                                                          img_land_x, img_land_y, 
+                                                                                          box_enlarge, dim_h)
+                        data_dict['facial_2d_landmarks_x'] = new_land_x[cnt, :]
+                        data_dict['facial_2d_landmarks_y'] = new_land_y[cnt, :]
+
+                    else: 
+                        # TODO: update the facial_2d_landmarks to account for downsampling / cropping
+                        # downsample frames (otherwise processing time becomes WAY TOO LONG)
+                        frame = self.downsample_frame(frame, dim_h=dim_h, dim_w=dim_w)
+                        frame = np.expand_dims(frame, axis=0)
 
                     # If frames are empty
                     if cnt == 0:
