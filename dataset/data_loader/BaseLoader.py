@@ -427,6 +427,7 @@ class BaseLoader(Dataset):
             file_list_dict(Dict): Dictionary containing information regarding processed data ( path names)
         """
         print('Preprocessing dataset...')
+
         file_num = len(data_dirs)
         choose_range = range(0, file_num)
         pbar = tqdm(list(choose_range))
@@ -436,6 +437,8 @@ class BaseLoader(Dataset):
         file_list_dict = manager.dict()  # dictionary for all processes to store processed files
         p_list = []  # list of processes
         running_num = 0  # number of running processes
+
+        choose_range = range(0, 1) # TODO: GIRISH REMOVE THIS - only for testing
 
         # in range of number of files to process
         for i in choose_range:
@@ -460,6 +463,8 @@ class BaseLoader(Dataset):
             p_.join()
             pbar.update(1)
         pbar.close()
+
+        raise ValueError('GIRISH KILL') # TODO: GIRISH REMOVE THIS - only for testing
 
         return file_list_dict
 

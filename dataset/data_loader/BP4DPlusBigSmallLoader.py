@@ -268,10 +268,12 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         # CONSTRUCT DATA DICTIONARY FOR VIDEO TRIAL
         data_dict = self.construct_data_dict(data_dir_info, config_data) # construct a dictionary of ALL labels and video frames (of equal length)
         data_dict = self.generate_pos_psuedo_labels(data_dict, fs=config_data.FS)
+
+        raise ValueError('GIRISH KILL') # TODO: inserted for testing
         
         # SEPERATE DATA INTO VIDEO FRAMES AND LABELS ARRAY
         frames = self.read_video(data_dict) # read in the video frames
-        labels = self.read_labels(data_dict) # read in video labels 
+        labels = self.read_labels(data_dict) # read in video labels # TODO add biocular things here
         if frames.shape[0] != labels.shape[0]: # check if data and labels are the same length
             raise ValueError(' Preprocessing dataset subprocess: frame and label time axis not the same')
 
@@ -490,6 +492,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         return data_dict
 
 
+
     def read_raw_vid_frames(self, data_dir_info, config_data, data_dict):
         data_path = data_dir_info['path']
         subject_trial = data_dir_info['index'][0:4]
@@ -526,6 +529,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                     else: 
                         # TODO: update the facial_2d_landmarks to account for downsampling / cropping
                         # downsample frames (otherwise processing time becomes WAY TOO LONG)
+                        # should be done in either downsample_frame function or something else
                         frame = self.downsample_frame(frame, dim_h=dim_h, dim_w=dim_w)
                         frame = np.expand_dims(frame, axis=0)
 
@@ -541,6 +545,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
     
         data_dict['X'] = np.asarray(frames)
         return data_dict
+
 
 
     def read_raw_phys_labels(self, data_dir_info, data_dict):
@@ -937,6 +942,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         file_list_df.to_csv(self.file_list_path)  # save file list to .csv
 
 
+
     def split_raw_data_by_fold(self, data_dirs, fold_path):
 
         fold_df = pd.read_csv(fold_path)
@@ -972,6 +978,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         self.inputs = inputs
         self.labels = labels
         self.preprocessed_data_len = len(inputs)
+
 
 
     def __getitem__(self, index):
