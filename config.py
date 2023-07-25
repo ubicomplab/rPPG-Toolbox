@@ -536,15 +536,11 @@ def update_config(config, args):
         raise ValueError('User specified UNSUPERVISED dataset FILE_LIST_PATH .csv file already exists. \
                          Please turn DO_PREPROCESS to False or delete existing UNSUPERVISED dataset FILE_LIST_PATH .csv file.')
 
-
-    config.LOG.PATH = os.path.join(
-        config.LOG.PATH, config.VALID.DATA.EXP_DATA_NAME)
-
-    config.MODEL.MODEL_DIR = os.path.join(config.MODEL.MODEL_DIR, config.TRAIN.DATA.EXP_DATA_NAME)
+    # Establish the directory to hold pre-trained models from a given experiment inside 
+    # the configured log directory (runs/exp by default)
+    config.MODEL.MODEL_DIR = os.path.join(config.LOG.PATH, config.TRAIN.DATA.EXP_DATA_NAME, config.MODEL.MODEL_DIR)
     config.freeze()
     return
-
-
 
 def get_config(args):
     # Return a clone so that the defaults will not be altered
