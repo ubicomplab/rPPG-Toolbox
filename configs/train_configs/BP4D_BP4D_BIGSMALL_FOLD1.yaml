@@ -19,10 +19,12 @@ TRAIN:
       FOLD_PATH: './dataset/BP4D_BigSmall_Subject_Splits/Split1_Train_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
+      ONLY_AU_SUBSET: True
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 3
       CROP_FACE:
+        FACE_ALIGN_CROP: True
         DO_CROP_FACE: False
         USE_LARGE_FACE_BOX: False
         LARGE_BOX_COEF: 1.5
@@ -53,10 +55,12 @@ VALID:
       FOLD_PATH: './dataset/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
+      ONLY_AU_SUBSET: True
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 3
       CROP_FACE:
+        FACE_ALIGN_CROP: True
         DO_CROP_FACE: False
         USE_LARGE_FACE_BOX: False
         LARGE_BOX_COEF: 1.5
@@ -89,10 +93,12 @@ TEST:
       FOLD_PATH: './dataset/BP4D_BigSmall_Subject_Splits/Split1_Test_Subjects.csv'
     PREPROCESS:
       USE_PSUEDO_PPG_LABEL: True
+      ONLY_AU_SUBSET: True
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 3
       CROP_FACE:
+        FACE_ALIGN_CROP: True
         DO_CROP_FACE: False
         USE_LARGE_FACE_BOX: False
         LARGE_BOX_COEF: 1.5

@@ -121,7 +121,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         assert (config_data.END < 1 or config_data.END == 1)
 
         if config_data.DO_PREPROCESS:
-            self.raw_data_dirs = self.get_raw_data(self.raw_data_path)
+            self.raw_data_dirs = self.get_raw_data(self.raw_data_path, config_data)
             self.preprocess_dataset(self.raw_data_dirs, config_data, config_data.BEGIN, config_data.END)
         else:
             if not os.path.exists(self.cached_path):
@@ -210,7 +210,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         
 
 
-    def get_raw_data(self, data_path):
+    def get_raw_data(self, data_path, config_data):
         """Returns data directories under the path(For PURE dataset)."""
 
         # GET ALL SUBJECT TRIALS IN DATASET
@@ -228,7 +228,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             subject = int(index[1:4]) # subject number (by sex)
 
             # If processesing AU Subset only process trials T1, T6, T7, T8 (only ones that have AU labels)
-            if not trial in ['T1', 'T6', 'T7', 'T8']:
+            if config_data.PREPROCESS.ONLY_AU_SUBSET and not trial in ['T1', 'T6', 'T7', 'T8']:
                 continue
 
             if index == 'F041T7': # data sample has mismatch length for video frames and AU labels
@@ -360,6 +360,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
         # READ IN 2D FACIAL LANDMARKS
         data_dict = self.read_raw_alignment_features(data_dir_info, data_dict)
+        data_dict = self.calculate_biocular(data_dict)
 
         # READ IN RAW VIDEO FRAMES
         data_dict = self.read_raw_vid_frames(data_dir_info, config_data, data_dict)
@@ -371,8 +372,9 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         if trial in ['T1', 'T6', 'T7', 'T8']:
             data_dict, start_np_idx, end_np_idx = self.read_au_labels(data_dir_info, config_data, data_dict)
 
-            # CROP DATAFRAME W/ AU START END
-            data_dict = self.crop_au_subset_data(data_dict, start_np_idx, end_np_idx)
+            # IF ONLY AU SUBSET DATA REQUIRED CROP DATAFRAME W/ AU START END
+            if config_data.PREPROCESS.ONLY_AU_SUBSET:
+                data_dict = self.crop_au_subset_data(data_dict, start_np_idx, end_np_idx)
 
         # FRAMES AND LABELS SHOULD BE OF THE SAME LENGTH
         shape_mismatch = False
@@ -400,18 +402,21 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
     def calculate_biocular(self, data_dict):
 
-        input_land = np.loadtxt(list_path_prefix+'BP4D_combine_1_2_land.txt')
+        # Read in facial landmark data
+        land_x = data_dict['facial_2d_landmarks_x']
+        land_y = data_dict['facial_2d_landmarks_y']
 
-        biocular = np.zeros(input_land.shape[0])
+        biocular = np.zeros(land_x.shape[0]) # shoudl be number of frames
 
-        l_ocular_x = np.mean(input_land[:,np.arange(2*20-2,2*25,2)],1)
-        l_ocular_y = np.mean(input_land[:,np.arange(2*20-1,2*25,2)],1)
-        r_ocular_x = np.mean(input_land[:,np.arange(2*26-2,2*31,2)],1)
-        r_ocular_y = np.mean(input_land[:,np.arange(2*26-1,2*31,2)],1)
+        l_ocular_x = np.mean(land_x[:, np.arange(19,25)],1)
+        l_ocular_y = np.mean(land_y[:, np.arange(19,25)],1)
+        r_ocular_x = np.mean(land_x[:, np.arange(25,31)],1)
+        r_ocular_y = np.mean(land_y[:, np.arange(25,31)],1)
         biocular = (l_ocular_x - r_ocular_x) ** 2 + (l_ocular_y - r_ocular_y) ** 2
 
-        np.savetxt(list_path_prefix+'BP4D_combine_1_2_biocular.txt', biocular, fmt='%f', delimiter='\t')
-    
+        data_dict['biocular'] = biocular
+        return data_dict
+
 
     def align_squarecrop_face_49pts(img, img_land_x, img_land_y, box_enlarge, img_size):
         leftEye0 = (img_land_x[19] + img_land_x[20] + img_land_x[21] + img_land_x[22] + img_land_x[23] +
@@ -508,7 +513,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                     dim_h = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_H
                     dim_w = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_W
 
-                    if config_data.PREPROCESS.CROP_FACE.FACE_ALIGN:
+                    if config_data.PREPROCESS.CROP_FACE.FACE_ALIGN_CROP:
                         img_land_x = data_dict['facial_2d_landmarks_x'][cnt, :]
                         img_land_y = data_dict['facial_2d_landmarks_y'][cnt, :]
                         box_enlarge = 2 # TODO: This is hardcoded - not sure what to change this to
