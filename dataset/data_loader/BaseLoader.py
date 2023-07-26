@@ -438,7 +438,7 @@ class BaseLoader(Dataset):
         p_list = []  # list of processes
         running_num = 0  # number of running processes
 
-        choose_range = range(0, 1) # TODO: GIRISH REMOVE THIS - only for testing
+        # choose_range = range(0, 1) # TODO: GIRISH REMOVE THIS - only for testing
 
         # in range of number of files to process
         for i in choose_range:
@@ -463,8 +463,6 @@ class BaseLoader(Dataset):
             p_.join()
             pbar.update(1)
         pbar.close()
-
-        raise ValueError('GIRISH KILL') # TODO: GIRISH REMOVE THIS - only for testing
 
         return file_list_dict
 

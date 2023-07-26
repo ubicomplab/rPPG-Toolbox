@@ -268,12 +268,10 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         # CONSTRUCT DATA DICTIONARY FOR VIDEO TRIAL
         data_dict = self.construct_data_dict(data_dir_info, config_data) # construct a dictionary of ALL labels and video frames (of equal length)
         data_dict = self.generate_pos_psuedo_labels(data_dict, fs=config_data.FS)
-
-        raise ValueError('GIRISH KILL') # TODO: inserted for testing
         
         # SEPERATE DATA INTO VIDEO FRAMES AND LABELS ARRAY
         frames = self.read_video(data_dict) # read in the video frames
-        labels = self.read_labels(data_dict) # read in video labels # TODO add biocular things here
+        labels = self.read_labels(data_dict) # read in video labels
         if frames.shape[0] != labels.shape[0]: # check if data and labels are the same length
             raise ValueError(' Preprocessing dataset subprocess: frame and label time axis not the same')
 
@@ -420,7 +418,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         return data_dict
 
 
-    def align_squarecrop_face_49pts(img, img_land_x, img_land_y, box_enlarge, img_size):
+    def align_squarecrop_face_49pts(self, img, img_land_x, img_land_y, box_enlarge, img_size):
         leftEye0 = (img_land_x[19] + img_land_x[20] + img_land_x[21] + img_land_x[22] + img_land_x[23] +
                     img_land_x[24]) / 6.0
         leftEye1 = (img_land_y[19] + img_land_y[20] + img_land_y[21] + img_land_y[22] +
@@ -523,8 +521,9 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                         frame, new_land_x, new_land_y = self.align_squarecrop_face_49pts(frame, 
                                                                                           img_land_x, img_land_y, 
                                                                                           box_enlarge, dim_h)
-                        data_dict['facial_2d_landmarks_x'] = new_land_x[cnt, :]
-                        data_dict['facial_2d_landmarks_y'] = new_land_y[cnt, :]
+                        frame = np.expand_dims(frame, axis=0)
+                        data_dict['facial_2d_landmarks_x'][cnt, :] = new_land_x
+                        data_dict['facial_2d_landmarks_y'][cnt, :] = new_land_y
 
                     else: 
                         # TODO: update the facial_2d_landmarks to account for downsampling / cropping
@@ -589,7 +588,7 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         data_dict['resp_wave'] = resp_wave
         data_dict['resp_bpm'] = resp_bpm
         data_dict['eda'] = eda
-        return data_dict  
+        return data_dict
 
 
 
@@ -644,11 +643,10 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                 AUs_int = pd.read_csv(AU_INT_url, header = None).to_numpy() # read in each csv file
                 assert (AUs_int.shape[0] == AUs.shape[0]) # ensure int encoding same length as binary encoding
                 aucoding_int = AUs_int[:, 1]
-                if start_frame > 1:
-                    # pad the previous frame with -1
+
+                if start_frame > 1: # pad the previous frame with -1
                     aucoding_int = np.pad(aucoding_int, (start_frame - 1, 0), 'constant', constant_values = (-1, -1))
-                if end_frame < frame_shape:
-                    # pad the following frame with -1
+                if end_frame < frame_shape: # pad the following frame with -1
                     aucoding_int = np.pad(aucoding_int, (0, frame_shape - end_frame), 'constant', constant_values = (-1, -1))
 
                 # Save out info to dict
@@ -668,7 +666,11 @@ class BP4DPlusBigSmallLoader(BaseLoader):
 
         # Iterate through video frames ad labels and crop based off start and end frame
         for k in keys:
-            data_dict[k] = data_dict[k][start:end+1] # start and end frames are inclusive 
+            if k == 'facial_2d_landmarks_x' or k == 'facial_2d_landmarks_y':
+                data_dict[k] = data_dict[k][start:end+1, :]
+
+            else:
+                data_dict[k] = data_dict[k][start:end+1] # start and end frames are inclusive 
 
         return data_dict
     
@@ -709,6 +711,15 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         for i in range(len(labels_order_list)):
             if labels_order_list[i] in keys:
                 labels[:, i] = f[labels_order_list[i]]
+            
+        # FINAL OUTPUT SHAPE: 
+        # [0:48] Phys Labels
+        # [49:97] Facial Landmarks X-Coordinate
+        # [98:146] Facial Landmarks Y-Coordinate
+        # [147] Biocular Distance
+        labels = np.concatenate((labels, f['facial_2d_landmarks_x'], 
+                                 f['facial_2d_landmarks_y'], np.expand_dims(f['biocular'], axis=1)), 
+                                 axis=1)
 
         return np.asarray(labels) # Return labels as np array
     
