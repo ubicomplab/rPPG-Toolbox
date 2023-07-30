@@ -139,6 +139,10 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         print('File List Path', self.file_list_path)
         print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
 
+        # TODO: Girish Remove This After Data Generation
+        print()
+        raise ValueError('DATA PROCESSING FINISHED... I THINK...')
+
 
     def preprocess_dataset(self, data_dirs, config_data, begin, end):
         print('Starting Preprocessing...')
@@ -231,7 +235,23 @@ class BP4DPlusBigSmallLoader(BaseLoader):
             if config_data.PREPROCESS.ONLY_AU_SUBSET and not trial in ['T1', 'T6', 'T7', 'T8']:
                 continue
 
-            if index == 'F041T7': # data sample has mismatch length for video frames and AU labels
+            # videos w/ 2D Facial Landmark Data Issues: 
+            landmark_issues = ['F001T8', 'F010T10', 'F013T6', 'F014T8', 'F015T6', 'F016T6', 'F019T4', 
+                               'F022T7', 'F024T4', 'F024T9', 'F027T4', 'F028T8', 'F029T9', 'F030T7', 
+                               'F030T9', 'F033T6', 'F033T7', 'F033T8', 'F036T6', 'F038T1', 'F041T7', 
+                               'F043T1', 'F043T10', 'F043T7', 'F047T7', 'F048T7', 'F051T4', 'F054T7', 
+                               'F059T4', 'F061T4', 'F061T7', 'F062T4', 'F062T8', 'F067T4', 'F068T7', 
+                               'F072T4', 'F073T4', 'F077T4', 'F078T9', 'F081T4', 'M005T5', 'M005T7', 
+                               'M009T10', 'M009T4', 'M009T7', 'M011T8', 'M014T4', 'M014T7', 'M017T10', 
+                               'M017T7', 'M019T3', 'M023T10', 'M024T1', 'M024T2', 'M030T4', 'M033T1', 
+                               'M033T9', 'M035T6', 'M041T4', 'M041T7', 'M042T7', 'M046T1', 'M047T10', 
+                               'M047T7', 'M049T6', 'M049T7', 'M051T4', 'M055T8']
+            
+            # data sample has mismatch length for video frames and AU labels
+            data_mismatch_length = ['F041T7']
+
+            trials_to_skip = landmark_issues + data_mismatch_length
+            if index  in trials_to_skip:
                 continue
             
             # append information to data dirs list
