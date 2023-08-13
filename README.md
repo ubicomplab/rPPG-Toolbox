@@ -251,7 +251,7 @@ STEP 3: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVI
 
 # :eyes: Visualization of Preprocessed Data
 A python notebook for visualizing preprocessed data can be found in `tools/preprocessing_viz`. The notebook automatically detects the preprocessed data format and then plots input image examples and waveforms. 
-![Data Visualization Example](./tools/preprocessing_viz/preprocessing_viz_example.png | width=100)
+![Data Visualization Example](./tools/preprocessing_viz/preprocessing_viz_example.png width=100px)
 
 # :scroll: YAML File Setting
 The rPPG-Toolbox uses yaml file to control all parameters for training and evaluation. 
