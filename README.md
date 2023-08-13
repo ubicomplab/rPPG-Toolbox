@@ -251,7 +251,7 @@ STEP 3: Run `python main.py --config_file ./configs/infer_configs/UBFC_UNSUPERVI
 
 # :eyes: Visualization of Preprocessed Data
 A python notebook for visualizing preprocessed data can be found in `tools/preprocessing_viz`. The notebook automatically detects the preprocessed data format and then plots input image examples and waveforms. 
-![Data Visualization Example | 50](./tools/preprocessing_viz/preprocessing_viz_example.png)
+![Data Visualization Example](./tools/preprocessing_viz/preprocessing_viz_example.png)
 
 # :scroll: YAML File Setting
 The rPPG-Toolbox uses yaml file to control all parameters for training and evaluation. 
@@ -294,7 +294,7 @@ Here are some explanation of parameters:
     
 # :open_file_folder: Adding a New Dataset
 
-* STEP 1: Create a new python file in dataset/data_loader, e.g. MyLoader.py
+* STEP 1: Create a new python file in `dataset/data_loader`, e.g. MyLoader.py
 
 * STEP 2: Implement the required functions, including:
 
@@ -312,6 +312,29 @@ Here are some explanation of parameters:
 
 * STEP 3:[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * STEP 4:Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
+
+# :robot: Adding a New Neural Algorithms
+
+* STEP 1: Define a model in a new python file in `neural_methods/model`, e.g. NewModel.py.
+
+* STEP 2: Implement the corresponding training/testing routines in a file `neural_methods/trainer`, e.g. NewModelTrainer.py. Ensure to implement the following functions:
+
+  ```python
+  def __init__(self, config, data_loader):
+  ```
+  ```python
+  @staticmethod
+  def train(self, data_loader):
+  ```
+  ```python
+  @staticmethod
+  def valid(self, data_loader):
+  ```
+
+  ```python
+  @staticmethod
+  def test(self, data_loader)
+  ```
 
 # :green_book: Weakly Supervised Training 
 
