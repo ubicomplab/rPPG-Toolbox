@@ -343,7 +343,7 @@ Here are some explanation of parameters:
   def save_model(index)
   ```
 
-  * STEP 4: Create new yaml files in configs/ corresponding to the new algorithm.
+* STEP 4: Create new yaml files in configs/ corresponding to the new algorithm.
 
 # :green_book: Weakly Supervised Training 
 
