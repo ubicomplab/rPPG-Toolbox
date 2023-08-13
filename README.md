@@ -313,7 +313,9 @@ Here are some explanation of parameters:
 * STEP 3:[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * STEP 4:Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
 
-# :robot: Adding a New Neural Algorithms
+# :robot: Adding a New (Neural) Algorithms
+
+* NOTE: These steps are only for neural algorithms. For adding additional unsupervised methods, implement them in a file in `unsupervised_methods` e.g. NewUnsupervisedMethod.py.
 
 * STEP 1: Define a model in a new python file in `neural_methods/model`, e.g. NewModel.py.
 
@@ -335,6 +337,13 @@ Here are some explanation of parameters:
   @staticmethod
   def test(self, data_loader)
   ```
+
+  ```python
+  @staticmethod
+  def save_model(index)
+  ```
+
+  * STEP 4: Create new yaml files in configs/ corresponding to the new algorithm.
 
 # :green_book: Weakly Supervised Training 
 
