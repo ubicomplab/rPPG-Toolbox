@@ -313,9 +313,7 @@ Here are some explanation of parameters:
 * STEP 3:[Optional] Override optional functions. In principle, all functions in BaseLoader can be override, but we **do not** recommend you to override *\_\_len\_\_, \_\_get\_item\_\_,save,load*.
 * STEP 4:Set or add configuration parameters.  To set paramteters, create new yaml files in configs/ .  Adding parameters requires modifying config.py, adding new parameters' definition and initial values.
 
-# :robot: Adding a New (Neural) Algorithms
-
-* NOTE: These steps are only for neural algorithms. For adding additional unsupervised methods, implement them in a file in `unsupervised_methods` e.g. NewUnsupervisedMethod.py.
+# :robot: Adding a New Neural Algorithms
 
 * STEP 1: Define a model in a new python file in `neural_methods/model`, e.g. NewModel.py.
 
@@ -325,23 +323,29 @@ Here are some explanation of parameters:
   def __init__(self, config, data_loader):
   ```
   ```python
-  @staticmethod
   def train(self, data_loader):
   ```
   ```python
-  @staticmethod
   def valid(self, data_loader):
   ```
 
   ```python
-  @staticmethod
   def test(self, data_loader)
   ```
 
   ```python
-  @staticmethod
   def save_model(index)
   ```
+
+* STEP 3: Add logic to `main.py` to use the models in the following `train_and_test` and `test` functions. 
+
+* STEP 4: Create new yaml files in configs/ corresponding to the new algorithm.
+
+# :chart_with_upwards_trend: Adding a New Unsupervised Algorithms
+
+* STEP 1: Define a algorithm in a new python file in `neural_methods/model`, e.g. NewModel.py.
+
+* STEP 2: Add logic to `main.py` to use the models in the following `unsupervised_method_inference` function. 
 
 * STEP 4: Create new yaml files in configs/ corresponding to the new algorithm.
 
