@@ -120,5 +120,9 @@ class PhysNet_padding_Encoder_Decoder_MAX(nn.Module):
         x = self.ConvBlock10(x)  # x [1, T, 1,1]
 
         rPPG = x.view(-1, length)
+        rPPG_std = torch.std(rPPG, dim=1, keepdim=True)
+        rPPG_mean = torch.mean(rPPG, dim=1, keepdim=True)
+        rPPG = (rPPG-rPPG_mean)/rPPG_std
+
 
         return rPPG, x_visual, x_visual3232, x_visual1616
