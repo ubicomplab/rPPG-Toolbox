@@ -391,6 +391,11 @@ The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), 
   <img src="./figures/bigsmall_ex1.gif" alt="Example Multi-Task Output From BigSmall." />
 </p>
 
+# :page_with_curl: Using Custom Data Splits and Custom File Lists
+
+Best model evaluation practices in rPPG deep learning involve training and validating a model on one dataset and then evaluating (testing) the performance on additional datasets (Eg. training on PURE and testing on UBFC). However in cases where users would like to define their own data splits (Eg. for intra-dataset cross validation), the following steps can be used to achieve this.  
+Data splits used for training, validation, and testing are saved as .csv 
+
 # :scroll: Citation
 If you find our [paper](https://arxiv.org/abs/2210.00716) or this toolbox useful for your research, please cite our work.
 
