@@ -393,8 +393,13 @@ The BigSmall mode multi-tasks pulse (PPG regression), respiration (regression), 
 
 # :page_with_curl: Using Custom Data Splits and Custom File Lists
 
-Best model evaluation practices in rPPG deep learning involve training and validating a model on one dataset and then evaluating (testing) the performance on additional datasets (Eg. training on PURE and testing on UBFC). However in cases where users would like to define their own data splits (Eg. for intra-dataset cross validation), the following steps can be used to achieve this.  
-Data splits used for training, validation, and testing are saved as .csv 
+Best practice for rPPG model evaluation involves training and validating a model on one dataset and then evaluating (testing) the performance on additional datasets (Eg. training on PURE and testing on UBFC). Data splits used for training, validation, and testing are saved as .csv filelists with the default path set as `CACHED_PATH/DataFileLists`. In cases where users would like to define their own data splits (Eg. for intra-dataset cross validation), the following steps can be used to achieve this.  
+
+* STEP 1: Collect all file paths for the desired input files for the data split (An example file path would be of format `CACHED_PATH/PREPROCESSED_DATASET/*input*.npy`, eg. `405_input9.npy`). Ensure the corresponding `*label*.npy` file exists in the same directory as the input file.
+
+* STEP 2: Add all file paths to a .csv with column name `input_files`. We suggest creating a pandas dataframe and then saving this out to the csv. This .csv file is the file list for your custom data split.
+
+* STEP 3: In the desired config file, enter the file path of the .csv file list with key word `FILE_LIST_PATH` in the `DATA` field of the desired split. The data loader will load input and label files specified in this file path. 
 
 # :scroll: Citation
 If you find our [paper](https://arxiv.org/abs/2210.00716) or this toolbox useful for your research, please cite our work.
