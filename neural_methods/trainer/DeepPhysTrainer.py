@@ -172,10 +172,13 @@ class DeepPhysTrainer(BaseTrainer):
         
         print('')
         calculate_metrics(predictions, labels, self.config)
+        self.save_test_outputs(predictions, labels, self.config)
 
     def save_model(self, index):
+        """Inits parameters from args and the writer for TensorboardX."""
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
         model_path = os.path.join(
             self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
         torch.save(self.model.state_dict(), model_path)
+ 
