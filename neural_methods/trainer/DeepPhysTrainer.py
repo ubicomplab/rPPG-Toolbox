@@ -161,6 +161,11 @@ class DeepPhysTrainer(BaseTrainer):
                 data_test = data_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
                 pred_ppg_test = self.model(data_test)
+
+                if self.config.TEST.OUTPUT_SAVE_DIR:
+                    labels_test = labels_test.cpu()
+                    pred_ppg_test = pred_ppg_test.cpu()
+
                 for idx in range(batch_size):
                     subj_index = test_batch[2][idx]
                     sort_index = int(test_batch[3][idx])
@@ -172,7 +177,8 @@ class DeepPhysTrainer(BaseTrainer):
         
         print('')
         calculate_metrics(predictions, labels, self.config)
-        self.save_test_outputs(predictions, labels, self.config)
+        if self.config.TEST.OUTPUT_SAVE_DIR: # saving test outputs # TODO ADD TO ALL
+            self.save_test_outputs(predictions, labels, self.config) # TODO ADD TO ALL
 
     def save_model(self, index):
         """Inits parameters from args and the writer for TensorboardX."""

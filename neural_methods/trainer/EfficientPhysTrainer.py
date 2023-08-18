@@ -181,6 +181,11 @@ class EfficientPhysTrainer(BaseTrainer):
                 data_test = torch.cat((data_test, last_frame), 0)
                 labels_test = labels_test[:(N * D) // self.base_len * self.base_len]
                 pred_ppg_test = self.model(data_test)
+
+                if self.config.TEST.OUTPUT_SAVE_DIR:
+                    labels_test = labels_test.cpu()
+                    pred_ppg_test = pred_ppg_test.cpu()
+
                 for idx in range(batch_size):
                     subj_index = test_batch[2][idx]
                     sort_index = int(test_batch[3][idx])
@@ -192,6 +197,8 @@ class EfficientPhysTrainer(BaseTrainer):
 
         print('')
         calculate_metrics(predictions, labels, self.config)
+        if self.config.TEST.OUTPUT_SAVE_DIR: # saving test outputs
+            self.save_test_outputs(predictions, labels, self.config)
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
