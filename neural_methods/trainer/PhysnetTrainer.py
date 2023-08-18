@@ -161,9 +161,9 @@ class PhysnetTrainer(BaseTrainer):
                     self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
                 pred_ppg_test, _, _, _ = self.model(data)
 
-                if self.config.TEST.OUTPUT_SAVE_DIR: # TODO ADD TO ALL
-                    label = label.cpu() # TODO ADD TO ALL
-                    pred_ppg_test = pred_ppg_test.cpu() # TODO ADD TO ALL
+                if self.config.TEST.OUTPUT_SAVE_DIR:
+                    label = label.cpu()
+                    pred_ppg_test = pred_ppg_test.cpu()
 
                 for idx in range(batch_size):
                     subj_index = test_batch[2][idx]
