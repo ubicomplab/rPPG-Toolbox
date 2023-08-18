@@ -151,6 +151,7 @@ _C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 # Test settings
 # -----------------------------------------------------------------------------\
 _C.TEST = CN()
+_C.TEST.OUTPUT_SAVE_DIR = ''
 _C.TEST.METRICS = []
 _C.TEST.USE_LAST_EPOCH = True
 # Test.Data settings
