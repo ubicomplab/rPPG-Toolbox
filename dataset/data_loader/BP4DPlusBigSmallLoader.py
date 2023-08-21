@@ -471,7 +471,9 @@ class BP4DPlusBigSmallLoader(BaseLoader):
         mat3 = np.mat([[scale, 0, scale * (halfSize - cx)], [0, scale, scale * (halfSize - cy)], [0, 0, 1]])
         mat = mat3 * mat1
 
-        aligned_img = cv2.warpAffine(img, mat[0:2, :], (img_size, img_size), cv2.INTER_LINEAR, borderValue=(128, 128, 128))
+        # Used to be grey border/fill (128,128,128). Now black (0,0,0)
+        #aligned_img = cv2.warpAffine(img, mat[0:2, :], (img_size, img_size), cv2.INTER_LINEAR, borderValue=(128, 128, 128))
+        aligned_img = cv2.warpAffine(img, mat[0:2, :], (img_size, img_size), cv2.INTER_LINEAR, borderValue=(0, 0, 0))
 
         land_3d = np.ones((len(img_land_x), 3))
         land_3d[:, 0] = img_land_x
