@@ -301,6 +301,17 @@ _C.MODEL.BIGSMALL = CN()
 _C.MODEL.BIGSMALL.FRAME_DEPTH = 3
 
 # -----------------------------------------------------------------------------
+# Model Settings for PhysFormer
+# -----------------------------------------------------------------------------
+_C.MODEL.PHYSFORMER = CN()
+_C.MODEL.PHYSFORMER.PATCH_SIZE = 4
+_C.MODEL.PHYSFORMER.DIM = 96
+_C.MODEL.PHYSFORMER.FF_DIM = 144
+_C.MODEL.PHYSFORMER.NUM_HEADS = 4
+_C.MODEL.PHYSFORMER.NUM_LAYERS = 12
+_C.MODEL.PHYSFORMER.THETA = 0.7
+
+# -----------------------------------------------------------------------------
 # Inference settings
 # -----------------------------------------------------------------------------
 _C.INFERENCE = CN()
