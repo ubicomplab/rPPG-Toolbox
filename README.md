@@ -38,7 +38,7 @@ rPPG-Toolbox currently supports the following algorithms:
   - [EfficientPhys: Enabling Simple, Fast and Accurate Camera-Based Cardiac Measurement (EfficientPhys)](https://openaccess.thecvf.com/content/WACV2023/papers/Liu_EfficientPhys_Enabling_Simple_Fast_and_Accurate_Camera-Based_Cardiac_Measurement_WACV_2023_paper.pdf), by Liu *et al.*, 2023
   - [BigSmall: Efficient Multi-Task Learning for Disparate Spatial and Temporal Physiological Measurements
  (BigSmall)](https://arxiv.org/abs/2303.11573), by Narayanswamy *et al.*, 2023
-
+  - [PhysFormer: Facial Video-based Physiological Measurement with Temporal Difference Transformer (PhysFormer)](https://openaccess.thecvf.com/content/CVPR2022/papers/Yu_PhysFormer_Facial_Video-Based_Physiological_Measurement_With_Temporal_Difference_Transformer_CVPR_2022_paper.pdf), by Yu *et al.*, 2022
 
 # :file_folder: Datasets
 The toolbox supports six datasets, namely SCAMPS, UBFC-rPPG, PURE, BP4D+, UBFC-Phys, and MMPD. Please cite the corresponding papers when using these datasets. For now, we recommend training with UBFC-rPPG, PURE, or SCAMPS due to the level of synchronization and volume of the datasets. **To use these datasets in a deep learning model, you should organize the files as follows.**
@@ -290,7 +290,7 @@ Here are some explanation of parameters:
   * `TASK_LIST`: A list to specify tasks to include when loading a dataset, allowing for selective inclusion of a subset of tasks or a single task in a dataset if desired. This is only used if `SELECT_TASKS` is set to `True`. Currently this parameter is only tested with the [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) dataset. Please refer to one of the config files involving the [UBFC-Phys](https://sites.google.com/view/ybenezeth/ubfc-phys) dataset for an example of using this parameter.
 
   
-* #### MODEL : Set used model (Deepphys, TSCAN, Physnet, EfficientPhys, and BigSmall and their paramaters are supported).
+* #### MODEL : Set used model (Deepphys, TSCAN, Physnet, EfficientPhys, BigSmall, and PhysFormer and their paramaters are supported).
 * #### UNSUPERVISED METHOD: Set used unsupervised method. Example: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
 * #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson']
 * #### INFERENCE:
