@@ -74,22 +74,14 @@ class MultiHeadedSelfAttention_TDC_gra_sharp(nn.Module):
         self.proj_q = nn.Sequential(
             CDC_T(dim, dim, 3, stride=1, padding=1, groups=1, bias=False, theta=theta),  
             nn.BatchNorm3d(dim),
-            #nn.ELU(),
         )
         self.proj_k = nn.Sequential(
             CDC_T(dim, dim, 3, stride=1, padding=1, groups=1, bias=False, theta=theta),  
             nn.BatchNorm3d(dim),
-            #nn.ELU(),
         )
         self.proj_v = nn.Sequential(
-            nn.Conv3d(dim, dim, 1, stride=1, padding=0, groups=1, bias=False),  
-            #nn.BatchNorm3d(dim),
-            #nn.ELU(),
+            nn.Conv3d(dim, dim, 1, stride=1, padding=0, groups=1, bias=False),
         )
-        
-        #self.proj_q = nn.Linear(dim, dim)
-        #self.proj_k = nn.Linear(dim, dim)
-        #self.proj_v = nn.Linear(dim, dim)
         
         self.drop = nn.Dropout(dropout)
         self.n_heads = num_heads
@@ -149,7 +141,6 @@ class PositionWiseFeedForward_ST(nn.Module):
 
     def forward(self, x):    # [B, 4*4*40, 128]
         [B, P, C]=x.shape
-        #x = x.transpose(1, 2).view(B, C, 40, 4, 4)      # [B, dim, 40, 4, 4]
         x = x.transpose(1, 2).view(B, C, P//16, 4, 4)      # [B, dim, 40, 4, 4]
         x = self.fc1(x)		              # x [B, ff_dim, 40, 4, 4]
         x = self.STConv(x)		          # x [B, ff_dim, 40, 4, 4]
@@ -157,9 +148,6 @@ class PositionWiseFeedForward_ST(nn.Module):
         x = x.flatten(2).transpose(1, 2)  # [B, 4*4*40, dim]
         
         return x
-        
-        # (B, S, D) -> (B, S, D_ff) -> (B, S, D)
-        #return self.fc2(F.gelu(self.fc1(x)))
 
 class Block_ST_TDC_gra_sharp(nn.Module):
     """Transformer Block"""
@@ -308,9 +296,6 @@ class ViT_ST_ST_Compact3_TDC_gra_sharp(nn.Module):
         Trans_features, Score1 =  self.transformer1(x, gra_sharp)  # [B, 4*4*40, 64]
         Trans_features2, Score2 =  self.transformer2(Trans_features, gra_sharp)  # [B, 4*4*40, 64]
         Trans_features3, Score3 =  self.transformer3(Trans_features2, gra_sharp)  # [B, 4*4*40, 64]
-        
-        
-        # Trans_features3 = self.normLast(Trans_features3)
         
         # upsampling heads
         #features_last = Trans_features3.transpose(1, 2).view(b, self.dim, 40, 4, 4) # [B, 64, 40, 4, 4]
