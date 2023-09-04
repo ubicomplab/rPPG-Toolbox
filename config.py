@@ -485,7 +485,7 @@ def update_config(config, args):
                 model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
                 model_file_name_parts[train_name_idx] = 'MA-' + model_file_name_parts[train_name_idx]
                 config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
-            if 'Motion' in config.VALID.DATA.PREPROCESS.DATA_AUG and valid_name_part is not None:
+            if 'Motion' in config.VALID.DATA.PREPROCESS.DATA_AUG:
                 model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
                 model_file_name_parts[valid_name_idx] = 'MA-' + model_file_name_parts[valid_name_idx]
                 config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
