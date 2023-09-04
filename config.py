@@ -216,6 +216,7 @@ _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 # -----------------------------------------------------------------------------\
 _C.UNSUPERVISED = CN()
 _C.UNSUPERVISED.METHOD = []
+_C.UNSUPERVISED.OUTPUT_SAVE_DIR = ''
 _C.UNSUPERVISED.METRICS = []
 # Unsupervised.Data settings
 _C.UNSUPERVISED.DATA = CN()
@@ -539,6 +540,18 @@ def update_config(config, args):
     # Establish the directory to hold pre-trained models from a given experiment inside 
     # the configured log directory (runs/exp by default)
     config.MODEL.MODEL_DIR = os.path.join(config.LOG.PATH, config.TRAIN.DATA.EXP_DATA_NAME, config.MODEL.MODEL_DIR)
+
+    # Establish the directory to hold outputs saved during testing inside the
+    # configured log directory (runs/exp by default)
+    if config.TOOLBOX_MODE == 'train_and_test':
+        config.TEST.OUTPUT_SAVE_DIR = os.path.join(config.LOG.PATH, config.TRAIN.DATA.EXP_DATA_NAME, 'saved_test_outputs')
+    elif config.TOOLBOX_MODE == 'only_test':
+        config.TEST.OUTPUT_SAVE_DIR = os.path.join(config.LOG.PATH, config.TEST.DATA.EXP_DATA_NAME, 'saved_test_outputs')
+    elif config.TOOLBOX_MODE == 'unsupervised_method':
+        config.UNSUPERVISED.OUTPUT_SAVE_DIR = os.path.join(config.LOG.PATH, config.UNSUPERVISED.DATA.EXP_DATA_NAME, 'saved_outputs')
+    else:
+        raise ValueError('TOOLBOX_MODE only supports train_and_test, only_test, or unsupervised_method!')
+
     config.freeze()
     return
 
