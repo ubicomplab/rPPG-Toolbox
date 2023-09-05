@@ -61,7 +61,7 @@ VALID:
         H: 72
         W: 72
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FILTERING:

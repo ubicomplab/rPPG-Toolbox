@@ -59,7 +59,7 @@ VALID:
         H: 72
         W: 72
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   USE_LAST_EPOCH: True
   DATA:
     FS: 30
