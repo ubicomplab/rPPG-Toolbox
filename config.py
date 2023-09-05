@@ -301,6 +301,17 @@ _C.MODEL.BIGSMALL = CN()
 _C.MODEL.BIGSMALL.FRAME_DEPTH = 3
 
 # -----------------------------------------------------------------------------
+# Model Settings for PhysFormer
+# -----------------------------------------------------------------------------
+_C.MODEL.PHYSFORMER = CN()
+_C.MODEL.PHYSFORMER.PATCH_SIZE = 4
+_C.MODEL.PHYSFORMER.DIM = 96
+_C.MODEL.PHYSFORMER.FF_DIM = 144
+_C.MODEL.PHYSFORMER.NUM_HEADS = 4
+_C.MODEL.PHYSFORMER.NUM_LAYERS = 12
+_C.MODEL.PHYSFORMER.THETA = 0.7
+
+# -----------------------------------------------------------------------------
 # Inference settings
 # -----------------------------------------------------------------------------
 _C.INFERENCE = CN()
@@ -474,7 +485,7 @@ def update_config(config, args):
                 model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
                 model_file_name_parts[train_name_idx] = 'MA-' + model_file_name_parts[train_name_idx]
                 config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
-            if 'Motion' in config.VALID.DATA.PREPROCESS.DATA_AUG and valid_name_part is not None:
+            if 'Motion' in config.VALID.DATA.PREPROCESS.DATA_AUG:
                 model_file_name_parts = config.TRAIN.MODEL_FILE_NAME.split('_')
                 model_file_name_parts[valid_name_idx] = 'MA-' + model_file_name_parts[valid_name_idx]
                 config.TRAIN.MODEL_FILE_NAME = '_'.join(model_file_name_parts)
