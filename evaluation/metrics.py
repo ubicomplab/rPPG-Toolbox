@@ -3,7 +3,7 @@ import pandas as pd
 import torch
 from evaluation.post_process import *
 from tqdm import tqdm
-
+from evaluation.BlandAltmanPy import BlandAltman
 
 def read_label(dataset):
     """Read manually corrected labels."""
@@ -121,6 +121,16 @@ def calculate_metrics(predictions, labels, config):
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_FFT, standard_error))
             elif "AU" in metric:
                 pass
+            elif "BA" in metric:
+                compare = BlandAltman(gt_hr_fft_all, predict_hr_fft_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT PPG HR [bpm]',
+                    y_label='rPPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_ScatterPlot.pdf')
+                compare.difference_plot(
+                    x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
+                    y_label='Average of rPPG HR and GT PPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
@@ -152,6 +162,16 @@ def calculate_metrics(predictions, labels, config):
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_PEAK, standard_error))
             elif "AU" in metric:
                 pass
+            elif "BA" in metric:
+                compare = BlandAltman(gt_hr_peak_all, predict_hr_peak_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT PPG HR [bpm]',
+                    y_label='rPPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_ScatterPlot.pdf')
+                compare.difference_plot(
+                    x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
+                    y_label='Average of rPPG HR and GT PPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     else:

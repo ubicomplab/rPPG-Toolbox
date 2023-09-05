@@ -1,17 +1,12 @@
 import numpy as np
-import pandas as pd
-import torch
-
 import scipy
 import scipy.io
 from scipy.signal import butter
-from scipy.sparse import spdiags
 from sklearn.metrics import f1_score, precision_recall_fscore_support
 from evaluation.metrics import calculate_metrics, _reform_data_from_dict
 from evaluation.post_process import _detrend, _next_power_of_2, _calculate_SNR
-
 from tqdm import tqdm
-
+from evaluation.BlandAltmanPy import BlandAltman
 
 # PPG Metrics
 def calculate_bvp_metrics(predictions, labels, config):
@@ -154,6 +149,19 @@ def calculate_resp_metrics(predictions, labels, config):
                 print("FFT SNR (FFT Label): {0} +/- {1}".format(SNR_FFT, standard_error))
             elif "AU" in metric:
                 pass
+            elif "BA" in metric:
+                compare = BlandAltman(gt_rr_fft_all, predict_rr_fft_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT RR [bpm]',
+                    y_label='Predicted RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), 
+                    file_name=f'FFT_BlandAltman_ScatterPlot.pdf', 
+                    measure_lower_lim=10, 
+                    measure_upper_lim=60)
+                compare.difference_plot(
+                    x_label='Difference between Predicted RR and GT RR [bpm]', 
+                    y_label='Average of Predicted RR and GT RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
@@ -185,6 +193,19 @@ def calculate_resp_metrics(predictions, labels, config):
                 print("FFT SNR (FFT Label): {0} +/- {1}".format(SNR_PEAK, standard_error))
             elif "AU" in metric:
                 pass
+            elif "BA" in metric:
+                compare = BlandAltman(gt_rr_peak_all, predict_rr_peak_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT RR [bpm]',
+                    y_label='Predicted RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), 
+                    file_name=f'Peak_BlandAltman_ScatterPlot.pdf', 
+                    measure_lower_lim=10, 
+                    measure_upper_lim=60)
+                compare.difference_plot(
+                    x_label='Difference between Predicted RR and GT RR [bpm]', 
+                    y_label='Average of Predicted RR and GT RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     else:
