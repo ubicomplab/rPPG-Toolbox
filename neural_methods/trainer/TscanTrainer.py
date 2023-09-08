@@ -9,7 +9,7 @@ import torch
 import torch.optim as optim
 from evaluation.metrics import calculate_metrics
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
-from neural_methods.model.TS_CAN import TSCAN
+from neural_methods.model.TS_CAN import TSCAN, TSCAN_NoPooling
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 from tqdm import tqdm
 
@@ -33,7 +33,10 @@ class TscanTrainer(BaseTrainer):
         self.best_epoch = 0
 
         if config.TOOLBOX_MODE == "train_and_test":
-            self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
+            # self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
+            # # self.model = SmallPathwayTSM().to(self.device)
+            # self.model = SmallPathwayWTSM().to(self.device)
+            self.model = TSCAN_NoPooling(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
             self.num_train_batches = len(data_loader["train"])

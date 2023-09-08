@@ -1,26 +1,26 @@
 BASE: ['']
 TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
 TRAIN:
-  BATCH_SIZE: 4
-  EPOCHS: 30
+  BATCH_SIZE: 40
+  EPOCHS: 5
   LR: 9e-3
-  MODEL_FILE_NAME: PURE_PURE_UBFC_tscan
+  MODEL_FILE_NAME: PURE_PURE_UBFC_TSCAN_NOPOOL_TSM
   DATA:
     FS: 30
     DATASET: PURE
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData" # "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
-    END: 0.8
+    END: 1.0
     PREPROCESS:
       DATA_TYPE: ['DiffNormalized','Standardized']
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 180
+      CHUNK_LENGTH: 3
       CROP_FACE:
         DO_CROP_FACE: True
         USE_LARGE_FACE_BOX: True
@@ -30,8 +30,8 @@ TRAIN:
           DYNAMIC_DETECTION_FREQUENCY: 30
           USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
       RESIZE:
-        H: 72
-        W: 72
+        H: 9
+        W: 9
 VALID:
   DATA:
     FS: 30
@@ -39,7 +39,7 @@ VALID:
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
     DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/PURE/RawData"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData" #"/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
@@ -48,7 +48,7 @@ VALID:
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 180
+      CHUNK_LENGTH: 3
       CROP_FACE:
         DO_CROP_FACE: True
         USE_LARGE_FACE_BOX: True
@@ -58,9 +58,10 @@ VALID:
           DYNAMIC_DETECTION_FREQUENCY : 30
           USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
       RESIZE:
-        H: 72
-        W: 72
+        H: 9
+        W: 9
 TEST:
+  OUTPUT_SAVE_DIR: "./output_files"
   METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
@@ -68,8 +69,8 @@ TEST:
     DATASET: UBFC-rPPG
     DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC-rPPG/RawData"          # need to be updated
-    CACHED_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/gscratch/ubicomp/xliu0/data3/mnt/Datasets/UBFC/RawData"          # need to be updated
+    CACHED_PATH: "/gscratch/ubicomp/girishvn/rppg/rppg_datasets/PreprocessedData" #"/gscratch/ubicomp/xliu0/data3/mnt/Datasets/rppg_toolbox/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
@@ -77,7 +78,7 @@ TEST:
       DATA_TYPE: [ 'DiffNormalized','Standardized' ]
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 180
+      CHUNK_LENGTH: 3
       CROP_FACE:
         DO_CROP_FACE: True
         USE_LARGE_FACE_BOX: True
@@ -87,8 +88,8 @@ TEST:
           DYNAMIC_DETECTION_FREQUENCY: 30
           USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
       RESIZE:
-        H: 72
-        W: 72
+        H: 9
+        W: 9
 DEVICE: cuda:0
 NUM_OF_GPU_TRAIN: 1
 LOG:
@@ -97,9 +98,9 @@ MODEL:
   DROP_RATE: 0.2
   NAME: Tscan
   TSCAN:
-    FRAME_DEPTH: 10
+    FRAME_DEPTH: 3
 INFERENCE:
-  BATCH_SIZE: 4
+  BATCH_SIZE: 40
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
