@@ -1,11 +1,5 @@
 """Unsupervised learning methods including POS, GREEN, CHROME, ICA, LGI and PBV."""
-
-import logging
-import os
-from collections import OrderedDict
-
 import numpy as np
-import torch
 from evaluation.post_process import *
 from unsupervised_methods.methods.CHROME_DEHAAN import *
 from unsupervised_methods.methods.GREEN import *
@@ -14,7 +8,7 @@ from unsupervised_methods.methods.LGI import *
 from unsupervised_methods.methods.PBV import *
 from unsupervised_methods.methods.POS_WANG import *
 from tqdm import tqdm
-
+from evaluation.BlandAltmanPy import BlandAltman
 
 def unsupervised_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
@@ -77,6 +71,13 @@ def unsupervised_predict(config, data_loader, method_name):
                 else:
                     raise ValueError("Inference evaluation method name wrong!")
     print("Used Unsupervised Method: " + method_name)
+
+    # Filename ID to be used in any results files (e.g., Bland-Altman plots) that get saved
+    if config.TOOLBOX_MODE == 'unsupervised_method':
+        filename_id = method_name + "_" + config.UNSUPERVISED.DATA.DATASET
+    else:
+        raise ValueError('unsupervised_predictor.py evaluation only supports unsupervised_method!')
+
     if config.INFERENCE.EVALUATION_METHOD == "peak detection":
         predict_hr_peak_all = np.array(predict_hr_peak_all)
         gt_hr_peak_all = np.array(gt_hr_peak_all)
@@ -104,6 +105,16 @@ def unsupervised_predict(config, data_loader, method_name):
                 SNR_FFT = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_FFT, standard_error))
+            elif "BA" in metric:
+                compare = BlandAltman(gt_hr_peak_all, predict_hr_peak_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT PPG HR [bpm]',
+                    y_label='rPPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_Peak_BlandAltman_ScatterPlot.pdf')
+                compare.difference_plot(
+                    x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
+                    y_label='Average of rPPG HR and GT PPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_Peak_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     elif config.INFERENCE.EVALUATION_METHOD == "FFT":
@@ -133,6 +144,16 @@ def unsupervised_predict(config, data_loader, method_name):
                 SNR_PEAK = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_PEAK, standard_error))
+            elif "BA" in metric:
+                compare = BlandAltman(gt_hr_fft_all, predict_hr_fft_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT PPG HR [bpm]',
+                    y_label='rPPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_FFT_BlandAltman_ScatterPlot.pdf')
+                compare.difference_plot(
+                    x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
+                    y_label='Average of rPPG HR and GT PPG HR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_FFT_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     else:

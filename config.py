@@ -30,6 +30,7 @@ _C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999)
 # SGD momentum
 _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
 _C.TRAIN.MODEL_FILE_NAME = ''
+_C.TRAIN.PLOT_LOSSES_AND_LR = True
 # Train.Data settings
 _C.TRAIN.DATA = CN()
 _C.TRAIN.DATA.INFO = CN()
@@ -216,6 +217,7 @@ _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 # -----------------------------------------------------------------------------\
 _C.UNSUPERVISED = CN()
 _C.UNSUPERVISED.METHOD = []
+_C.UNSUPERVISED.OUTPUT_SAVE_DIR = ''
 _C.UNSUPERVISED.METRICS = []
 # Unsupervised.Data settings
 _C.UNSUPERVISED.DATA = CN()
@@ -536,15 +538,21 @@ def update_config(config, args):
         raise ValueError('User specified UNSUPERVISED dataset FILE_LIST_PATH .csv file already exists. \
                          Please turn DO_PREPROCESS to False or delete existing UNSUPERVISED dataset FILE_LIST_PATH .csv file.')
 
+    # Establish the directory to hold pre-trained models from a given experiment inside 
+    # the configured log directory (runs/exp by default)
+    config.MODEL.MODEL_DIR = os.path.join(config.LOG.PATH, config.TRAIN.DATA.EXP_DATA_NAME, config.MODEL.MODEL_DIR)
 
-    config.LOG.PATH = os.path.join(
-        config.LOG.PATH, config.VALID.DATA.EXP_DATA_NAME)
+    # Establish the directory to hold outputs saved during testing inside the
+    # configured log directory (runs/exp by default)
+    if config.TOOLBOX_MODE == 'train_and_test' or config.TOOLBOX_MODE == 'only_test':
+        config.TEST.OUTPUT_SAVE_DIR = os.path.join(config.LOG.PATH, config.TEST.DATA.EXP_DATA_NAME, 'saved_test_outputs')
+    elif config.TOOLBOX_MODE == 'unsupervised_method':
+        config.UNSUPERVISED.OUTPUT_SAVE_DIR = os.path.join(config.LOG.PATH, config.UNSUPERVISED.DATA.EXP_DATA_NAME, 'saved_outputs')
+    else:
+        raise ValueError('TOOLBOX_MODE only supports train_and_test, only_test, or unsupervised_method!')
 
-    config.MODEL.MODEL_DIR = os.path.join(config.MODEL.MODEL_DIR, config.TRAIN.DATA.EXP_DATA_NAME)
     config.freeze()
     return
-
-
 
 def get_config(args):
     # Return a clone so that the defaults will not be altered

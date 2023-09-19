@@ -5,6 +5,7 @@ TRAIN:
   EPOCHS: 10
   LR: 1e-4
   MODEL_FILE_NAME: UBFC-rPPG_UBFC-rPPG_PURE_physformer
+  PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
     DATASET: UBFC-rPPG
@@ -61,7 +62,7 @@ VALID:
         H: 128
         W: 128
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   USE_LAST_EPOCH: False                     # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30

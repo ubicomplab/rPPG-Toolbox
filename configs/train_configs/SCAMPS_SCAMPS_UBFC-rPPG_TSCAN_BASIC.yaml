@@ -5,6 +5,7 @@ TRAIN:
   EPOCHS: 30
   LR: 9e-3
   MODEL_FILE_NAME: SCAMPS_SCAMPS_UBFC_tscan
+  PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
     DATASET: SCAMPS
@@ -59,7 +60,7 @@ VALID:
         H: 72
         W: 72
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   USE_LAST_EPOCH: True                     # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30

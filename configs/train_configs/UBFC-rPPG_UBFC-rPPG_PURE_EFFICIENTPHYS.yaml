@@ -5,6 +5,7 @@ TRAIN:
   EPOCHS: 30
   LR: 9e-3
   MODEL_FILE_NAME: UBFC_UBFC_PURE_efficientphys
+  PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
     DATASET: UBFC-rPPG
@@ -61,7 +62,7 @@ VALID:
         H: 72
         W: 72
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   USE_LAST_EPOCH: True
   DATA:
     FS: 30

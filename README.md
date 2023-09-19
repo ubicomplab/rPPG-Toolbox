@@ -267,6 +267,7 @@ Here are some explanation of parameters:
   * `train_and_test`: train on the dataset and use the newly trained model to test.
   * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
 * #### TRAIN / VALID / TEST / UNSUPERVISED DATA:
+  * `PLOT_LOSSES_AND_LR`: If `True`, save plots of the training loss and validation loss, as well as the learning rate, to `LOG.PATH` (`runs/exp` by default). Currently, only a basic training loss and validation loss are plotted, but in the future additional losses utilized in certain trainer files (e.g., PhysFormer and BigSmall) will also be captured.
   * `USE_EXCLUSION_LIST`: If `True`, utilize a provided list to exclude preprocessed videos
   * `SELECT_TASKS`: If `True`, explicitly select tasks to load 
   * `DATA_PATH`: The input path of raw data
@@ -292,7 +293,8 @@ Here are some explanation of parameters:
   
 * #### MODEL : Set used model (Deepphys, TSCAN, Physnet, EfficientPhys, BigSmall, and PhysFormer and their paramaters are supported).
 * #### UNSUPERVISED METHOD: Set used unsupervised method. Example: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
-* #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson']
+* #### METRICS: Set used metrics. Example: ['MAE','RMSE','MAPE','Pearson','SNR','BA']
+  * 'BA' metric corresponds to the generation of a Bland-Altman plot to graphically compare two measurement techniques (e.g., differences between measured and ground truth heart rates versus mean of measured and ground truth heart rates). This metric saves the plot in the `LOG.PATH` (`runs/exp` by default).
 * #### INFERENCE:
   * `USE_SMALLER_WINDOW`: If `True`, use an evaluation window smaller than the video length for evaluation.
 

@@ -2,7 +2,7 @@ BASE: ['']
 TOOLBOX_MODE: "unsupervised_method"      # "train_and_test"  or "only_test" or "unsupervised_method"
 UNSUPERVISED:
   METHOD: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
-  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   DATA:
     FS: 30
     DATASET: PURE

@@ -6,6 +6,7 @@ TRAIN:
   EPOCHS: 5
   LR: 1e-3
   MODEL_FILE_NAME: BP4D_BP4D_bigsmall_fold1
+  PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 25
     DATASET: BP4DPlusBigSmall
@@ -74,7 +75,7 @@ VALID:
           SMALL_W: 9
 
 TEST:
-  METRICS: ['MAE','RMSE','MAPE','Pearson', 'SNR', 'AU_METRICS']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA', 'AU_METRICS']
   USE_LAST_EPOCH: True                      # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 25

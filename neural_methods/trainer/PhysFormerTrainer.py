@@ -85,6 +85,11 @@ class PhysFormerTrainer(BaseTrainer):
         exp_a = 0.5     # Unused
         exp_b = 1.0
 
+        # TODO: Expand tracking and subsequent plotting of these losses for PhysFormer
+        mean_training_losses = []
+        mean_valid_losses = []
+        lrs = []
+
         for epoch in range(self.max_epoch_num):
             print('')
             print(f"====Training Epoch: {epoch}====")
@@ -147,12 +152,18 @@ class PhysFormerTrainer(BaseTrainer):
                         f'lr:0.0001, sharp:{gra_sharp:.3f}, a:{a:.3f}, NegPearson:{np.mean(loss_rPPG_avg[-2000:]):.4f}, '
                         f'\nb:{b:.3f}, kl:{np.mean(loss_kl_avg_test[-2000:]):.3f}, fre_CEloss:{np.mean(loss_peak_avg[-2000:]):.3f}, '
                         f'hr_mae:{np.mean(loss_hr_mae[-2000:]):.3f}')
+                    
+            # Append the current learning rate to the list
+            lrs.append(self.scheduler.get_last_lr())
+            # Append the mean training loss for the epoch
+            mean_training_losses.append(np.mean(loss_rPPG_avg))
             self.save_model(epoch)
             self.scheduler.step()
             self.model.eval()
 
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
+                mean_valid_losses.append(valid_loss)
                 print(f'Validation RMSE:{valid_loss:.3f}, batch:{idx+1}')
                 if self.min_valid_loss is None:
                     self.min_valid_loss = valid_loss
@@ -165,6 +176,8 @@ class PhysFormerTrainer(BaseTrainer):
         if not self.config.TEST.USE_LAST_EPOCH: 
             print("best trained epoch: {}, min_val_loss: {}".format(
                 self.best_epoch, self.min_valid_loss))
+        if self.config.TRAIN.PLOT_LOSSES_AND_LR:
+            self.plot_losses_and_lrs(mean_training_losses, mean_valid_losses, lrs, self.config)
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""
