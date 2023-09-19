@@ -51,6 +51,9 @@ class DeepPhysTrainer(BaseTrainer):
         if data_loader["train"] is None:
             raise ValueError("No data for train")
 
+        mean_training_losses = []
+        mean_valid_losses = []
+        lrs = []
         for epoch in range(self.max_epoch_num):
             print('')
             print(f"====Training Epoch: {epoch}====")
@@ -70,6 +73,10 @@ class DeepPhysTrainer(BaseTrainer):
                 pred_ppg = self.model(data)
                 loss = self.criterion(pred_ppg, labels)
                 loss.backward()
+
+                # Append the current learning rate to the list
+                lrs.append(self.scheduler.get_last_lr())
+
                 self.optimizer.step()
                 self.scheduler.step()
                 running_loss += loss.item()
@@ -79,9 +86,14 @@ class DeepPhysTrainer(BaseTrainer):
                     running_loss = 0.0
                 train_loss.append(loss.item())
                 tbar.set_postfix({"loss": loss.item(), "lr": self.optimizer.param_groups[0]["lr"]})
+
+            # Append the mean training loss for the epoch
+            mean_training_losses.append(np.mean(train_loss))
+
             self.save_model(epoch)
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
+                mean_valid_losses.append(valid_loss)
                 print('validation loss: ', valid_loss)
                 if self.min_valid_loss is None:
                     self.min_valid_loss = valid_loss
@@ -93,6 +105,8 @@ class DeepPhysTrainer(BaseTrainer):
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
         if not self.config.TEST.USE_LAST_EPOCH: 
             print("best trained epoch: {}, min_val_loss: {}".format(self.best_epoch, self.min_valid_loss))
+        if self.config.TRAIN.PLOT_LOSSES_AND_LR:
+            self.plot_losses_and_lrs(mean_training_losses, mean_valid_losses, lrs, self.config)
 
     def valid(self, data_loader):
         """ Model evaluation on the validation dataset."""

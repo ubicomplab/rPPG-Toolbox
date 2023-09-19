@@ -50,6 +50,9 @@ class PhysnetTrainer(BaseTrainer):
         if data_loader["train"] is None:
             raise ValueError("No data for train")
 
+        mean_training_losses = []
+        mean_valid_losses = []
+        lrs = []
         for epoch in range(self.max_epoch_num):
             print('')
             print(f"====Training Epoch: {epoch}====")
@@ -74,13 +77,22 @@ class PhysnetTrainer(BaseTrainer):
                         f'[{epoch}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
+
+                # Append the current learning rate to the list
+                lrs.append(self.scheduler.get_last_lr())
+
                 self.optimizer.step()
                 self.scheduler.step()
                 self.optimizer.zero_grad()
                 tbar.set_postfix(loss=loss.item())
+
+            # Append the mean training loss for the epoch
+            mean_training_losses.append(np.mean(train_loss))
+
             self.save_model(epoch)
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
+                mean_valid_losses.append(valid_loss)
                 print('validation loss: ', valid_loss)
                 if self.min_valid_loss is None:
                     self.min_valid_loss = valid_loss
@@ -93,6 +105,8 @@ class PhysnetTrainer(BaseTrainer):
         if not self.config.TEST.USE_LAST_EPOCH: 
             print("best trained epoch: {}, min_val_loss: {}".format(
                 self.best_epoch, self.min_valid_loss))
+        if self.config.TRAIN.PLOT_LOSSES_AND_LR:
+            self.plot_losses_and_lrs(mean_training_losses, mean_valid_losses, lrs, self.config)
 
     def valid(self, data_loader):
         """ Runs the model on valid sets."""

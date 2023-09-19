@@ -197,6 +197,11 @@ class BigSmallTrainer(BaseTrainer):
         val_bvp_loss_dict = dict()
         val_resp_loss_dict = dict()
 
+        # TODO: Expand tracking and subsequent plotting of these losses for BigSmall
+        mean_training_losses = []
+        mean_valid_losses = []
+        lrs = []
+
         # ITERATE THROUGH EPOCHS
         for epoch in range(self.max_epoch_num):
             print(f"====Training Epoch: {epoch}====")
@@ -226,7 +231,11 @@ class BigSmallTrainer(BaseTrainer):
                 bvp_loss = self.criterionBVP(bvp_out, labels[:, self.label_idx_train_bvp, 0]) # bvp loss
                 resp_loss =  self.criterionRESP(resp_out, labels[:, self.label_idx_train_resp, 0]) # resp loss 
                 loss = au_loss  + bvp_loss + resp_loss # sum losses 
-                loss.backward() 
+                loss.backward()
+
+                # Append the current learning rate to the list
+                lrs.append(self.scheduler.get_last_lr())
+
                 self.optimizer.step()
                 # self.scaler.scale(loss).backward() # Loss scaling
                 # self.scaler.step(self.optimizer)
@@ -257,6 +266,9 @@ class BigSmallTrainer(BaseTrainer):
             
             print('')
 
+            # Append the mean training loss for the epoch
+            mean_training_losses.append(np.mean(train_loss))
+
             # SAVE MODEL FOR THIS EPOCH
             self.save_model(epoch)
 
@@ -265,6 +277,7 @@ class BigSmallTrainer(BaseTrainer):
 
                 # Get validation losses
                 valid_loss, valid_au_loss, valid_bvp_loss, valid_resp_loss = self.valid(data_loader)
+                mean_valid_losses.append(valid_loss)
                 val_loss_dict[epoch] = valid_loss
                 val_au_loss_dict[epoch] = valid_au_loss
                 val_bvp_loss_dict[epoch] = valid_bvp_loss
@@ -284,6 +297,9 @@ class BigSmallTrainer(BaseTrainer):
                 self.used_epoch = epoch
 
             print('')
+
+        if self.config.TRAIN.PLOT_LOSSES_AND_LR:
+            self.plot_losses_and_lrs(mean_training_losses, mean_valid_losses, lrs, self.config)
 
         # PRINT MODEL TO BE USED FOR TESTING
         print("Used model trained epoch:{}, val_loss:{}".format(self.used_epoch, min_valid_loss))
