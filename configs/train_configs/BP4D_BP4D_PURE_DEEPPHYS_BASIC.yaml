@@ -5,6 +5,7 @@ TRAIN:
   EPOCHS: 30
   LR: 9e-3
   MODEL_FILE_NAME: BP4D_BP4D_deepphys
+  PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 25
     DATASET: BP4DPlus

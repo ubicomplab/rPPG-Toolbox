@@ -5,6 +5,7 @@ TRAIN:
   EPOCHS: 30
   LR: 9e-3
   MODEL_FILE_NAME: MMPD_MMPD_UBFC_tscan
+  PLOT_LOSSES_AND_LR: True
   DATA:
     INFO:
       LIGHT: [1, 2, 3]  # 1 - LED-Low, 2 - LED-high, 3 - Incandescent, 4 - Nature

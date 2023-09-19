@@ -5,6 +5,7 @@ TRAIN:
   EPOCHS: 10
   LR: 1e-4
   MODEL_FILE_NAME: PURE_PURE_UBFC-rPPG_physformer
+  PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
     DATASET: PURE
