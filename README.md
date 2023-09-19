@@ -267,6 +267,7 @@ Here are some explanation of parameters:
   * `train_and_test`: train on the dataset and use the newly trained model to test.
   * `only_test`: you need to set INFERENCE-MODEL_PATH, and it will use pre-trained model initialized with the MODEL_PATH to test.
 * #### TRAIN / VALID / TEST / UNSUPERVISED DATA:
+  * `PLOT_LOSSES_AND_LR`: If `True`, save plots of the training loss and validation loss, as well as the learning rate, to `LOG.PATH` (`runs/exp` by default). Currently, only a basic training loss and validation loss are plotted, but in the future additional losses utilized in certain trainer files (e.g., PhysFormer and BigSmall) will also be captured.
   * `USE_EXCLUSION_LIST`: If `True`, utilize a provided list to exclude preprocessed videos
   * `SELECT_TASKS`: If `True`, explicitly select tasks to load 
   * `DATA_PATH`: The input path of raw data
