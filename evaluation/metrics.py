@@ -91,6 +91,15 @@ def calculate_metrics(predictions, labels, config):
                 SNR_all.append(SNR)
             else:
                 raise ValueError("Inference evaluation method name wrong!")
+    
+    # Filename ID to be used in any results files (e.g., Bland-Altman plots) that get saved
+    if config.TOOLBOX_MODE == 'train_and_test':
+        filename_id = config.TRAIN.MODEL_FILE_NAME
+    elif config.TOOLBOX_MODE == 'only_test':
+        model_file_root = config.INFERENCE.MODEL_PATH.split("/")[-1].split(".pth")[0]
+        filename_id = model_file_root + "_" + config.TEST.DATA.DATASET
+    else:
+        raise ValueError('Metrics.py evaluation only supports train_and_test and only_test!')
 
     if config.INFERENCE.EVALUATION_METHOD == "FFT":
         gt_hr_fft_all = np.array(gt_hr_fft_all)
@@ -121,16 +130,16 @@ def calculate_metrics(predictions, labels, config):
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_FFT, standard_error))
             elif "AU" in metric:
                 pass
-            elif "BA" in metric:
+            elif "BA" in metric:  
                 compare = BlandAltman(gt_hr_fft_all, predict_hr_fft_all, config, averaged=True)
                 compare.scatter_plot(
                     x_label='GT PPG HR [bpm]',
                     y_label='rPPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_ScatterPlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_FFT_BlandAltman_ScatterPlot.pdf')
                 compare.difference_plot(
                     x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
                     y_label='Average of rPPG HR and GT PPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_DifferencePlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_FFT_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
@@ -167,11 +176,11 @@ def calculate_metrics(predictions, labels, config):
                 compare.scatter_plot(
                     x_label='GT PPG HR [bpm]',
                     y_label='rPPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_ScatterPlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_Peak_BlandAltman_ScatterPlot.pdf')
                 compare.difference_plot(
                     x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
                     y_label='Average of rPPG HR and GT PPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_DifferencePlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_Peak_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     else:

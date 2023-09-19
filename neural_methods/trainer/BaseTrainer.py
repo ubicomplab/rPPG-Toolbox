@@ -30,7 +30,16 @@ class BaseTrainer:
         output_dir = config.TEST.OUTPUT_SAVE_DIR
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        output_path = os.path.join(output_dir, self.model_file_name + '_outputs.pickle')
+        
+        # Filename ID to be used in any results files (e.g., Bland-Altman plots) that get saved
+        if config.TOOLBOX_MODE == 'train_and_test':
+            filename_id = self.model_file_name
+        elif config.TOOLBOX_MODE == 'only_test':
+            model_file_root = config.INFERENCE.MODEL_PATH.split("/")[-1].split(".pth")[0]
+            filename_id = model_file_root + "_" + config.TEST.DATA.DATASET
+        else:
+            raise ValueError('Metrics.py evaluation only supports train_and_test and only_test!')
+        output_path = os.path.join(output_dir, filename_id + '_outputs.pickle')
 
         data = dict()
         data['predictions'] = predictions

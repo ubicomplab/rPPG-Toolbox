@@ -71,6 +71,13 @@ def unsupervised_predict(config, data_loader, method_name):
                 else:
                     raise ValueError("Inference evaluation method name wrong!")
     print("Used Unsupervised Method: " + method_name)
+
+    # Filename ID to be used in any results files (e.g., Bland-Altman plots) that get saved
+    if config.TOOLBOX_MODE == 'unsupervised_method':
+        filename_id = method_name + "_" + config.UNSUPERVISED.DATA.DATASET
+    else:
+        raise ValueError('unsupervised_predictor.py evaluation only supports unsupervised_method!')
+
     if config.INFERENCE.EVALUATION_METHOD == "peak detection":
         predict_hr_peak_all = np.array(predict_hr_peak_all)
         gt_hr_peak_all = np.array(gt_hr_peak_all)
@@ -103,11 +110,11 @@ def unsupervised_predict(config, data_loader, method_name):
                 compare.scatter_plot(
                     x_label='GT PPG HR [bpm]',
                     y_label='rPPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_ScatterPlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_Peak_BlandAltman_ScatterPlot.pdf')
                 compare.difference_plot(
                     x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
                     y_label='Average of rPPG HR and GT PPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_DifferencePlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_Peak_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     elif config.INFERENCE.EVALUATION_METHOD == "FFT":
@@ -142,11 +149,11 @@ def unsupervised_predict(config, data_loader, method_name):
                 compare.scatter_plot(
                     x_label='GT PPG HR [bpm]',
                     y_label='rPPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_ScatterPlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_FFT_BlandAltman_ScatterPlot.pdf')
                 compare.difference_plot(
                     x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
                     y_label='Average of rPPG HR and GT PPG HR [bpm]', 
-                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_DifferencePlot.pdf')
+                    show_legend=True, figure_size=(5, 5), file_name=f'{filename_id}_FFT_BlandAltman_DifferencePlot.pdf')
             else:
                 raise ValueError("Wrong Test Metric Type")
     else:

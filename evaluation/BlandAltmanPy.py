@@ -49,9 +49,7 @@ class BlandAltman():
             self.CI95 = [self.mean_error + 1.96 * diffs_std, self.mean_error - 1.96 * diffs_std]
 
         # Define save path
-        if config.TOOLBOX_MODE == 'train_and_test':
-            self.save_path = os.path.join(config.LOG.PATH, config.TRAIN.DATA.EXP_DATA_NAME, 'bland_altman_plots')
-        elif config.TOOLBOX_MODE == 'only_test':
+        if config.TOOLBOX_MODE == 'train_and_test' or config.TOOLBOX_MODE == 'only_test':
             self.save_path  = os.path.join(config.LOG.PATH, config.TEST.DATA.EXP_DATA_NAME, 'bland_altman_plots')
         elif config.TOOLBOX_MODE == 'unsupervised_method':
             self.save_path  = os.path.join(config.LOG.PATH, config.UNSUPERVISED.DATA.EXP_DATA_NAME, 'bland_altman_plots')
@@ -60,7 +58,7 @@ class BlandAltman():
         
         # Make the save path, if needed
         if not os.path.exists(self.save_path):
-            os.mkdir(self.save_path)
+            os.makedirs(self.save_path, exist_ok=True)
 
     def print_stats(self,round_amount = 5):
         print("Mean error = {}".format(round(self.mean_error,round_amount)))
