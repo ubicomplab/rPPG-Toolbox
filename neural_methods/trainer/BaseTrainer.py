@@ -72,7 +72,7 @@ class BaseTrainer:
         plt.plot(epochs, valid_loss, label='Validation Loss')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-        plt.title('Training and Validation Losses')
+        plt.title(f'{filename_id} Losses')
         plt.legend()
         plt.xticks(epochs)
 
@@ -90,7 +90,7 @@ class BaseTrainer:
         plt.plot(scheduler_steps, lrs, label='Learning Rate')
         plt.xlabel('Scheduler Step')
         plt.ylabel('Learning Rate')
-        plt.title('Learning Rate Schedule')
+        plt.title(f'{filename_id} LR Schedule')
         plt.legend()
 
         # Set y-axis values in scientific notation
