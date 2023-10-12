@@ -69,7 +69,10 @@ class BaseTrainer:
         plt.figure(figsize=(10, 6))
         epochs = range(0, len(train_loss))  # Integer values for x-axis
         plt.plot(epochs, train_loss, label='Training Loss')
-        plt.plot(epochs, valid_loss, label='Validation Loss')
+        if len(valid_loss) > 0:
+            plt.plot(epochs, valid_loss, label='Validation Loss')
+        else:
+            print("The list of validation losses is empty. The validation loss will not be plotted!")
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.title(f'{filename_id} Losses')
