@@ -546,7 +546,7 @@ class BaseLoader(Dataset):
         diffnormalized_len = n - 1
         diffnormalized_data = np.zeros((diffnormalized_len, h, w, c), dtype=np.float32)
         diffnormalized_data_padding = np.zeros((1, h, w, c), dtype=np.float32)
-        for j in range(diffnormalized_len - 1):
+        for j in range(diffnormalized_len):
             diffnormalized_data[j, :, :, :] = (data[j + 1, :, :, :] - data[j, :, :, :]) / (
                     data[j + 1, :, :, :] + data[j, :, :, :] + 1e-7)
         diffnormalized_data = diffnormalized_data / np.std(diffnormalized_data)
