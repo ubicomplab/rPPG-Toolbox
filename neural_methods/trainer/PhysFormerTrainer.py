@@ -250,6 +250,8 @@ class PhysFormerTrainer(BaseTrainer):
 
         print('')
         calculate_metrics(predictions, labels, self.config)
+        if self.config.TEST.OUTPUT_SAVE_DIR: # saving test outputs
+            self.save_test_outputs(predictions, labels, self.config)
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
