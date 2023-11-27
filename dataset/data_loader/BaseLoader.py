@@ -275,14 +275,19 @@ class BaseLoader(Dataset):
 
         detector = cv2.CascadeClassifier(
            './dataset/haarcascade_frontalface_default.xml')
+        # Computed face_zone(s) are in the form [x_coord, y_coord, width, height]
+        # (x,y) corresponds to the top-left corner of the zone to define using
+        # the computed width and height.
         face_zone = detector.detectMultiScale(frame)
         if len(face_zone) < 1:
             print("ERROR: No Face Detected")
             face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
         elif len(face_zone) >= 2:
-            face_box_coor = np.argmax(face_zone, axis=0)
-            face_box_coor = face_zone[face_box_coor[2]]
-            print("Warning: More than one faces are detected(Only cropping the biggest one.)")
+            # Find the index of the largest face zone
+            # The face zones are boxes, so the width and height are the same
+            max_width_index = np.argmax(face_zone[:, 2])  # Index of maximum width
+            face_box_coor = face_zone[max_width_index]
+            print("Warning: More than one faces are detected. Only cropping the biggest one.")
         else:
             face_box_coor = face_zone[0]
         if use_larger_box:
