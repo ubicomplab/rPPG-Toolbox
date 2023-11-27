@@ -232,8 +232,9 @@ class PhysFormerTrainer(BaseTrainer):
 
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
+        print("Running model evaluation on the testing dataset!")
         with torch.no_grad():
-            for _, test_batch in enumerate(data_loader['test']):
+            for _, test_batch in enumerate(tqdm(data_loader["test"], ncols=80)):
                 batch_size = test_batch[0].shape[0]
                 data, label = test_batch[0].to(
                     self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
