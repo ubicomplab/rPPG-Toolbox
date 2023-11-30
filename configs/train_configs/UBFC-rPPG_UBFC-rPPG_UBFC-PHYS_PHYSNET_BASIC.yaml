@@ -25,6 +25,7 @@ TRAIN:
       CHUNK_LENGTH: 128  #only support for factor of 512
       CROP_FACE:
         DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
@@ -54,6 +55,7 @@ VALID:
       CHUNK_LENGTH: 128  #only support for factor of 512
       CROP_FACE:
         DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
@@ -98,6 +100,7 @@ TEST:
       CHUNK_LENGTH: 128  #only support for factor of 512
       CROP_FACE:
         DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:

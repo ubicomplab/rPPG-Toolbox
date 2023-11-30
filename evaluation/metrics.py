@@ -49,6 +49,7 @@ def calculate_metrics(predictions, labels, config):
     predict_hr_peak_all = list()
     gt_hr_peak_all = list()
     SNR_all = list()
+    print("Calculating metrics!")
     for index in tqdm(predictions.keys(), ncols=80):
         prediction = _reform_data_from_dict(predictions[index])
         label = _reform_data_from_dict(labels[index])

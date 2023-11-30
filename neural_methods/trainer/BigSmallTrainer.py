@@ -399,8 +399,9 @@ class BigSmallTrainer(BaseTrainer):
         self.model.eval()
 
         # MODEL TESTING
+        print("Running model evaluation on the testing dataset!")
         with torch.no_grad():
-            for _, test_batch in enumerate(data_loader['test']):
+            for _, test_batch in enumerate(tqdm(data_loader["test"], ncols=80)):
 
                 # PROCESSING - ANALYSIS, METRICS, SAVING OUT DATA
                 batch_size = test_batch[1].shape[0] # get batch size
