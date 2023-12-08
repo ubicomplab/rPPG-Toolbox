@@ -18,13 +18,13 @@ TRAIN:
       FOLD_NAME: 'Fold1_Train'
       FOLD_PATH: './dataset/BP4D_BigSmall_Subject_Splits/Split1_Train_Subjects.csv'
     PREPROCESS:
-      USE_PSUEDO_PPG_LABEL: True
-      ONLY_AU_SUBSET: False # TODO Change this
+      USE_PSUEDO_PPG_LABEL: True # TODO Change this
+      ONLY_AU_SUBSET: True # TODO Change this
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
-      CHUNK_LENGTH: 90 # TODO Change this
+      CHUNK_LENGTH: 3 # TODO Change this
       CROP_FACE:
-        FACE_ALIGN_CROP: False
+        FACE_ALIGN_CROP: True
         DO_CROP_FACE: False
         USE_LARGE_FACE_BOX: False
         LARGE_BOX_COEF: 1.5

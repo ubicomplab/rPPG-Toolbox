@@ -531,12 +531,20 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                 if ext == '.jpg' and ele_task == trial:
                     data = zippedImgs.read(ele)
                     frame = cv2.imdecode(np.fromstring(data, np.uint8), cv2.IMREAD_COLOR)
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # TODO WACV should this be a float 32???
 
                     dim_h = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_H
                     dim_w = config_data.PREPROCESS.BIGSMALL.RESIZE.BIG_W
 
-                    if config_data.PREPROCESS.CROP_FACE.FACE_ALIGN_CROP:
+                    if config_data.PREPROCESS.CROP_FACE.FACE_ALIGN_CROP == 'big_yes_small_no':
+                        # TODO WACV
+                        # TODO make sure we return two arrays (frames big, frames small)
+                        # TODO check data range - what is the image values: is it 0 -> 1??
+                        # TODO  # clip image values to range (1/255, 1) -  Maybe do this first??
+                        print("NOT IMPLEMENTED YET")
+                        pass
+
+                    elif config_data.PREPROCESS.CROP_FACE.FACE_ALIGN_CROP:
                         img_land_x = data_dict['facial_2d_landmarks_x'][cnt, :]
                         img_land_y = data_dict['facial_2d_landmarks_y'][cnt, :]
                         box_enlarge = 2 # TODO: This is hardcoded - not sure what to change this to
