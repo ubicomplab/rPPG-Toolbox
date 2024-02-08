@@ -91,7 +91,7 @@ def jade(X, m, Wprev):
         IW = np.matmul(U[0:n, k[n - m:n]], np.diag(ibl))
     else:
         IW = linalg.sqrtm(np.matmul(X, X.H) / T)
-        W = np.linalg.inv(IW)
+        W = np.linalg.pinv(IW)
 
     Y = np.mat(np.matmul(W, X))
     R = np.matmul(Y, Y.H) / T

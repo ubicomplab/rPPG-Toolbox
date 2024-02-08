@@ -77,6 +77,9 @@ def unsupervised_predict(config, data_loader, method_name):
         filename_id = method_name + "_" + config.UNSUPERVISED.DATA.DATASET
     else:
         raise ValueError('unsupervised_predictor.py evaluation only supports unsupervised_method!')
+    
+    # print('GT: ', gt_hr_fft_all)
+    # print('Predicted: ', predict_hr_fft_all)
 
     if config.INFERENCE.EVALUATION_METHOD == "peak detection":
         predict_hr_peak_all = np.array(predict_hr_peak_all)
@@ -151,14 +154,14 @@ def unsupervised_predict(config, data_loader, method_name):
             elif "BA" in metric:
                 compare = BlandAltman(gt_hr_fft_all, predict_hr_fft_all, config, averaged=True)
                 compare.scatter_plot(
-                    x_label='GT PPG HR [bpm]',
-                    y_label='rPPG HR [bpm]',
+                    x_label='GT PPG RR [bpm]',
+                    y_label='rPPG RR [bpm]',
                     show_legend=True, figure_size=(5, 5),
                     the_title=f'{filename_id}_FFT_BlandAltman_ScatterPlot',
                     file_name=f'{filename_id}_FFT_BlandAltman_ScatterPlot.pdf')
                 compare.difference_plot(
-                    x_label='Difference between rPPG HR and GT PPG HR [bpm]', 
-                    y_label='Average of rPPG HR and GT PPG HR [bpm]', 
+                    x_label='Difference between rPPG RR and GT PPG RR [bpm]', 
+                    y_label='Average of rPPG RR and GT PPG RR [bpm]', 
                     show_legend=True, figure_size=(5, 5),
                     the_title=f'{filename_id}_FFT_BlandAltman_DifferencePlot',
                     file_name=f'{filename_id}_FFT_BlandAltman_DifferencePlot.pdf')

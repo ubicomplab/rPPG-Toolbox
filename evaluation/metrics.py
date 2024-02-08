@@ -42,8 +42,169 @@ def _reform_data_from_dict(data, flatten=True):
     return sort_data
 
 
+def calculate_resp_metrics(predictions, labels, config):
+    """Calculate Respiration Metrics (MAE, RMSE, MAPE, Pearson Coef., SNR)."""
+
+    print('====================')
+    print('==== RR Metrics ====')
+    print('====================')
+
+    predict_rr_fft_all = list()
+    gt_rr_fft_all = list()
+    predict_rr_peak_all = list()
+    gt_rr_peak_all = list()
+    SNR_all = list()
+    for index in tqdm(predictions.keys(), ncols=80):
+        prediction = _reform_data_from_dict(predictions[index])
+        label = _reform_data_from_dict(labels[index])
+
+        video_frame_size = prediction.shape[0]
+        if config.INFERENCE.EVALUATION_WINDOW.USE_SMALLER_WINDOW:
+            window_frame_size = config.INFERENCE.EVALUATION_WINDOW.WINDOW_SIZE * config.TEST.DATA.FS
+            if window_frame_size > video_frame_size:
+                window_frame_size = video_frame_size
+        else:
+            window_frame_size = video_frame_size
+
+        for i in range(0, len(prediction), window_frame_size):
+            pred_window = prediction[i:i+window_frame_size]
+            label_window = label[i:i+window_frame_size]
+
+            if len(pred_window) < 9:
+                print(f"Window frame size of {len(pred_window)} is smaller than minimum pad length of 9. Window ignored!")
+                continue
+
+            if config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Standardized" or \
+                    config.TEST.DATA.PREPROCESS.LABEL_TYPE == "Raw":
+                diff_flag_test = False
+            elif config.TEST.DATA.PREPROCESS.LABEL_TYPE == "DiffNormalized":
+                diff_flag_test = True
+            else:
+                raise ValueError("Unsupported label type in testing!")
+            
+            if config.INFERENCE.EVALUATION_METHOD == "peak detection":
+                gt_rr_peak, pred_rr_peak, SNR = calculate_resp_metrics_per_video(
+                    prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, rr_method='Peak')
+                gt_rr_peak_all.append(gt_rr_peak)
+                predict_rr_peak_all.append(pred_rr_peak)
+                SNR_all.append(SNR)
+            elif config.INFERENCE.EVALUATION_METHOD == "FFT":
+                gt_rr_fft, pred_rr_fft, SNR = calculate_resp_metrics_per_video(
+                    prediction, label, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, rr_method='FFT')
+                gt_rr_fft_all.append(gt_rr_fft)
+                predict_rr_fft_all.append(pred_rr_fft)
+                SNR_all.append(SNR)
+            else:
+                raise ValueError("Inference evaluation method name wrong!")
+            
+    print("GT RR:", gt_rr_fft_all)
+    print("Predicted RR:", predict_rr_fft_all)
+
+    if config.INFERENCE.EVALUATION_METHOD == "FFT":
+        gt_rr_fft_all = np.array(gt_rr_fft_all)
+        predict_rr_fft_all = np.array(predict_rr_fft_all)
+        SNR_all = np.array(SNR_all)
+        num_test_samples = len(predict_rr_fft_all)
+        for metric in config.TEST.METRICS:
+            if metric == "MAE":
+                MAE_FFT = np.mean(np.abs(predict_rr_fft_all - gt_rr_fft_all))
+                standard_error = np.std(np.abs(predict_rr_fft_all - gt_rr_fft_all)) / np.sqrt(num_test_samples)
+                print("FFT MAE (FFT Label): {0} +/- {1}".format(MAE_FFT, standard_error))
+            elif metric == "RMSE":
+                RMSE_FFT = np.sqrt(np.mean(np.square(predict_rr_fft_all - gt_rr_fft_all)))
+                standard_error = np.std(np.square(predict_rr_fft_all - gt_rr_fft_all)) / np.sqrt(num_test_samples)
+                print("FFT RMSE (FFT Label): {0} +/- {1}".format(RMSE_FFT, standard_error))
+            elif metric == "MAPE":
+                MAPE_FFT = np.mean(np.abs((predict_rr_fft_all - gt_rr_fft_all) / gt_rr_fft_all)) * 100
+                standard_error = np.std(np.abs((predict_rr_fft_all - gt_rr_fft_all) / gt_rr_fft_all)) / np.sqrt(num_test_samples) * 100
+                print("FFT MAPE (FFT Label): {0} +/- {1}".format(MAPE_FFT, standard_error))
+            elif metric == "Pearson":
+                Pearson_FFT = np.corrcoef(predict_rr_fft_all, gt_rr_fft_all)
+                correlation_coefficient = Pearson_FFT[0][1]
+                standard_error = np.sqrt((1 - correlation_coefficient**2) / (num_test_samples - 2))
+                print("FFT Pearson (FFT Label): {0} +/- {1}".format(correlation_coefficient, standard_error))
+            elif metric == "SNR":
+                SNR_FFT = np.mean(SNR_all)
+                standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
+                print("FFT SNR (FFT Label): {0} +/- {1}".format(SNR_FFT, standard_error))
+            elif "AU" in metric:
+                pass
+            elif "BA" in metric:
+                compare = BlandAltman(gt_rr_fft_all, predict_rr_fft_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT RR [bpm]',
+                    y_label='Predicted RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), 
+                    file_name=f'FFT_BlandAltman_ScatterPlot.pdf', 
+                    measure_lower_lim=10, 
+                    measure_upper_lim=60)
+                compare.difference_plot(
+                    x_label='Difference between Predicted RR and GT RR [bpm]', 
+                    y_label='Average of Predicted RR and GT RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'FFT_BlandAltman_DifferencePlot.pdf')
+            else:
+                raise ValueError("Wrong Test Metric Type")
+    elif config.INFERENCE.EVALUATION_METHOD == "peak detection":
+        gt_rr_peak_all = np.array(gt_rr_peak_all)
+        predict_rr_peak_all = np.array(predict_rr_peak_all)
+        SNR_all = np.array(SNR_all)
+        num_test_samples = len(predict_rr_peak_all)
+        for metric in config.TEST.METRICS:
+            if metric == "MAE":
+                MAE_PEAK = np.mean(np.abs(predict_rr_peak_all - gt_rr_peak_all))
+                standard_error = np.std(np.abs(predict_rr_peak_all - gt_rr_peak_all)) / np.sqrt(num_test_samples)
+                print("Peak MAE (Peak Label): {0} +/- {1}".format(MAE_PEAK, standard_error))
+            elif metric == "RMSE":
+                RMSE_PEAK = np.sqrt(np.mean(np.square(predict_rr_peak_all - gt_rr_peak_all)))
+                standard_error = np.std(np.square(predict_rr_peak_all - gt_rr_peak_all)) / np.sqrt(num_test_samples)
+                print("PEAK RMSE (Peak Label): {0} +/- {1}".format(RMSE_PEAK, standard_error))
+            elif metric == "MAPE":
+                MAPE_PEAK = np.mean(np.abs((predict_rr_peak_all - gt_rr_peak_all) / gt_rr_peak_all)) * 100
+                standard_error = np.std(np.abs((predict_rr_peak_all - gt_rr_peak_all) / gt_rr_peak_all)) / np.sqrt(num_test_samples) * 100
+                print("PEAK MAPE (Peak Label): {0} +/- {1}".format(MAPE_PEAK, standard_error))
+            elif metric == "Pearson":
+                Pearson_PEAK = np.corrcoef(predict_rr_peak_all, gt_rr_peak_all)
+                correlation_coefficient = Pearson_PEAK[0][1]
+                standard_error = np.sqrt((1 - correlation_coefficient**2) / (num_test_samples - 2))
+                print("PEAK Pearson (Peak Label): {0} +/- {1}".format(correlation_coefficient, standard_error))
+            elif metric == "SNR":
+                SNR_PEAK = np.mean(SNR_all)
+                standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
+                print("FFT SNR (FFT Label): {0} +/- {1}".format(SNR_PEAK, standard_error))
+            elif "AU" in metric:
+                pass
+            elif "BA" in metric:
+                compare = BlandAltman(gt_rr_peak_all, predict_rr_peak_all, config, averaged=True)
+                compare.scatter_plot(
+                    x_label='GT RR [bpm]',
+                    y_label='Predicted RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), 
+                    file_name=f'Peak_BlandAltman_ScatterPlot.pdf', 
+                    measure_lower_lim=10, 
+                    measure_upper_lim=60)
+                compare.difference_plot(
+                    x_label='Difference between Predicted RR and GT RR [bpm]', 
+                    y_label='Average of Predicted RR and GT RR [bpm]', 
+                    show_legend=True, figure_size=(5, 5), file_name=f'Peak_BlandAltman_DifferencePlot.pdf')
+            else:
+                raise ValueError("Wrong Test Metric Type")
+    else:
+        raise ValueError("Inference evaluation method name wrong!")
+
+
 def calculate_metrics(predictions, labels, config):
     """Calculate rPPG Metrics (MAE, RMSE, MAPE, Pearson Coef.)."""
+    if 'RR' in config.INFERENCE.METRICS:
+        calculate_resp_metrics(predictions, labels, config)
+        
+    if 'HR' not in config.INFERENCE.METRICS:
+        return
+    
+    print('')
+    print('====================')
+    print('==== HR Metrics ====')
+    print('====================')
+
     predict_hr_fft_all = list()
     gt_hr_fft_all = list()
     predict_hr_peak_all = list()
@@ -194,3 +355,5 @@ def calculate_metrics(predictions, labels, config):
                 raise ValueError("Wrong Test Metric Type")
     else:
         raise ValueError("Inference evaluation method name wrong!")
+
+

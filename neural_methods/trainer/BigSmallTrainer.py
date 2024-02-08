@@ -394,7 +394,7 @@ class BigSmallTrainer(BaseTrainer):
         print('')
             
         # LOAD ABOVED SPECIFIED MODEL FOR TESTING
-        self.model.load_state_dict(torch.load(model_path))
+        self.model.load_state_dict(torch.load(model_path, map_location=self.device))
         self.model = self.model.to(self.device)
         self.model.eval()
 

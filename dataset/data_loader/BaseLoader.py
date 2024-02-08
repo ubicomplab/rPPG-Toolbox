@@ -302,7 +302,8 @@ class BaseLoader(Dataset):
             # This utilizes both the CPU and GPU
             res = RetinaFace.detect_faces(frame)
 
-            if len(res) > 0:
+            if len(res) > 0 and type(res) is dict:
+                print(res)
                 # Pick the highest score
                 highest_score_face = max(res.values(), key=lambda x: x['score'])
                 face_zone = highest_score_face['facial_area']
