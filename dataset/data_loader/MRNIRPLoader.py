@@ -46,7 +46,7 @@ class MRNIRPLoader(BaseLoader):
 
     def get_raw_data(self, data_path):
         """Returns data directories under the path(For UBFC-rPPG dataset)."""
-        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "*_garage_still_975")
+        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "*_garage_still_940")
 
         if not data_dirs:
             raise ValueError("dataset data paths empty!")
@@ -84,8 +84,9 @@ class MRNIRPLoader(BaseLoader):
                     image_file = io.BytesIO(data)
                     frame = np.array(imageio.imread(image_file), dtype=np.uint16)
                     
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2BGR)
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice RGB Image
+                    frame = cv2.convertScaleAbs(frame, alpha=(255.0/65535.0))   # convert from uint16 to uint8
                     
                     # downsample frames (otherwise processing time becomes WAY TOO LONG)
                     if resize_dim is not None:
@@ -146,8 +147,11 @@ class MRNIRPLoader(BaseLoader):
             # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
             frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
 
-            # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
-            bvps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
+            if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
+                bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+            else: 
+                # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+                bvps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
             
             target_length = frames.shape[0]
             bvps = BaseLoader.resample_ppg(bvps, target_length)

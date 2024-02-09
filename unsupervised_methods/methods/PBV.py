@@ -14,7 +14,6 @@ from unsupervised_methods import utils
 
 def PBV(frames):
     precessed_data = utils.process_video(frames)
-    print(precessed_data.shape)
     sig_mean = np.mean(precessed_data, axis=2)
 
     signal_norm_r = precessed_data[:, 0, :] / np.expand_dims(sig_mean[:, 0], axis=1)

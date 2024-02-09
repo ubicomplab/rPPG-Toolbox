@@ -194,12 +194,6 @@ def calculate_resp_metrics(predictions, labels, config):
 
 def calculate_metrics(predictions, labels, config):
     """Calculate rPPG Metrics (MAE, RMSE, MAPE, Pearson Coef.)."""
-    if 'RR' in config.INFERENCE.METRICS:
-        calculate_resp_metrics(predictions, labels, config)
-        
-    if 'HR' not in config.INFERENCE.METRICS:
-        return
-    
     print('')
     print('====================')
     print('==== HR Metrics ====')

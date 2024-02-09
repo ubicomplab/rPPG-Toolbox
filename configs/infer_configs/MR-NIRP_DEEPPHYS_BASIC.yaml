@@ -39,7 +39,6 @@ MODEL:
   DROP_RATE: 0.2
   NAME: DeepPhys
 INFERENCE:
-  METRICS: ['HR']
   BATCH_SIZE: 1
   EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
   EVALUATION_WINDOW:
