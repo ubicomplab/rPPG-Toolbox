@@ -21,7 +21,7 @@ def detrend(input_signal, lambda_value):
     D = sparse.spdiags(diags_data, diags_index,
                 (signal_length - 2), signal_length).toarray()
     filtered_signal = np.dot(
-        (H - np.linalg.pinv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
+        (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
     return filtered_signal
 
 

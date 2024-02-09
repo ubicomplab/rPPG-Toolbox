@@ -71,7 +71,7 @@ def ica(X, Nsources, Wprev=0):
         print('The number of sources will be reduced to the number of observation channels ', Nsources)
 
     Winv, Zhat = jade(X, Nsources, Wprev)
-    W = np.linalg.pinv(Winv)
+    W = np.linalg.inv(Winv)
     return W, Zhat
 
 
@@ -91,7 +91,7 @@ def jade(X, m, Wprev):
         IW = np.matmul(U[0:n, k[n - m:n]], np.diag(ibl))
     else:
         IW = linalg.sqrtm(np.matmul(X, X.H) / T)
-        W = np.linalg.pinv(IW)
+        W = np.linalg.inv(IW)
 
     Y = np.mat(np.matmul(W, X))
     R = np.matmul(Y, Y.H) / T

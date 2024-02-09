@@ -8,6 +8,8 @@ import numpy as np
 import zipfile
 
 import cv2
+import io
+import imageio
 
 from scipy.io import loadmat
 
@@ -44,7 +46,8 @@ class MRNIRPLoader(BaseLoader):
 
     def get_raw_data(self, data_path):
         """Returns data directories under the path(For UBFC-rPPG dataset)."""
-        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "*_garage_small_motion_975")
+        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "*_garage_still_975")
+
         if not data_dirs:
             raise ValueError("dataset data paths empty!")
         dirs = [{"index": os.path.basename(data_dir), "path": data_dir} for data_dir in data_dirs]
@@ -66,6 +69,7 @@ class MRNIRPLoader(BaseLoader):
 
         return data_dirs_new
 
+
     @staticmethod
     def read_video(video_file, resize_dim=144):
         """Reads a video file, returns frames(T, H, W, 3) """
@@ -77,15 +81,19 @@ class MRNIRPLoader(BaseLoader):
 
                 if ext == '.pgm':
                     data = zippedImgs.read(ele)
-                    frame = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+                    image_file = io.BytesIO(data)
+                    frame = np.array(imageio.imread(image_file), dtype=np.uint16)
+                    
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2BGR)
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
+                    
                     # downsample frames (otherwise processing time becomes WAY TOO LONG)
                     if resize_dim is not None:
                         dim_w = min(resize_dim, frame.shape[1])
                         dim_h = int(dim_w * frame.shape[0] / frame.shape[1])
                         frame = cv2.resize(frame, (dim_w, dim_h), interpolation=cv2.INTER_AREA)
-                        frame = np.expand_dims(frame, axis=0)
+                        
+                    frame = np.expand_dims(frame, axis=0)
 
                     if cnt == 0:
                         frames = frame
@@ -107,20 +115,39 @@ class MRNIRPLoader(BaseLoader):
             ppg = mat['pulseOxRecord']
 
         return np.asarray(ppg).flatten()
+    
+    
+    @staticmethod
+    def read_video_unzipped(video_file):
+        frames = list()
+        all_pgm = sorted(glob.glob(os.path.join(video_file, "Frame*.pgm")))
+        for pgm_path in all_pgm:
+            frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image
+            frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_RG2RGB)         # Demosaice RGB Image
+            frame = cv2.convertScaleAbs(frame, alpha=(255.0/65535.0))   # convert from uint16 to uint8
 
+            frames.append(frame)
+            
+        return np.asarray(frames, dtype=np.uint8)
+
+    
+    @staticmethod
+    def read_wave_unzipped(wave_file):
+        """Reads a bvp signal file."""
+        mat = loadmat(wave_file + os.sep + "pulseOx.mat")
+        return np.squeeze(np.asarray(mat['pulseOxRecord']))
+    
 
     def preprocess_dataset(self, data_dirs, config_preprocess, begin=0, end=1):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
         for i in tqdm(range(file_num)):
             # Read Video Frames
-            frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
+            # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
+            frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
 
-            # Read Labels
-            if config_preprocess.USE_PSUEDO_PPG_LABEL:
-                bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
-            else:
-                bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+            # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+            bvps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
             
             target_length = frames.shape[0]
             bvps = BaseLoader.resample_ppg(bvps, target_length)

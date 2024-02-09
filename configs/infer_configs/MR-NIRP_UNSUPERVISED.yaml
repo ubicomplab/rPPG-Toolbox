@@ -18,7 +18,7 @@ UNSUPERVISED:
       DATA_TYPE: ['Raw']
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: Raw
-      DO_CHUNK: True
+      DO_CHUNK: False
       CHUNK_LENGTH: 128
       CROP_FACE:
         DO_CROP_FACE: True

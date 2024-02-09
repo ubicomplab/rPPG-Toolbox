@@ -13,7 +13,10 @@ from unsupervised_methods import utils
 
 
 def PBV(frames):
+    print(frames.shape)
+
     precessed_data = utils.process_video(frames)
+    print(precessed_data.shape)
     sig_mean = np.mean(precessed_data, axis=2)
 
     signal_norm_r = precessed_data[:, 0, :] / np.expand_dims(sig_mean[:, 0], axis=1)
@@ -27,6 +30,7 @@ def PBV(frames):
     C = np.swapaxes(np.array([signal_norm_r, signal_norm_g, signal_norm_b]), 0, 1)
     Ct = np.swapaxes(np.swapaxes(np.transpose(C), 0, 2), 1, 2)
     Q = np.matmul(C, Ct)
+
     W = np.linalg.solve(Q, np.swapaxes(pbv, 0, 1))
 
     A = np.matmul(Ct, np.expand_dims(W, axis=2))
