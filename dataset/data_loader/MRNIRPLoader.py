@@ -123,7 +123,7 @@ class MRNIRPLoader(BaseLoader):
         all_pgm = sorted(glob.glob(os.path.join(video_file, "Frame*.pgm")))
         for pgm_path in all_pgm:
             frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image
-            frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_RG2RGB)         # Demosaice RGB Image
+            frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice RGB Image
             frame = cv2.convertScaleAbs(frame, alpha=(255.0/65535.0))   # convert from uint16 to uint8
 
             frames.append(frame)

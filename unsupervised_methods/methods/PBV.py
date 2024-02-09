@@ -13,8 +13,6 @@ from unsupervised_methods import utils
 
 
 def PBV(frames):
-    print(frames.shape)
-
     precessed_data = utils.process_video(frames)
     print(precessed_data.shape)
     sig_mean = np.mean(precessed_data, axis=2)
