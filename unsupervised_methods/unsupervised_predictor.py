@@ -43,12 +43,18 @@ def unsupervised_predict(config, data_loader, method_name):
             video_frame_size = test_batch[0].shape[1]
             if config.INFERENCE.EVALUATION_WINDOW.USE_SMALLER_WINDOW:
                 window_frame_size = config.INFERENCE.EVALUATION_WINDOW.WINDOW_SIZE * config.UNSUPERVISED.DATA.FS
+                overlap = config.INFERENCE.EVALUATION_WINDOW.WINDOW_OVERLAP
+                
                 if window_frame_size > video_frame_size:
                     window_frame_size = video_frame_size
+                    overlap = 0
+                elif overlap > window_frame_size:
+                    overlap = 0
             else:
                 window_frame_size = video_frame_size
+                overlap = 0
 
-            for i in range(0, len(BVP), window_frame_size):
+            for i in range(0, len(BVP), window_frame_size - overlap):
                 BVP_window = BVP[i:i+window_frame_size]
                 label_window = labels_input[i:i+window_frame_size]
 
@@ -78,8 +84,8 @@ def unsupervised_predict(config, data_loader, method_name):
     else:
         raise ValueError('unsupervised_predictor.py evaluation only supports unsupervised_method!')
     
-    # print('GT: ', gt_hr_fft_all)
-    # print('Predicted: ', predict_hr_fft_all)
+    print('GT: ', gt_hr_fft_all)
+    print('Predicted: ', predict_hr_fft_all)
 
     if config.INFERENCE.EVALUATION_METHOD == "peak detection":
         predict_hr_peak_all = np.array(predict_hr_peak_all)

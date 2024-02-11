@@ -84,9 +84,9 @@ class MRNIRPLoader(BaseLoader):
                     image_file = io.BytesIO(data)
                     frame = np.array(imageio.imread(image_file), dtype=np.uint16)
                     
-                    frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice RGB Image
-                    frame = cv2.convertScaleAbs(frame, alpha=(255.0/65535.0))   # convert from uint16 to uint8
+                    frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image (in uint16 format)
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice rggb to RGB Image
+                    frame = (frame >> 8).astype(np.uint8)                       # convert from uint16 to uint8
                     
                     # downsample frames (otherwise processing time becomes WAY TOO LONG)
                     if resize_dim is not None:
@@ -123,9 +123,9 @@ class MRNIRPLoader(BaseLoader):
         frames = list()
         all_pgm = sorted(glob.glob(os.path.join(video_file, "Frame*.pgm")))
         for pgm_path in all_pgm:
-            frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image
-            frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice RGB Image
-            frame = cv2.convertScaleAbs(frame, alpha=(255.0/65535.0))   # convert from uint16 to uint8
+            frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image (in uint16 format)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice rggb to RGB Image
+            frame = (frame >> 8).astype(np.uint8)                       # convert from uint16 to uint8
 
             frames.append(frame)
             
@@ -155,6 +155,7 @@ class MRNIRPLoader(BaseLoader):
             
             target_length = frames.shape[0]
             bvps = BaseLoader.resample_ppg(bvps, target_length)
+            
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
             self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 
@@ -164,13 +165,15 @@ class MRNIRPLoader(BaseLoader):
     #     """ invoked by preprocess_dataset for multi_process."""
     #     saved_filename = data_dirs[i]['index']
         
-    #     frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB"))
+    #     # Read Video Frames
+    #     # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
+    #     frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
 
-    #     # Read Labels
-    #     if config_preprocess.USE_PSUEDO_PPG_LABEL:
+    #     if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
     #         bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
-    #     else:
-    #         bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOX", "PulseOx.mat"))
+    #     else: 
+    #         # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+    #         bvps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
         
     #     target_length = frames.shape[0]
     #     bvps = BaseLoader.resample_ppg(bvps, target_length)

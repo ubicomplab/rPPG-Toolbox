@@ -146,3 +146,4 @@ class BlandAltman():
         ax.grid()
         plt.savefig(os.path.join(self.save_path, file_name),bbox_inches='tight', dpi=100)
         print(f"Saved {file_name} to {self.save_path}.")
+        
