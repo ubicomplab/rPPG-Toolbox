@@ -115,7 +115,6 @@ class MRNIRPLoader(BaseLoader):
                     image_file = io.BytesIO(data)
                     frame = np.array(imageio.imread(image_file), dtype=np.uint16)
                     
-                    frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image (in uint16 format)
                     frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice rggb to RGB Image
                     frame = (frame >> 8).astype(np.uint8)                       # convert from uint16 to uint8
                     
@@ -204,68 +203,10 @@ class MRNIRPLoader(BaseLoader):
         return ppg, frames
     
     
-    def preprocess_custom(self, frames, bvps, config_preprocess, face_region):
-        """Preprocesses a pair of data.
-
-        Args:
-            frames(np.array): Frames in a video.
-            bvps(np.array): Blood volumne pulse (PPG) signal labels for a video.
-            config_preprocess(CfgNode): preprocessing settings(ref:config.py).
-        Returns:
-            frame_clips(np.array): processed video data by frames
-            bvps_clips(np.array): processed bvp (ppg) labels by frames
-        """
-        # resize frames and crop for face region
-        height = config_preprocess.RESIZE.H
-        width = config_preprocess.RESIZE.W
-        
-        resized_frames = np.zeros((frames.shape[0], height, width, 3))
-        for i in range(0, frames.shape[0]):
-            frame = frames[i]
-            frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
-                    max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
-            resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
-            
-        frames = resized_frames
-        # Check data transformation type
-        data = list()  # Video data
-        for data_type in config_preprocess.DATA_TYPE:
-            f_c = frames.copy()
-            if data_type == "Raw":
-                data.append(f_c / 255.0)
-            elif data_type == "DiffNormalized":
-                data.append(BaseLoader.diff_normalize_data(f_c))
-            elif data_type == "Standardized":
-                data.append(BaseLoader.standardized_data(f_c))
-            else:
-                raise ValueError("Unsupported data type!")
-        data = np.concatenate(data, axis=-1)  # concatenate all channels
-        if config_preprocess.LABEL_TYPE == "Raw":
-            pass
-        elif config_preprocess.LABEL_TYPE == "DiffNormalized":
-            bvps = BaseLoader.diff_normalize_label(bvps)
-        elif config_preprocess.LABEL_TYPE == "Standardized":
-            bvps = BaseLoader.standardized_label(bvps)
-        else:
-            raise ValueError("Unsupported label type!")
-
-        if config_preprocess.DO_CHUNK:  # chunk data into snippets
-            frames_clips, bvps_clips = self.chunk(
-                data, bvps, config_preprocess.CHUNK_LENGTH)
-        else:
-            frames_clips = np.array([data])
-            bvps_clips = np.array([bvps])
-
-        return frames_clips, bvps_clips
-    
-    
     def preprocess_dataset(self, data_dirs, config_preprocess, begin=0, end=1):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
-        
-        face_detection_exceptions = pd.read_csv("D:\\MR-NIRP\\face_locations.csv")
-
-        
+                
         for i in tqdm(range(file_num)):
             if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
                 continue
@@ -290,10 +231,6 @@ class MRNIRPLoader(BaseLoader):
             # target_length = frames.shape[0]
             # bvps = BaseLoader.resample_ppg(bvps, target_length)
 
-            # if data_dirs[i]['index'] in face_detection_exceptions["index"].values and config_preprocess.CROP_FACE.DO_CROP_FACE:
-            #     face_region = face_detection_exceptions[face_detection_exceptions["index"] == data_dirs[i]['index']].values[0][1:].tolist()
-            #     frames_clips, bvps_clips = self.preprocess_custom(frames, bvps, config_preprocess, face_region)
-            # else:
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
                 
             self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
