@@ -143,6 +143,8 @@ class TscanTrainer(BaseTrainer):
         """ Model evaluation on the testing dataset."""
         if data_loader["test"] is None:
             raise ValueError("No data for test")
+        
+        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
 
         print('')
         print("===Testing===")

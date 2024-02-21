@@ -159,6 +159,8 @@ class EfficientPhysTrainer(BaseTrainer):
         print("===Testing===")
         predictions = dict()
         labels = dict()
+        
+        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
 
         if self.config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):

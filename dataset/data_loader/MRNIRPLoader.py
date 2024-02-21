@@ -1,6 +1,5 @@
 import glob
 import os
-import re
 
 from tqdm import tqdm
 import numpy as np
@@ -14,6 +13,9 @@ import imageio
 from scipy.io import loadmat
 
 from dataset.data_loader.BaseLoader import BaseLoader
+
+import pandas as pd
+
 
 class MRNIRPLoader(BaseLoader):
     """The data loader for the MR-NIRP Processed dataset."""
@@ -41,18 +43,18 @@ class MRNIRPLoader(BaseLoader):
                 name(string): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
+        self.filtering = config_data.FILTERING
         super().__init__(name, data_path, config_data)
 
 
     def get_raw_data(self, data_path):
-        """Returns data directories under the path(For UBFC-rPPG dataset)."""
-        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "*_garage_still_940")
+        """Returns data directories under the path(For MR-NIRP dataset)."""
+        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "*_driving_still_*")
 
         if not data_dirs:
             raise ValueError("dataset data paths empty!")
         dirs = [{"index": os.path.basename(data_dir), "path": data_dir} for data_dir in data_dirs]
         return dirs
-
 
 
     def split_raw_data(self, data_dirs, begin, end):
@@ -68,6 +70,35 @@ class MRNIRPLoader(BaseLoader):
             data_dirs_new.append(data_dirs[i])
 
         return data_dirs_new
+    
+
+    def load_preprocessed_data(self):
+        """ Loads the preprocessed data listed in the file list.
+        """
+        file_list_path = self.file_list_path  # get list of files in
+        file_list_df = pd.read_csv(file_list_path)
+        base_inputs = file_list_df['input_files'].tolist()
+        filtered_inputs = []
+
+        for input in base_inputs:
+            input_name = input.split(os.sep)[-1].split('.')[0].rsplit('_', 1)[0]
+
+            if self.filtering.USE_EXCLUSION_LIST and input_name in self.filtering.EXCLUSION_LIST:
+                # Skip loading the input as it's in the exclusion list
+                continue
+            if self.filtering.SELECT_TASKS and not any(task in input_name for task in self.filtering.TASK_LIST):
+                # Skip loading the input as it's not in the task list
+                continue
+            filtered_inputs.append(input)
+
+        if not filtered_inputs:
+            raise ValueError(self.dataset_name + ' dataset loading data error!')
+        
+        filtered_inputs = sorted(filtered_inputs)  # sort input file name list
+        labels = [input_file.replace("input", "label") for input_file in filtered_inputs]
+        self.inputs = filtered_inputs
+        self.labels = labels
+        self.preprocessed_data_len = len(filtered_inputs)
 
 
     @staticmethod
@@ -123,26 +154,126 @@ class MRNIRPLoader(BaseLoader):
         frames = list()
         all_pgm = sorted(glob.glob(os.path.join(video_file, "Frame*.pgm")))
         for pgm_path in all_pgm:
-            frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image (in uint16 format)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice rggb to RGB Image
+            try:
+                frame = cv2.imread(pgm_path, cv2.IMREAD_UNCHANGED)          # read 10bit raw image (in uint16 format)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2RGB)         # Demosaice rggb to RGB Image
+            except:
+                print("Error in reading frame:", pgm_path)
+                continue
+            
             frame = (frame >> 8).astype(np.uint8)                       # convert from uint16 to uint8
 
             frames.append(frame)
             
         return np.asarray(frames, dtype=np.uint8)
 
-    
+
     @staticmethod
     def read_wave_unzipped(wave_file):
         """Reads a bvp signal file."""
-        mat = loadmat(wave_file + os.sep + "pulseOx.mat")
-        return np.squeeze(np.asarray(mat['pulseOxRecord']))
+        raw_data = loadmat(wave_file + os.sep + "pulseOx.mat")
+        
+        timestamps = (raw_data['pulseOxTime'][0] - raw_data['pulseOxTime'][0][0])
+        ppg = raw_data['pulseOxRecord'][0]
+        
+        return ppg, timestamps
     
+    
+    @staticmethod
+    def correct_irregular_sampling(ppg, timestamps, target_fs=30.0):
+        resampled_ppg = []
+        for curr_time in np.arange(0.0, timestamps[-1], 1/target_fs):
+            time_diff = timestamps - curr_time
+            stop_idx = np.argmax(time_diff > 0)
+            start_idx = stop_idx - 1 if stop_idx > 0 else stop_idx
+            
+            time_span = time_diff[stop_idx] - time_diff[start_idx]
+            weight = - time_diff[start_idx] / time_span if time_span != 0 else 0
+            
+            interpolated_ppg = ppg[start_idx] * (1 - weight) + ppg[stop_idx] * weight
+            resampled_ppg.append(interpolated_ppg)
+        
+        return np.array(resampled_ppg)
+    
+    
+    @staticmethod
+    def match_length(ppg, frames):
+        target_length = min(ppg.shape[0], frames.shape[0])
+        ppg = ppg[:target_length]
+        frames = frames[:target_length]
+        return ppg, frames
+    
+    
+    def preprocess_custom(self, frames, bvps, config_preprocess, face_region):
+        """Preprocesses a pair of data.
 
+        Args:
+            frames(np.array): Frames in a video.
+            bvps(np.array): Blood volumne pulse (PPG) signal labels for a video.
+            config_preprocess(CfgNode): preprocessing settings(ref:config.py).
+        Returns:
+            frame_clips(np.array): processed video data by frames
+            bvps_clips(np.array): processed bvp (ppg) labels by frames
+        """
+        # resize frames and crop for face region
+        height = config_preprocess.RESIZE.H
+        width = config_preprocess.RESIZE.W
+        
+        resized_frames = np.zeros((frames.shape[0], height, width, 3))
+        for i in range(0, frames.shape[0]):
+            frame = frames[i]
+            frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
+                    max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
+            resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+            
+        frames = resized_frames
+        # Check data transformation type
+        data = list()  # Video data
+        for data_type in config_preprocess.DATA_TYPE:
+            f_c = frames.copy()
+            if data_type == "Raw":
+                data.append(f_c / 255.0)
+            elif data_type == "DiffNormalized":
+                data.append(BaseLoader.diff_normalize_data(f_c))
+            elif data_type == "Standardized":
+                data.append(BaseLoader.standardized_data(f_c))
+            else:
+                raise ValueError("Unsupported data type!")
+        data = np.concatenate(data, axis=-1)  # concatenate all channels
+        if config_preprocess.LABEL_TYPE == "Raw":
+            pass
+        elif config_preprocess.LABEL_TYPE == "DiffNormalized":
+            bvps = BaseLoader.diff_normalize_label(bvps)
+        elif config_preprocess.LABEL_TYPE == "Standardized":
+            bvps = BaseLoader.standardized_label(bvps)
+        else:
+            raise ValueError("Unsupported label type!")
+
+        if config_preprocess.DO_CHUNK:  # chunk data into snippets
+            frames_clips, bvps_clips = self.chunk(
+                data, bvps, config_preprocess.CHUNK_LENGTH)
+        else:
+            frames_clips = np.array([data])
+            bvps_clips = np.array([bvps])
+
+        return frames_clips, bvps_clips
+    
+    
     def preprocess_dataset(self, data_dirs, config_preprocess, begin=0, end=1):
         """Preprocesses the raw data."""
         file_num = len(data_dirs)
+        
+        face_detection_exceptions = pd.read_csv("D:\\MR-NIRP\\face_locations.csv")
+
+        
         for i in tqdm(range(file_num)):
+            if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
+                continue
+            
+            if self.config_data.FILTERING.USE_EXCLUSION_LIST and data_dirs[i]['index'] in self.config_data.FILTERING.EXCLUSION_LIST:
+                continue
+            if self.config_data.FILTERING.SELECT_TASKS and not data_dirs[i]['index'] not in self.config_data.FILTERING.TASK_LIST:
+                continue
             # Read Video Frames
             # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
             frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
@@ -151,12 +282,20 @@ class MRNIRPLoader(BaseLoader):
                 bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
             else: 
                 # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
-                bvps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
-            
-            target_length = frames.shape[0]
-            bvps = BaseLoader.resample_ppg(bvps, target_length)
-            
+                bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
+                        
+            bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
+            bvps, frames = self.match_length(bvps, frames)
+                        
+            # target_length = frames.shape[0]
+            # bvps = BaseLoader.resample_ppg(bvps, target_length)
+
+            # if data_dirs[i]['index'] in face_detection_exceptions["index"].values and config_preprocess.CROP_FACE.DO_CROP_FACE:
+            #     face_region = face_detection_exceptions[face_detection_exceptions["index"] == data_dirs[i]['index']].values[0][1:].tolist()
+            #     frames_clips, bvps_clips = self.preprocess_custom(frames, bvps, config_preprocess, face_region)
+            # else:
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
+                
             self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 
         

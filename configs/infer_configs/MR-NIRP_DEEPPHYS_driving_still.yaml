@@ -1,0 +1,59 @@
+BASE: ['']
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
+TEST:
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR']
+  USE_LAST_EPOCH: True
+  OUTPUT_SAVE_DIR: "D:/MR-NIRP/data"
+  DATA:
+    FILTERING:
+      USE_EXCLUSION_LIST: False
+      EXCLUSION_LIST: [
+        # Face detection failed:
+        'subject2_driving_small_motion_940', 'subject16_driving_small_motion_940',
+        'subject2_driving_still_940', 'subject4_driving_still_940', 'subject16_driving_still_940',
+        'subject9_garage_small_motion_940',
+
+        'subject5_garage_still_975', 'subject6_garage_still_975', 'subject12_garage_still_940', 'subject12_garage_still_975',
+      ]
+      SELECT_TASKS: False
+      TASK_LIST: ['subject12_garage_still_940', 'subject12_garage_still_975']
+    FS: 30
+    DATASET: MR-NIRP
+    DO_PREPROCESS: True                    # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "D:/MR-NIRP"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "D:/MR-NIRP/data/PreprocessedData_driving_still"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "MR-NIRP_DiffNormalized-Standardized_DiffNormalized_driving_still"
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: [ 'DiffNormalized', 'Standardized' ]
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      CROP_FACE:
+        DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.1
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
+DEVICE: cpu
+NUM_OF_GPU_TRAIN: 0
+LOG:
+  PATH: runs/exp_driving_still
+MODEL:
+  DROP_RATE: 0.2
+  NAME: DeepPhys
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: True        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
+  MODEL_PATH:   "./final_model_release/PURE_DeepPhys.pth"

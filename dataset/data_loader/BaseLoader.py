@@ -239,7 +239,7 @@ class BaseLoader(Dataset):
         for data_type in config_preprocess.DATA_TYPE:
             f_c = frames.copy()
             if data_type == "Raw":
-                data.append(f_c)
+                data.append(f_c / 255.0)
             elif data_type == "DiffNormalized":
                 data.append(BaseLoader.diff_normalize_data(f_c))
             elif data_type == "Standardized":
@@ -304,7 +304,6 @@ class BaseLoader(Dataset):
             res = RetinaFace.detect_faces(frame)
 
             if len(res) > 0 and type(res) is dict:
-                print(res)
                 # Pick the highest score
                 highest_score_face = max(res.values(), key=lambda x: x['score'])
                 face_zone = highest_score_face['facial_area']
@@ -363,7 +362,7 @@ class BaseLoader(Dataset):
                                 the middle point of the detected region will stay still during the process of enlarging.
         Returns:
             resized_frames(list[np.array(float)]): Resized and cropped frames
-        """
+        """        
         # Face Cropping
         if use_dynamic_detection:
             num_dynamic_det = ceil(frames.shape[0] / detection_freq)
@@ -373,6 +372,7 @@ class BaseLoader(Dataset):
         # Perform face detection by num_dynamic_det" times.
         for idx in range(num_dynamic_det):
             if use_face_detection:
+                
                 face_region_all.append(self.face_detection(frames[detection_freq * idx], backend, use_larger_box, larger_box_coef))
             else:
                 face_region_all.append([0, 0, frames.shape[1], frames.shape[2]])
@@ -586,6 +586,7 @@ class BaseLoader(Dataset):
         if not inputs:
             raise ValueError(self.dataset_name + ' dataset loading data error!')
         inputs = sorted(inputs)  # sort input file name list
+
         labels = [input_file.replace("input", "label") for input_file in inputs]
         self.inputs = inputs
         self.labels = labels
