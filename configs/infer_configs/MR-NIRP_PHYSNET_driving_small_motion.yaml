@@ -1,27 +1,27 @@
 BASE: ['']
 TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
 TEST:
-  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR']
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   USE_LAST_EPOCH: True
   OUTPUT_SAVE_DIR: "D:/MR-NIRP/data"
   DATA:
     FILTERING:
-      USE_EXCLUSION_LIST: False
+      USE_EXCLUSION_LIST: True
       EXCLUSION_LIST: [
-        # Face detection failed:
-        'subject2_driving_small_motion_940', 'subject16_driving_small_motion_940',
-        'subject2_driving_still_940', 'subject4_driving_still_940', 'subject16_driving_still_940',
-        'subject9_garage_small_motion_940',
+        # Face detection failed - Defective videos - Defective PPG signal:
+        'subject7_driving_small_motion_975',
 
-        'subject6_garage_small_motion_975',
+        'subject2_driving_still_940', 'subject7_driving_still_975', 'subject16_driving_still_940',
 
-        'subject5_garage_still_975', 'subject6_garage_still_975', 'subject12_garage_still_940', 'subject12_garage_still_975',
+        'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
+
+        'subject5_garage_still_975', 'subject6_garage_still_975',
       ]
       SELECT_TASKS: False
       TASK_LIST: ['subject12_garage_still_940', 'subject12_garage_still_975']
     FS: 30
     DATASET: MR-NIRP
-    DO_PREPROCESS: True                    # if first time, should be true
+    DO_PREPROCESS: False                    # if first time, should be true
     DATA_FORMAT: NCDHW
     DATA_PATH: "D:/MR-NIRP"                     # Raw dataset path, need to be updated
     CACHED_PATH: "D:/MR-NIRP/data/PreprocessedData_driving_small_motion"    # Processed dataset save path, need to be updated
@@ -60,4 +60,4 @@ INFERENCE:
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: True        # Change this if you'd like an evaluation window smaller than the test video length
     WINDOW_SIZE: 10        # In seconds
-  MODEL_PATH: "./final_model_release/PURE_PhysNet_DiffNormalized.pth"
+  MODEL_PATH: "./final_model_release/UBFC-rPPG_PhysNet_DiffNormalized.pth"

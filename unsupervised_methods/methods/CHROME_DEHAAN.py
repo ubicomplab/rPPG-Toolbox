@@ -8,11 +8,7 @@ from scipy import signal
 import unsupervised_methods.utils as utils
 
 
-def CHROME_DEHAAN(frames,FS):
-    LPF = 0.7
-    HPF = 2.5
-    WinSec = 1.6
-
+def CHROME_DEHAAN(frames, FS, LPF=0.7, HPF=2.5, WinSec=1.6):
     RGB = process_video(frames)
     FN = RGB.shape[0]
     NyquistF = 1/2*FS

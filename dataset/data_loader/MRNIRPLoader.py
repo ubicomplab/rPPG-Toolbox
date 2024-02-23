@@ -49,7 +49,7 @@ class MRNIRPLoader(BaseLoader):
 
     def get_raw_data(self, data_path):
         """Returns data directories under the path(For MR-NIRP dataset)."""
-        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "*_driving_still_*")
+        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "subject*")
 
         if not data_dirs:
             raise ValueError("dataset data paths empty!")
@@ -89,6 +89,7 @@ class MRNIRPLoader(BaseLoader):
             if self.filtering.SELECT_TASKS and not any(task in input_name for task in self.filtering.TASK_LIST):
                 # Skip loading the input as it's not in the task list
                 continue
+            
             filtered_inputs.append(input)
 
         if not filtered_inputs:
@@ -143,9 +144,10 @@ class MRNIRPLoader(BaseLoader):
         """Reads a bvp signal file."""
         with zipfile.ZipFile(wave_file, 'r') as wave_archive:
             mat = loadmat(wave_archive.open('PulseOX/pulseOx.mat'))
-            ppg = mat['pulseOxRecord']
+            ppg = mat['pulseOxRecord'][0]
+            timestamps = (mat['pulseOxTime'][0] - mat['pulseOxTime'][0][0])
 
-        return np.asarray(ppg).flatten()
+        return ppg, timestamps
     
     
     @staticmethod
@@ -208,13 +210,10 @@ class MRNIRPLoader(BaseLoader):
         file_num = len(data_dirs)
                 
         for i in tqdm(range(file_num)):
+            # Skip the subject2_garage_small_motion_940 corrupted video
             if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
                 continue
             
-            if self.config_data.FILTERING.USE_EXCLUSION_LIST and data_dirs[i]['index'] in self.config_data.FILTERING.EXCLUSION_LIST:
-                continue
-            if self.config_data.FILTERING.SELECT_TASKS and not data_dirs[i]['index'] not in self.config_data.FILTERING.TASK_LIST:
-                continue
             # Read Video Frames
             # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
             frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
@@ -232,15 +231,11 @@ class MRNIRPLoader(BaseLoader):
             # bvps = BaseLoader.resample_ppg(bvps, target_length)
 
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-                
             self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 
-        
 
     # def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
-    #     """ invoked by preprocess_dataset for multi_process."""
-    #     saved_filename = data_dirs[i]['index']
-        
+    #     """ invoked by preprocess_dataset for multi_process."""        
     #     # Read Video Frames
     #     # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
     #     frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
@@ -249,11 +244,14 @@ class MRNIRPLoader(BaseLoader):
     #         bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
     #     else: 
     #         # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
-    #         bvps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
-        
-    #     target_length = frames.shape[0]
-    #     bvps = BaseLoader.resample_ppg(bvps, target_length)
-        
+    #         bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
+                    
+    #     bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
+    #     bvps, frames = self.match_length(bvps, frames)
+                    
+    #     # target_length = frames.shape[0]
+    #     # bvps = BaseLoader.resample_ppg(bvps, target_length)
+
     #     frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-    #     input_name_list, _ = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
+    #     input_name_list, _ = self.save_multi_process(frames_clips, bvps_clips, data_dirs[i]['index'])
     #     file_list_dict[i] = input_name_list

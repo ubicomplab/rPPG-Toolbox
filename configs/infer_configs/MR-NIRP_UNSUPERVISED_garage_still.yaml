@@ -1,25 +1,27 @@
 BASE: ['']
 TOOLBOX_MODE: "unsupervised_method"      # "train_and_test"  or "only_test" or "unsupervised_method"
 UNSUPERVISED:
-  METHOD: ["ICA"]
-  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR']
+  METHOD: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
   OUTPUT_SAVE_DIR: "D:/MR-NIRP/data"
   DATA:
     FILTERING:
-      USE_EXCLUSION_LIST: False
+      USE_EXCLUSION_LIST: True
       EXCLUSION_LIST: [
         # Face detection failed - Defective videos - Defective PPG signal:
+        'subject7_driving_small_motion_975',
+
         'subject2_driving_still_940', 'subject7_driving_still_975', 'subject16_driving_still_940',
 
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
 
-        'subject5_garage_still_975', 'subject6_garage_still_975', 'subject12_garage_still_940', 'subject12_garage_still_975',
+        'subject5_garage_still_975', 'subject6_garage_still_975', 
       ]
       SELECT_TASKS: False
-      TASK_LIST: ['subject12_garage_still_940', 'subject12_garage_still_975']
+      TASK_LIST: ['subject1_garage_still_940', 'subject17_garage_still_975']
     FS: 30
     DATASET: MR-NIRP
-    DO_PREPROCESS: True               # if first time, should be true
+    DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDHWC
     DATA_PATH: "D:/MR-NIRP"                     # Raw dataset path, need to be updated
     CACHED_PATH: "D:/MR-NIRP/data/PreprocessedData_garage_still"    # Processed dataset save path, need to be updated

@@ -130,8 +130,8 @@ if __name__ == "__main__":
 
     # configurations.
     config = get_config(args)
-    print('Configuration:')
-    print(config, end='\n\n')
+    # print('Configuration:')
+    # print(config, end='\n\n')
 
     data_loader_dict = dict() # dictionary of data loaders 
     if config.TOOLBOX_MODE == "train_and_test":

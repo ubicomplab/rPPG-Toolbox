@@ -352,7 +352,7 @@ def _update_config_from_file(config, cfg_file):
             _update_config_from_file(
                 config, os.path.join(os.path.dirname(cfg_file), cfg)
             )
-    print('=> Merging a config file from {}'.format(cfg_file))
+    # print('=> Merging a config file from {}'.format(cfg_file))
     config.merge_from_file(cfg_file)
     config.freeze()
 

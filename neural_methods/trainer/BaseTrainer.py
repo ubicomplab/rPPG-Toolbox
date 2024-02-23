@@ -52,6 +52,7 @@ class BaseTrainer:
             pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         print('Saving outputs to:', output_path)
+        print('')
 
     def plot_losses_and_lrs(self, train_loss, valid_loss, lrs, config):
 
