@@ -133,8 +133,8 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
 
     # bandpass filter between [0.75, 2.5] Hz
     # equals [45, 150] beats per min
-    low_pass = 0.13
-    high_pass = 0.5
+    low_pass = 0.75
+    high_pass = 2.5
     
     if use_bandpass:
         [b, a] = butter(1, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')
