@@ -82,9 +82,6 @@ class MRNIRPLoader(BaseLoader):
 
         for input in base_inputs:
             input_name = input.split(os.sep)[-1].split('.')[0].rsplit('_', 1)[0]
-            
-            if 'subject10' in input_name or 'subject12' in input_name:
-                continue
 
             if self.filtering.USE_EXCLUSION_LIST and input_name in self.filtering.EXCLUSION_LIST:
                 # Skip loading the input as it's in the exclusion list

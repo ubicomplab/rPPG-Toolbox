@@ -29,17 +29,14 @@ class PhysnetTrainer(BaseTrainer):
         self.min_valid_loss = None
         self.best_epoch = 0
 
-        self.model = PhysNet_padding_Encoder_Decoder_MAX(
-            frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
+        self.model = PhysNet_padding_Encoder_Decoder_MAX(frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
 
         if config.TOOLBOX_MODE == "train_and_test":
             self.num_train_batches = len(data_loader["train"])
             self.loss_model = Neg_Pearson()
-            self.optimizer = optim.Adam(
-                self.model.parameters(), lr=config.TRAIN.LR)
+            self.optimizer = optim.Adam(self.model.parameters(), lr=config.TRAIN.LR)
             # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
-            self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
-                self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
+            self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
         elif config.TOOLBOX_MODE == "only_test":
             pass
         else:
@@ -172,8 +169,7 @@ class PhysnetTrainer(BaseTrainer):
         with torch.no_grad():
             for _, test_batch in enumerate(tqdm(data_loader["test"], ncols=80)):
                 batch_size = test_batch[0].shape[0]
-                data, label = test_batch[0].to(
-                    self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
+                data, label = test_batch[0].to(self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
                 pred_ppg_test, _, _, _ = self.model(data)
 
                 if self.config.TEST.OUTPUT_SAVE_DIR:

@@ -55,16 +55,18 @@ def _calculate_hr(signal, fs, low_pass=0.75, high_pass=2.5, method='FFT'):
         mask_pxx = np.take(pxx_ppg, fmask_ppg)
         fft_hr = np.take(mask_ppg, np.argmax(mask_pxx, 0))[0] * 60
         return fft_hr
+    
     elif method == 'Peak':
         """Calculate heart rate based on PPG using peak detection."""
         ppg_peaks, _ = scipy.signal.find_peaks(signal)
         hr_peak = 60 / (np.mean(np.diff(ppg_peaks)) / fs)
         return hr_peak
+    
     elif method == 'HeartPy':
         print(signal, signal.shape)
         _, hp_process = hp.process(np.array(signal), fs)
-        
-        return hp_process['breathingrate'] * 60
+        return hp_process['bpm'] * 60
+    
     else:
         raise ValueError('Unsupported method for HR calculation.')
 
@@ -124,25 +126,26 @@ def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.
 
 def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_bandpass=True, hr_method='FFT'):
     """Calculate video-level HR and SNR"""
-    if diff_flag:  # if the predictions and labels are 1st derivative of PPG signal.
-        predictions = _detrend(np.cumsum(predictions), 100)
-        labels = _detrend(np.cumsum(labels), 100)
-    else:
-        predictions = _detrend(predictions, 100)
-        labels = _detrend(labels, 100)
-
-    # bandpass filter between [0.75, 2.5] Hz
-    # equals [45, 150] beats per min
+    lambda_value = 100
+    # bandpass filter between [0.75, 2.5] Hz equals [45, 150] beats per min
     low_pass = 0.75
     high_pass = 2.5
+    order = 1
     
+    if diff_flag:  # if the predictions and labels are 1st derivative of PPG signal.
+        predictions = _detrend(np.cumsum(predictions), lambda_value)
+        labels = _detrend(np.cumsum(labels), lambda_value)
+    else:
+        predictions = _detrend(predictions, lambda_value)
+        labels = _detrend(labels, lambda_value)
+
     if use_bandpass:
-        [b, a] = butter(1, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')
+        [b, a] = butter(order, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
         
     hr_pred = _calculate_hr(predictions, fs=fs, method=hr_method, low_pass=low_pass, high_pass=high_pass)
-    hr_label = _calculate_hr(labels, fs=fs, method=hr_method, min_hr=low_pass, max_hr=high_pass)
+    hr_label = _calculate_hr(labels, fs=fs, method=hr_method, low_pass=low_pass, high_pass=high_pass)
     SNR = _calculate_SNR(predictions, hr_label, fs=fs, low_pass=low_pass, high_pass=high_pass)
     
     return hr_label, hr_pred, SNR

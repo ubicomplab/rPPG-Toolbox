@@ -32,6 +32,8 @@ class DeepPhysTrainer(BaseTrainer):
         if config.TOOLBOX_MODE == "train_and_test":
             self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+                
+            self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
             self.num_train_batches = len(data_loader["train"])
             self.criterion = torch.nn.MSELoss()
@@ -138,7 +140,7 @@ class DeepPhysTrainer(BaseTrainer):
         """ Model evaluation on the testing dataset."""
         if data_loader["test"] is None:
             raise ValueError("No data for test")
-        config = self.config
+
         self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
 
         print('')

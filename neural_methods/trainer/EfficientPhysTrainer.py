@@ -33,8 +33,7 @@ class EfficientPhysTrainer(BaseTrainer):
         self.best_epoch = 0
         
         if config.TOOLBOX_MODE == "train_and_test":
-            self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(
-                self.device)
+            self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
             self.num_train_batches = len(data_loader["train"])
@@ -45,9 +44,8 @@ class EfficientPhysTrainer(BaseTrainer):
             self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
                 self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
         elif config.TOOLBOX_MODE == "only_test":
-            self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TEST.DATA.PREPROCESS.RESIZE.H).to(
-                self.device)
-            # self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+            self.model = EfficientPhys(frame_depth=self.frame_depth, img_size=config.TEST.DATA.PREPROCESS.RESIZE.H).to(self.device)
+            self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         else:
             raise ValueError("EfficientPhys trainer initialized in incorrect toolbox mode!")
 
@@ -166,14 +164,7 @@ class EfficientPhysTrainer(BaseTrainer):
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
             
-            state_dict = torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device)
-
-            new_state_dict = OrderedDict()
-            for k, v in state_dict.items():
-                name = k[7:] # remove 'module.' of dataparallel
-                new_state_dict[name]=v
-
-            self.model.load_state_dict(new_state_dict)
+            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
             print("Testing uses pretrained model!")
         else:
             if self.config.TEST.USE_LAST_EPOCH:
