@@ -86,23 +86,23 @@ def calculate_metrics(predictions, labels, config):
             
             gt_hr, pred_hr, SNR = calculate_metric_per_video(pred_window, label_window, diff_flag=diff_flag_test,
                                                             fs=config.TEST.DATA.FS, hr_method=config.INFERENCE.EVALUATION_METHOD)
-            
-            temp_gt.append(gt_hr)
-            temp_pred.append(pred_hr)
-            
+
             gt_hr_all.append(gt_hr)
             predict_hr_all.append(pred_hr)
             SNR_all.append(SNR)
             
-        temp_gt = np.array(temp_gt)
-        temp_pred = np.array(temp_pred)
-        print('GT HR: ', temp_gt)
-        print('Predicted HR: ', temp_pred)
+        #     temp_gt.append(gt_hr)
+        #     temp_pred.append(pred_hr)
+            
+        # temp_gt = np.array(temp_gt)
+        # temp_pred = np.array(temp_pred)
+        # print('GT HR: ', temp_gt)
+        # print('Predicted HR: ', temp_pred)
         
-        num_test_samples = len(temp_pred)
-        RMSE = np.sqrt(np.mean(np.square(temp_pred - temp_gt)))
-        standard_error = np.std(np.square(temp_pred - temp_gt)) / np.sqrt(num_test_samples)
-        print("RMSE: {0} +/- {1}".format(RMSE, standard_error))
+        # num_test_samples = len(temp_pred)
+        # RMSE = np.sqrt(np.mean(np.square(temp_pred - temp_gt)))
+        # standard_error = np.std(np.square(temp_pred - temp_gt)) / np.sqrt(num_test_samples)
+        # print("RMSE: {0} +/- {1}".format(RMSE, standard_error))
     
     # Filename ID to be used in any results files (e.g., Bland-Altman plots) that get saved
     if config.TOOLBOX_MODE == 'train_and_test':
