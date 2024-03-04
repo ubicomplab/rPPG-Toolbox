@@ -15,13 +15,15 @@ UNSUPERVISED:
 
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
 
-        'subject5_garage_still_975', 'subject6_garage_still_975', 
+        'subject5_garage_still_975', 'subject6_garage_still_975',
+
+        'subject12'
       ]
-      SELECT_TASKS: False
-      TASK_LIST: ['subject1_garage_still_940', 'subject17_garage_still_975']
+      SELECT_TASKS: True
+      TASK_LIST: ['garage_still']
     FS: 30
     DATASET: MR-NIRP
-    DO_PREPROCESS: False               # if first time, should be true
+    DO_PREPROCESS: False                         # if first time, should be true
     DATA_FORMAT: NDHWC
     DATA_PATH: "D:/MR-NIRP"                     # Raw dataset path, need to be updated
     CACHED_PATH: "D:/MR-NIRP/data/PreprocessedData_garage_still"    # Processed dataset save path, need to be updated
@@ -34,11 +36,14 @@ UNSUPERVISED:
       LABEL_TYPE: Raw
       DO_CHUNK: False
       CHUNK_LENGTH: 128
+      ROI:
+        EXTRACT_ROI: True
+        LANDMARKS: [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109]
       CROP_FACE:
         DO_CROP_FACE: True
         BACKEND: 'RF'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
-        LARGE_BOX_COEF: 1.1
+        LARGE_BOX_COEF: 1.5
         DETECTION:
           DO_DYNAMIC_DETECTION: False
           DYNAMIC_DETECTION_FREQUENCY : 30
@@ -49,8 +54,8 @@ UNSUPERVISED:
 LOG:
   PATH: runs/exp_garage_still
 INFERENCE:
-  EVALUATION_METHOD: "FFT"
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection" or "heartpy"
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: True        # Change this if you'd like an evaluation window smaller than the test video length
-    WINDOW_SIZE: 10                 # In seconds
+    WINDOW_SIZE: 30                 # In seconds
     # WINDOW_OVERLAP: 100             # In frames

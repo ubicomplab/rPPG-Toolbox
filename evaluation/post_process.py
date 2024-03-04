@@ -8,9 +8,9 @@ import scipy.io
 from scipy.signal import butter
 from scipy.sparse import spdiags
 
-from scipy.interpolate import Akima1DInterpolator
-
 import heartpy as hp
+
+from biosppy.signals import ppg, resp
 
 
 def _next_power_of_2(x):
@@ -32,17 +32,6 @@ def _detrend(input_signal, lambda_value):
         (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
     return detrended_signal
 
-def compute_power_spectrum(signal, fs, zero_pad=None):
-    if zero_pad is not None:
-        L = len(signal)
-        signal = np.pad(signal, (int(zero_pad/2*L), int(zero_pad/2*L)), 'constant')
-    freqs = np.fft.fftfreq(len(signal), 1 / fs) * 60  # in bpm
-    ps = np.abs(np.fft.fft(signal))**2
-    cutoff = len(freqs)//2
-    freqs = freqs[:cutoff]
-    ps = ps[:cutoff]
-    return freqs, ps
-
 
 def _calculate_hr(signal, fs, low_pass=0.75, high_pass=2.5, method='FFT'):
     if method == 'FFT':
@@ -62,10 +51,18 @@ def _calculate_hr(signal, fs, low_pass=0.75, high_pass=2.5, method='FFT'):
         hr_peak = 60 / (np.mean(np.diff(ppg_peaks)) / fs)
         return hr_peak
     
-    elif method == 'HeartPy':
-        print(signal, signal.shape)
-        _, hp_process = hp.process(np.array(signal), fs)
-        return hp_process['bpm'] * 60
+    elif method == 'heartpy':
+        _, hp_process = hp.process(np.array(signal), fs, )
+        hr = hp_process['breathingrate'] * 60
+        
+        if np.isnan(hr):
+            return 0
+        
+        return hr
+    
+    elif method == 'biosppy':
+        hr = resp.resp(signal, sampling_rate=fs, show=False)[-1]
+        return np.mean(hr) * 60
     
     else:
         raise ValueError('Unsupported method for HR calculation.')
@@ -124,13 +121,24 @@ def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.
     return SNR
 
 
+def _standardize_signal(signal):
+    """Z-score standardization for label signal."""
+    signal = signal - np.mean(signal)
+    signal = signal / np.std(signal)
+    signal[np.isnan(signal)] = 0
+    
+    return signal
+
+
 def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_bandpass=True, hr_method='FFT'):
     """Calculate video-level HR and SNR"""
-    lambda_value = 100
     # bandpass filter between [0.75, 2.5] Hz equals [45, 150] beats per min
+    # bandpass filter between [0.13, 0.5] Hz equals [7.8, 30] beats per min
     low_pass = 0.75
     high_pass = 2.5
-    order = 1
+    order = 2
+    
+    lambda_value = 100
     
     if diff_flag:  # if the predictions and labels are 1st derivative of PPG signal.
         predictions = _detrend(np.cumsum(predictions), lambda_value)
@@ -139,10 +147,13 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
         predictions = _detrend(predictions, lambda_value)
         labels = _detrend(labels, lambda_value)
 
-    if use_bandpass:
+    if use_bandpass and hr_method != 'heartpy' and hr_method != 'biosppy':
         [b, a] = butter(order, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
+        
+    predictions = _standardize_signal(predictions)
+    labels = _standardize_signal(labels)
         
     hr_pred = _calculate_hr(predictions, fs=fs, method=hr_method, low_pass=low_pass, high_pass=high_pass)
     hr_label = _calculate_hr(labels, fs=fs, method=hr_method, low_pass=low_pass, high_pass=high_pass)

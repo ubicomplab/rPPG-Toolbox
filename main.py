@@ -1,5 +1,4 @@
 """ The main function of rPPG deep learning pipeline."""
-
 import argparse
 import random
 import time

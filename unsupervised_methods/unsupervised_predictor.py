@@ -26,7 +26,7 @@ def unsupervised_predict(config, data_loader, method_name):
         batch_size = test_batch[0].shape[0]
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
-            
+                        
             if method_name == "POS":
                 BVP = POS_WANG(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "CHROM":
@@ -78,13 +78,13 @@ def unsupervised_predict(config, data_loader, method_name):
 
             temp_gt = np.array(temp_gt)
             temp_pred = np.array(temp_pred)
-            # print('GT HR: ', temp_gt)
-            # print('Predicted HR: ', temp_pred)
+            print('GT HR: ', temp_gt)
+            print('Predicted HR: ', temp_pred)
             
             num_test_samples = len(temp_pred)
             RMSE = np.sqrt(np.mean(np.square(temp_pred - temp_gt)))
             standard_error = np.std(np.square(temp_pred - temp_gt)) / np.sqrt(num_test_samples)
-            # print("RMSE: {0} +/- {1}".format(RMSE, standard_error))
+            print("RMSE: {0} +/- {1}".format(RMSE, standard_error))
     
     print("Used Unsupervised Method: " + method_name)
     

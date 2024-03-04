@@ -14,3 +14,4 @@ mat73==0.59
 ipykernel==6.26.0
 ipywidgets==8.1.1
 retina-face==0.0.13
+mediapipe

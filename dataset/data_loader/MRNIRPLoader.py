@@ -7,6 +7,7 @@ import numpy as np
 import zipfile
 
 import cv2
+
 import io
 import imageio
 
@@ -49,7 +50,7 @@ class MRNIRPLoader(BaseLoader):
 
     def get_raw_data(self, data_path):
         """Returns data directories under the path(For MR-NIRP dataset)."""
-        data_dirs = glob.glob(data_path + os.sep + "subject*" + os.sep + "subject*")
+        data_dirs = glob.glob(data_path + os.sep + "Subject*" + os.sep + "subject*")
 
         if not data_dirs:
             raise ValueError("dataset data paths empty!")
@@ -82,14 +83,20 @@ class MRNIRPLoader(BaseLoader):
 
         for input in base_inputs:
             input_name = input.split(os.sep)[-1].split('.')[0].rsplit('_', 1)[0]
+            subject_name = input_name.rsplit('_')[0]
+            task = input_name.rsplit('_', 1)[0].split('_', 1)[1]
 
-            if self.filtering.USE_EXCLUSION_LIST and input_name in self.filtering.EXCLUSION_LIST:
-                # Skip loading the input as it's in the exclusion list
-                continue
-            if self.filtering.SELECT_TASKS and not any(task in input_name for task in self.filtering.TASK_LIST):
-                # Skip loading the input as it's not in the task list
-                continue
-            
+            if self.filtering.SELECT_TASKS:
+                if input_name not in self.filtering.TASK_LIST or subject_name not in self.filtering.TASK_LIST or task not in self.filtering.TASK_LIST:
+                    print(f"TASK {input_name}")
+                    continue
+                
+            if self.filtering.USE_EXCLUSION_LIST:
+                if input_name in self.filtering.EXCLUSION_LIST or subject_name in self.filtering.EXCLUSION_LIST or task in self.filtering.EXCLUSION_LIST:
+                    print(f"FILTER {input_name}")
+                    continue
+
+
             filtered_inputs.append(input)
 
         if not filtered_inputs:
@@ -181,9 +188,9 @@ class MRNIRPLoader(BaseLoader):
     
     
     @staticmethod
-    def correct_irregular_sampling(ppg, timestamps, target_fs=30.0):
+    def correct_irregular_sampling(ppg, timestamps, target_fs=30):
         resampled_ppg = []
-        for curr_time in np.arange(0.0, timestamps[-1], 1/target_fs):
+        for curr_time in np.arange(0.0, timestamps[-1], 1.0/target_fs):
             time_diff = timestamps - curr_time
             stop_idx = np.argmax(time_diff > 0)
             start_idx = stop_idx - 1 if stop_idx > 0 else stop_idx
@@ -211,7 +218,7 @@ class MRNIRPLoader(BaseLoader):
                 
         for i in tqdm(range(file_num)):
             # Skip the subject2_garage_small_motion_940 corrupted video
-            if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
+            if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
                 continue
             
             # Read Video Frames
@@ -237,8 +244,8 @@ class MRNIRPLoader(BaseLoader):
     # def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
     #     """ invoked by preprocess_dataset for multi_process."""        
         # Read Video Frames
-        # if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
-        #     return
+        # if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
+        #     continue
         # # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
         # frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
 

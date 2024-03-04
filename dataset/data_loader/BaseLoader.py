@@ -25,6 +25,19 @@ from tqdm import tqdm
 from retinaface import RetinaFace   # Source code: https://github.com/serengil/retinaface
 
 
+import importlib
+def selective_importer(name, globals=None, locals=None, fromlist=(), level=0):
+    frommodule = globals['__name__'] if globals else None
+    if name=='sounddevice' and 'mediapipe.tasks.python.audio' in frommodule:
+        pass
+    else:
+        return importlib.__import__(name, globals, locals, fromlist, level)
+    
+__builtins__['__import__'] = selective_importer
+
+import mediapipe as mp
+
+
 class BaseLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
 
@@ -78,7 +91,7 @@ class BaseLoader(Dataset):
                 print('File list generated.', end='\n\n')
 
             self.load_preprocessed_data()
-        print('Cached Data Path', self.cached_path, end='\n\n')
+        print('Cached Data Path', self.cached_path, end='\n')
         # print('File List Path', self.file_list_path)
         # print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
 
@@ -210,7 +223,8 @@ class BaseLoader(Dataset):
         self.build_file_list(file_list_dict)  # build file list
         self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
         print("Total Number of raw files preprocessed:", len(data_dirs_split), end='\n\n')
-
+        
+    
     def preprocess(self, frames, bvps, config_preprocess):
         """Preprocesses a pair of data.
 
@@ -223,6 +237,7 @@ class BaseLoader(Dataset):
             bvps_clips(np.array): processed bvp (ppg) labels by frames
         """
         # resize frames and crop for face region
+        
         frames = self.crop_face_resize(
             frames,
             config_preprocess.CROP_FACE.DO_CROP_FACE,
@@ -233,7 +248,10 @@ class BaseLoader(Dataset):
             config_preprocess.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY,
             config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
             config_preprocess.RESIZE.W,
-            config_preprocess.RESIZE.H)
+            config_preprocess.RESIZE.H,
+            config_preprocess.ROI.EXTRACT_ROI,
+            config_preprocess.ROI.LANDMARKS)
+        
         # Check data transformation type
         data = list()  # Video data
         for data_type in config_preprocess.DATA_TYPE:
@@ -345,7 +363,7 @@ class BaseLoader(Dataset):
         return face_box_coor
 
     def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection, 
-                         detection_freq, use_median_box, width, height):
+                         detection_freq, use_median_box, width, height, extract_roi=False, selected_landmark_indices=None):
         """Crop face and resize frames.
 
         Args:
@@ -381,6 +399,9 @@ class BaseLoader(Dataset):
             # Generate a median bounding box based on all detected face regions
             face_region_median = np.median(face_region_all, axis=0).astype('int')
 
+        if extract_roi:
+            face_mesh = mp.solutions.face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1)
+
         # Frame Resizing
         resized_frames = np.zeros((frames.shape[0], height, width, 3))
         for i in range(0, frames.shape[0]):
@@ -396,8 +417,34 @@ class BaseLoader(Dataset):
                     face_region = face_region_all[reference_index]
                 frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
                         max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
+                
+            # Extract the ROI
+            if extract_roi:
+                mask = np.zeros(frame.shape[:2], dtype=np.uint8)    
+                # Process the frame to find face landmarks.
+                results = face_mesh.process(frame)
+                    
+                if results.multi_face_landmarks:
+                    for face_landmarks in results.multi_face_landmarks:
+                        # Extract the coordinates for the landmarks of interest
+
+                        roi_poly = np.array([(int(face_landmarks.landmark[i].x * frame.shape[1]), int(face_landmarks.landmark[i].y * frame.shape[0])) for i in selected_landmark_indices], np.int32)
+
+                        # Define the ROI as a polygon on the mask and fill it
+                        cv2.fillPoly(mask, [roi_poly], color=(255))
+                        
+                        # Create a 3-channel mask for color images
+                        mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
+                        
+                        # Apply the mask to retain the ROI and make the rest black
+                        frame = cv2.bitwise_and(frame, mask_3channel)
+                else:
+                    print("No face detected in the frame. Appending the whole frame.")
+                
             resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+            
         return resized_frames
+
 
     def chunk(self, frames, bvps, chunk_length):
         """Chunk the data into small chunks.
