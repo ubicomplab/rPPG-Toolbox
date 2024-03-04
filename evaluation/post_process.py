@@ -8,10 +8,6 @@ import scipy.io
 from scipy.signal import butter
 from scipy.sparse import spdiags
 
-import heartpy as hp
-
-from biosppy.signals import ppg, resp
-
 
 def _next_power_of_2(x):
     """Calculate the nearest power of 2."""
@@ -50,19 +46,6 @@ def _calculate_hr(signal, fs, low_pass=0.75, high_pass=2.5, method='FFT'):
         ppg_peaks, _ = scipy.signal.find_peaks(signal)
         hr_peak = 60 / (np.mean(np.diff(ppg_peaks)) / fs)
         return hr_peak
-    
-    elif method == 'heartpy':
-        _, hp_process = hp.process(np.array(signal), fs, )
-        hr = hp_process['breathingrate'] * 60
-        
-        if np.isnan(hr):
-            return 0
-        
-        return hr
-    
-    elif method == 'biosppy':
-        hr = resp.resp(signal, sampling_rate=fs, show=False)[-1]
-        return np.mean(hr) * 60
     
     else:
         raise ValueError('Unsupported method for HR calculation.')
