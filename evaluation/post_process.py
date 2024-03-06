@@ -130,7 +130,7 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
         predictions = _detrend(predictions, lambda_value)
         labels = _detrend(labels, lambda_value)
 
-    if use_bandpass and hr_method != 'heartpy' and hr_method != 'biosppy':
+    if use_bandpass:
         [b, a] = butter(order, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
