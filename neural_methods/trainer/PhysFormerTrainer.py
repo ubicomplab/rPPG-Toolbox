@@ -227,7 +227,7 @@ class PhysFormerTrainer(BaseTrainer):
                 name = k[7:] # remove 'module.' of dataparallel
                 new_state_dict[name]=v
 
-            self.model.load_state_dict(new_state_dict)
+            self.model.load_state_dict(new_state_dict, strict=False)
             print("Testing uses pretrained model!")
             print(self.config.INFERENCE.MODEL_PATH)
         else:
@@ -236,13 +236,13 @@ class PhysFormerTrainer(BaseTrainer):
                 self.model_dir, self.model_file_name + '_Epoch' + str(self.max_epoch_num - 1) + '.pth')
                 print("Testing uses last epoch as non-pretrained model!")
                 print(last_epoch_model_path)
-                self.model.load_state_dict(torch.load(last_epoch_model_path, map_location=self.device))
+                self.model.load_state_dict(torch.load(last_epoch_model_path, map_location=self.device), strict=False)
             else:
                 best_model_path = os.path.join(
                     self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
                 print("Testing uses best epoch selected using model selection as non-pretrained model!")
                 print(best_model_path)
-                self.model.load_state_dict(torch.load(best_model_path, map_location=self.device))
+                self.model.load_state_dict(torch.load(best_model_path, map_location=self.device), strict=False)
 
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()

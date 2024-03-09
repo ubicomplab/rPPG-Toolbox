@@ -21,7 +21,7 @@ UNSUPERVISED:
       TASK_LIST: ['subject12_garage_still_940', 'subject12_garage_still_975']
     FS: 30
     DATASET: MR-NIRP
-    DO_PREPROCESS: True               # if first time, should be true
+    DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDHWC
     DATA_PATH: "D:/MR-NIRP"                     # Raw dataset path, need to be updated
     CACHED_PATH: "D:/MR-NIRP/data/PreprocessedData_garage_small_motion"    # Processed dataset save path, need to be updated
@@ -36,7 +36,7 @@ UNSUPERVISED:
       CHUNK_LENGTH: 128
       ROI:
         EXTRACT_ROI: True
-        LANDMARKS: [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109]
+        LANDMARKS: [[10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109]]
       CROP_FACE:
         DO_CROP_FACE: True
         BACKEND: 'RF'    # HC for Haar Cascade, RF for RetinaFace

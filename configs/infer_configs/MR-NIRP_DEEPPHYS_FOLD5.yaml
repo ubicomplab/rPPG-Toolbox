@@ -19,8 +19,8 @@ TEST:
 
         # 'subject12'
       ]
-      SELECT_TASKS: False
-      TASK_LIST: []
+      SELECT_TASKS: True
+      TASK_LIST: ['subject13', 'subject14', 'subject15']
     FS: 30
     DATASET: MR-NIRP
     DO_PREPROCESS: False                    # if first time, should be true
@@ -60,4 +60,4 @@ INFERENCE:
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: True        # Change this if you'd like an evaluation window smaller than the test video length
     WINDOW_SIZE: 10        # In seconds
-  MODEL_PATH:   "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/models/MR-NIRP_DEEPPHYS_FOLD1.pth"
+  MODEL_PATH:   "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/models/MR-NIRP_DEEPPHYS_FOLD5.pth"

@@ -85,16 +85,14 @@ class MRNIRPLoader(BaseLoader):
             input_name = input.split(os.sep)[-1].split('.')[0].rsplit('_', 1)[0]
             subject_name = input_name.rsplit('_')[0]
             task = input_name.rsplit('_', 1)[0].split('_', 1)[1]
+            subject_task = input_name.rsplit('_', 1)[0]
 
             if self.filtering.SELECT_TASKS:
-                if input_name not in self.filtering.TASK_LIST and subject_name not in self.filtering.TASK_LIST and task not in self.filtering.TASK_LIST:
+                if input_name not in self.filtering.TASK_LIST and subject_name not in self.filtering.TASK_LIST and task not in self.filtering.TASK_LIST and subject_task not in self.filtering.TASK_LIST:
                     continue
-                else:
-                    print('TASK: ', input_name)
                 
             if self.filtering.USE_EXCLUSION_LIST:
-                if input_name in self.filtering.EXCLUSION_LIST or subject_name in self.filtering.EXCLUSION_LIST or task in self.filtering.EXCLUSION_LIST:
-                    print('FILTER: ', input_name)
+                if input_name in self.filtering.EXCLUSION_LIST or subject_name in self.filtering.EXCLUSION_LIST or task in self.filtering.EXCLUSION_LIST or subject_task in self.filtering.EXCLUSION_LIST:
                     continue
 
 
@@ -213,55 +211,55 @@ class MRNIRPLoader(BaseLoader):
         return ppg, frames
     
     
-    def preprocess_dataset(self, data_dirs, config_preprocess, begin=0, end=1):
-        """Preprocesses the raw data."""
-        file_num = len(data_dirs)
+    # def preprocess_dataset(self, data_dirs, config_preprocess, begin=0, end=1):
+    #     """Preprocesses the raw data."""
+    #     file_num = len(data_dirs)
                 
-        for i in tqdm(range(file_num)):
-            # Skip the subject2_garage_small_motion_940 corrupted video
-            if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
-                continue
+    #     for i in tqdm(range(file_num)):
+    #         # Skip the subject2_garage_small_motion_940 corrupted video
+    #         if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
+    #             continue
             
-            # Read Video Frames
-            # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
-            frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
+    #         # Read Video Frames
+    #         # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
+    #         frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
 
-            if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
-                bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
-            else: 
-                # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
-                bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
+    #         if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
+    #             bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+    #         else: 
+    #             # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+    #             bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
                         
-            bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
-            bvps, frames = self.match_length(bvps, frames)
+    #         bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
+    #         bvps, frames = self.match_length(bvps, frames)
                         
-            # target_length = frames.shape[0]
-            # bvps = BaseLoader.resample_ppg(bvps, target_length)
+    #         # target_length = frames.shape[0]
+    #         # bvps = BaseLoader.resample_ppg(bvps, target_length)
 
-            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-            self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
+    #         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
+    #         self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 
 
-    # def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
-    #     """ invoked by preprocess_dataset for multi_process."""        
-    #     # Read Video Frames
-    #     if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
-    #         return
-    #     # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
-    #     frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
+    def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
+        """ invoked by preprocess_dataset for multi_process."""        
+        # Read Video Frames
+        if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
+            return
+        # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
+        frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
 
-    #     if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
-    #         bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
-    #     else: 
-    #         # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
-    #         bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
+        if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
+            bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
+        else: 
+            # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+            bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
                     
-    #     bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
-    #     bvps, frames = self.match_length(bvps, frames)
+        bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
+        bvps, frames = self.match_length(bvps, frames)
                     
-    #     # target_length = frames.shape[0]
-    #     # bvps = BaseLoader.resample_ppg(bvps, target_length)
+        # target_length = frames.shape[0]
+        # bvps = BaseLoader.resample_ppg(bvps, target_length)
 
-    #     frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-    #     input_name_list, _ = self.save_multi_process(frames_clips, bvps_clips, data_dirs[i]['index'])
-    #     file_list_dict[i] = input_name_list
+        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
+        input_name_list, _ = self.save_multi_process(frames_clips, bvps_clips, data_dirs[i]['index'])
+        file_list_dict[i] = input_name_list

@@ -37,7 +37,7 @@ class EfficientPhysTrainer(BaseTrainer):
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
             self.num_train_batches = len(data_loader["train"])
-            self.criterion = torch.nn.MSELoss()
+            self.criterion = Neg_Pearson()
             self.optimizer = optim.AdamW(
                 self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
             # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html

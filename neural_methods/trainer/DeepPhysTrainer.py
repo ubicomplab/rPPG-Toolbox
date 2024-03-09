@@ -31,12 +31,11 @@ class DeepPhysTrainer(BaseTrainer):
         
         if config.TOOLBOX_MODE == "train_and_test":
             self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
-            self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
-                
+            
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
             self.num_train_batches = len(data_loader["train"])
-            self.criterion = torch.nn.MSELoss()
+            self.criterion = Neg_Pearson()
             self.optimizer = optim.AdamW(
                 self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
             # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
@@ -150,6 +149,7 @@ class DeepPhysTrainer(BaseTrainer):
         if self.config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
+            
             self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
             print("Testing uses pretrained model!")
         else:
@@ -195,12 +195,12 @@ class DeepPhysTrainer(BaseTrainer):
         calculate_metrics(predictions, labels, self.config)
         if self.config.TEST.OUTPUT_SAVE_DIR: # saving test outputs
             self.save_test_outputs(predictions, labels, self.config)
-
+            
+            
     def save_model(self, index):
-        """Inits parameters from args and the writer for TensorboardX."""
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
         model_path = os.path.join(
             self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
         torch.save(self.model.state_dict(), model_path)
- 
+        print('Saved Model Path: ', model_path)

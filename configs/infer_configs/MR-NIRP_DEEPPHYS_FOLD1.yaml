@@ -19,8 +19,8 @@ TEST:
 
         # 'subject12'
       ]
-      SELECT_TASKS: False
-      TASK_LIST: []
+      SELECT_TASKS: True
+      TASK_LIST: ['subject16', 'subject17', 'subject18', 'subject19']
     FS: 30
     DATASET: MR-NIRP
     DO_PREPROCESS: False                    # if first time, should be true

@@ -363,7 +363,7 @@ class BaseLoader(Dataset):
         return face_box_coor
 
     def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection, 
-                         detection_freq, use_median_box, width, height, extract_roi=False, selected_landmark_indices=None):
+                         detection_freq, use_median_box, width, height, extract_roi=False, landmarks=[]):
         """Crop face and resize frames.
 
         Args:
@@ -423,20 +423,20 @@ class BaseLoader(Dataset):
                 mask = np.zeros(frame.shape[:2], dtype=np.uint8)    
                 # Process the frame to find face landmarks.
                 results = face_mesh.process(frame)
+                
+                    
                     
                 if results.multi_face_landmarks:
                     for face_landmarks in results.multi_face_landmarks:
+                        if landmarks == []:
+                            landmarks = list(range(len(face_landmarks.landmark)))
                         # Extract the coordinates for the landmarks of interest
-
-                        roi_poly = np.array([(int(face_landmarks.landmark[i].x * frame.shape[1]), int(face_landmarks.landmark[i].y * frame.shape[0])) for i in selected_landmark_indices], np.int32)
-
-                        # Define the ROI as a polygon on the mask and fill it
-                        cv2.fillPoly(mask, [roi_poly], color=(255))
+                        for region_landmarks in landmarks:
+                            roi_points = np.array([(int(face_landmarks.landmark[i].x * frame.shape[1]), int(face_landmarks.landmark[i].y * frame.shape[0])) for i in region_landmarks], np.int32)
+                            conv_hull = cv2.convexHull(roi_points)
+                            cv2.fillConvexPoly(mask, conv_hull, color=(255))
                         
-                        # Create a 3-channel mask for color images
-                        mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
-                        
-                        # Apply the mask to retain the ROI and make the rest black
+                        mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
                         frame = cv2.bitwise_and(frame, mask_3channel)
                 else:
                     print("No face detected in the frame. Appending the whole frame.")
