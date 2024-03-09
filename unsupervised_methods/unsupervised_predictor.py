@@ -20,6 +20,7 @@ def unsupervised_predict(config, data_loader, method_name):
     predict_hr_fft_all = []
     gt_hr_fft_all = []
     SNR_all = []
+    MACC_all = []
     sbar = tqdm(data_loader["unsupervised"], ncols=80)
     for _, test_batch in enumerate(sbar):
         batch_size = test_batch[0].shape[0]
@@ -57,17 +58,19 @@ def unsupervised_predict(config, data_loader, method_name):
                     continue
 
                 if config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                    gt_hr, pre_hr, SNR = calculate_metric_per_video(BVP_window, label_window, diff_flag=False,
+                    gt_hr, pre_hr, SNR, macc = calculate_metric_per_video(BVP_window, label_window, diff_flag=False,
                                                                     fs=config.UNSUPERVISED.DATA.FS, hr_method='Peak')
                     gt_hr_peak_all.append(gt_hr)
                     predict_hr_peak_all.append(pre_hr)
                     SNR_all.append(SNR)
+                    MACC_all.append(macc)
                 elif config.INFERENCE.EVALUATION_METHOD == "FFT":
-                    gt_fft_hr, pre_fft_hr, SNR = calculate_metric_per_video(BVP_window, label_window, diff_flag=False,
+                    gt_fft_hr, pre_fft_hr, SNR, macc = calculate_metric_per_video(BVP_window, label_window, diff_flag=False,
                                                                     fs=config.UNSUPERVISED.DATA.FS, hr_method='FFT')
                     gt_hr_fft_all.append(gt_fft_hr)
                     predict_hr_fft_all.append(pre_fft_hr)
                     SNR_all.append(SNR)
+                    MACC_all.append(macc)
                 else:
                     raise ValueError("Inference evaluation method name wrong!")
     print("Used Unsupervised Method: " + method_name)
@@ -82,6 +85,7 @@ def unsupervised_predict(config, data_loader, method_name):
         predict_hr_peak_all = np.array(predict_hr_peak_all)
         gt_hr_peak_all = np.array(gt_hr_peak_all)
         SNR_all = np.array(SNR_all)
+        MACC_all = np.array(MACC_all)
         num_test_samples = len(predict_hr_peak_all)
         for metric in config.UNSUPERVISED.METRICS:
             if metric == "MAE":
@@ -105,6 +109,10 @@ def unsupervised_predict(config, data_loader, method_name):
                 SNR_FFT = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_FFT, standard_error))
+            elif metric == "MACC":
+                MACC_avg = np.mean(MACC_all)
+                standard_error = np.std(MACC_all) / np.sqrt(num_test_samples)
+                print("MACC (avg): {0} +/- {1}".format(MACC_avg, standard_error))
             elif "BA" in metric:
                 compare = BlandAltman(gt_hr_peak_all, predict_hr_peak_all, config, averaged=True)
                 compare.scatter_plot(
@@ -125,6 +133,7 @@ def unsupervised_predict(config, data_loader, method_name):
         predict_hr_fft_all = np.array(predict_hr_fft_all)
         gt_hr_fft_all = np.array(gt_hr_fft_all)
         SNR_all = np.array(SNR_all)
+        MACC_all = np.array(MACC_all)
         num_test_samples = len(predict_hr_fft_all)
         for metric in config.UNSUPERVISED.METRICS:
             if metric == "MAE":
@@ -148,6 +157,10 @@ def unsupervised_predict(config, data_loader, method_name):
                 SNR_PEAK = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_PEAK, standard_error))
+            elif metric == "MACC":
+                MACC_avg = np.mean(MACC_all)
+                standard_error = np.std(MACC_all) / np.sqrt(num_test_samples)
+                print("MACC (avg): {0} +/- {1}".format(MACC_avg, standard_error))
             elif "BA" in metric:
                 compare = BlandAltman(gt_hr_fft_all, predict_hr_fft_all, config, averaged=True)
                 compare.scatter_plot(

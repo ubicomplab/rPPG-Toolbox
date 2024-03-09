@@ -7,7 +7,7 @@ import scipy
 import scipy.io
 from scipy.signal import butter
 from scipy.sparse import spdiags
-
+from copy import deepcopy
 
 def _next_power_of_2(x):
     """Calculate the nearest power of 2."""
@@ -48,6 +48,30 @@ def _calculate_peak_hr(ppg_signal, fs):
     ppg_peaks, _ = scipy.signal.find_peaks(ppg_signal)
     hr_peak = 60 / (np.mean(np.diff(ppg_peaks)) / fs)
     return hr_peak
+
+def _compute_macc(pred_signal, gt_signal):
+    """Calculate maximum amplitude of cross correlation (MACC) by computing correlation at all time lags.
+        Args:
+            pred_ppg_signal(np.array): predicted PPG signal 
+            label_ppg_signal(np.array): ground truth, label PPG signal
+        Returns:
+            MACC(float): Maximum Amplitude of Cross-Correlation
+    """
+    pred = deepcopy(pred_signal)
+    gt = deepcopy(gt_signal)
+    pred = np.squeeze(pred)
+    gt = np.squeeze(gt)
+    min_len = np.min((len(pred), len(gt)))
+    pred = pred[:min_len]
+    gt = gt[:min_len]
+    lags = np.arange(0, len(pred)-1, 1)
+    tlcc_list = []
+    for lag in lags:
+        cross_corr = np.abs(np.corrcoef(
+            pred, np.roll(gt, lag))[0][1])
+        tlcc_list.append(cross_corr)
+    macc = max(tlcc_list)
+    return macc
 
 def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.5):
     """Calculate SNR as the ratio of the area under the curve of the frequency spectrum around the first and second harmonics 
@@ -110,6 +134,9 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
         [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2], btype='bandpass')
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
+    
+    macc = _compute_macc(predictions, labels)
+
     if hr_method == 'FFT':
         hr_pred = _calculate_fft_hr(predictions, fs=fs)
         hr_label = _calculate_fft_hr(labels, fs=fs)
@@ -119,4 +146,4 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
     else:
         raise ValueError('Please use FFT or Peak to calculate your HR.')
     SNR = _calculate_SNR(predictions, hr_label, fs=fs)
-    return hr_label, hr_pred, SNR
+    return hr_label, hr_pred, SNR, macc

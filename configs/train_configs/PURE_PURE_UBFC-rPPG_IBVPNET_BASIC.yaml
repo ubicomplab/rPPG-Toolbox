@@ -2,22 +2,22 @@ BASE: ['']
 TOOLBOX_MODE: "train_and_test"  # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
-  EPOCHS: 50
+  EPOCHS: 30
   LR: 9e-3
-  MODEL_FILE_NAME: IBVP_IBVP_PURE_ibvpnet_diffnormalized
+  MODEL_FILE_NAME: PURE_PURE_UBFC_physnet_diffnormalized
   PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
-    DATASET: IBVP
-    DO_PREPROCESS: False                # if first time, should be true
+    DATASET: PURE
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/home/jitesh/Documents/IBVP_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/mnt/sda/data/jitesh/IBVP_Dataset/prep"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/prep"    # Processed dataset save path, need to be updated    
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 0.8
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use ibvpnet, should be DiffNormalized
+      DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
@@ -37,16 +37,16 @@ TRAIN:
 VALID:
   DATA:
     FS: 30
-    DATASET: IBVP
-    DO_PREPROCESS: False                # if first time, should be true
+    DATASET: PURE
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/home/jitesh/Documents/IBVP_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/mnt/sda/data/jitesh/IBVP_Dataset/prep"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/prep"    # Processed dataset save path, need to be updated    
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use ibvpnet, should be DiffNormalized
+      DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
@@ -65,19 +65,19 @@ VALID:
         W: 72
 TEST:
   METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA', 'MACC']
-  USE_LAST_EPOCH: False                   # to use provided validation dataset to find the best epoch, should be false
+  USE_LAST_EPOCH: True                   # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
-    DATASET: PURE
+    DATASET: UBFC-rPPG
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/prep"    # Processed dataset save path, need to be updated    
+    DATA_PATH: "/mnt/sda/data/jitesh/UBFC-rPPG/data"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/mnt/sda/data/jitesh/UBFC-rPPG/prep"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use ibvpnet, should be DiffNormalized
+      DATA_TYPE: ['DiffNormalized']         #if use physnet, should be DiffNormalized
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
@@ -99,8 +99,8 @@ LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: iBVPNet
-  IBVPNET:
+  NAME: Physnet
+  PHYSNET:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4
@@ -108,4 +108,4 @@ INFERENCE:
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
     WINDOW_SIZE: 10        # In seconds
-  MODEL_PATH: "./final_model_release/IBVP_iBVPNet_DiffNormalized.pth"
+  MODEL_PATH: "./final_model_release/PURE_iBVPNet_DiffNormalized.pth"
