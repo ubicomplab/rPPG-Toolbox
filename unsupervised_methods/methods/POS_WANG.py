@@ -20,7 +20,7 @@ def _process_video(frames):
     return np.asarray(RGB)
 
 
-def POS_WANG(frames, fs):
+def POS_WANG(frames, fs, LPF=0.75, HPF=3., WinSec=1.6):
     WinSec = 1.6
     RGB = _process_video(frames)
     N = RGB.shape[0]
@@ -42,7 +42,7 @@ def POS_WANG(frames, fs):
     BVP = H
     BVP = utils.detrend(np.mat(BVP).H, 100)
     BVP = np.asarray(np.transpose(BVP))[0]
-    b, a = signal.butter(1, [0.75 / fs * 2, 3 / fs * 2], btype='bandpass')
+    b, a = signal.butter(1, [LPF / fs * 2, HPF / fs * 2], btype='bandpass')
     BVP = signal.filtfilt(b, a, BVP.astype(np.double))
     return BVP
 

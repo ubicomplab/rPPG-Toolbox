@@ -1,0 +1,62 @@
+BASE: ['']
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
+TEST:
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
+  USE_LAST_EPOCH: True
+  OUTPUT_SAVE_DIR: "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data"
+  DATA:
+    FILTERING:
+      USE_EXCLUSION_LIST: True
+      EXCLUSION_LIST: [
+        # Face detection failed - Defective videos - Defective PPG signal:
+        'subject7_driving_small_motion_975',
+        'subject7_driving_still_975',
+        'subject6_garage_large_motion_975',
+        'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
+        'subject5_garage_still_975', 'subject6_garage_still_975',
+        'subject12'
+      ]
+      SELECT_TASKS: True
+      TASK_LIST: ['subject13', 'subject14', 'subject15']
+    FS: 30
+    DATASET: MR-NIRP
+    DO_PREPROCESS: False                    # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/mimer/NOBACKUP/groups/naiss2024-23-123/MR-NIRP"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data/PreprocessedData"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "MR-NIRP_DiffNormalized-Standardized_DiffNormalized"
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: [ 'DiffNormalized', 'Standardized' ]
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 900
+      CROP_FACE:
+        DO_CROP_FACE: True
+        BACKEND: 'RF'    # HC for Haar Cascade, RF for RetinaFace
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 72
+        W: 72
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+LOG:
+  PATH: /mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data/runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: Tscan
+  TSCAN:
+    FRAME_DEPTH: 10
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: FFT        # "FFT" or "peak detection"
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: True        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
+  MODEL_PATH:   "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/models/MR-NIRP_TSCAN_FOLD5.pth"

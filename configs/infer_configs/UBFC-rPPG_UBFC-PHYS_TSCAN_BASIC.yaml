@@ -38,7 +38,7 @@ TEST:
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
-          DO_DYNAMIC_DETECTION: True
+          DO_DYNAMIC_DETECTION: False
           DYNAMIC_DETECTION_FREQUENCY : 35
           USE_MEDIAN_FACE_BOX: True    # This should be used ONLY if dynamic detection is used
       RESIZE:

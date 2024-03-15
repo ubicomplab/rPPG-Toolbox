@@ -1,5 +1,4 @@
 """ The main function of rPPG deep learning pipeline."""
-
 import argparse
 import random
 import time
@@ -130,8 +129,8 @@ if __name__ == "__main__":
 
     # configurations.
     config = get_config(args)
-    print('Configuration:')
-    print(config, end='\n\n')
+    # print('Configuration:')
+    # print(config, end='\n\n')
 
     data_loader_dict = dict() # dictionary of data loaders 
     if config.TOOLBOX_MODE == "train_and_test":
@@ -150,6 +149,8 @@ if __name__ == "__main__":
             train_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.TRAIN.DATA.DATASET == "UBFC-PHYS":
             train_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.TRAIN.DATA.DATASET == "MR-NIRP":
+            train_loader = data_loader.MRNIRPLoader.MRNIRPLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
                              SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
@@ -188,6 +189,8 @@ if __name__ == "__main__":
             valid_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.VALID.DATA.DATASET == "UBFC-PHYS":
             valid_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.VALID.DATA.DATASET == "MR-NIRP":
+            valid_loader = data_loader.MRNIRPLoader.MRNIRPLoader
         elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
             raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
@@ -228,6 +231,8 @@ if __name__ == "__main__":
             test_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.TEST.DATA.DATASET == "UBFC-PHYS":
             test_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.TEST.DATA.DATASET == "MR-NIRP":
+            test_loader = data_loader.MRNIRPLoader.MRNIRPLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
                              SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
@@ -267,6 +272,8 @@ if __name__ == "__main__":
             unsupervised_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         elif config.UNSUPERVISED.DATA.DATASET == "UBFC-PHYS":
             unsupervised_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.UNSUPERVISED.DATA.DATASET == "MR-NIRP":
+            unsupervised_loader = data_loader.MRNIRPLoader.MRNIRPLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
                              SCAMPS, BP4D+, and UBFC-PHYS.")

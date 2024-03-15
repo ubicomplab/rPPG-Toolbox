@@ -23,23 +23,24 @@ class PhysnetTrainer(BaseTrainer):
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
-        self.num_of_gpu = config.NUM_OF_GPU_TRAIN
+        self.num_of_gpu = config.NUM_OF_GPU_TRAIN if config.NUM_OF_GPU_TRAIN > 0 else 1
         self.base_len = self.num_of_gpu
         self.config = config
         self.min_valid_loss = None
         self.best_epoch = 0
 
-        self.model = PhysNet_padding_Encoder_Decoder_MAX(
-            frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
+        self.model = PhysNet_padding_Encoder_Decoder_MAX(frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
 
         if config.TOOLBOX_MODE == "train_and_test":
+            if self.config.INFERENCE.MODEL_PATH != "":
+                self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
+                print("Loaded Checkpoint:", self.config.INFERENCE.MODEL_PATH)
+
             self.num_train_batches = len(data_loader["train"])
             self.loss_model = Neg_Pearson()
-            self.optimizer = optim.Adam(
-                self.model.parameters(), lr=config.TRAIN.LR)
+            self.optimizer = optim.Adam(self.model.parameters(), lr=config.TRAIN.LR)
             # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
-            self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
-                self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
+            self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
         elif config.TOOLBOX_MODE == "only_test":
             pass
         else:
@@ -149,7 +150,7 @@ class PhysnetTrainer(BaseTrainer):
         if self.config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
-            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH))
+            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
             print("Testing uses pretrained model!")
             print(self.config.INFERENCE.MODEL_PATH)
         else:
@@ -158,13 +159,13 @@ class PhysnetTrainer(BaseTrainer):
                 self.model_dir, self.model_file_name + '_Epoch' + str(self.max_epoch_num - 1) + '.pth')
                 print("Testing uses last epoch as non-pretrained model!")
                 print(last_epoch_model_path)
-                self.model.load_state_dict(torch.load(last_epoch_model_path))
+                self.model.load_state_dict(torch.load(last_epoch_model_path, map_location=self.device))
             else:
                 best_model_path = os.path.join(
                     self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
                 print("Testing uses best epoch selected using model selection as non-pretrained model!")
                 print(best_model_path)
-                self.model.load_state_dict(torch.load(best_model_path))
+                self.model.load_state_dict(torch.load(best_model_path, map_location=self.device))
 
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
@@ -172,8 +173,7 @@ class PhysnetTrainer(BaseTrainer):
         with torch.no_grad():
             for _, test_batch in enumerate(tqdm(data_loader["test"], ncols=80)):
                 batch_size = test_batch[0].shape[0]
-                data, label = test_batch[0].to(
-                    self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
+                data, label = test_batch[0].to(self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
                 pred_ppg_test, _, _, _ = self.model(data)
 
                 if self.config.TEST.OUTPUT_SAVE_DIR:
