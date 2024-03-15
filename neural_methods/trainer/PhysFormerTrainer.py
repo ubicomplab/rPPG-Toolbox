@@ -52,12 +52,16 @@ class PhysFormerTrainer(BaseTrainer):
 
         if config.TOOLBOX_MODE == "train_and_test":
             self.model = ViT_ST_ST_Compact3_TDC_gra_sharp(
-                image_size=(self.chunk_len,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
+                image_size=(config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
                 patches=(self.patch_size,) * 3, dim=self.dim, ff_dim=self.ff_dim, num_heads=self.num_heads, num_layers=self.num_layers, 
                 dropout_rate=self.dropout_rate, theta=self.theta).to(self.device)
             
             if config.NUM_OF_GPU_TRAIN > 0:
                 self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+
+            if self.config.INFERENCE.MODEL_PATH != "":
+                self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
+                print("Loaded Checkpoint:", self.config.INFERENCE.MODEL_PATH)
 
             self.num_train_batches = len(data_loader["train"])
             self.criterion_reg = torch.nn.MSELoss()
@@ -71,7 +75,7 @@ class PhysFormerTrainer(BaseTrainer):
             self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=50, gamma=0.5)
         elif config.TOOLBOX_MODE == "only_test":
             self.model = ViT_ST_ST_Compact3_TDC_gra_sharp(
-                image_size=(self.chunk_len,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
+                image_size=(config.TEST.DATA.PREPROCESS.CHUNK_LENGTH,config.TEST.DATA.PREPROCESS.RESIZE.H,config.TEST.DATA.PREPROCESS.RESIZE.W), 
                 patches=(self.patch_size,) * 3, dim=self.dim, ff_dim=self.ff_dim, num_heads=self.num_heads, num_layers=self.num_layers, 
                 dropout_rate=self.dropout_rate, theta=self.theta).to(self.device)
             
@@ -220,14 +224,7 @@ class PhysFormerTrainer(BaseTrainer):
         if self.config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
-            state_dict = torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device)
-
-            new_state_dict = OrderedDict()
-            for k, v in state_dict.items():
-                name = k[7:] # remove 'module.' of dataparallel
-                new_state_dict[name]=v
-
-            self.model.load_state_dict(new_state_dict, strict=False)
+            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
             print(self.config.INFERENCE.MODEL_PATH)
         else:
@@ -236,13 +233,13 @@ class PhysFormerTrainer(BaseTrainer):
                 self.model_dir, self.model_file_name + '_Epoch' + str(self.max_epoch_num - 1) + '.pth')
                 print("Testing uses last epoch as non-pretrained model!")
                 print(last_epoch_model_path)
-                self.model.load_state_dict(torch.load(last_epoch_model_path, map_location=self.device), strict=False)
+                self.model.load_state_dict(torch.load(last_epoch_model_path, map_location=self.device))
             else:
                 best_model_path = os.path.join(
                     self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
                 print("Testing uses best epoch selected using model selection as non-pretrained model!")
                 print(best_model_path)
-                self.model.load_state_dict(torch.load(best_model_path, map_location=self.device), strict=False)
+                self.model.load_state_dict(torch.load(best_model_path, map_location=self.device))
 
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
