@@ -35,6 +35,10 @@ class TscanTrainer(BaseTrainer):
         if config.TOOLBOX_MODE == "train_and_test":
             self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)            
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
+            
+            if self.config.INFERENCE.MODEL_PATH != "":
+                self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
+                print("Loaded Checkpoint:", self.config.INFERENCE.MODEL_PATH)
 
             self.num_train_batches = len(data_loader["train"])
             self.criterion = Neg_Pearson()
@@ -87,7 +91,7 @@ class TscanTrainer(BaseTrainer):
                         f'[{epoch}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
                     running_loss = 0.0
                 train_loss.append(loss.item())
-                tbar.set_postfix(loss=loss.item())
+                tbar.set_postfix({"loss": loss.item(), "lr": self.optimizer.param_groups[0]["lr"]})
 
             # Append the mean training loss for the epoch
             mean_training_losses.append(np.mean(train_loss))

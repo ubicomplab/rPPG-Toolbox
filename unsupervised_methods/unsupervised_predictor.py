@@ -15,7 +15,7 @@ def unsupervised_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
     if data_loader["unsupervised"] is None:
         raise ValueError("No data for unsupervised method predicting")
-    print("===Unsupervised Method ( " + method_name + " ) Predicting ===")
+    print("\n===Unsupervised Method ( " + method_name + " ) Predicting ===")
 
     predict_hr_all = []
     gt_hr_all = []
@@ -107,23 +107,28 @@ def unsupervised_predict(config, data_loader, method_name):
             MAE = np.mean(np.abs(predict_hr_all - gt_hr_all))
             standard_error = np.std(np.abs(predict_hr_all - gt_hr_all)) / np.sqrt(num_test_samples)
             print("MAE: {0} +/- {1}".format(MAE, standard_error))
+            # print(MAE)
         elif metric == "RMSE":
             RMSE = np.sqrt(np.mean(np.square(predict_hr_all - gt_hr_all)))
             standard_error = np.std(np.square(predict_hr_all - gt_hr_all)) / np.sqrt(num_test_samples)
             print("RMSE: {0} +/- {1}".format(RMSE, standard_error))
+            # print(RMSE)
         elif metric == "MAPE":
             MAPE = np.mean(np.abs((predict_hr_all - gt_hr_all) / gt_hr_all)) * 100
             standard_error = np.std(np.abs((predict_hr_all - gt_hr_all) / gt_hr_all)) / np.sqrt(num_test_samples) * 100
             print("MAPE: {0} +/- {1}".format(MAPE, standard_error))
+            # print(MAPE)
         elif metric == "Pearson":
             Pearson = np.corrcoef(predict_hr_all, gt_hr_all)
             correlation_coefficient = Pearson[0][1]
             standard_error = np.sqrt((1 - correlation_coefficient**2) / (num_test_samples - 2))
             print("Pearson: {0} +/- {1}".format(correlation_coefficient, standard_error))
+            # print(correlation_coefficient)
         elif metric == "SNR":
             SNR = np.mean(SNR_all)
             standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
             print("SNR: {0} +/- {1} (dB)".format(SNR, standard_error))
+            # print(SNR)
         elif "BA" in metric:
             compare = BlandAltman(gt_hr_all, predict_hr_all, config, averaged=True)
             compare.scatter_plot(

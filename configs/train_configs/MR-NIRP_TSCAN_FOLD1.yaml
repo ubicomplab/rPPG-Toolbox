@@ -12,14 +12,11 @@ TRAIN:
       EXCLUSION_LIST: [
         # Face detection failed - Defective videos - Defective PPG signal:
         'subject7_driving_small_motion_975',
-
         'subject7_driving_still_975',
-
+        'subject6_garage_large_motion_975',
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
-
         'subject5_garage_still_975', 'subject6_garage_still_975',
-
-        # 'subject12'
+        'subject12'
       ]
       SELECT_TASKS: True
       TASK_LIST: ['subject1', 'subject2', 'subject3', 'subject4', 'subject5', 'subject6', 'subject7', 'subject8', 'subject9', 'subject10', 'subject11', 'subject12']
@@ -56,14 +53,11 @@ VALID:
       EXCLUSION_LIST: [
         # Face detection failed - Defective videos - Defective PPG signal:
         'subject7_driving_small_motion_975',
-
         'subject7_driving_still_975',
-
+        'subject6_garage_large_motion_975',
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
-
         'subject5_garage_still_975', 'subject6_garage_still_975',
-
-        # 'subject12'
+        'subject12'
       ]
       SELECT_TASKS: True
       TASK_LIST: ['subject13', 'subject14', 'subject15']
@@ -102,14 +96,11 @@ TEST:
       EXCLUSION_LIST: [
         # Face detection failed - Defective videos - Defective PPG signal:
         'subject7_driving_small_motion_975',
-
         'subject7_driving_still_975',
-
+        'subject6_garage_large_motion_975',
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
-
         'subject5_garage_still_975', 'subject6_garage_still_975',
-
-        # 'subject12'
+        'subject12'
       ]
       SELECT_TASKS: True
       TASK_LIST: ['subject16', 'subject17', 'subject18', 'subject19']

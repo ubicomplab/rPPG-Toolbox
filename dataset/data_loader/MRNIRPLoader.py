@@ -95,7 +95,7 @@ class MRNIRPLoader(BaseLoader):
                 if input_name in self.filtering.EXCLUSION_LIST or subject_name in self.filtering.EXCLUSION_LIST or task in self.filtering.EXCLUSION_LIST or subject_task in self.filtering.EXCLUSION_LIST:
                     continue
 
-
+            # print(input_name)
             filtered_inputs.append(input)
 
         if not filtered_inputs:
@@ -185,9 +185,9 @@ class MRNIRPLoader(BaseLoader):
         
         return ppg, timestamps
     
-    
     @staticmethod
     def correct_irregular_sampling(ppg, timestamps, target_fs=30):
+        """Resampling functionality borrowed from: https://github.com/ToyotaResearchInstitute/RemotePPG"""
         resampled_ppg = []
         for curr_time in np.arange(0.0, timestamps[-1], 1.0/target_fs):
             time_diff = timestamps - curr_time
@@ -217,7 +217,7 @@ class MRNIRPLoader(BaseLoader):
                 
     #     for i in tqdm(range(file_num)):
     #         # Skip the subject2_garage_small_motion_940 corrupted video
-    #         if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
+    #         if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
     #             continue
             
     #         # Read Video Frames
@@ -242,8 +242,8 @@ class MRNIRPLoader(BaseLoader):
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """ invoked by preprocess_dataset for multi_process."""        
-        # Read Video Frames
-        if data_dirs[i]['index'] == "subject2_garage_small_motion_940" or 'large_motion' in data_dirs[i]['index']:
+        # Skip corrupted frames
+        if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
             return
         # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
         frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))

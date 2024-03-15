@@ -429,14 +429,14 @@ class BaseLoader(Dataset):
                 if results.multi_face_landmarks:
                     for face_landmarks in results.multi_face_landmarks:
                         if landmarks == []:
-                            landmarks = list(range(len(face_landmarks.landmark)))
+                            landmarks = [list(range(len(face_landmarks.landmark)))]
                         # Extract the coordinates for the landmarks of interest
                         for region_landmarks in landmarks:
                             roi_points = np.array([(int(face_landmarks.landmark[i].x * frame.shape[1]), int(face_landmarks.landmark[i].y * frame.shape[0])) for i in region_landmarks], np.int32)
                             conv_hull = cv2.convexHull(roi_points)
                             cv2.fillConvexPoly(mask, conv_hull, color=(255))
                         
-                        mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+                        mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
                         frame = cv2.bitwise_and(frame, mask_3channel)
                 else:
                     print("No face detected in the frame. Appending the whole frame.")

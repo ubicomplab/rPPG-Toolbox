@@ -2,31 +2,28 @@ BASE: ['']
 TOOLBOX_MODE: "unsupervised_method"      # "train_and_test"  or "only_test" or "unsupervised_method"
 UNSUPERVISED:
   METHOD: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
-  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
-  OUTPUT_SAVE_DIR: "D:/MR-NIRP/data"
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR']
+  OUTPUT_SAVE_DIR: "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data"
   DATA:
     FILTERING:
       USE_EXCLUSION_LIST: True
       EXCLUSION_LIST: [
         # Face detection failed - Defective videos - Defective PPG signal:
         'subject7_driving_small_motion_975',
-
         'subject7_driving_still_975',
-
+        'subject6_garage_large_motion_975',
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
-
         'subject5_garage_still_975', 'subject6_garage_still_975',
-
         # 'subject12'
       ]
-      SELECT_TASKS: True
-      TASK_LIST: ['garage_still']
+      SELECT_TASKS: False
+      TASK_LIST: []
     FS: 30
     DATASET: MR-NIRP
     DO_PREPROCESS: False                         # if first time, should be true
     DATA_FORMAT: NDHWC
-    DATA_PATH: "D:/MR-NIRP"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "D:/MR-NIRP/data/PreprocessedData"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/mimer/NOBACKUP/groups/naiss2024-23-123/MR-NIRP"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data/PreprocessedData"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: "MR-NIRP_Raw_Raw"
     BEGIN: 0.0
     END: 1.0

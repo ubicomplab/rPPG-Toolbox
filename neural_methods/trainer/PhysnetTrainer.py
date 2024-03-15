@@ -32,6 +32,10 @@ class PhysnetTrainer(BaseTrainer):
         self.model = PhysNet_padding_Encoder_Decoder_MAX(frames=config.MODEL.PHYSNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
 
         if config.TOOLBOX_MODE == "train_and_test":
+            if self.config.INFERENCE.MODEL_PATH != "":
+                self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
+                print("Loaded Checkpoint:", self.config.INFERENCE.MODEL_PATH)
+
             self.num_train_batches = len(data_loader["train"])
             self.loss_model = Neg_Pearson()
             self.optimizer = optim.Adam(self.model.parameters(), lr=config.TRAIN.LR)

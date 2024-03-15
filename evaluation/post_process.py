@@ -116,7 +116,7 @@ def _standardize_signal(signal):
 def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_bandpass=True, hr_method='FFT'):
     """Calculate video-level HR and SNR"""
     # bandpass filter between [0.75, 2.5] Hz equals [45, 150] beats per min
-    # bandpass filter between [0.13, 0.5] Hz equals [7.8, 30] beats per min
+    # bandpass filter between [0.-8, 0.5] Hz equals [4.8, 30] breaths per min
     low_pass = 0.75
     high_pass = 2.5
     order = 2
@@ -135,8 +135,8 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
         
-    predictions = _standardize_signal(predictions)
-    labels = _standardize_signal(labels)
+    # predictions = _standardize_signal(predictions)
+    # labels = _standardize_signal(labels)
         
     hr_pred = _calculate_hr(predictions, fs=fs, method=hr_method, low_pass=low_pass, high_pass=high_pass)
     hr_label = _calculate_hr(labels, fs=fs, method=hr_method, low_pass=low_pass, high_pass=high_pass)

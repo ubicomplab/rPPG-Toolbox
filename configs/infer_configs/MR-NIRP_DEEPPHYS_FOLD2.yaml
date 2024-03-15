@@ -10,14 +10,11 @@ TEST:
       EXCLUSION_LIST: [
         # Face detection failed - Defective videos - Defective PPG signal:
         'subject7_driving_small_motion_975',
-
         'subject7_driving_still_975',
-
+        'subject6_garage_large_motion_975',
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
-
         'subject5_garage_still_975', 'subject6_garage_still_975',
-
-        # 'subject12'
+        'subject12'
       ]
       SELECT_TASKS: True
       TASK_LIST: ['subject1', 'subject2', 'subject3', 'subject4']
