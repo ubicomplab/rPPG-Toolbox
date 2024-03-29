@@ -251,6 +251,11 @@ class PhysFormerTrainer(BaseTrainer):
                     self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
                 gra_sharp = 2.0
                 pred_ppg_test, _, _, _ = self.model(data, gra_sharp)
+                
+                if self.config.TEST.OUTPUT_SAVE_DIR:
+                    label = label.cpu()
+                    pred_ppg_test = pred_ppg_test.cpu()
+                
                 for idx in range(batch_size):
                     subj_index = test_batch[2][idx]
                     sort_index = int(test_batch[3][idx])

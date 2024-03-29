@@ -1,8 +1,8 @@
 BASE: ['']
-TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
-TEST:
-  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
-  USE_LAST_EPOCH: True                     # to use provided validation dataset to find the best epoch, should be false
+TOOLBOX_MODE: "unsupervised_method"      # "train_and_test"  or "only_test" or "unsupervised_method"
+UNSUPERVISED:
+  METHOD: ["ICA", "POS", "CHROM", "GREEN", "LGI", "PBV"]
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR']
   OUTPUT_SAVE_DIR: "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data"
   DATA:
     FILTERING:
@@ -14,25 +14,28 @@ TEST:
         'subject6_garage_large_motion_975',
         'subject2_garage_small_motion_940', 'subject6_garage_small_motion_975',
         'subject5_garage_still_975', 'subject6_garage_still_975',
-        'subject12'
+        # 'subject12'
       ]
       SELECT_TASKS: False
-      TASK_LIST: ['garage_still']
+      TASK_LIST: []
     FS: 30
     DATASET: MR-NIRP
-    DO_PREPROCESS: False               # if first time, should be true
-    DATA_FORMAT: NCDHW
+    DO_PREPROCESS: False                         # if first time, should be true
+    DATA_FORMAT: NDHWC
     DATA_PATH: "/mimer/NOBACKUP/groups/naiss2024-23-123/MR-NIRP"                     # Raw dataset path, need to be updated
     CACHED_PATH: "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data/PreprocessedData"    # Processed dataset save path, need to be updated
-    EXP_DATA_NAME: "MR-NIRP_DiffNormalized_DiffNormalized_PHYSFORMER"
+    EXP_DATA_NAME: "MR-NIRP_Raw_Raw"
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']
+      DATA_TYPE: ['Raw']
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
-      LABEL_TYPE: DiffNormalized
-      DO_CHUNK: True
-      CHUNK_LENGTH: 300
+      LABEL_TYPE: Raw
+      DO_CHUNK: False
+      CHUNK_LENGTH: 128
+      ROI:
+        EXTRACT_ROI: True
+        LANDMARKS: []   # Leave empy for all landmarks
       CROP_FACE:
         DO_CROP_FACE: True
         BACKEND: 'RF'    # HC for Haar Cascade, RF for RetinaFace
@@ -43,26 +46,13 @@ TEST:
           DYNAMIC_DETECTION_FREQUENCY : 30
           USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
       RESIZE:
-        H: 128
-        W: 128
-DEVICE: cuda:0
-NUM_OF_GPU_TRAIN: 1
+        H: 72
+        W: 72
 LOG:
   PATH: /mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data/runs/exp
-MODEL:
-  DROP_RATE: 0.1
-  NAME: PhysFormer
-  PHYSFORMER:                     # Probably need to update these in some meaningful way
-    PATCH_SIZE: 4
-    DIM: 96
-    FF_DIM: 144
-    NUM_HEADS: 4
-    NUM_LAYERS: 12
-    THETA: 0.7
 INFERENCE:
-  BATCH_SIZE: 4
-  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection" or "heartpy"
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: True        # Change this if you'd like an evaluation window smaller than the test video length
-    WINDOW_SIZE: 10        # In seconds
-  MODEL_PATH:   "/mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/rPPG-Toolbox/final_model_release/UBFC-rPPG_PhysFormer_DiffNormalized.pth"
+    WINDOW_SIZE: 10                 # In seconds
+    # WINDOW_OVERLAP: 100             # In frames

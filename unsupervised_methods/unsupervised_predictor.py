@@ -10,6 +10,33 @@ from unsupervised_methods.methods.POS_WANG import *
 from tqdm import tqdm
 from evaluation.BlandAltmanPy import BlandAltman
 
+import os
+import pickle
+import torch
+
+
+def save_test_outputs(predictions, labels, config, method_name):
+
+    output_dir = config.UNSUPERVISED.OUTPUT_SAVE_DIR
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+    
+    filename_id = method_name + "_" + config.UNSUPERVISED.DATA.DATASET
+
+    output_path = os.path.join(output_dir, filename_id + '_outputs.pickle')
+
+    data = dict()
+    data['predictions'] = predictions
+    data['labels'] = labels
+    data['label_type'] = config.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE
+    data['fs'] = config.UNSUPERVISED.DATA.FS
+
+    with open(output_path, 'wb') as handle: # save out frame dict pickle file
+        pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    print('Saving outputs to:', output_path)
+    print('')
+
 
 def unsupervised_predict(config, data_loader, method_name):
     """ Model evaluation on the testing dataset."""
@@ -20,6 +47,9 @@ def unsupervised_predict(config, data_loader, method_name):
     predict_hr_all = []
     gt_hr_all = []
     SNR_all = []
+    
+    predictions = dict()
+    labels = dict()
     
     sbar = tqdm(data_loader["unsupervised"], ncols=80)
     for _, test_batch in enumerate(sbar):
@@ -41,6 +71,20 @@ def unsupervised_predict(config, data_loader, method_name):
                 BVP = PBV(data_input)
             else:
                 raise ValueError("unsupervised method name wrong!")
+            
+            subj_index = test_batch[2][idx]
+            sort_index = int(test_batch[3][idx])
+            if subj_index not in predictions.keys():
+                predictions[subj_index] = dict()
+                labels[subj_index] = dict()
+                
+            if config.UNSUPERVISED.DATA.PREPROCESS.DO_CHUNK:
+                chunk_len = config.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH
+                predictions[subj_index][sort_index] = torch.from_numpy(BVP[idx * chunk_len:(idx + 1) * chunk_len].copy())
+                labels[subj_index][sort_index] = torch.from_numpy(labels_input[idx * chunk_len:(idx + 1) * chunk_len].copy())
+            else:
+                predictions[subj_index][sort_index] = torch.from_numpy(BVP.copy())
+                labels[subj_index][sort_index] = torch.from_numpy(labels_input.copy())
             
             video_frame_size = test_batch[0].shape[1]
             if config.INFERENCE.EVALUATION_WINDOW.USE_SMALLER_WINDOW:
@@ -146,3 +190,5 @@ def unsupervised_predict(config, data_loader, method_name):
         else:
             raise ValueError("Wrong Test Metric Type")
         
+    save_test_outputs(predictions, labels, config, method_name)
+    

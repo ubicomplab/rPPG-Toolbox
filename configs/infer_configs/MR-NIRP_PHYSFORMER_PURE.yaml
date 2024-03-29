@@ -48,7 +48,7 @@ TEST:
 DEVICE: cuda:0
 NUM_OF_GPU_TRAIN: 1
 LOG:
-  PATH: /mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data/runs/exp/MR-NIRP_DiffNormalized_DiffNormalized_PHYSFORMER
+  PATH: /mimer/NOBACKUP/groups/naiss2024-23-123/Dimitrios_Salvija/data/runs/exp
 MODEL:
   DROP_RATE: 0.1
   NAME: PhysFormer
