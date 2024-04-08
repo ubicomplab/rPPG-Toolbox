@@ -1,8 +1,12 @@
 """The dataloader for IBVP datasets.
 
-Details for the IBVP Dataset see https://www.preprints.org/manuscript/202402.0504/v1
-If you use this dataset, please cite the following publication:
-Joshi, J.N.; Cho, Y. iBVP Dataset: RGB-Thermal rPPG Dataset With High Resolution Signal Quality Labels. Preprints 2024, 2024020504. https://doi.org/10.20944/preprints202402.0504.v1
+Details for the IBVP Dataset see https://doi.org/10.3390/electronics13071334
+If you use this dataset, please cite the following publications:
+
+Joshi, Jitesh, and Youngjun Cho. 2024. "Imaging Blood Volume Pulse Dataset: RGB-Thermal Remote Photoplethysmography Dataset with High-Resolution Signal-Quality Labels" Electronics 13, no. 7: 1334. https://doi.org/10.3390/electronics13071334 
+
+Joshi, Jitesh, Katherine Wang, and Youngjun Cho. 2023. "PhysioKit: An Open-Source, Low-Cost Physiological Computing Toolkit for Single- and Multi-User Studies" Sensors 23, no. 19: 8244. https://doi.org/10.3390/s23198244 
+
 """
 import glob
 import os

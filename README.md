@@ -39,6 +39,7 @@ rPPG-Toolbox currently supports the following algorithms:
   - [BigSmall: Efficient Multi-Task Learning for Disparate Spatial and Temporal Physiological Measurements
  (BigSmall)](https://arxiv.org/abs/2303.11573), by Narayanswamy *et al.*, 2023
   - [PhysFormer: Facial Video-based Physiological Measurement with Temporal Difference Transformer (PhysFormer)](https://openaccess.thecvf.com/content/CVPR2022/papers/Yu_PhysFormer_Facial_Video-Based_Physiological_Measurement_With_Temporal_Difference_Transformer_CVPR_2022_paper.pdf), by Yu *et al.*, 2022
+  - [iBVPNet: 3D-CNN architecture introduced in iBVP dataset paper](https://doi.org/10.3390/electronics13071334), by Joshi *et al.*, 2024
 
 # :file_folder: Datasets
 The toolbox supports six datasets, namely SCAMPS, UBFC-rPPG, PURE, BP4D+, UBFC-Phys, and MMPD. Please cite the corresponding papers when using these datasets. For now, we recommend training with UBFC-rPPG, PURE, or SCAMPS due to the level of synchronization and volume of the datasets. **To use these datasets in a deep learning model, you should organize the files as follows.**
@@ -183,6 +184,25 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
           |       |...
           |       |-- bvp_sn_T1.csv
           |       |-- bvp_sn_T2.csv
+    -----------------
+
+* [iBVP](https://youngjuncho.com/datasets/)
+  * Joshi, J.; Cho, Y. Imaging Blood Volume Pulse Dataset: RGB-Thermal Remote Photoplethysmography Dataset with High-Resolution Signal-Quality Labels. Electronics 2024, 13, 1334.
+    -----------------
+          IBVP_Dataset/
+          |   |-- p01_a/
+          |      |-- p01_a_rgb/
+          |      |-- p01_a_t/
+          |      |-- p01_a_bvp.csv
+          |   |-- p01_b/
+          |      |-- p01_b_rgb/
+          |      |-- p01_b_t/
+          |      |-- p01_b_bvp.csv
+          |...
+          |   |-- pii_x/
+          |      |-- pii_x_rgb/
+          |      |-- pii_x_t/
+          |      |-- pii_x_bvp.csv
     -----------------
 
 ## :bar_chart: Benchmarks
