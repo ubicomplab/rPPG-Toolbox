@@ -11,8 +11,8 @@ TRAIN:
     DATASET: PURE
     DO_PREPROCESS: False               # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/prep"    # Processed dataset save path, need to be updated
+    DATA_PATH: "data/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "data/PURE_Dataset/prep"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 0.8
@@ -40,8 +40,8 @@ VALID:
     DATASET: PURE
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/prep"    # Processed dataset save path, need to be updated
+    DATA_PATH: "data/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "data/PURE_Dataset/prep"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
