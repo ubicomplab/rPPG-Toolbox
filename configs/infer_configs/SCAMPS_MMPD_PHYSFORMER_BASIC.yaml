@@ -44,10 +44,15 @@ NUM_OF_GPU_TRAIN: 1
 LOG:
   PATH: runs/exp
 MODEL:
-  DROP_RATE: 0.2
-  NAME: Tscan
-  TSCAN:
-    FRAME_DEPTH: 10
+  DROP_RATE: 0.1
+  NAME: PhysFormer
+  PHYSFORMER:                     # Probably need to update these in some meaningful way
+    PATCH_SIZE: 4
+    DIM: 96
+    FF_DIM: 144
+    NUM_HEADS: 4
+    NUM_LAYERS: 12
+    THETA: 0.7
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
