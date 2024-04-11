@@ -3,7 +3,7 @@
 Details for the IBVP Dataset see https://doi.org/10.3390/electronics13071334
 If you use this dataset, please cite the following publications:
 
-Joshi, Jitesh, and Youngjun Cho. 2024. "Imaging Blood Volume Pulse Dataset: RGB-Thermal Remote Photoplethysmography Dataset with High-Resolution Signal-Quality Labels" Electronics 13, no. 7: 1334. https://doi.org/10.3390/electronics13071334 
+Joshi, Jitesh, and Youngjun Cho. 2024. "iBVP Dataset: RGB-Thermal rPPG Dataset with High Resolution Signal Quality Labels" Electronics 13, no. 7: 1334. https://doi.org/10.3390/electronics13071334 
 
 Joshi, Jitesh, Katherine Wang, and Youngjun Cho. 2023. "PhysioKit: An Open-Source, Low-Cost Physiological Computing Toolkit for Single- and Multi-User Studies" Sensors 23, no. 19: 8244. https://doi.org/10.3390/s23198244 
 

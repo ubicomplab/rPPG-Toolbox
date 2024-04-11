@@ -187,7 +187,7 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
     -----------------
 
 * [iBVP](https://github.com/PhysiologicAILab/iBVP-Dataset)
-    * Joshi, J.; Cho, Y. Imaging Blood Volume Pulse Dataset: RGB-Thermal Remote Photoplethysmography Dataset with High-Resolution Signal-Quality Labels. Electronics 2024, 13, 1334.
+  * Joshi, J.; Cho, Y. iBVP Dataset: RGB-Thermal rPPG Dataset with High Resolution Signal Quality Labels. Electronics 2024, 13, 1334.
     -----------------
           IBVP_Dataset/
           |   |-- p01_a/
