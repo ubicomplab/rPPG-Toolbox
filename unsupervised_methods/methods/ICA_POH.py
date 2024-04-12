@@ -11,10 +11,7 @@ from scipy import signal
 from unsupervised_methods import utils
 
 
-def ICA_POH(frames, FS):
-    # Cut off frequency.
-    LPF = 0.7
-    HPF = 2.5
+def ICA_POH(frames, FS, LPF=0.7, HPF=2.5):
     RGB = process_video(frames)
 
     NyquistF = 1 / 2 * FS
