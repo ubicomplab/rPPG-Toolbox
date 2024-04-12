@@ -26,20 +26,37 @@ class MRNIRPLoader(BaseLoader):
                 data_path(str): path of a folder which stores raw video and bvp data.
                 e.g. data_path should be "RawData" for below dataset structure:
                 -----------------
-                     RawData/
-                     |   |-- subject1/
-                     |       |-- NIR.zip
-                     |       |-- RGB.zip
-                     |       |-- PulseOX.zip
-                     |   |-- subject2/
-                     |       |-- NIR.zip
-                     |       |-- RGB.zip
-                     |       |-- PulseOX.zip
-                     |...
-                     |   |-- subjectn/
-                     |       |-- NIR.zip
-                     |       |-- RGB.zip
-                     |       |-- PulseOX.zip
+                    RawData/
+                    |   |-- subject1/
+                    |       |-- subject1_driving_large_motion_975
+                    |          |-- NIR.zip
+                    |          |-- RGB.zip
+                    |          |-- PulseOX.zip
+                    |       |-- subject1_driving_small_motion_975
+                    |          |...
+                    |       |-- subject1_driving_small_motion_940
+                    |          |...
+                    |       |-- subject1_driving_still_940
+                    |          |...
+                    |       |-- subject1_driving_still_975
+                    |          |...
+                    |       |-- subject1_garage_large_motion_975
+                    |          |...
+                    |       |-- subject1_garage_large_motion_940
+                    |          |...
+                    |       |-- subject1_garage_small_motion_975
+                    |          |...
+                    |       |-- subject1_garage_small_motion_940
+                    |          |...
+                    |       |-- subject1_garage_still_974
+                    |          |...
+                    |       |-- subject1_garage_still_940
+                    |          |...
+                    |   |-- subject2/
+                    |       |...
+                    |...
+                    |   |-- subjectn/
+                    |       |...
                 -----------------
                 name(string): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
