@@ -29,6 +29,7 @@ rPPG-Toolbox currently supports the following algorithms:
   - [Local group invariance for heart rate estimation from face videos in the wild (LGI)](https://openaccess.thecvf.com/content_cvpr_2018_workshops/papers/w27/Pilz_Local_Group_Invariance_CVPR_2018_paper.pdf), by Pilz *et al.*, 2018
   - [Improved motion robustness of remote-PPG by using the blood volume pulse signature (PBV)](https://iopscience.iop.org/article/10.1088/0967-3334/35/9/1913), by Haan *et al.*, 2014
   - [Algorithmic principles of remote ppg (POS)](https://ieeexplore.ieee.org/document/7565547), by Wang *et al.*, 2016
+  - [Face2PPG: An Unsupervised Pipeline for Blood Volume Pulse Extraction From Faces (OMIT)](https://ieeexplore.ieee.org/document/10227326), by Álvarez *et al.*, 2023
 
 
 * Supervised Neural Algorithms 
@@ -364,7 +365,7 @@ Here are some explanation of parameters:
 
 # :chart_with_upwards_trend: Adding a New Unsupervised Algorithms
 
-* STEP 1: Define a algorithm in a new python file in `neural_methods/model`, e.g. NewModel.py.
+* STEP 1: Define a algorithm in a new python file in `unsupervised_methods/methods`, e.g. NewMethod.py.
 
 * STEP 2: Add logic to `main.py` to use the models in the following `unsupervised_method_inference` function. 
 
