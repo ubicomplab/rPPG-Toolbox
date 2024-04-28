@@ -116,6 +116,8 @@ def unsupervised_method_inference(config, data_loader):
             unsupervised_predict(config, data_loader, "LGI")
         elif unsupervised_method == "PBV":
             unsupervised_predict(config, data_loader, "PBV")
+        elif unsupervised_method == "OMIT":
+            unsupervised_predict(config, data_loader, "OMIT")
         else:
             raise ValueError("Not supported unsupervised method!")
 
