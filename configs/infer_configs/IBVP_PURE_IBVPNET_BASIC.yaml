@@ -14,7 +14,7 @@ TEST:
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use ibvpnet, should be DiffNormalized
+      DATA_TYPE: ['DiffNormalized']         #if use iBVPNet, should be DiffNormalized
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
@@ -37,7 +37,7 @@ LOG:
 MODEL:
   DROP_RATE: 0.2
   NAME: iBVPNet
-  iBVPNET:
+  iBVPNet:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4
@@ -45,4 +45,4 @@ INFERENCE:
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
     WINDOW_SIZE: 10        # In seconds
-  MODEL_PATH: "./final_model_release/iBVP_iBVPNet_diffnormalized.pth"
+  MODEL_PATH: "./final_model_release/iBVP_iBVPNet_DiffNormalized.pth"
