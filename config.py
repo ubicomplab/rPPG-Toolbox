@@ -291,8 +291,8 @@ _C.MODEL.PHYSNET.FRAME_NUM = 64
 # -----------------------------------------------------------------------------
 # Specific parameters for iBVPNet parameters
 # -----------------------------------------------------------------------------
-_C.MODEL.IBVPNET = CN()
-_C.MODEL.IBVPNET.FRAME_NUM = 64
+_C.MODEL.iBVPNet = CN()
+_C.MODEL.iBVPNet.FRAME_NUM = 64
 
 # -----------------------------------------------------------------------------
 # Model Settings for TS-CAN

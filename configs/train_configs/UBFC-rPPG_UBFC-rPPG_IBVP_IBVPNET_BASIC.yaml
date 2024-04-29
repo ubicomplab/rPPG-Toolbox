@@ -4,7 +4,7 @@ TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 200
   LR: 9e-3
-  MODEL_FILE_NAME: UBFC_UBFC_IBVP_ibvpnet_diffnormalized
+  MODEL_FILE_NAME: UBFC_UBFC_iBVP_ibvpnet_diffnormalized
   PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
@@ -70,11 +70,11 @@ TEST:
   USE_LAST_EPOCH: True                   # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
-    DATASET: IBVP
+    DATASET: iBVP
     DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "data/IBVP_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "data/IBVP_Dataset/prep"    # Processed dataset save path, need to be updated
+    DATA_PATH: "data/iBVP_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "data/iBVP_Dataset/prep"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
@@ -102,7 +102,7 @@ LOG:
 MODEL:
   DROP_RATE: 0.2
   NAME: iBVPNet
-  IBVPNET:
+  iBVPNET:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4

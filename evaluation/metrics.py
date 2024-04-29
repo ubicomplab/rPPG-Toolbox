@@ -136,7 +136,7 @@ def calculate_metrics(predictions, labels, config):
             elif metric == "MACC":
                 MACC_avg = np.mean(MACC_all)
                 standard_error = np.std(MACC_all) / np.sqrt(num_test_samples)
-                print("MACC: {0} +/- {1} (dB)".format(MACC_avg, standard_error))
+                print("MACC: {0} +/- {1}".format(MACC_avg, standard_error))
             elif "AU" in metric:
                 pass
             elif "BA" in metric:  

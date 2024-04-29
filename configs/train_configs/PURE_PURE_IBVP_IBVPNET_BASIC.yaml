@@ -4,7 +4,7 @@ TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 200
   LR: 9e-3
-  MODEL_FILE_NAME: PURE_PURE_IBVP_ibvpnet_diffnormalized
+  MODEL_FILE_NAME: PURE_PURE_iBVP_iBVPNet_diffnormalized
   PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
@@ -17,7 +17,7 @@ TRAIN:
     BEGIN: 0.0
     END: 0.8
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use ibvpnet, should be DiffNormalized
+      DATA_TYPE: ['DiffNormalized']         #if use iBVPNet, should be DiffNormalized
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
@@ -46,7 +46,7 @@ VALID:
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use ibvpnet, should be DiffNormalized
+      DATA_TYPE: ['DiffNormalized']         #if use iBVPNet, should be DiffNormalized
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
@@ -68,16 +68,16 @@ TEST:
   USE_LAST_EPOCH: False                   # to use provided validation dataset to find the best epoch, should be false
   DATA:
     FS: 30
-    DATASET: IBVP
+    DATASET: iBVP
     DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "data/IBVP_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "data/IBVP_Dataset/prep"    # Processed dataset save path, need to be updated
+    DATA_PATH: "data/iBVP_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "data/iBVP_Dataset/prep"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use ibvpnet, should be DiffNormalized
+      DATA_TYPE: ['DiffNormalized']         #if use iBVPNet, should be DiffNormalized
       LABEL_TYPE: DiffNormalized
       DO_CHUNK: True
       CHUNK_LENGTH: 128                 #only support for factor of 512
@@ -100,7 +100,7 @@ LOG:
 MODEL:
   DROP_RATE: 0.2
   NAME: iBVPNet
-  IBVPNET:
+  iBVPNet:
     FRAME_NUM: 128
 INFERENCE:
   BATCH_SIZE: 4

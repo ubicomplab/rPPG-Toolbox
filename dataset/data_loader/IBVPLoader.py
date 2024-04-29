@@ -1,6 +1,6 @@
-"""The dataloader for IBVP datasets.
+"""The dataloader for iBVP datasets.
 
-Details for the IBVP Dataset see https://doi.org/10.3390/electronics13071334
+Details for the iBVP Dataset see https://doi.org/10.3390/electronics13071334
 If you use this dataset, please cite the following publications:
 
 Joshi, Jitesh, and Youngjun Cho. 2024. "iBVP Dataset: RGB-Thermal rPPG Dataset with High Resolution Signal Quality Labels" Electronics 13, no. 7: 1334. https://doi.org/10.3390/electronics13071334 
@@ -19,16 +19,16 @@ from tqdm import tqdm
 import pandas as pd
 
 
-class IBVPLoader(BaseLoader):
-    """The data loader for the IBVP dataset."""
+class iBVPLoader(BaseLoader):
+    """The data loader for the iBVP dataset."""
 
     def __init__(self, name, data_path, config_data):
-        """Initializes an IBVP dataloader.
+        """Initializes an iBVP dataloader.
             Args:
                 data_path(str): path of a folder which stores raw video and bvp data.
-                e.g. data_path should be "IBVP_Dataset" for below dataset structure:
+                e.g. data_path should be "iBVP_Dataset" for below dataset structure:
                 -----------------
-                     IBVP_Dataset/
+                     iBVP_Dataset/
                      |   |-- p01_a/
                      |      |-- p01_a_rgb/
                      |      |-- p01_a_t/
@@ -50,7 +50,7 @@ class IBVPLoader(BaseLoader):
         super().__init__(name, data_path, config_data)
 
     def get_raw_data(self, data_path):
-        """Returns data directories under the path(For IBVP dataset)."""
+        """Returns data directories under the path(For iBVP dataset)."""
 
         data_dirs = glob.glob(data_path + os.sep + "*_*")
         if not data_dirs:
