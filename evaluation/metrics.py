@@ -49,6 +49,7 @@ def calculate_metrics(predictions, labels, config):
     predict_hr_peak_all = list()
     gt_hr_peak_all = list()
     SNR_all = list()
+    MACC_all = list()
     print("Calculating metrics!")
     for index in tqdm(predictions.keys(), ncols=80):
         prediction = _reform_data_from_dict(predictions[index])
@@ -79,17 +80,19 @@ def calculate_metrics(predictions, labels, config):
                 raise ValueError("Unsupported label type in testing!")
             
             if config.INFERENCE.EVALUATION_METHOD == "peak detection":
-                gt_hr_peak, pred_hr_peak, SNR = calculate_metric_per_video(
+                gt_hr_peak, pred_hr_peak, SNR, macc = calculate_metric_per_video(
                     pred_window, label_window, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='Peak')
                 gt_hr_peak_all.append(gt_hr_peak)
                 predict_hr_peak_all.append(pred_hr_peak)
                 SNR_all.append(SNR)
+                MACC_all.append(macc)
             elif config.INFERENCE.EVALUATION_METHOD == "FFT":
-                gt_hr_fft, pred_hr_fft, SNR = calculate_metric_per_video(
+                gt_hr_fft, pred_hr_fft, SNR, macc = calculate_metric_per_video(
                     pred_window, label_window, diff_flag=diff_flag_test, fs=config.TEST.DATA.FS, hr_method='FFT')
                 gt_hr_fft_all.append(gt_hr_fft)
                 predict_hr_fft_all.append(pred_hr_fft)
                 SNR_all.append(SNR)
+                MACC_all.append(macc)
             else:
                 raise ValueError("Inference evaluation method name wrong!")
     
@@ -106,6 +109,7 @@ def calculate_metrics(predictions, labels, config):
         gt_hr_fft_all = np.array(gt_hr_fft_all)
         predict_hr_fft_all = np.array(predict_hr_fft_all)
         SNR_all = np.array(SNR_all)
+        MACC_all = np.array(MACC_all)
         num_test_samples = len(predict_hr_fft_all)
         for metric in config.TEST.METRICS:
             if metric == "MAE":
@@ -129,6 +133,10 @@ def calculate_metrics(predictions, labels, config):
                 SNR_FFT = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_FFT, standard_error))
+            elif metric == "MACC":
+                MACC_avg = np.mean(MACC_all)
+                standard_error = np.std(MACC_all) / np.sqrt(num_test_samples)
+                print("MACC: {0} +/- {1}".format(MACC_avg, standard_error))
             elif "AU" in metric:
                 pass
             elif "BA" in metric:  
@@ -151,6 +159,7 @@ def calculate_metrics(predictions, labels, config):
         gt_hr_peak_all = np.array(gt_hr_peak_all)
         predict_hr_peak_all = np.array(predict_hr_peak_all)
         SNR_all = np.array(SNR_all)
+        MACC_all = np.array(MACC_all)
         num_test_samples = len(predict_hr_peak_all)
         for metric in config.TEST.METRICS:
             if metric == "MAE":
@@ -174,6 +183,10 @@ def calculate_metrics(predictions, labels, config):
                 SNR_PEAK = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
                 print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_PEAK, standard_error))
+            elif metric == "MACC":
+                MACC_avg = np.mean(MACC_all)
+                standard_error = np.std(MACC_all) / np.sqrt(num_test_samples)
+                print("MACC: {0} +/- {1}".format(MACC_avg, standard_error))
             elif "AU" in metric:
                 pass
             elif "BA" in metric:

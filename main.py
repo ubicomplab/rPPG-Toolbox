@@ -65,6 +65,8 @@ def train_and_test(config, data_loader_dict):
     """Trains the model."""
     if config.MODEL.NAME == "Physnet":
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == "iBVPNet":
+        model_trainer = trainer.iBVPNetTrainer.iBVPNetTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "Tscan":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "EfficientPhys":
@@ -85,6 +87,8 @@ def test(config, data_loader_dict):
     """Tests the model."""
     if config.MODEL.NAME == "Physnet":
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == "iBVPNet":
+        model_trainer = trainer.iBVPNetTrainer.iBVPNetTrainer(config, data_loader_dict)    
     elif config.MODEL.NAME == "Tscan":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "EfficientPhys":
@@ -152,9 +156,11 @@ if __name__ == "__main__":
             train_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.TRAIN.DATA.DATASET == "UBFC-PHYS":
             train_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.TRAIN.DATA.DATASET == "iBVP":
+            train_loader = data_loader.iBVPLoader.iBVPLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), UBFC-PHYS and iBVP.")
 
         # Create and initialize the train dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset paths
@@ -190,11 +196,13 @@ if __name__ == "__main__":
             valid_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.VALID.DATA.DATASET == "UBFC-PHYS":
             valid_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.VALID.DATA.DATASET == "iBVP":
+            valid_loader = data_loader.iBVPLoader.iBVPLoader
         elif config.VALID.DATA.DATASET is None and not config.TEST.USE_LAST_EPOCH:
             raise ValueError("Validation dataset not specified despite USE_LAST_EPOCH set to False!")
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), UBFC-PHYS and iBVP")
         
         # Create and initialize the valid dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
@@ -230,9 +238,11 @@ if __name__ == "__main__":
             test_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.TEST.DATA.DATASET == "UBFC-PHYS":
             test_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.TEST.DATA.DATASET == "iBVP":
+            test_loader = data_loader.iBVPLoader.iBVPLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), and UBFC-PHYS.")
+                             SCAMPS, BP4D+ (Normal and BigSmall preprocessing), UBFC-PHYS and iBVP.")
         
         if config.TOOLBOX_MODE == "train_and_test" and config.TEST.USE_LAST_EPOCH:
             print("Testing uses last epoch, validation dataset is not required.", end='\n\n')   
@@ -269,9 +279,11 @@ if __name__ == "__main__":
             unsupervised_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
         elif config.UNSUPERVISED.DATA.DATASET == "UBFC-PHYS":
             unsupervised_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
+        elif config.UNSUPERVISED.DATA.DATASET == "iBVP":
+            unsupervised_loader = data_loader.iBVPLoader.iBVPLoader
         else:
             raise ValueError("Unsupported dataset! Currently supporting UBFC-rPPG, PURE, MMPD, \
-                             SCAMPS, BP4D+, and UBFC-PHYS.")
+                             SCAMPS, BP4D+, UBFC-PHYS and iBVP.")
         
         unsupervised_data = unsupervised_loader(
             name="unsupervised",
