@@ -7,6 +7,7 @@ from unsupervised_methods.methods.ICA_POH import *
 from unsupervised_methods.methods.LGI import *
 from unsupervised_methods.methods.PBV import *
 from unsupervised_methods.methods.POS_WANG import *
+from unsupervised_methods.methods.OMIT import *
 from tqdm import tqdm
 from evaluation.BlandAltmanPy import BlandAltman
 
@@ -38,6 +39,8 @@ def unsupervised_predict(config, data_loader, method_name):
                 BVP = LGI(data_input)
             elif method_name == "PBV":
                 BVP = PBV(data_input)
+            elif method_name == "OMIT":
+                BVP = OMIT(data_input)
             else:
                 raise ValueError("unsupervised method name wrong!")
 
