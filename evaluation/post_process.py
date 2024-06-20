@@ -1,5 +1,5 @@
 """The post processing files for caluclating heart rate using FFT or peak detection.
-The file also  includes helper funcs such as detrend, mag2db etc.
+The file also  includes helper funcs such as detrend, power2db etc.
 """
 
 import numpy as np
@@ -28,9 +28,9 @@ def _detrend(input_signal, lambda_value):
         (H - np.linalg.inv(H + (lambda_value ** 2) * np.dot(D.T, D))), input_signal)
     return detrended_signal
 
-def mag2db(mag):
-    """Convert magnitude to db."""
-    return 20. * np.log10(mag)
+def power2db(mag):
+    """Convert power to db."""
+    return 10 * np.log10(mag)
 
 def _calculate_fft_hr(ppg_signal, fs=60, low_pass=0.75, high_pass=2.5):
     """Calculate heart rate based on PPG using Fast Fourier transform (FFT)."""
@@ -109,13 +109,13 @@ def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.
     pxx_remainder = pxx_ppg[idx_remainder]
 
     # Calculate the signal power
-    signal_power_hm1 = np.sum(pxx_harmonic1)
-    signal_power_hm2 = np.sum(pxx_harmonic2)
-    signal_power_rem = np.sum(pxx_remainder)
+    signal_power_hm1 = np.sum(pxx_harmonic1**2)
+    signal_power_hm2 = np.sum(pxx_harmonic2**2)
+    signal_power_rem = np.sum(pxx_remainder**2)
 
     # Calculate the SNR as the ratio of the areas
     if not signal_power_rem == 0: # catches divide by 0 runtime warning 
-        SNR = mag2db((signal_power_hm1 + signal_power_hm2) / signal_power_rem)
+        SNR = power2db((signal_power_hm1 + signal_power_hm2) / signal_power_rem)
     else:
         SNR = 0
     return SNR
