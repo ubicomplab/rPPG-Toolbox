@@ -27,6 +27,7 @@ def unsupervised_predict(config, data_loader, method_name):
         batch_size = test_batch[0].shape[0]
         for idx in range(batch_size):
             data_input, labels_input = test_batch[0][idx].cpu().numpy(), test_batch[1][idx].cpu().numpy()
+            data_input = data_input[..., :3]
             if method_name == "POS":
                 BVP = POS_WANG(data_input, config.UNSUPERVISED.DATA.FS)
             elif method_name == "CHROM":

@@ -40,7 +40,7 @@ def CHROME_DEHAAN(frames,FS):
 
         Alpha = np.std(Xf) / np.std(Yf)
         SWin = Xf-Alpha*Yf
-        SWin = np.multiply(SWin, signal.hanning(WinL))
+        SWin = np.multiply(SWin, signal.windows.hann(WinL))
 
         temp = SWin[:int(WinL//2)]
         S[WinS:WinM] = S[WinS:WinM] + SWin[:int(WinL//2)]

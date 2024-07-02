@@ -88,6 +88,10 @@ _C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_W = 144
 _C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_H = 144
 _C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
 _C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
+_C.TRAIN.DATA.PREPROCESS.IBVP = CN()
+_C.TRAIN.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
+
+
 # -----------------------------------------------------------------------------
 # Valid settings
 # -----------------------------------------------------------------------------\
@@ -149,6 +153,8 @@ _C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_W = 144
 _C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_H = 144
 _C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
 _C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
+_C.VALID.DATA.PREPROCESS.IBVP = CN()
+_C.VALID.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
 
 # -----------------------------------------------------------------------------
 # Test settings
@@ -214,7 +220,8 @@ _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_W = 144
 _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_H = 144
 _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
 _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
-
+_C.TEST.DATA.PREPROCESS.IBVP = CN()
+_C.TEST.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
 # -----------------------------------------------------------------------------
 # Unsupervised method settings
 # -----------------------------------------------------------------------------\
@@ -271,7 +278,8 @@ _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W = 128
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.H = 128
-
+_C.UNSUPERVISED.DATA.PREPROCESS.IBVP = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
 ### -----------------------------------------------------------------------------
 # Model settings
 # -----------------------------------------------------------------------------
@@ -292,7 +300,8 @@ _C.MODEL.PHYSNET.FRAME_NUM = 64
 # Specific parameters for iBVPNet parameters
 # -----------------------------------------------------------------------------
 _C.MODEL.iBVPNet = CN()
-_C.MODEL.iBVPNet.FRAME_NUM = 64
+_C.MODEL.iBVPNet.FRAME_NUM = 160
+_C.MODEL.iBVPNet.CHANNELS = 3
 
 # -----------------------------------------------------------------------------
 # Model Settings for TS-CAN

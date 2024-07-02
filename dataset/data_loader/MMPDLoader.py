@@ -8,7 +8,6 @@ import glob
 import numpy as np
 import re
 
-from scipy.__config__ import get_info
 from .BaseLoader import BaseLoader
 from multiprocessing import Pool, Process, Value, Array, Manager
 from tqdm import tqdm

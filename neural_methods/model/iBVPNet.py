@@ -4,6 +4,7 @@ Proposed along with the iBVP Dataset, see https://doi.org/10.3390/electronics130
 Joshi, Jitesh, and Youngjun Cho. 2024. "iBVP Dataset: RGB-Thermal rPPG Dataset with High Resolution Signal Quality Labels" Electronics 13, no. 7: 1334.
 """
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -13,8 +14,8 @@ class ConvBlock3D(nn.Module):
         super(ConvBlock3D, self).__init__()
         self.conv_block_3d = nn.Sequential(
             nn.Conv3d(in_channel, out_channel, kernel_size, stride, padding),
-            nn.BatchNorm3d(out_channel),
-            nn.ReLU(inplace=True)
+            nn.Tanh(),
+            nn.InstanceNorm3d(out_channel),
         )
 
     def forward(self, x):
@@ -28,9 +29,12 @@ class DeConvBlock3D(nn.Module):
         s_t, s_s1, s_s2 = stride
         self.deconv_block_3d = nn.Sequential(
             nn.ConvTranspose3d(in_channel, in_channel, (k_t, 1, 1), (s_t, 1, 1), padding),
+            nn.Tanh(),
+            nn.InstanceNorm3d(in_channel),
+            
             nn.Conv3d(in_channel, out_channel, (1, k_s1, k_s2), (1, s_s1, s_s2), padding),
-            nn.BatchNorm3d(out_channel),
-            nn.ELU()
+            nn.Tanh(),
+            nn.InstanceNorm3d(out_channel),
         )
 
     def forward(self, x):
@@ -104,6 +108,16 @@ class iBVPNet(nn.Module):
     def __init__(self, frames, in_channels=3, debug=False):
         super(iBVPNet, self).__init__()
         self.debug = debug
+
+        self.in_channels = in_channels
+        if self.in_channels == 1 or self.in_channels == 3:
+            self.norm = nn.InstanceNorm3d(self.in_channels)
+        elif self.in_channels == 4:
+            self.rgb_norm = nn.InstanceNorm3d(3)
+            self.thermal_norm = nn.InstanceNorm3d(1)
+        else:
+            print("Unsupported input channels")
+
         self.ibvpnet = nn.Sequential(
             encoder_block(in_channels, debug),
             decoder_block(debug),
@@ -116,10 +130,39 @@ class iBVPNet(nn.Module):
     def forward(self, x): # [batch, Features=3, Temp=frames, Width=32, Height=32]
         
         [batch, channel, length, width, height] = x.shape
+
+        x = torch.diff(x, dim=2)
+
+        if self.debug:
+            print("Input.shape", x.shape)
+
+        if self.in_channels == 1:
+            x = self.norm(x[:, -1:, :, :, :])
+        elif self.in_channels == 3:
+            x = self.norm(x[:, :3, :, :, :])
+        elif self.in_channels == 4:
+            rgb_x = self.rgb_norm(x[:, :3, :, :, :])
+            thermal_x = self.thermal_norm(x[:, -1:, :, :, :])
+            x = torch.concat([rgb_x, thermal_x], dim = 1)
+        else:
+            try:
+                print("Specified input channels:", self.in_channels)
+                print("Data channels", channel)
+                assert self.in_channels <= channel
+            except:
+                print("Incorrectly preprocessed data provided as input. Number of channels exceed the specified or default channels")
+                print("Default or specified channels:", self.in_channels)
+                print("Data channels [B, C, N, W, H]", x.shape)
+                print("Exiting")
+                exit()
+
+        if self.debug:
+            print("Diff Normalized shape", x.shape)
+
         feats = self.ibvpnet(x)
         if self.debug:
             print("feats.shape", feats.shape)
-        rPPG = feats.view(-1, length)
+        rPPG = feats.view(-1, length-1)
         return rPPG
     
 
