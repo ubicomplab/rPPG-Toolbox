@@ -2,34 +2,34 @@ BASE: ['']
 TOOLBOX_MODE: "train_and_test"  # "train_and_test"  or "only_test"
 TRAIN:
   BATCH_SIZE: 4
-  EPOCHS: 200
-  LR: 9e-3
-  MODEL_FILE_NAME: PURE_PURE_iBVP_iBVPNet_diffnormalized
+  EPOCHS: 30
+  LR: 1e-3
+  MODEL_FILE_NAME: PURE_PURE_iBVP_iBVPNet
   PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True            # if first time, should be true
+    DO_PREPROCESS: False            # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "data/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "data/PURE_Dataset/prep"    # Processed dataset save path, need to be updated
-    EXP_DATA_NAME: ""
+    DATA_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/home/jitesh/data/PURE_Dataset"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "PURE_Raw_160_72x72"
     BEGIN: 0.0
     END: 0.8
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use iBVPNet, should be DiffNormalized
+      DATA_TYPE: ['Raw']         #if use iBVPNet, should be Raw
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
-      LABEL_TYPE: DiffNormalized
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128                 #only support for factor of 512
+      CHUNK_LENGTH: 160
       CROP_FACE:
         DO_CROP_FACE: True
         BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
-          DO_DYNAMIC_DETECTION: False
-          DYNAMIC_DETECTION_FREQUENCY : 32
+          DO_DYNAMIC_DETECTION: True
+          DYNAMIC_DETECTION_FREQUENCY : 30
           USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
       RESIZE:
         H: 72
@@ -38,27 +38,27 @@ VALID:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: True                # if first time, should be true
+    DO_PREPROCESS: False                # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "data/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "data/PURE_Dataset/prep"    # Processed dataset save path, need to be updated
-    EXP_DATA_NAME: ""
+    DATA_PATH: "/mnt/sda/data/jitesh/PURE_Dataset/raw"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/home/jitesh/data/PURE_Dataset"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "PURE_Raw_160_72x72"
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use iBVPNet, should be DiffNormalized
+      DATA_TYPE: ['Raw']         #if use iBVPNet, should be Raw
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
-      LABEL_TYPE: DiffNormalized
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128                 #only support for factor of 512
+      CHUNK_LENGTH: 160
       CROP_FACE:
         DO_CROP_FACE: True
         BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
-          DO_DYNAMIC_DETECTION: False
-          DYNAMIC_DETECTION_FREQUENCY : 32
+          DO_DYNAMIC_DETECTION: True
+          DYNAMIC_DETECTION_FREQUENCY : 30
           USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
       RESIZE:
         H: 72
@@ -69,27 +69,29 @@ TEST:
   DATA:
     FS: 30
     DATASET: iBVP
-    DO_PREPROCESS: True                  # if first time, should be true
+    DO_PREPROCESS: False                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "data/iBVP_Dataset/raw"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "data/iBVP_Dataset/prep"    # Processed dataset save path, need to be updated
-    EXP_DATA_NAME: ""
+    DATA_PATH: "/mnt/sda/data/jitesh/iBVP_Dataset/raw"   # Raw dataset path, need to be updated
+    CACHED_PATH: "/home/jitesh/data/iBVP_Dataset"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "iBVP_RGB_160_72x72"
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']         #if use iBVPNet, should be DiffNormalized
-      LABEL_TYPE: DiffNormalized
+      DATA_TYPE: ['Raw']         #if use iBVPNet, should be Raw
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
-      CHUNK_LENGTH: 128                 #only support for factor of 512
+      CHUNK_LENGTH: 160
       CROP_FACE:
         DO_CROP_FACE: True
         BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
-          DO_DYNAMIC_DETECTION: False
-          DYNAMIC_DETECTION_FREQUENCY : 32
+          DO_DYNAMIC_DETECTION: True
+          DYNAMIC_DETECTION_FREQUENCY : 30
           USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      IBVP:
+        DATA_MODE: RGB    #"RGBT": for combined RGB and thermal frames; "RGB": for only RGB frames; "T": for only thermal frames
       RESIZE:
         H: 72
         W: 72
@@ -98,14 +100,15 @@ NUM_OF_GPU_TRAIN: 1
 LOG:
   PATH: runs/exp
 MODEL:
-  DROP_RATE: 0.2
+  DROP_RATE: 0.1
   NAME: iBVPNet
   iBVPNet:
-    FRAME_NUM: 128
+    CHANNELS: 3
+    FRAME_NUM: 160
 INFERENCE:
   BATCH_SIZE: 4
   EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
-    WINDOW_SIZE: 10        # In seconds
-  MODEL_PATH: "./final_model_release/PURE_iBVPNet_DiffNormalized.pth"
+    WINDOW_SIZE: 30        # In seconds
+  MODEL_PATH: "./final_model_release/PURE_iBVPNet.pth"
