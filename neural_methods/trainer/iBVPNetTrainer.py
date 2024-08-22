@@ -29,8 +29,10 @@ class iBVPNetTrainer(BaseTrainer):
         self.min_valid_loss = None
         self.best_epoch = 0
 
-        self.model = iBVPNet(
-            frames=config.MODEL.iBVPNET.FRAME_NUM).to(self.device)  # [3, T, 128,128]
+        frames = self.config.MODEL.iBVPNet.FRAME_NUM
+        in_channels = self.config.MODEL.iBVPNet.CHANNELS
+
+        self.model = iBVPNet(frames=frames, in_channels=in_channels).to(self.device)  # [3, T, 128,128]
 
         if config.TOOLBOX_MODE == "train_and_test":
             self.num_train_batches = len(data_loader["train"])
@@ -62,13 +64,18 @@ class iBVPNetTrainer(BaseTrainer):
             tbar = tqdm(data_loader["train"], ncols=80)
             for idx, batch in enumerate(tbar):
                 tbar.set_description("Train epoch %s" % epoch)
-                rPPG = self.model(
-                    batch[0].to(torch.float32).to(self.device))
-                BVP_label = batch[1].to(
-                    torch.float32).to(self.device)
+
+                data = batch[0].to(self.device)
+                BVP_label = batch[1].to(self.device)
+
+                last_frame = torch.unsqueeze(
+                    data[:, :, -1, :, :], 2).repeat(1, 1, max(self.num_of_gpu, 1), 1, 1)
+                data = torch.cat((data, last_frame), 2)
+
+                rPPG = self.model(data)
+
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
-                BVP_label = (BVP_label - torch.mean(BVP_label)) / \
-                            torch.std(BVP_label)  # normalize
+                BVP_label = (BVP_label - torch.mean(BVP_label)) / torch.std(BVP_label)  # normalize
                 loss = self.loss_model(rPPG, BVP_label)
                 loss.backward()
                 running_loss += loss.item()
@@ -122,13 +129,18 @@ class iBVPNetTrainer(BaseTrainer):
             vbar = tqdm(data_loader["valid"], ncols=80)
             for valid_idx, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")
-                BVP_label = valid_batch[1].to(
-                    torch.float32).to(self.device)
-                rPPG = self.model(
-                    valid_batch[0].to(torch.float32).to(self.device))
+
+                data = valid_batch[0].to(self.device)
+                BVP_label = valid_batch[1].to(self.device)
+
+                last_frame = torch.unsqueeze(
+                    data[:, :, -1, :, :], 2).repeat(1, 1, max(self.num_of_gpu, 1), 1, 1)
+                data = torch.cat((data, last_frame), 2)
+                
+                rPPG = self.model(data)
+
                 rPPG = (rPPG - torch.mean(rPPG)) / torch.std(rPPG)  # normalize
-                BVP_label = (BVP_label - torch.mean(BVP_label)) / \
-                            torch.std(BVP_label)  # normalize
+                BVP_label = (BVP_label - torch.mean(BVP_label)) / torch.std(BVP_label)  # normalize
                 loss_ecg = self.loss_model(rPPG, BVP_label)
                 valid_loss.append(loss_ecg.item())
                 valid_step += 1
@@ -172,12 +184,18 @@ class iBVPNetTrainer(BaseTrainer):
         with torch.no_grad():
             for _, test_batch in enumerate(tqdm(data_loader["test"], ncols=80)):
                 batch_size = test_batch[0].shape[0]
-                data, label = test_batch[0].to(
-                    self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
+
+                data = test_batch[0].to(self.device)
+                BVP_label = test_batch[1].to(self.device)
+
+                last_frame = torch.unsqueeze(
+                    data[:, :, -1, :, :], 2).repeat(1, 1, max(self.num_of_gpu, 1), 1, 1)
+                data = torch.cat((data, last_frame), 2)
+                
                 pred_ppg_test = self.model(data)
 
                 if self.config.TEST.OUTPUT_SAVE_DIR:
-                    label = label.cpu()
+                    BVP_label = BVP_label.cpu()
                     pred_ppg_test = pred_ppg_test.cpu()
 
                 for idx in range(batch_size):
@@ -187,7 +205,7 @@ class iBVPNetTrainer(BaseTrainer):
                         predictions[subj_index] = dict()
                         labels[subj_index] = dict()
                     predictions[subj_index][sort_index] = pred_ppg_test[idx]
-                    labels[subj_index][sort_index] = label[idx]
+                    labels[subj_index][sort_index] = BVP_label[idx]
 
         print('')
         calculate_metrics(predictions, labels, self.config)
