@@ -117,13 +117,12 @@ def calculate_metrics(predictions, labels, config):
                 standard_error = np.std(np.abs(predict_hr_fft_all - gt_hr_fft_all)) / np.sqrt(num_test_samples)
                 print("FFT MAE (FFT Label): {0} +/- {1}".format(MAE_FFT, standard_error))
             elif metric == "RMSE":
-                MSE_FFT = np.mean(np.square(predict_hr_fft_all - gt_hr_fft_all))
-                RMSE_FFT = np.sqrt(MSE_FFT)
-                # In the case of standard error (SE) for RMSE, scale the standard error relative to the RMSE
-                # which is less sensitive to possible outliers. This should prevent the SE from becoming too
-                # large, and exaggerated, due to large, squared errors.
-                MSE_FFT_se = np.std(np.square(predict_hr_fft_all - gt_hr_fft_all)) / np.sqrt(num_test_samples)
-                standard_error = MSE_FFT_se / (2 * np.sqrt(MSE_FFT))
+                # Calculate the squared errors, then RMSE, in order to allow
+                # for a more robust and intuitive standard error that won't
+                # be influenced by abnormal distributions of errors.
+                squared_errors = np.square(predict_hr_fft_all - gt_hr_fft_all)
+                RMSE_FFT = np.sqrt(np.mean(squared_errors))
+                standard_error = np.sqrt(np.std(squared_errors) / np.sqrt(num_test_samples))
                 print("FFT RMSE (FFT Label): {0} +/- {1}".format(RMSE_FFT, standard_error))
             elif metric == "MAPE":
                 MAPE_FFT = np.mean(np.abs((predict_hr_fft_all - gt_hr_fft_all) / gt_hr_fft_all)) * 100
@@ -172,13 +171,12 @@ def calculate_metrics(predictions, labels, config):
                 standard_error = np.std(np.abs(predict_hr_peak_all - gt_hr_peak_all)) / np.sqrt(num_test_samples)
                 print("Peak MAE (Peak Label): {0} +/- {1}".format(MAE_PEAK, standard_error))
             elif metric == "RMSE":
-                MSE_PEAK = np.mean(np.square(predict_hr_fft_all - gt_hr_fft_all))
-                RMSE_PEAK = np.sqrt(MSE_PEAK)
-                # In the case of standard error (SE) for RMSE, scale the standard error relative to the RMSE
-                # which is less sensitive to possible outliers. This should prevent the SE from becoming too
-                # large, and exaggerated, due to large, squared errors.
-                MSE_PEAK_se = np.std(np.square(predict_hr_fft_all - gt_hr_fft_all)) / np.sqrt(num_test_samples)
-                standard_error = MSE_PEAK_se / (2 * np.sqrt(MSE_PEAK))
+                # Calculate the squared errors, then RMSE, in order to allow
+                # for a more robust and intuitive standard error that won't
+                # be influenced by abnormal distributions of errors.
+                squared_errors = np.square(predict_hr_peak_all - gt_hr_peak_all)
+                RMSE_PEAK = np.sqrt(np.mean(squared_errors))
+                standard_error = np.sqrt(np.std(squared_errors) / np.sqrt(num_test_samples))
                 print("PEAK RMSE (Peak Label): {0} +/- {1}".format(RMSE_PEAK, standard_error))
             elif metric == "MAPE":
                 MAPE_PEAK = np.mean(np.abs((predict_hr_peak_all - gt_hr_peak_all) / gt_hr_peak_all)) * 100
