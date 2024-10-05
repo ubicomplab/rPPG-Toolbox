@@ -54,6 +54,10 @@ class PhysFormerTrainer(BaseTrainer):
                 dropout_rate=self.dropout_rate, theta=self.theta).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
+            if self.config.INFERENCE.MODEL_PATH != "":
+                self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
+                print("Loaded Checkpoint:", self.config.INFERENCE.MODEL_PATH)
+                
             self.num_train_batches = len(data_loader["train"])
             self.criterion_reg = torch.nn.MSELoss()
             self.criterion_L1loss = torch.nn.L1Loss()
