@@ -5,9 +5,17 @@ The file also  includes helper funcs such as detrend, power2db etc.
 import numpy as np
 import scipy
 import scipy.io
-from scipy.signal import butter
+from scipy.signal import butter, welch
 from scipy.sparse import spdiags
 from copy import deepcopy
+
+def get_hr(y, sr=30, min=45, max=150):
+    p, q = welch(y, sr, nfft=1e5/sr, nperseg=np.min((len(y)-1, 256)))
+    return p[(p>min/60)&(p<max/60)][np.argmax(q[(p>min/60)&(p<max/60)])]*60
+
+def get_psd(y, sr=30, min=45, max=150):
+    p, q = welch(y, sr, nfft=1e5/sr, nperseg=np.min((len(y)-1, 256)))
+    return q[(p>min/60)&(p<max/60)]
 
 def _next_power_of_2(x):
     """Calculate the nearest power of 2."""
@@ -31,17 +39,6 @@ def _detrend(input_signal, lambda_value):
 def power2db(mag):
     """Convert power to db."""
     return 10 * np.log10(mag)
-
-def _calculate_fft_hr(ppg_signal, fs=60, low_pass=0.75, high_pass=2.5):
-    """Calculate heart rate based on PPG using Fast Fourier transform (FFT)."""
-    ppg_signal = np.expand_dims(ppg_signal, 0)
-    N = _next_power_of_2(ppg_signal.shape[1])
-    f_ppg, pxx_ppg = scipy.signal.periodogram(ppg_signal, fs=fs, nfft=N, detrend=False)
-    fmask_ppg = np.argwhere((f_ppg >= low_pass) & (f_ppg <= high_pass))
-    mask_ppg = np.take(f_ppg, fmask_ppg)
-    mask_pxx = np.take(pxx_ppg, fmask_ppg)
-    fft_hr = np.take(mask_ppg, np.argmax(mask_pxx, 0))[0] * 60
-    return fft_hr
 
 def _calculate_peak_hr(ppg_signal, fs):
     """Calculate heart rate based on PPG using peak detection."""
@@ -138,8 +135,8 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
     macc = _compute_macc(predictions, labels)
 
     if hr_method == 'FFT':
-        hr_pred = _calculate_fft_hr(predictions, fs=fs)
-        hr_label = _calculate_fft_hr(labels, fs=fs)
+        hr_pred = get_hr(predictions, sr=fs)
+        hr_label = get_hr(labels, sr=fs)
     elif hr_method == 'Peak':
         hr_pred = _calculate_peak_hr(predictions, fs=fs)
         hr_label = _calculate_peak_hr(labels, fs=fs)
@@ -147,3 +144,33 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
         raise ValueError('Please use FFT or Peak to calculate your HR.')
     SNR = _calculate_SNR(predictions, hr_label, fs=fs)
     return hr_label, hr_pred, SNR, macc
+
+def calculate_hr(predictions, labels, fs=30, diff_flag=False):
+    """Calculate video-level HR and SNR"""
+    if diff_flag:  # if the predictions and labels are 1st derivative of PPG signal.
+        predictions = _detrend(np.cumsum(predictions), 100)
+        labels = _detrend(np.cumsum(labels), 100)
+    else:
+        predictions = _detrend(predictions, 100)
+        labels = _detrend(labels, 100)
+    [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2], btype='bandpass')
+    predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
+    labels = scipy.signal.filtfilt(b, a, np.double(labels))
+    hr_pred = get_hr(predictions, sr=fs)
+    hr_label = get_hr(labels, sr=fs)
+    return hr_pred , hr_label
+
+def calculate_psd(predictions, labels, fs=30, diff_flag=False):
+    """Calculate video-level HR and SNR"""
+    if diff_flag:  # if the predictions and labels are 1st derivative of PPG signal.
+        predictions = _detrend(np.cumsum(predictions), 100)
+        labels = _detrend(np.cumsum(labels), 100)
+    else:
+        predictions = _detrend(predictions, 100)
+        labels = _detrend(labels, 100)
+    [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2], btype='bandpass')
+    predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
+    labels = scipy.signal.filtfilt(b, a, np.double(labels))
+    psd_pred = get_psd(predictions, sr=fs)
+    psd_label = get_psd(labels, sr=fs)
+    return psd_pred , psd_label

@@ -77,9 +77,12 @@ def train_and_test(config, data_loader_dict):
         model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'PhysFormer':
         model_trainer = trainer.PhysFormerTrainer.PhysFormerTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'PhysMamba':
+        model_trainer = trainer.PhysMambaTrainer.PhysMambaTrainer(config, data_loader_dict)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.train(data_loader_dict)
+    model_trainer.valid(data_loader_dict)
     model_trainer.test(data_loader_dict)
 
 
@@ -99,6 +102,8 @@ def test(config, data_loader_dict):
         model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'PhysFormer':
         model_trainer = trainer.PhysFormerTrainer.PhysFormerTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'PhysMamba':
+        model_trainer = trainer.PhysMambaTrainer.PhysMambaTrainer(config, data_loader_dict)
     else:
         raise ValueError('Your Model is Not Supported  Yet!')
     model_trainer.test(data_loader_dict)
@@ -192,6 +197,8 @@ if __name__ == "__main__":
             valid_loader = data_loader.MMPDLoader.MMPDLoader
         elif config.VALID.DATA.DATASET == "BP4DPlus":
             valid_loader = data_loader.BP4DPlusLoader.BP4DPlusLoader
+        elif config.VALID.DATA.DATASET == "COHFACE":
+            valid_loader = data_loader.COHFACELoader.COHFACELoader
         elif config.VALID.DATA.DATASET == "BP4DPlusBigSmall":
             valid_loader = data_loader.BP4DPlusBigSmallLoader.BP4DPlusBigSmallLoader
         elif config.VALID.DATA.DATASET == "UBFC-PHYS":
@@ -207,6 +214,7 @@ if __name__ == "__main__":
         # Create and initialize the valid dataloader given the correct toolbox mode,
         # a supported dataset name, and a valid dataset path
         if (config.VALID.DATA.DATASET and config.VALID.DATA.DATA_PATH and not config.TEST.USE_LAST_EPOCH):
+        # if (config.VALID.DATA.DATASET and config.VALID.DATA.DATA_PATH):
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
