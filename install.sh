@@ -1,4 +1,2 @@
-cd tools/causal-conv1d
-python setup.py install
-cd ../mamba
+cd tools/mamba
 python setup.py install

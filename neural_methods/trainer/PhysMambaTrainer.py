@@ -7,7 +7,6 @@ import numpy as np
 import torch
 import torch.optim as optim
 import random
-from evaluation.post_process import calculate_hr
 from evaluation.metrics import calculate_metrics
 from neural_methods.loss.PhysNetNegPearsonLoss import Neg_Pearson
 from neural_methods.model.PhysMamba import PhysMamba
