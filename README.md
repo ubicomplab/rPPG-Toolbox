@@ -219,9 +219,7 @@ STEP 1: `bash setup.sh`
 
 STEP 2: `conda activate rppg-toolbox` 
 
-STEP 3: `pip install -r requirements.txt` 
-
-STEP 4: `bash install.sh`
+STEP 3: `bash install.sh`
 
 # :computer: Example of Using Pre-trained Models 
 

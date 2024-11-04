@@ -1,4 +1,4 @@
-"""PhysNet Trainer."""
+"""PhysMamba Trainer."""
 import os
 from collections import OrderedDict
 
@@ -207,6 +207,3 @@ class PhysMambaTrainer(BaseTrainer):
     def get_hr(self, y, sr=30, min=30, max=180):
         p, q = welch(y, sr, nfft=1e5/sr, nperseg=np.min((len(y)-1, 256)))
         return p[(p>min/60)&(p<max/60)][np.argmax(q[(p>min/60)&(p<max/60)])]*60
-    
-
-    
