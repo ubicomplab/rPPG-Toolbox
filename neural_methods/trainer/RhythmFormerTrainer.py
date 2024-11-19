@@ -8,7 +8,7 @@ from tqdm import tqdm
 from evaluation.metrics import calculate_metrics
 from neural_methods.model.RhythmFormer import RhythmFormer
 from neural_methods.trainer.BaseTrainer import BaseTrainer
-from neural_methods.loss.RythmFormerLossCompuer import RhythmFormer_Loss
+from neural_methods.loss.RythmFormerLossComputer import RhythmFormer_Loss
 
 class RhythmFormerTrainer(BaseTrainer):
 
