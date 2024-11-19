@@ -215,11 +215,15 @@ The table shows  Mean Absolute Error (MAE) and Mean Absolute Percent Error (MAPE
 
 # :wrench: Setup
 
-STEP 1: `bash setup.sh` 
+You can use either [`conda`](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) or [`uv`](https://docs.astral.sh/uv/getting-started/installation/) with this toolbox. Most users are already familiar with `conda`, but `uv` may be a bit less familiar - check out some highlights about `uv` [here](https://docs.astral.sh/uv/#highlights). If you use `uv`, it's highly recommended you do so independently of `conda`, meaning you should make sure you're not installing anything in the base `conda` environment or any other `conda` environment. If you're having trouble making sure you're not in your base `conda` environment, try setting `conda config --set auto_activate_base false`.
 
-STEP 2: `conda activate rppg-toolbox` 
+STEP 1: `bash setup.sh conda` or `bash setup.sh uv` 
 
-STEP 3: `bash install.sh`
+STEP 2: `conda activate rppg-toolbox` or, when using `uv`, `source .venv/bin/activate`
+
+NOTE: the above setup should work without any issues on machines using Linux or MacOS. If you run into compiler-related issues using `uv` when installing tools related to mamba, try checking to see if `clang++` is in your path using `which clang++`. If nothing shows up, you can install `clang++` using `sudo apt-get install clang` on Linux or `xcode-select --install` on MacOS.
+
+If you use Windows or other operating systems, consider using [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) and following the steps within `setup.sh` independently.
 
 # :computer: Example of Using Pre-trained Models 
 
