@@ -109,9 +109,9 @@ def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.
     pxx_remainder = pxx_ppg[idx_remainder]
 
     # Calculate the signal power
-    signal_power_hm1 = np.sum(pxx_harmonic1**2)
-    signal_power_hm2 = np.sum(pxx_harmonic2**2)
-    signal_power_rem = np.sum(pxx_remainder**2)
+    signal_power_hm1 = np.sum(pxx_harmonic1)
+    signal_power_hm2 = np.sum(pxx_harmonic2)
+    signal_power_rem = np.sum(pxx_remainder)
 
     # Calculate the SNR as the ratio of the areas
     if not signal_power_rem == 0: # catches divide by 0 runtime warning 
