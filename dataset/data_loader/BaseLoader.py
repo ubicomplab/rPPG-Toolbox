@@ -591,7 +591,7 @@ class BaseLoader(Dataset):
 
     @staticmethod
     def diff_normalize_data(data):
-        """Calculate discrete difference in video data along the time-axis and nornamize by its standard deviation."""
+        """Calculate discrete difference in video data along the time-axis and normalize by its standard deviation."""
         n, h, w, c = data.shape
         diffnormalized_len = n - 1
         diffnormalized_data = np.zeros((diffnormalized_len, h, w, c), dtype=np.float32)
