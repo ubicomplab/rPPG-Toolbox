@@ -1,0 +1,8 @@
+{
+    "workbench.colorCustomizations": {
+        "[Quiet Light]": {}
+        
+    },
+    "workbench.colorTheme": "Solarized Light",
+    "python.analysis.typeCheckingMode": "off"
+}
