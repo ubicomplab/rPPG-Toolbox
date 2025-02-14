@@ -142,7 +142,7 @@ class DeepPhysTrainer(BaseTrainer):
         config = self.config
 
         # Change chunk length to be test chunk length
-        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
+        self.chunk_len = config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
         
         print('')
         print("===Testing===")
