@@ -24,7 +24,7 @@ class DeepPhysTrainer(BaseTrainer):
         self.model_dir = config.MODEL.MODEL_DIR
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
-        self.chunk_len = config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
+        self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
         self.config = config
         self.min_valid_loss = None
         self.best_epoch = 0
@@ -140,6 +140,9 @@ class DeepPhysTrainer(BaseTrainer):
         if data_loader["test"] is None:
             raise ValueError("No data for test")
         config = self.config
+
+        # Change chunk length to be test chunk length
+        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
         
         print('')
         print("===Testing===")
