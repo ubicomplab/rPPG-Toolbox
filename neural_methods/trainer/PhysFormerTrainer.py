@@ -41,13 +41,13 @@ class PhysFormerTrainer(BaseTrainer):
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.num_of_gpu = config.NUM_OF_GPU_TRAIN
-        self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
         self.frame_rate = config.TRAIN.DATA.FS
         self.config = config 
         self.min_valid_loss = None
         self.best_epoch = 0
 
         if config.TOOLBOX_MODE == "train_and_test":
+            self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
             self.model = ViT_ST_ST_Compact3_TDC_gra_sharp(
                 image_size=(self.chunk_len,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
                 patches=(self.patch_size,) * 3, dim=self.dim, ff_dim=self.ff_dim, num_heads=self.num_heads, num_layers=self.num_layers, 
@@ -65,6 +65,7 @@ class PhysFormerTrainer(BaseTrainer):
             # of using StepLR in the first place. Consider investigating and using another approach (e.g., OneCycleLR).
             self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=50, gamma=0.5)
         elif config.TOOLBOX_MODE == "only_test":
+            self.chunk_len = config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
             self.model = ViT_ST_ST_Compact3_TDC_gra_sharp(
                 image_size=(self.chunk_len,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
                 patches=(self.patch_size,) * 3, dim=self.dim, ff_dim=self.ff_dim, num_heads=self.num_heads, num_layers=self.num_layers, 
@@ -207,6 +208,10 @@ class PhysFormerTrainer(BaseTrainer):
         
         print('')
         print("===Testing===")
+
+        # Change chunk length to be test chunk length
+        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
+
         predictions = dict()
         labels = dict()
 
