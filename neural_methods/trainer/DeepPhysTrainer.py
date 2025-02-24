@@ -143,6 +143,10 @@ class DeepPhysTrainer(BaseTrainer):
         
         print('')
         print("===Testing===")
+
+        # Change chunk length to be test chunk length
+        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
+
         predictions = dict()
         labels = dict()
         if self.config.TOOLBOX_MODE == "only_test":
