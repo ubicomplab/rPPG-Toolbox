@@ -5,7 +5,7 @@ TRAIN:
   EPOCHS: 30
   LR: 9e-3
   MODEL_FILE_NAME: PURE_UBFC_RhythmFormer
-  AUG: 1
+  PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
     DATASET: PURE
@@ -18,11 +18,13 @@ TRAIN:
     END: 0.8
     PREPROCESS :
       DATA_TYPE: ['Standardized']
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 160
       CROP_FACE:
         DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
@@ -45,11 +47,13 @@ VALID:
     END: 1.0
     PREPROCESS :
       DATA_TYPE: ['Standardized']
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
       LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 160
       CROP_FACE:
         DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
@@ -79,6 +83,7 @@ TEST:
       CHUNK_LENGTH: 160
       CROP_FACE:
         DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace
         USE_LARGE_FACE_BOX: True
         LARGE_BOX_COEF: 1.5
         DETECTION:
