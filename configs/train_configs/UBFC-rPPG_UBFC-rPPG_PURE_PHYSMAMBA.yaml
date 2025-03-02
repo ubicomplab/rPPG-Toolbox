@@ -99,7 +99,7 @@ TEST:
 DEVICE: cuda:0
 NUM_OF_GPU_TRAIN: 1
 LOG:
-  PATH: /data
+  PATH: runs/exp
 MODEL:
   NAME: PhysMamba
 INFERENCE:

@@ -47,10 +47,14 @@ class RhythmFormerTrainer(BaseTrainer):
         """Training routine for model"""
         if data_loader["train"] is None:
             raise ValueError("No data for train")
-
+        mean_training_losses = []
+        mean_valid_losses = []
+        lrs = []
         for epoch in range(self.max_epoch_num):
             print('')
             print(f"====Training Epoch: {epoch}====")
+            running_loss = 0.0
+            train_loss = []
             self.model.train()
 
             # Model Training
@@ -72,12 +76,27 @@ class RhythmFormerTrainer(BaseTrainer):
                     loss = loss + self.criterion(pred_ppg[ib], labels[ib], epoch , self.config.TRAIN.DATA.FS , self.diff_flag)
                 loss = loss / N
                 loss.backward()
+
+                # Append the current learning rate to the list
+                lrs.append(self.scheduler.get_last_lr())
+
                 self.optimizer.step()
                 self.scheduler.step()
+                running_loss += loss.item()
+                if idx % 100 == 99:  # print every 100 mini-batches
+                    print(
+                        f'[{epoch}, {idx + 1:5d}] loss: {running_loss / 100:.3f}')
+                    running_loss = 0.0
+                train_loss.append(loss.item())
                 tbar.set_postfix(loss=loss.item())
+
+            # Append the mean training loss for the epoch
+            mean_training_losses.append(np.mean(train_loss))
+
             self.save_model(epoch)
             if not self.config.TEST.USE_LAST_EPOCH: 
                 valid_loss = self.valid(data_loader)
+                mean_valid_losses.append(valid_loss)
                 print('validation loss: ', valid_loss)
                 if self.min_valid_loss is None:
                     self.min_valid_loss = valid_loss
@@ -88,7 +107,9 @@ class RhythmFormerTrainer(BaseTrainer):
                     self.best_epoch = epoch
                     print("Update best model! Best epoch: {}".format(self.best_epoch))
         if not self.config.TEST.USE_LAST_EPOCH: 
-            print("best trained epoch: {}, min_val_loss: {}".format(self.best_epoch, self.min_valid_loss))  
+            print("best trained epoch: {}, min_val_loss: {}".format(self.best_epoch, self.min_valid_loss))
+        if self.config.TRAIN.PLOT_LOSSES_AND_LR:
+            self.plot_losses_and_lrs(mean_training_losses, mean_valid_losses, lrs, self.config)
 
 
     def valid(self, data_loader):
@@ -113,7 +134,7 @@ class RhythmFormerTrainer(BaseTrainer):
                     valid_loss.append(loss.item())
                     valid_step += 1
                     vbar.set_postfix(loss=loss.item())
-        return np.mean(np.asarray(valid_loss))
+        return np.mean(valid_loss)
 
 
     def test(self, data_loader):
@@ -169,7 +190,8 @@ class RhythmFormerTrainer(BaseTrainer):
                     labels[subj_index][sort_index] = labels_test[ib * chunk_len:(ib + 1) * chunk_len]
             print(' ')
             calculate_metrics(predictions, labels, self.config)
-
+            if self.config.TEST.OUTPUT_SAVE_DIR: # saving test outputs
+                self.save_test_outputs(predictions, labels, self.config)
 
     def save_model(self, index):
         if not os.path.exists(self.model_dir):
