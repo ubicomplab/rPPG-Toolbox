@@ -18,7 +18,7 @@ from tqdm import tqdm
 class UBFCrPPGLoader(BaseLoader):
     """The data loader for the UBFC-rPPG dataset."""
 
-    def __init__(self, name, data_path, config_data):
+    def __init__(self, name, data_path, config_data, device=None):
         """Initializes an UBFC-rPPG dataloader.
             Args:
                 data_path(str): path of a folder which stores raw video and bvp data.
@@ -39,7 +39,7 @@ class UBFCrPPGLoader(BaseLoader):
                 name(string): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(name, data_path, config_data)
+        super().__init__(name, data_path, config_data, device)
 
     def get_raw_data(self, data_path):
         """Returns data directories under the path(For UBFC-rPPG dataset)."""

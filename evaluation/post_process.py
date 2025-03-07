@@ -32,7 +32,7 @@ def power2db(mag):
     """Convert power to db."""
     return 10 * np.log10(mag)
 
-def _calculate_fft_hr(ppg_signal, fs=60, low_pass=0.75, high_pass=2.5):
+def _calculate_fft_hr(ppg_signal, fs=60, low_pass=0.6, high_pass=3.3):
     """Calculate heart rate based on PPG using Fast Fourier transform (FFT)."""
     ppg_signal = np.expand_dims(ppg_signal, 0)
     N = _next_power_of_2(ppg_signal.shape[1])
@@ -73,10 +73,14 @@ def _compute_macc(pred_signal, gt_signal):
     macc = max(tlcc_list)
     return macc
 
-def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.5):
+def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.6, high_pass=3.3):
     """Calculate SNR as the ratio of the area under the curve of the frequency spectrum around the first and second harmonics 
-        of the ground truth HR frequency to the area under the curve of the remainder of the frequency spectrum, from 0.75 Hz
-        to 2.5 Hz. 
+        of the ground truth HR frequency to the area under the curve of the remainder of the frequency spectrum, from 0.6 Hz
+        to 3.3 Hz. 
+        Ref for low_pass and high_pass filters:
+        R. Cassani, A. Tiwari and T. H. Falk, "Optimal filter characterization for photoplethysmography-based pulse rate and 
+        pulse power spectrum estimation," 2020 IEEE Engineering in Medicine & Biology Society (EMBC), Montreal, QC, Canada,
+        doi: 10.1109/EMBC44109.2020.9175396.
 
         Args:
             pred_ppg_signal(np.array): predicted PPG signal 
@@ -129,9 +133,9 @@ def calculate_metric_per_video(predictions, labels, fs=30, diff_flag=True, use_b
         predictions = _detrend(predictions, 100)
         labels = _detrend(labels, 100)
     if use_bandpass:
-        # bandpass filter between [0.75, 2.5] Hz
-        # equals [45, 150] beats per min
-        [b, a] = butter(1, [0.75 / fs * 2, 2.5 / fs * 2], btype='bandpass')
+        # bandpass filter between [0.75, 2.5] Hz, equals [45, 150] beats per min
+        # bandpass filter between [0.6, 3.3] Hz, equals [36, 198] beats per min
+        [b, a] = butter(1, [0.6 / fs * 2, 3.3 / fs * 2], btype='bandpass')
         predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
         labels = scipy.signal.filtfilt(b, a, np.double(labels))
     

@@ -51,7 +51,7 @@ from dataset.data_loader.BaseLoader import BaseLoader
 class BP4DPlusBigSmallLoader(BaseLoader):
     """The data loader for the BP4D+ dataset."""
 
-    def __init__(self, name, data_path, config_data):
+    def __init__(self, name, data_path, config_data, device=None):
         """Initializes an BP4D+ dataloader.
             Args:
                 data_path(str): path of a folder which stores raw video and bvp data.
