@@ -140,7 +140,7 @@ def calculate_metrics(predictions, labels, config):
             elif metric == "MACC":
                 MACC_avg = np.mean(MACC_all)
                 standard_error = np.std(MACC_all) / np.sqrt(num_test_samples)
-                print("MACC: {0} +/- {1}".format(MACC_avg, standard_error))
+                print("FFT MACC (FFT Label): {0} +/- {1}".format(MACC_avg, standard_error))
             elif "AU" in metric:
                 pass
             elif "BA" in metric:  
@@ -190,11 +190,11 @@ def calculate_metrics(predictions, labels, config):
             elif metric == "SNR":
                 SNR_PEAK = np.mean(SNR_all)
                 standard_error = np.std(SNR_all) / np.sqrt(num_test_samples)
-                print("FFT SNR (FFT Label): {0} +/- {1} (dB)".format(SNR_PEAK, standard_error))
+                print("PEAK SNR (PEAK Label): {0} +/- {1} (dB)".format(SNR_PEAK, standard_error))
             elif metric == "MACC":
                 MACC_avg = np.mean(MACC_all)
                 standard_error = np.std(MACC_all) / np.sqrt(num_test_samples)
-                print("MACC: {0} +/- {1}".format(MACC_avg, standard_error))
+                print("PEAK MACC (PEAK Label): {0} +/- {1}".format(MACC_avg, standard_error))
             elif "AU" in metric:
                 pass
             elif "BA" in metric:

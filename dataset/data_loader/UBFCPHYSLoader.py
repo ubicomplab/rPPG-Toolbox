@@ -21,7 +21,7 @@ import pandas as pd
 class UBFCPHYSLoader(BaseLoader):
     """The data loader for the UBFC-PHYS dataset."""
 
-    def __init__(self, name, data_path, config_data):
+    def __init__(self, name, data_path, config_data, device=None):
         """Initializes an UBFC-PHYS dataloader.
             Args:
                 data_path(str): path of a folder which stores raw video and bvp data.
@@ -58,7 +58,7 @@ class UBFCPHYSLoader(BaseLoader):
                 config_data(CfgNode): data settings(ref:config.py).
         """
         self.filtering = config_data.FILTERING
-        super().__init__(name, data_path, config_data)
+        super().__init__(name, data_path, config_data, device)
 
     def get_raw_data(self, data_path):
         """Returns data directories under the path(For UBFC-PHYS dataset)."""

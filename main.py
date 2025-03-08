@@ -67,6 +67,8 @@ def train_and_test(config, data_loader_dict):
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "iBVPNet":
         model_trainer = trainer.iBVPNetTrainer.iBVPNetTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == "FactorizePhys":
+        model_trainer = trainer.FactorizePhysTrainer.FactorizePhysTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "Tscan":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "EfficientPhys":
@@ -93,6 +95,8 @@ def test(config, data_loader_dict):
         model_trainer = trainer.PhysnetTrainer.PhysnetTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "iBVPNet":
         model_trainer = trainer.iBVPNetTrainer.iBVPNetTrainer(config, data_loader_dict)    
+    elif config.MODEL.NAME == "FactorizePhys":
+        model_trainer = trainer.FactorizePhysTrainer.FactorizePhysTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "Tscan":
         model_trainer = trainer.TscanTrainer.TscanTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == "EfficientPhys":
@@ -177,7 +181,8 @@ if __name__ == "__main__":
             train_data_loader = train_loader(
                 name="train",
                 data_path=config.TRAIN.DATA.DATA_PATH,
-                config_data=config.TRAIN.DATA)
+                config_data=config.TRAIN.DATA,
+                device=config.DEVICE)
             data_loader_dict['train'] = DataLoader(
                 dataset=train_data_loader,
                 num_workers=16,
@@ -218,7 +223,8 @@ if __name__ == "__main__":
             valid_data = valid_loader(
                 name="valid",
                 data_path=config.VALID.DATA.DATA_PATH,
-                config_data=config.VALID.DATA)
+                config_data=config.VALID.DATA,
+                device=config.DEVICE)
             data_loader_dict["valid"] = DataLoader(
                 dataset=valid_data,
                 num_workers=16,
@@ -261,7 +267,8 @@ if __name__ == "__main__":
             test_data = test_loader(
                 name="test",
                 data_path=config.TEST.DATA.DATA_PATH,
-                config_data=config.TEST.DATA)
+                config_data=config.TEST.DATA,
+                device=config.DEVICE)
             data_loader_dict["test"] = DataLoader(
                 dataset=test_data,
                 num_workers=16,
@@ -296,7 +303,8 @@ if __name__ == "__main__":
         unsupervised_data = unsupervised_loader(
             name="unsupervised",
             data_path=config.UNSUPERVISED.DATA.DATA_PATH,
-            config_data=config.UNSUPERVISED.DATA)
+            config_data=config.UNSUPERVISED.DATA,
+            device=config.DEVICE)
         data_loader_dict["unsupervised"] = DataLoader(
             dataset=unsupervised_data,
             num_workers=16,

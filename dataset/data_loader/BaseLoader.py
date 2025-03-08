@@ -15,11 +15,19 @@ from scipy import sparse
 from unsupervised_methods.methods import POS_WANG
 from unsupervised_methods import utils
 import math
-from multiprocessing import Pool, Process, Value, Array, Manager
+import multiprocessing as mp
+
+# To be used only for preparing data - for detecting face with YOLO5Face
+try:
+    mp.set_start_method('spawn', force=True)
+    # print("spawned")
+except RuntimeError:
+    pass
 
 import cv2
 import numpy as np
 import pandas as pd
+import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
 from retinaface import RetinaFace   # Source code: https://github.com/serengil/retinaface
@@ -41,7 +49,7 @@ class BaseLoader(Dataset):
             "--preprocess", default=None, action='store_true')
         return parser
 
-    def __init__(self, dataset_name, raw_data_path, config_data):
+    def __init__(self, dataset_name, raw_data_path, config_data, device=None):
         """Inits dataloader with lists of files.
 
         Args:
@@ -59,6 +67,11 @@ class BaseLoader(Dataset):
         self.data_format = config_data.DATA_FORMAT
         self.do_preprocess = config_data.DO_PREPROCESS
         self.config_data = config_data
+
+        if self.do_preprocess:
+            from dataset.data_loader.face_detector.YOLO5Face import YOLO5Face
+            if 'Y5F' in self.config_data.PREPROCESS.CROP_FACE.BACKEND:
+                self.Y5FObj = YOLO5Face(self.config_data.PREPROCESS.CROP_FACE.BACKEND, device)
 
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
@@ -284,7 +297,7 @@ class BaseLoader(Dataset):
             # Computed face_zone(s) are in the form [x_coord, y_coord, width, height]
             # (x,y) corresponds to the top-left corner of the zone to define using
             # the computed width and height.
-            face_zone = detector.detectMultiScale(frame)
+            face_zone = detector.detectMultiScale(frame[:, :, :3].astype(np.uint8))
 
             if len(face_zone) < 1:
                 print("ERROR: No Face Detected")
@@ -300,7 +313,7 @@ class BaseLoader(Dataset):
         elif backend == "RF":
             # Use a TensorFlow-based RetinaFace implementation for face detection
             # This utilizes both the CPU and GPU
-            res = RetinaFace.detect_faces(frame)
+            res = RetinaFace.detect_faces(frame[:, :, :3].astype(np.uint8))
 
             if len(res) > 0:
                 # Pick the highest score
@@ -333,6 +346,41 @@ class BaseLoader(Dataset):
             else:
                 print("ERROR: No Face Detected")
                 face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
+        
+        elif "Y5F" in backend:
+            # Use a YOLO5Face trained on WiderFace dataset
+            # This utilizes both the CPU and GPU
+
+            res = self.Y5FObj.detect_face(frame[:, :, :3].astype(np.uint8))
+
+            if res != None:
+                x_min, y_min, x_max, y_max = res
+
+                # Convert to this toolbox's expected format
+                # Expected format: [x_coord, y_coord, width, height]
+                x = x_min
+                y = y_min
+                width = x_max - x_min
+                height = y_max - y_min
+
+                # Find the center of the face zone
+                center_x = x + width // 2
+                center_y = y + height // 2
+
+                # Determine the size of the square (use the maximum of width and height)
+                square_size = max(width, height)
+
+                # Calculate the new coordinates for a square face zone
+                new_x = center_x - (square_size // 2)
+                new_y = center_y - (square_size // 2)
+                face_box_coor = [new_x, new_y, square_size, square_size]
+
+            else:
+                print("ERROR: No Face Detected")
+                face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
+
+
+
         else:
             raise ValueError("Unsupported face detection backend!")
 
@@ -380,8 +428,9 @@ class BaseLoader(Dataset):
             face_region_median = np.median(face_region_all, axis=0).astype('int')
 
         # Frame Resizing
-        resized_frames = np.zeros((frames.shape[0], height, width, 3))
-        for i in range(0, frames.shape[0]):
+        total_frames, _, _, channels = frames.shape
+        resized_frames = np.zeros((total_frames, height, width, channels))
+        for i in range(0, total_frames):
             frame = frames[i]
             if use_dynamic_detection:  # use the (i // detection_freq)-th facial region.
                 reference_index = i // detection_freq
@@ -482,7 +531,7 @@ class BaseLoader(Dataset):
         pbar = tqdm(list(choose_range))
 
         # shared data resource
-        manager = Manager()  # multi-process manager
+        manager = mp.Manager()  # multi-process manager
         file_list_dict = manager.dict()  # dictionary for all processes to store processed files
         p_list = []  # list of processes
         running_num = 0  # number of running processes
@@ -493,7 +542,7 @@ class BaseLoader(Dataset):
             while process_flag:  # ensure that every i creates a process
                 if running_num < multi_process_quota:  # in case of too many processes
                     # send data to be preprocessing task
-                    p = Process(target=self.preprocess_dataset_subprocess, 
+                    p = mp.Process(target=self.preprocess_dataset_subprocess, 
                                 args=(data_dirs,config_preprocess, i, file_list_dict))
                     p.start()
                     p_list.append(p)

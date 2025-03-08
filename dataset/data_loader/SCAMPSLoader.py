@@ -24,7 +24,7 @@ from tqdm import tqdm
 class SCAMPSLoader(BaseLoader):
     """The data loader for the SCAMPS Processed dataset."""
 
-    def __init__(self, name, data_path, config_data):
+    def __init__(self, name, data_path, config_data, device=None):
         """Initializes an SCAMPS Processed dataloader.
             Args:
                 data_path(string): path of a folder which stores raw video and ground truth biosignal in mat files.
@@ -40,7 +40,7 @@ class SCAMPSLoader(BaseLoader):
                 name(str): name of the dataloader.
                 config_data(CfgNode): data settings(ref:config.py).
         """
-        super().__init__(name, data_path, config_data)
+        super().__init__(name, data_path, config_data, device)
         self.cached_path = config_data.CACHED_PATH + "_" + self.dataset_name
         self.file_list_path = config_data.FILE_LIST_PATH.split('.')[0] + "_" + self.dataset_name \
                               + os.path.basename(config_data.FILE_LIST_PATH)  # append split name before .csv ext
