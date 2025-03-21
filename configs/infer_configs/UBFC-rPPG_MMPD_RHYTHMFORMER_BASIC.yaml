@@ -1,0 +1,55 @@
+BASE: ['']
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
+TEST:
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
+  USE_LAST_EPOCH: False                      # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    INFO:
+      LIGHT: [1, 2, 3, 4]  # 1 - LED-Low, 2 - LED-high, 3 - Incandescent, 4 - Nature
+      MOTION: [1, 2, 3, 4] # 1 - Stationary, 2 - Rotation, 3 - Talking, 4 - Walking
+      EXERCISE: [1, 2] # 1 - True, 2 - False
+      SKIN_COLOR: [3, 4, 5, 6] # Fitzpatrick Scale Skin Types - 3, 4, 5, 6
+      GENDER: [1, 2]  # 1 - Male, 2 - Female
+      GLASSER: [1, 2] # 1 - True, 2 - False
+      HAIR_COVER: [1, 2] # 1 - True, 2 - False
+      MAKEUP: [1, 2] # 1 - True, 2 - False
+    FS: 30
+    DATASET: MMPD
+    DO_PREPROCESS: False                    # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "/data/MMPD"          # Raw dataset path, need to be updated
+    CACHED_PATH: "/data/PreprocessedData/experienment0/MMPD"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS :
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 160
+      CROP_FACE:
+        DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace, Y5F for YOLO5Face
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 128
+        W: 128
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: RhythmFormer
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
+  MODEL_PATH:   "./final_model_release/UBFC-rPPG_RhythmFormer.pth"

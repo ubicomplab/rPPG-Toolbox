@@ -24,7 +24,7 @@ simplefilter(action='ignore', category=FutureWarning)
 class MMPDLoader(BaseLoader):
     """The data loader for the MMPD dataset."""
 
-    def __init__(self, name, data_path, config_data):
+    def __init__(self, name, data_path, config_data, device=None):
         """Initializes an MMPD dataloader.
             Args:
                 data_path(str): path of a folder which stores raw video and bvp data.
@@ -49,7 +49,7 @@ class MMPDLoader(BaseLoader):
                 config_data(CfgNode): data settings(ref:config.py).
         """
         self.info = config_data.INFO
-        super().__init__(name, data_path, config_data)
+        super().__init__(name, data_path, config_data, device)
 
 
     def get_raw_data(self, raw_data_path):

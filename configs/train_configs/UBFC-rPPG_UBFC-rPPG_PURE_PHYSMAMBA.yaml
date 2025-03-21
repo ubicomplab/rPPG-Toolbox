@@ -1,0 +1,111 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test" # "train_and_test"  or "only_test"
+TRAIN:
+  BATCH_SIZE: 4
+  EPOCHS: 20
+  LR: 3e-3
+  MODEL_FILE_NAME: UBFC_UBFC_PURE_PhysMamba
+  PLOT_LOSSES_AND_LR: True
+  DATA:
+    FS: 30
+    DATASET: UBFC-rPPG
+    DO_PREPROCESS: False            # if first time, should be true
+    DATA_FORMAT: NCDHW
+    DATA_PATH: "/data/UBFC-rPPG/DATASET_2"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/data/PreprocessedData/experienment0/UBFC"    # Processed dataset save path, need to be updated
+    FILE_LIST_PATH: "/data/PreprocessedData/experienment0/UBFC"    # Path to store file lists, needs to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 0.8
+    PREPROCESS:
+      DATA_TYPE: ['DiffNormalized'] #if use physnet, should be DiffNormalized
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 128  #only support for factor of 512
+      CROP_FACE:
+        DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace, Y5F for YOLO5Face
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 128
+        W: 128
+VALID:
+  DATA:
+    FS: 30
+    DATASET: UBFC-rPPG
+    DO_PREPROCESS: False              # if first time, should be true
+    DATA_FORMAT: NCDHW
+    DATA_PATH: "/data/UBFC-rPPG/DATASET_2"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/data/PreprocessedData/experienment0/UBFC"    # Processed dataset save path, need to be updated
+    FILE_LIST_PATH: "/data/PreprocessedData/experienment0/UBFC"    # Path to store file lists, needs to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.8
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: ['DiffNormalized'] #if use physnet, should be DiffNormalized
+      DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 128  #only support for factor of 512
+      CROP_FACE:
+        DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace, Y5F for YOLO5Face
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 128
+        W: 128
+TEST:
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR', 'BA']
+  USE_LAST_EPOCH: False                   # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    FS: 30
+    DATASET: PURE
+    DO_PREPROCESS: False               # if first time, should be true
+    DATA_FORMAT: NCDHW
+    DATA_PATH: "/data/PURE"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/data/PreprocessedData/experienment0/PURE"    # Processed dataset save path, need to be updated
+    FILE_LIST_PATH: "/data/PreprocessedData/experienment0/PURE"    # Path to store file lists, needs to be updated
+    EXP_DATA_NAME: ""
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      DATA_TYPE: ['DiffNormalized'] #if use physnet, should be DiffNormalized
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 128  #only support for factor of 512
+      CROP_FACE:
+        DO_CROP_FACE: True
+        BACKEND: 'HC'    # HC for Haar Cascade, RF for RetinaFace, Y5F for YOLO5Face
+        USE_LARGE_FACE_BOX: True
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          DO_DYNAMIC_DETECTION: False
+          DYNAMIC_DETECTION_FREQUENCY : 30
+          USE_MEDIAN_FACE_BOX: False    # This should be used ONLY if dynamic detection is used
+      RESIZE:
+        H: 128
+        W: 128
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+LOG:
+  PATH: runs/exp
+MODEL:
+  NAME: PhysMamba
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False        # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 10        # In seconds
+  MODEL_PATH: ""

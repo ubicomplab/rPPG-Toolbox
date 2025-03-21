@@ -301,6 +301,28 @@ _C.MODEL.PHYSNET = CN()
 _C.MODEL.PHYSNET.FRAME_NUM = 64
 
 # -----------------------------------------------------------------------------
+# Specific parameters for iBVPNet parameters
+# -----------------------------------------------------------------------------
+_C.MODEL.iBVPNet = CN()
+_C.MODEL.iBVPNet.FRAME_NUM = 160
+_C.MODEL.iBVPNet.CHANNELS = 3
+# -----------------------------------------------------------------------------
+# Specific parameters for FactorizePhys parameters
+# -----------------------------------------------------------------------------
+_C.MODEL.FactorizePhys = CN()
+_C.MODEL.FactorizePhys.FRAME_NUM = 160
+_C.MODEL.FactorizePhys.CHANNELS = 3
+_C.MODEL.FactorizePhys.TYPE = "Standard"
+_C.MODEL.FactorizePhys.MD_FSAM = False
+_C.MODEL.FactorizePhys.MD_TYPE = 'NMF'
+_C.MODEL.FactorizePhys.MD_TRANSFORM = 'T_KAB'
+_C.MODEL.FactorizePhys.MD_R = 1
+_C.MODEL.FactorizePhys.MD_S = 1
+_C.MODEL.FactorizePhys.MD_STEPS = 4
+_C.MODEL.FactorizePhys.MD_INFERENCE = True
+_C.MODEL.FactorizePhys.MD_RESIDUAL = True
+
+# -----------------------------------------------------------------------------
 # Model Settings for TS-CAN
 # -----------------------------------------------------------------------------
 _C.MODEL.TSCAN = CN()
