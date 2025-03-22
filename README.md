@@ -209,6 +209,39 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
           |      |-- pii_x_bvp.csv
     -----------------
 
+* [MR-NIRP](https://computationalimaging.rice.edu/databases/)
+    -----------------
+  RawData/
+  |   |-- subject1/
+  |       |-- subject1_driving_large_motion_975
+  |          |-- NIR.zip
+  |          |-- RGB.zip
+  |          |-- PulseOX.zip
+  |       |-- subject1_driving_small_motion_975
+  |          |...
+  |       |-- subject1_driving_small_motion_940
+  |          |...
+  |       |-- subject1_driving_still_940
+  |          |...
+  |       |-- subject1_driving_still_975
+  |          |...
+  |       |-- subject1_garage_large_motion_975
+  |          |...
+  |       |-- subject1_garage_large_motion_940
+  |          |...
+  |       |-- subject1_garage_small_motion_975
+  |          |...
+  |       |-- subject1_garage_small_motion_940
+  |          |...
+  |       |-- subject1_garage_still_974
+  |          |...
+  |       |-- subject1_garage_still_940
+  |          |...
+  |...
+  |   |-- subjectn/
+  |       |...
+    -----------------
+
 ## :bar_chart: Benchmarks
 
 The table shows  Mean Absolute Error (MAE) and Mean Absolute Percent Error (MAPE) performance across all the algorithms and datasets:
