@@ -13,7 +13,6 @@ tqdm==4.64.0
 mat73==0.59
 ipykernel==6.26.0
 ipywidgets==8.1.1
-retina-face==0.0.13
 fsspec==2024.10.0
 timm==1.0.11
 causal-conv1d==1.0.0
