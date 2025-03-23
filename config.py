@@ -90,6 +90,8 @@ _C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
 _C.TRAIN.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 _C.TRAIN.DATA.PREPROCESS.IBVP = CN()
 _C.TRAIN.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
+
+
 # -----------------------------------------------------------------------------
 # Valid settings
 # -----------------------------------------------------------------------------\
@@ -153,6 +155,7 @@ _C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
 _C.VALID.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
 _C.VALID.DATA.PREPROCESS.IBVP = CN()
 _C.VALID.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
+
 # -----------------------------------------------------------------------------
 # Test settings
 # -----------------------------------------------------------------------------\
@@ -217,8 +220,8 @@ _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_W = 144
 _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.BIG_H = 144
 _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_W = 9
 _C.TEST.DATA.PREPROCESS.BIGSMALL.RESIZE.SMALL_H = 9
-_C.UNSUPERVISED.DATA.PREPROCESS.IBVP = CN()
-_C.UNSUPERVISED.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
+_C.TEST.DATA.PREPROCESS.IBVP = CN()
+_C.TEST.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
 # -----------------------------------------------------------------------------
 # Unsupervised method settings
 # -----------------------------------------------------------------------------\
@@ -272,13 +275,11 @@ _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
-_C.UNSUPERVISED.DATA.PREPROCESS.ROI = CN()
-_C.UNSUPERVISED.DATA.PREPROCESS.ROI.EXTRACT_ROI = False
-_C.UNSUPERVISED.DATA.PREPROCESS.ROI.LANDMARKS = []
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W = 128
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.H = 128
-
+_C.UNSUPERVISED.DATA.PREPROCESS.IBVP = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.IBVP.DATA_MODE = 'RGB'
 ### -----------------------------------------------------------------------------
 # Model settings
 # -----------------------------------------------------------------------------
@@ -598,5 +599,3 @@ def get_config(args):
     update_config(config, args)
 
     return config
-
-
