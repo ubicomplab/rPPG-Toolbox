@@ -33,12 +33,8 @@ class DeepPhysTrainer(BaseTrainer):
             self.model = DeepPhys(img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
-            if self.config.INFERENCE.MODEL_PATH != "":
-                self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
-                print("Loaded Checkpoint:", self.config.INFERENCE.MODEL_PATH)
-                
             self.num_train_batches = len(data_loader["train"])
-            self.criterion = Neg_Pearson()
+            self.criterion = torch.nn.MSELoss()
             self.optimizer = optim.AdamW(
                 self.model.parameters(), lr=config.TRAIN.LR, weight_decay=0)
             # See more details on the OneCycleLR scheduler here: https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html
@@ -68,7 +64,8 @@ class DeepPhysTrainer(BaseTrainer):
             tbar = tqdm(data_loader["train"], ncols=80)
             for idx, batch in enumerate(tbar):
                 tbar.set_description("Train epoch %s" % epoch)
-                data, labels = batch[0].to(self.device), batch[1].to(self.device)
+                data, labels = batch[0].to(
+                    self.device), batch[1].to(self.device)
                 N, D, C, H, W = data.shape
                 data = data.view(N * D, C, H, W)
                 labels = labels.view(-1, 1)
@@ -142,9 +139,8 @@ class DeepPhysTrainer(BaseTrainer):
         """ Model evaluation on the testing dataset."""
         if data_loader["test"] is None:
             raise ValueError("No data for test")
-
-        self.chunk_len = self.config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
-
+        config = self.config
+        
         print('')
         print("===Testing===")
 
@@ -156,8 +152,7 @@ class DeepPhysTrainer(BaseTrainer):
         if self.config.TOOLBOX_MODE == "only_test":
             if not os.path.exists(self.config.INFERENCE.MODEL_PATH):
                 raise ValueError("Inference model path error! Please check INFERENCE.MODEL_PATH in your yaml.")
-            
-            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
+            self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH))
             print("Testing uses pretrained model!")
         else:
             if self.config.TEST.USE_LAST_EPOCH:
@@ -165,13 +160,13 @@ class DeepPhysTrainer(BaseTrainer):
                 self.model_dir, self.model_file_name + '_Epoch' + str(self.max_epoch_num - 1) + '.pth')
                 print("Testing uses last epoch as non-pretrained model!")
                 print(last_epoch_model_path)
-                self.model.load_state_dict(torch.load(last_epoch_model_path, map_location=self.device))
+                self.model.load_state_dict(torch.load(last_epoch_model_path))
             else:
                 best_model_path = os.path.join(
                     self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
                 print("Testing uses best epoch selected using model selection as non-pretrained model!")
                 print(best_model_path)
-                self.model.load_state_dict(torch.load(best_model_path, map_location=self.device))
+                self.model.load_state_dict(torch.load(best_model_path))
 
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
@@ -179,7 +174,8 @@ class DeepPhysTrainer(BaseTrainer):
         with torch.no_grad():
             for _, test_batch in enumerate(tqdm(data_loader["test"], ncols=80)):
                 batch_size = test_batch[0].shape[0]
-                data_test, labels_test = test_batch[0].to(self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
+                data_test, labels_test = test_batch[0].to(
+                    self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
                 N, D, C, H, W = data_test.shape
                 data_test = data_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
@@ -202,11 +198,12 @@ class DeepPhysTrainer(BaseTrainer):
         calculate_metrics(predictions, labels, self.config)
         if self.config.TEST.OUTPUT_SAVE_DIR: # saving test outputs
             self.save_test_outputs(predictions, labels, self.config)
-   
+
     def save_model(self, index):
+        """Inits parameters from args and the writer for TensorboardX."""
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
         model_path = os.path.join(
             self.model_dir, self.model_file_name + '_Epoch' + str(index) + '.pth')
         torch.save(self.model.state_dict(), model_path)
-        print('Saved Model Path: ', model_path)
+ 

@@ -1,21 +1,14 @@
-import glob
-import os
-
-from tqdm import tqdm
-import numpy as np
-
-import zipfile
-
-import cv2
-
-import io
-import imageio
-
-from scipy.io import loadmat
-
 from dataset.data_loader.BaseLoader import BaseLoader
-
+from scipy.io import loadmat
+from tqdm import tqdm
+import cv2
+import glob
+import imageio
+import io
+import numpy as np
+import os
 import pandas as pd
+import zipfile
 
 
 class MRNIRPLoader(BaseLoader):
@@ -224,35 +217,6 @@ class MRNIRPLoader(BaseLoader):
         ppg = ppg[:target_length]
         frames = frames[:target_length]
         return ppg, frames
-    
-    
-    # def preprocess_dataset(self, data_dirs, config_preprocess, begin=0, end=1):
-    #     """Preprocesses the raw data."""
-    #     file_num = len(data_dirs)
-                
-    #     for i in tqdm(range(file_num)):
-    #         # Skip the subject2_garage_small_motion_940 corrupted video
-    #         if data_dirs[i]['index'] == "subject2_garage_small_motion_940":
-    #             continue
-            
-    #         # Read Video Frames
-    #         # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
-    #         frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
-
-    #         if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
-    #             bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
-    #         else: 
-    #             # bvps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
-    #             bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
-                        
-    #         bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
-    #         bvps, frames = self.match_length(bvps, frames)
-                        
-    #         # target_length = frames.shape[0]
-    #         # bvps = BaseLoader.resample_ppg(bvps, target_length)
-
-    #         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-    #         self.preprocessed_data_len += self.save(frames_clips, bvps_clips, data_dirs[i]["index"])
 
 
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
@@ -262,20 +226,17 @@ class MRNIRPLoader(BaseLoader):
             return
         
         # Decompressing the frames before preprocessing speeds up the process signiuicantly
-        frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
-        # frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
+        frames = self.read_video(os.path.join(data_dirs[i]['path'], "RGB.zip"))
+        # frames = self.read_video_unzipped(os.path.join(data_dirs[i]['path'], "RGB"))
 
         if self.config_data.PREPROCESS.USE_PSUEDO_PPG_LABEL:
             bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
         else: 
-            bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
-            # bvps, timestamps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+            bvps, timestamps = self.read_wave(os.path.join(data_dirs[i]['path'], "PulseOx.zip"))
+            # bvps, timestamps = self.read_wave_unzipped(os.path.join(data_dirs[i]['path'], "PulseOX"))
                     
         bvps = self.correct_irregular_sampling(bvps, timestamps, target_fs=self.config_data.FS)
         bvps, frames = self.match_length(bvps, frames)
-                    
-        # target_length = frames.shape[0]
-        # bvps = BaseLoader.resample_ppg(bvps, target_length)
 
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
         input_name_list, _ = self.save_multi_process(frames_clips, bvps_clips, data_dirs[i]['index'])

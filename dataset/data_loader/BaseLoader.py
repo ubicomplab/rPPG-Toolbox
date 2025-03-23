@@ -32,21 +32,6 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 from retinaface import RetinaFace   # Source code: https://github.com/serengil/retinaface
 
-"""
-The audio processing module was creating issues and is not needed.
-"""
-import importlib
-def selective_importer(name, globals=None, locals=None, fromlist=(), level=0):
-    frommodule = globals['__name__'] if globals else None
-    if name=='sounddevice' and 'mediapipe.tasks.python.audio' in frommodule:
-        pass
-    else:
-        return importlib.__import__(name, globals, locals, fromlist, level)
-    
-__builtins__['__import__'] = selective_importer
-
-import mediapipe as mp
-
 
 class BaseLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
@@ -107,8 +92,8 @@ class BaseLoader(Dataset):
 
             self.load_preprocessed_data()
         print('Cached Data Path', self.cached_path, end='\n')
-        # print('File List Path', self.file_list_path)
-        # print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
+        print('File List Path', self.file_list_path)
+        print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -237,7 +222,7 @@ class BaseLoader(Dataset):
         self.build_file_list(file_list_dict)  # build file list
         self.load_preprocessed_data()  # load all data and corresponding labels (sorted for consistency)
         print("Total Number of raw files preprocessed:", len(data_dirs_split), end='\n\n')
-        
+
     def preprocess(self, frames, bvps, config_preprocess):
         """Preprocesses a pair of data.
 
@@ -260,9 +245,7 @@ class BaseLoader(Dataset):
             config_preprocess.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY,
             config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
             config_preprocess.RESIZE.W,
-            config_preprocess.RESIZE.H,
-            config_preprocess.ROI.EXTRACT_ROI,
-            config_preprocess.ROI.LANDMARKS)
+            config_preprocess.RESIZE.H)
         
         # Check data transformation type
         data = list()  # Video data
@@ -333,7 +316,7 @@ class BaseLoader(Dataset):
             # This utilizes both the CPU and GPU
             res = RetinaFace.detect_faces(frame[:, :, :3].astype(np.uint8))
 
-            if len(res) > 0 and type(res) is dict:
+            if len(res) > 0:
                 # Pick the highest score
                 highest_score_face = max(res.values(), key=lambda x: x['score'])
                 face_zone = highest_score_face['facial_area']
@@ -410,7 +393,7 @@ class BaseLoader(Dataset):
         return face_box_coor
 
     def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection, 
-                         detection_freq, use_median_box, width, height, extract_roi=False, landmarks=[]):
+                         detection_freq, use_median_box, width, height):
         """Crop face and resize frames.
 
         Args:
@@ -427,7 +410,7 @@ class BaseLoader(Dataset):
                                 the middle point of the detected region will stay still during the process of enlarging.
         Returns:
             resized_frames(list[np.array(float)]): Resized and cropped frames
-        """        
+        """
         # Face Cropping
         if use_dynamic_detection:
             num_dynamic_det = ceil(frames.shape[0] / detection_freq)
@@ -445,9 +428,6 @@ class BaseLoader(Dataset):
             # Generate a median bounding box based on all detected face regions
             face_region_median = np.median(face_region_all, axis=0).astype('int')
 
-        if extract_roi:
-            face_mesh = mp.solutions.face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1)
-
         # Frame Resizing
         total_frames, _, _, channels = frames.shape
         resized_frames = np.zeros((total_frames, height, width, channels))
@@ -464,30 +444,8 @@ class BaseLoader(Dataset):
                     face_region = face_region_all[reference_index]
                 frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
                         max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
-                
-            # Extract the ROI
-            if extract_roi:
-                mask = np.zeros(frame.shape[:2], dtype=np.uint8)    
-                # Process the frame to find face landmarks.
-                results = face_mesh.process(frame)
-                  
-                if results.multi_face_landmarks:
-                    for face_landmarks in results.multi_face_landmarks:
-                        if landmarks == []:
-                            landmarks = [list(range(len(face_landmarks.landmark)))]
-                        # Extract the coordinates for the landmarks of interest
-                        for region_landmarks in landmarks:
-                            roi_points = np.array([(int(face_landmarks.landmark[i].x * frame.shape[1]), int(face_landmarks.landmark[i].y * frame.shape[0])) for i in region_landmarks], np.int32)
-                            conv_hull = cv2.convexHull(roi_points)
-                            cv2.fillConvexPoly(mask, conv_hull, color=(255))
-                        
-                        mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
-                        frame = cv2.bitwise_and(frame, mask_3channel)
-                else:
-                    print("No face detected in the frame. Appending the whole frame.")
-                
+
             resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
-            
         return resized_frames
 
     def chunk(self, frames, bvps, chunk_length):
@@ -677,7 +635,6 @@ class BaseLoader(Dataset):
         if not inputs:
             raise ValueError(self.dataset_name + ' dataset loading data error!')
         inputs = sorted(inputs)  # sort input file name list
-
         labels = [input_file.replace("input", "label") for input_file in inputs]
         self.inputs = inputs
         self.labels = labels

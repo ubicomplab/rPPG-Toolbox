@@ -40,7 +40,7 @@ class PhysFormerTrainer(BaseTrainer):
         self.theta = config.MODEL.PHYSFORMER.THETA
         self.model_file_name = config.TRAIN.MODEL_FILE_NAME
         self.batch_size = config.TRAIN.BATCH_SIZE
-        self.num_of_gpu = config.NUM_OF_GPU_TRAIN if config.NUM_OF_GPU_TRAIN > 0 else 1
+        self.num_of_gpu = config.NUM_OF_GPU_TRAIN
         self.frame_rate = config.TRAIN.DATA.FS
         self.config = config 
         self.min_valid_loss = None
@@ -49,15 +49,11 @@ class PhysFormerTrainer(BaseTrainer):
         if config.TOOLBOX_MODE == "train_and_test":
             self.chunk_len = config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH
             self.model = ViT_ST_ST_Compact3_TDC_gra_sharp(
-                image_size=(config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
+                image_size=(self.chunk_len,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
                 patches=(self.patch_size,) * 3, dim=self.dim, ff_dim=self.ff_dim, num_heads=self.num_heads, num_layers=self.num_layers, 
                 dropout_rate=self.dropout_rate, theta=self.theta).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
-            if self.config.INFERENCE.MODEL_PATH != "":
-                self.model.load_state_dict(torch.load(self.config.INFERENCE.MODEL_PATH, map_location=self.device))
-                print("Loaded Checkpoint:", self.config.INFERENCE.MODEL_PATH)
-                
             self.num_train_batches = len(data_loader["train"])
             self.criterion_reg = torch.nn.MSELoss()
             self.criterion_L1loss = torch.nn.L1Loss()
@@ -71,7 +67,7 @@ class PhysFormerTrainer(BaseTrainer):
         elif config.TOOLBOX_MODE == "only_test":
             self.chunk_len = config.TEST.DATA.PREPROCESS.CHUNK_LENGTH
             self.model = ViT_ST_ST_Compact3_TDC_gra_sharp(
-                image_size=(config.TEST.DATA.PREPROCESS.CHUNK_LENGTH,config.TEST.DATA.PREPROCESS.RESIZE.H,config.TEST.DATA.PREPROCESS.RESIZE.W), 
+                image_size=(self.chunk_len,config.TRAIN.DATA.PREPROCESS.RESIZE.H,config.TRAIN.DATA.PREPROCESS.RESIZE.W), 
                 patches=(self.patch_size,) * 3, dim=self.dim, ff_dim=self.ff_dim, num_heads=self.num_heads, num_layers=self.num_layers, 
                 dropout_rate=self.dropout_rate, theta=self.theta).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
@@ -231,13 +227,13 @@ class PhysFormerTrainer(BaseTrainer):
                 self.model_dir, self.model_file_name + '_Epoch' + str(self.max_epoch_num - 1) + '.pth')
                 print("Testing uses last epoch as non-pretrained model!")
                 print(last_epoch_model_path)
-                self.model.load_state_dict(torch.load(last_epoch_model_path, map_location=self.device))
+                self.model.load_state_dict(torch.load(last_epoch_model_path))
             else:
                 best_model_path = os.path.join(
                     self.model_dir, self.model_file_name + '_Epoch' + str(self.best_epoch) + '.pth')
                 print("Testing uses best epoch selected using model selection as non-pretrained model!")
                 print(best_model_path)
-                self.model.load_state_dict(torch.load(best_model_path, map_location=self.device))
+                self.model.load_state_dict(torch.load(best_model_path))
 
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
@@ -249,11 +245,6 @@ class PhysFormerTrainer(BaseTrainer):
                     self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
                 gra_sharp = 2.0
                 pred_ppg_test, _, _, _ = self.model(data, gra_sharp)
-
-                if self.config.TEST.OUTPUT_SAVE_DIR:
-                    label = label.cpu()
-                    pred_ppg_test = pred_ppg_test.cpu()
-                
                 for idx in range(batch_size):
                     subj_index = test_batch[2][idx]
                     sort_index = int(test_batch[3][idx])
@@ -262,7 +253,7 @@ class PhysFormerTrainer(BaseTrainer):
                         labels[subj_index] = dict()
                     predictions[subj_index][sort_index] = pred_ppg_test[idx]
                     labels[subj_index][sort_index] = label[idx]
-        
+
         print('')
         calculate_metrics(predictions, labels, self.config)
         if self.config.TEST.OUTPUT_SAVE_DIR: # saving test outputs
