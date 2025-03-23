@@ -91,7 +91,7 @@ class BaseLoader(Dataset):
                 print('File list generated.', end='\n\n')
 
             self.load_preprocessed_data()
-        print('Cached Data Path', self.cached_path, end='\n')
+        print('Cached Data Path', self.cached_path, end='\n\n')
         print('File List Path', self.file_list_path)
         print(f" {self.dataset_name} Preprocessed Dataset Length: {self.preprocessed_data_len}", end='\n\n')
 
@@ -246,7 +246,6 @@ class BaseLoader(Dataset):
             config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
             config_preprocess.RESIZE.W,
             config_preprocess.RESIZE.H)
-        
         # Check data transformation type
         data = list()  # Video data
         for data_type in config_preprocess.DATA_TYPE:
@@ -444,7 +443,6 @@ class BaseLoader(Dataset):
                     face_region = face_region_all[reference_index]
                 frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
                         max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
-
             resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
         return resized_frames
 
