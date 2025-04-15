@@ -249,7 +249,7 @@ class BaseLoader(Dataset):
         for data_type in config_preprocess.DATA_TYPE:
             f_c = frames.copy()
             if data_type == "Raw":
-                data.append(f_c)
+                data.append(f_c / 255.0)
             elif data_type == "DiffNormalized":
                 data.append(BaseLoader.diff_normalize_data(f_c))
             elif data_type == "Standardized":
