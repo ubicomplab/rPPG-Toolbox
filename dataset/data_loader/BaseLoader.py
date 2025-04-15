@@ -30,8 +30,6 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from retinaface import RetinaFace   # Source code: https://github.com/serengil/retinaface
-
 
 class BaseLoader(Dataset):
     """The base class for data loading based on pytorch Dataset.
@@ -309,44 +307,7 @@ class BaseLoader(Dataset):
                 face_box_coor = face_zone[max_width_index]
                 print("Warning: More than one faces are detected. Only cropping the biggest one.")
             else:
-                face_box_coor = face_zone[0]
-        elif backend == "RF":
-            # Use a TensorFlow-based RetinaFace implementation for face detection
-            # This utilizes both the CPU and GPU
-            res = RetinaFace.detect_faces(frame[:, :, :3].astype(np.uint8))
-
-            if len(res) > 0:
-                # Pick the highest score
-                highest_score_face = max(res.values(), key=lambda x: x['score'])
-                face_zone = highest_score_face['facial_area']
-
-                # This implementation of RetinaFace returns a face_zone in the
-                # form [x_min, y_min, x_max, y_max] that corresponds to the 
-                # corners of a face zone
-                x_min, y_min, x_max, y_max = face_zone
-
-                # Convert to this toolbox's expected format
-                # Expected format: [x_coord, y_coord, width, height]
-                x = x_min
-                y = y_min
-                width = x_max - x_min
-                height = y_max - y_min
-
-                # Find the center of the face zone
-                center_x = x + width // 2
-                center_y = y + height // 2
-                
-                # Determine the size of the square (use the maximum of width and height)
-                square_size = max(width, height)
-                
-                # Calculate the new coordinates for a square face zone
-                new_x = center_x - (square_size // 2)
-                new_y = center_y - (square_size // 2)
-                face_box_coor = [new_x, new_y, square_size, square_size]
-            else:
-                print("ERROR: No Face Detected")
-                face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
-        
+                face_box_coor = face_zone[0]     
         elif "Y5F" in backend:
             # Use a YOLO5Face trained on WiderFace dataset
             # This utilizes both the CPU and GPU
@@ -378,9 +339,6 @@ class BaseLoader(Dataset):
             else:
                 print("ERROR: No Face Detected")
                 face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
-
-
-
         else:
             raise ValueError("Unsupported face detection backend!")
 
