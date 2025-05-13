@@ -12,6 +12,11 @@ import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
 from tqdm import tqdm
 import threading
+from neurokit2 import ppg_peaks, ppg_quality, NeuroKitWarning
+import warnings
+
+warnings.filterwarnings("ignore", category=NeuroKitWarning)
+
 
 
 class  PhysDriveLoader(BaseLoader):
@@ -159,9 +164,34 @@ class  PhysDriveLoader(BaseLoader):
             if len(bvps) != target_length:
                 raise ValueError(f"Resampling failed: BVP {len(bvps)} vs frames {target_length}")
 
-            # ========== 预处理与保存 ==========
+            # ========== 预处理与保存前进行切片 ==========
             frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-            input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
+
+            # ========== 对每个clip进行质量筛选 ==========
+            qualified_frames = []
+            qualified_bvps = []
+            skipped_count = 0
+
+            for idx, (f_clip, b_clip) in enumerate(zip(frames_clips, bvps_clips)):
+                quality = self.single_signal_quality_assessment(b_clip, fs=self.config_data.FS)
+                if quality < 0.5:
+                    print(
+                        f"[Warning] Skipping low-quality clip {saved_filename}/{idx + 1}/{len(bvps_clips)}: quality={quality:.3f}")
+                    skipped_count += 1
+                    continue
+                qualified_frames.append(f_clip)
+                qualified_bvps.append(b_clip)
+
+            # 检查是否还有合法clip
+            if len(qualified_frames) == 0:
+                print(f"[Warning] All clips in {saved_filename} are low quality. Skipping whole session.")
+                return
+            else:
+                print(f"{skipped_count}/{len(frames_clips)} clips skipped.")
+
+
+            # ========== 保存过滤后的clip ==========
+            input_name_list, label_name_list = self.save_multi_process(qualified_frames, qualified_bvps, saved_filename)
 
             # 使用线程安全的方式更新共享字典
             with threading.Lock():  # 如果使用多线程
@@ -183,3 +213,47 @@ class  PhysDriveLoader(BaseLoader):
         """Reads a bvp signal file."""
         waves = sio.loadmat(bvp_file)["BVP"].flatten() #(1,len)
         return np.asarray(waves)
+
+    @staticmethod
+    def single_signal_quality_assessment(signal, fs=30, method_quality='templatematch', method_peaks='elgendi'):
+        assert method_quality in ['templatematch',
+                                  'dissimilarity'], "method_quality must be one of ['templatematch', 'dissimilarity']"
+
+        signal_filtered = signal
+
+        # Check if the signal is too short or has no variation
+        if len(signal_filtered) < 10 or np.all(signal_filtered == signal_filtered[0]):
+            print("Warning: Signal is too short or constant. Skipping quality assessment.")
+            return 0  # Return a high value indicating poor quality
+
+        if method_quality in ['templatematch', 'dissimilarity']:
+            method_quality = 'dissimilarity' if method_quality == 'dissimilarity' else method_quality
+
+            try:
+                # Attempt peak detection on the filtered signal
+                _, peak_info = ppg_peaks(
+                    signal_filtered,
+                    sampling_rate=fs,
+                    method=method_peaks
+                )
+
+                # If no peaks were detected, return zero quality value
+                if peak_info["PPG_Peaks"].size == 0:
+                    print("No peaks detected in the signal. Skipping quality assessment.")
+                    return 0
+
+                quality = ppg_quality(
+                    signal_filtered,
+                    ppg_pw_peaks=peak_info["PPG_Peaks"],
+                    sampling_rate=fs,
+                    method=method_quality
+                )
+
+                # Calculate mean quality excluding NaN values
+                quality = np.nanmean(quality)
+
+            except ValueError as e:
+                print(f"Error in ppg_quality function: {e}")
+                quality = 0
+
+            return quality

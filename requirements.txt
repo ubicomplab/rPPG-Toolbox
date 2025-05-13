@@ -19,3 +19,4 @@ causal-conv1d==1.0.0
 protobuf==3.20.3
 neurokit2==0.2.10
 thop==0.1.1.post2209072238
+mamba-ssm==2.2.2
