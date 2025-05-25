@@ -209,6 +209,29 @@ in: Proc. 23st IEEE Int. Symposium on Robot and Human Interactive Communication 
           |      |-- pii_x_bvp.csv
     -----------------
 
+  * [PhysDrive](https://github.com/WJULYW/PhysDrive-Dataset)
+    * Jiyao Wang, Xiao Yang, Qingyong Hu, Jiankai Tang, Can Liu, Dengbo He, Yuntao Wang, Ying-Cong Chen, Kaishun Wu. （2025） PhysDrive: A Multimodal Remote Physiological Measurement Dataset for In-vehicle Driver Monitoring
+    -----------------
+         On-Road-rPPG/
+         |   |-- AFH1/
+         |      |-- A1/
+         |          |-- Align/
+         |              |-- ...png
+         |          |-- Label/
+         |              |-- BVP.mat
+         |              |-- ECG.mat
+         |              |-- RESP.mat
+         |              |-- SPO2.mat
+         |      |-- A2/...
+         |      |-- B1/...
+         |      |-- B2/...
+         |      |-- C1/...
+         |      |-- C2/...
+         |   |-- AFH2/
+         |...
+         |   |-- CMZ2/
+    -----------------
+
 ## :bar_chart: Benchmarks
 
 The table shows  Mean Absolute Error (MAE) and Mean Absolute Percent Error (MAPE) performance across all the algorithms and datasets:
