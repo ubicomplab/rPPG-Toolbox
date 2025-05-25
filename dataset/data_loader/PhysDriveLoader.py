@@ -4,14 +4,12 @@ Jiyao Wang, Xiao Yang, Qingyong Hu, Jiankai Tang, Can Liu, Dengbo He, Yuntao Wan
 """
 
 import glob
-import json
 import os
 import re
 import scipy.io as sio
 import cv2
 import numpy as np
 from dataset.data_loader.BaseLoader import BaseLoader
-from tqdm import tqdm
 import threading
 from neurokit2 import ppg_peaks, ppg_quality, NeuroKitWarning
 import warnings
