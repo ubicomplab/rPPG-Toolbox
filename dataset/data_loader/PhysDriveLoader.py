@@ -94,7 +94,7 @@ class  PhysDriveLoader(BaseLoader):
             index = data['index']
             # creates a dictionary of data_dirs indexed by subject number
             if subject not in data_info:  # if subject not in the data info dictionary
-                data_info[subject] = []  # make an emplty list for that subject
+                data_info[subject] = []  # make an empty list for that subject
             # append a tuple of the filename, subject num, trial num, and chunk num
             data_info[subject].append({"index": index, "path": data_dir, "subject": subject})
 
