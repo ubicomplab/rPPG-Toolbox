@@ -620,7 +620,8 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                         config_preprocess.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY,
                         config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
                         config_preprocess.BIGSMALL.RESIZE.BIG_W,
-                        config_preprocess.BIGSMALL.RESIZE.BIG_H)
+                        config_preprocess.BIGSMALL.RESIZE.BIG_H,
+                        config_preprocess.CROP_FACE.BG_POSITION)
 
         # PROCESS BIG FRAMES
         big_data = list()
@@ -660,7 +661,8 @@ class BP4DPlusBigSmallLoader(BaseLoader):
                         False,
                         False,
                         config_preprocess.BIGSMALL.RESIZE.SMALL_W,
-                        config_preprocess.BIGSMALL.RESIZE.SMALL_H)
+                        config_preprocess.BIGSMALL.RESIZE.SMALL_H,
+                        config_preprocess.CROP_FACE.BG_POSITION)
 
         ######################################
         ########## PROCESSED LABELS ##########

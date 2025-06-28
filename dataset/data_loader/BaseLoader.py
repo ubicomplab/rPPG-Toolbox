@@ -253,7 +253,8 @@ class BaseLoader(Dataset):
             config_preprocess.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY,
             config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
             config_preprocess.RESIZE.W,
-            config_preprocess.RESIZE.H)
+            config_preprocess.RESIZE.H,
+            config_preprocess.CROP_FACE.BG_POSITION)
         # Check data transformation type for face and background
         data_face = list()
         data_bg = list()
@@ -382,6 +383,7 @@ class BaseLoader(Dataset):
             use_face_detection(bool):  Whether crop the face.
             larger_box_coef(float): the coefficient of the larger region(height and weight),
                                 the middle point of the detected region will stay still during the process of enlarging.
+            bg_position(str): where to select background ROI, ``bottom_right`` or ``top_left``.
         Returns:
             face_frames(np.array): Resized and cropped face frames
             bg_frames(np.array): Resized and cropped background frames
