@@ -610,8 +610,13 @@ class BaseLoader(Dataset):
         # generate a list of all preprocessed / chunked data files
         file_list = []
         for fname in filename_list:
-            processed_file_data = list(glob.glob(self.cached_path + os.sep + "{0}_input*.npz".format(fname)))
-            file_list += processed_file_data
+            npz_files = glob.glob(self.cached_path + os.sep + "{0}_input*.npz".format(fname))
+            base_names = {os.path.splitext(f)[0] for f in npz_files}
+            npy_files = glob.glob(self.cached_path + os.sep + "{0}_input*.npy".format(fname))
+            file_list.extend(npz_files)
+            for f in npy_files:
+                if os.path.splitext(f)[0] not in base_names:
+                    file_list.append(f)
 
         if not file_list:
             raise ValueError(self.dataset_name,
