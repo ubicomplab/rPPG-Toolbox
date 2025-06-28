@@ -82,9 +82,9 @@ class SCAMPSLoader(BaseLoader):
         else:
             bvps = self.read_wave(matfile_path)
 
-        frames_clips, bvps_clips = self.preprocess(
+        face_clips, bg_clips, bvps_clips = self.preprocess(
             frames, bvps, config_preprocess)
-        input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
+        input_name_list, label_name_list = self.save_multi_process(face_clips, bg_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 
     def preprocess_dataset_backup(self, data_dirs, config_preprocess):

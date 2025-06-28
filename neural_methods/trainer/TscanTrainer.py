@@ -10,6 +10,7 @@ import torch.optim as optim
 from evaluation.metrics import calculate_metrics
 from neural_methods.loss.NegPearsonLoss import Neg_Pearson
 from neural_methods.model.TS_CAN import TSCAN
+from neural_methods.model.DualInputWrapper import DualInputWrapper
 from neural_methods.trainer.BaseTrainer import BaseTrainer
 from tqdm import tqdm
 
@@ -33,7 +34,8 @@ class TscanTrainer(BaseTrainer):
         self.best_epoch = 0
 
         if config.TOOLBOX_MODE == "train_and_test":
-            self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H).to(self.device)
+            base_model = TSCAN(frame_depth=self.frame_depth, img_size=config.TRAIN.DATA.PREPROCESS.RESIZE.H)
+            self.model = DualInputWrapper(base_model).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
 
             self.num_train_batches = len(data_loader["train"])
@@ -44,7 +46,8 @@ class TscanTrainer(BaseTrainer):
             self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
                 self.optimizer, max_lr=config.TRAIN.LR, epochs=config.TRAIN.EPOCHS, steps_per_epoch=self.num_train_batches)
         elif config.TOOLBOX_MODE == "only_test":
-            self.model = TSCAN(frame_depth=self.frame_depth, img_size=config.TEST.DATA.PREPROCESS.RESIZE.H).to(self.device)
+            base_model = TSCAN(frame_depth=self.frame_depth, img_size=config.TEST.DATA.PREPROCESS.RESIZE.H)
+            self.model = DualInputWrapper(base_model).to(self.device)
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(config.NUM_OF_GPU_TRAIN)))
         else:
             raise ValueError("TS-CAN trainer initialized in incorrect toolbox mode!")
@@ -66,15 +69,17 @@ class TscanTrainer(BaseTrainer):
             tbar = tqdm(data_loader["train"], ncols=80)
             for idx, batch in enumerate(tbar):
                 tbar.set_description("Train epoch %s" % epoch)
-                data, labels = batch[0].to(
-                    self.device), batch[1].to(self.device)
-                N, D, C, H, W = data.shape
-                data = data.view(N * D, C, H, W)
+                face, background, labels = batch[0].to(
+                    self.device), batch[1].to(self.device), batch[2].to(self.device)
+                N, D, C, H, W = face.shape
+                face = face.view(N * D, C, H, W)
+                background = background.view(N * D, C, H, W)
                 labels = labels.view(-1, 1)
-                data = data[:(N * D) // self.base_len * self.base_len]
+                face = face[:(N * D) // self.base_len * self.base_len]
+                background = background[:(N * D) // self.base_len * self.base_len]
                 labels = labels[:(N * D) // self.base_len * self.base_len]
                 self.optimizer.zero_grad()
-                pred_ppg = self.model(data)
+                pred_ppg = self.model(face, background)
                 loss = self.criterion(pred_ppg, labels)
                 loss.backward()
 
@@ -126,14 +131,16 @@ class TscanTrainer(BaseTrainer):
             vbar = tqdm(data_loader["valid"], ncols=80)
             for valid_idx, valid_batch in enumerate(vbar):
                 vbar.set_description("Validation")
-                data_valid, labels_valid = valid_batch[0].to(
-                    self.device), valid_batch[1].to(self.device)
-                N, D, C, H, W = data_valid.shape
-                data_valid = data_valid.view(N * D, C, H, W)
+                face_valid, bg_valid, labels_valid = valid_batch[0].to(
+                    self.device), valid_batch[1].to(self.device), valid_batch[2].to(self.device)
+                N, D, C, H, W = face_valid.shape
+                face_valid = face_valid.view(N * D, C, H, W)
+                bg_valid = bg_valid.view(N * D, C, H, W)
                 labels_valid = labels_valid.view(-1, 1)
-                data_valid = data_valid[:(N * D) // self.base_len * self.base_len]
+                face_valid = face_valid[:(N * D) // self.base_len * self.base_len]
+                bg_valid = bg_valid[:(N * D) // self.base_len * self.base_len]
                 labels_valid = labels_valid[:(N * D) // self.base_len * self.base_len]
-                pred_ppg_valid = self.model(data_valid)
+                pred_ppg_valid = self.model(face_valid, bg_valid)
                 loss = self.criterion(pred_ppg_valid, labels_valid)
                 valid_loss.append(loss.item())
                 valid_step += 1
@@ -180,14 +187,16 @@ class TscanTrainer(BaseTrainer):
         with torch.no_grad():
             for _, test_batch in enumerate(tqdm(data_loader["test"], ncols=80)):
                 batch_size = test_batch[0].shape[0]
-                data_test, labels_test = test_batch[0].to(
-                    self.config.DEVICE), test_batch[1].to(self.config.DEVICE)
-                N, D, C, H, W = data_test.shape
-                data_test = data_test.view(N * D, C, H, W)
+                face_test, bg_test, labels_test = test_batch[0].to(
+                    self.config.DEVICE), test_batch[1].to(self.config.DEVICE), test_batch[2].to(self.config.DEVICE)
+                N, D, C, H, W = face_test.shape
+                face_test = face_test.view(N * D, C, H, W)
+                bg_test = bg_test.view(N * D, C, H, W)
                 labels_test = labels_test.view(-1, 1)
-                data_test = data_test[:(N * D) // self.base_len * self.base_len]
+                face_test = face_test[:(N * D) // self.base_len * self.base_len]
+                bg_test = bg_test[:(N * D) // self.base_len * self.base_len]
                 labels_test = labels_test[:(N * D) // self.base_len * self.base_len]
-                pred_ppg_test = self.model(data_test)
+                pred_ppg_test = self.model(face_test, bg_test)
 
                 if self.config.TEST.OUTPUT_SAVE_DIR:
                     labels_test = labels_test.cpu()
