@@ -77,6 +77,7 @@ _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.BG_POSITION = 'bottom_right'
 _C.TRAIN.DATA.PREPROCESS.RESIZE = CN()
 _C.TRAIN.DATA.PREPROCESS.RESIZE.W = 128
 _C.TRAIN.DATA.PREPROCESS.RESIZE.H = 128
@@ -142,6 +143,7 @@ _C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
 _C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
 _C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
 _C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.VALID.DATA.PREPROCESS.CROP_FACE.BG_POSITION = 'bottom_right'
 _C.VALID.DATA.PREPROCESS.RESIZE = CN()
 _C.VALID.DATA.PREPROCESS.RESIZE.W = 128
 _C.VALID.DATA.PREPROCESS.RESIZE.H = 128
@@ -209,6 +211,7 @@ _C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
 _C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
 _C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
 _C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.TEST.DATA.PREPROCESS.CROP_FACE.BG_POSITION = 'bottom_right'
 _C.TEST.DATA.PREPROCESS.RESIZE = CN()
 _C.TEST.DATA.PREPROCESS.RESIZE.W = 128
 _C.TEST.DATA.PREPROCESS.RESIZE.H = 128
@@ -275,6 +278,7 @@ _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION = False
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY = 30
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX = False
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.BG_POSITION = 'bottom_right'
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.W = 128
 _C.UNSUPERVISED.DATA.PREPROCESS.RESIZE.H = 128
@@ -414,7 +418,8 @@ def update_config(config, args):
                                       "Large_size{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
                                         "det_len{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
-                                        "Median_face_box{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX)
+                                        "Median_face_box{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX),
+                                        "BG_pos{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.BG_POSITION)
                                               ])
     config.TRAIN.DATA.CACHED_PATH = os.path.join(config.TRAIN.DATA.CACHED_PATH, config.TRAIN.DATA.EXP_DATA_NAME)
 
@@ -450,7 +455,8 @@ def update_config(config, args):
                                         "Large_size{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
                                         "Dyamic_Det{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
                                           "det_len{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
-                                          "Median_face_box{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX)
+                                          "Median_face_box{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX),
+                                          "BG_pos{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.BG_POSITION)
                                                 ])
         config.VALID.DATA.CACHED_PATH = os.path.join(config.VALID.DATA.CACHED_PATH, config.VALID.DATA.EXP_DATA_NAME)
 
@@ -487,7 +493,8 @@ def update_config(config, args):
                                       "Large_size{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
                                         "det_len{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
-                                        "Median_face_box{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX)
+                                        "Median_face_box{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX),
+                                        "BG_pos{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.BG_POSITION)
                                               ])
     config.TEST.DATA.CACHED_PATH = os.path.join(config.TEST.DATA.CACHED_PATH, config.TEST.DATA.EXP_DATA_NAME)
 
@@ -557,6 +564,7 @@ def update_config(config, args):
                                       "Dyamic_Det{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
                                         "det_len{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY),
                                         "Median_face_box{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX),
+                                        "BG_pos{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.BG_POSITION),
                                         "unsupervised"
                                               ])
     config.UNSUPERVISED.DATA.CACHED_PATH = os.path.join(config.UNSUPERVISED.DATA.CACHED_PATH, config.UNSUPERVISED.DATA.EXP_DATA_NAME)
