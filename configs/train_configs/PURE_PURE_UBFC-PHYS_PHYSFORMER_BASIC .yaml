@@ -9,10 +9,10 @@ TRAIN:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: False               # if first time, should be true
+    DO_PREPROCESS: True               # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/your/path/here"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/your/path/here"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/hdd/data/PURE/"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/hdd/data/PURE/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 0.8
@@ -38,10 +38,10 @@ VALID:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: False                  # if first time, should be true
+    DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/your/path/here"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/your/path/here"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/hdd/data/PURE/"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/hdd/data/PURE/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.8
     END: 1.0
@@ -83,10 +83,10 @@ TEST:
       TASK_LIST: ['T1', 'T2', 'T3']
     FS: 35
     DATASET: UBFC-PHYS
-    DO_PREPROCESS: False                  # if first time, should be true
+    DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/your/path/here"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/your/path/here"    # Processed dataset save path, need to be updated
+    DATA_PATH: "/hdd/data/UBFC_Phys/"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/hdd/data/UBFC_Phys/"    # Processed dataset save path, need to be updated
     EXP_DATA_NAME: ""
     BEGIN: 0.0
     END: 1.0
