@@ -178,7 +178,9 @@ class MMPDLoader(BaseLoader):
         if not inputs:
             raise ValueError(self.dataset_name + ' dataset loading data error!')
         inputs = sorted(inputs)  # sort input file name list
-        labels = [input_file.replace("input", "label") for input_file in inputs]
+        # derive label file paths with .npy extension
+        labels = [input_file.replace("input", "label").replace(".npz", ".npy")
+                  for input_file in inputs]
         self.inputs = inputs
         self.labels = labels
         self.preprocessed_data_len = len(inputs)

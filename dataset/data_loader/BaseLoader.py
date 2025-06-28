@@ -640,7 +640,9 @@ class BaseLoader(Dataset):
         if not inputs:
             raise ValueError(self.dataset_name + ' dataset loading data error!')
         inputs = sorted(inputs)  # sort input file name list
-        labels = [input_file.replace("input", "label") for input_file in inputs]
+        # create matching label paths using .npy extension
+        labels = [input_file.replace("input", "label").replace(".npz", ".npy")
+                  for input_file in inputs]
         self.inputs = inputs
         self.labels = labels
         self.preprocessed_data_len = len(inputs)

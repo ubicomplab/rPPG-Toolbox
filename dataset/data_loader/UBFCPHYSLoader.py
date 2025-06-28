@@ -132,7 +132,9 @@ class UBFCPHYSLoader(BaseLoader):
             raise ValueError(self.dataset_name + ' dataset loading data error!')
         
         filtered_inputs = sorted(filtered_inputs)  # sort input file name list
-        labels = [input_file.replace("input", "label") for input_file in filtered_inputs]
+        # map each input file to its label counterpart (.npy)
+        labels = [input_file.replace("input", "label").replace(".npz", ".npy")
+                  for input_file in filtered_inputs]
         self.inputs = filtered_inputs
         self.labels = labels
         self.preprocessed_data_len = len(filtered_inputs)
