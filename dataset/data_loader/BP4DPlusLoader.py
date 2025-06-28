@@ -181,8 +181,8 @@ class BP4DPlusLoader(BaseLoader):
 
         target_length = frames.shape[0]
         bvps = BaseLoader.resample_ppg(bvps, target_length)
-        frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
-        input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
+        face_clips, bg_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
+        input_name_list, label_name_list = self.save_multi_process(face_clips, bg_clips, bvps_clips, saved_filename)
         file_list_dict[i] = input_name_list
 
     def read_video(self, data_dir, config_preprocess):

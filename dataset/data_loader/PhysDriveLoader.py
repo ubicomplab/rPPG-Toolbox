@@ -152,21 +152,21 @@ class PhysDriveLoader(BaseLoader):
                 raise ValueError(f"Resampling failed: BVP {len(bvps)} vs frames {target_length}")
 
             # ========== Slice before preprocessing and saving ==========
-            frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
+            face_clips, bg_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
 
             # ========== Quality filtering for each clip ==========
             qualified_frames = []
             qualified_bvps = []
             skipped_count = 0
 
-            for idx, (f_clip, b_clip) in enumerate(zip(frames_clips, bvps_clips)):
+            for idx, (f_clip, bg_clip, b_clip) in enumerate(zip(face_clips, bg_clips, bvps_clips)):
                 quality = self.single_signal_quality_assessment(b_clip, fs=self.config_data.FS)
                 if quality < 0.5:
                     print(
                         f"[Warning] Skipping low-quality clip {saved_filename}/{idx + 1}/{len(bvps_clips)}: quality={quality:.3f}")
                     skipped_count += 1
                     continue
-                qualified_frames.append(f_clip)
+                qualified_frames.append((f_clip, bg_clip))
                 qualified_bvps.append(b_clip)
 
             # Check if there are any valid clips
@@ -177,7 +177,9 @@ class PhysDriveLoader(BaseLoader):
                 print(f"{skipped_count}/{len(frames_clips)} clips skipped.")
 
             # ========== Save filtered clips ==========
-            input_name_list, label_name_list = self.save_multi_process(qualified_frames, qualified_bvps, saved_filename)
+            q_faces = [q[0] for q in qualified_frames]
+            q_bgs = [q[1] for q in qualified_frames]
+            input_name_list, label_name_list = self.save_multi_process(q_faces, q_bgs, qualified_bvps, saved_filename)
 
             # Thread-safe update of shared dictionary
             with threading.Lock():

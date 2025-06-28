@@ -99,23 +99,32 @@ class BaseLoader(Dataset):
 
     def __getitem__(self, index):
         """Returns a clip of video(3,T,W,H) and it's corresponding signals(T)."""
-        data = np.load(self.inputs[index])
+        npz = np.load(self.inputs[index])
+        if isinstance(npz, np.lib.npyio.NpzFile):
+            face = npz['face']
+            background = npz['background']
+        else:
+            face = npz
+            background = np.zeros_like(face)
         label = np.load(self.labels[index])
         if self.data_format == 'NDCHW':
-            data = np.transpose(data, (0, 3, 1, 2))
+            face = np.transpose(face, (0, 3, 1, 2))
+            background = np.transpose(background, (0, 3, 1, 2))
         elif self.data_format == 'NCDHW':
-            data = np.transpose(data, (3, 0, 1, 2))
+            face = np.transpose(face, (3, 0, 1, 2))
+            background = np.transpose(background, (3, 0, 1, 2))
         elif self.data_format == 'NDHWC':
             pass
         else:
             raise ValueError('Unsupported Data Format!')
-        data = np.float32(data)
+        face = np.float32(face)
+        background = np.float32(background)
         label = np.float32(label)
         # item_path is the location of a specific clip in a preprocessing output folder
-        # For example, an item path could be /home/data/PURE_SizeW72_...unsupervised/501_input0.npy
+        # For example, an item path could be /home/data/PURE_SizeW72_...unsupervised/501_input0.npz
         item_path = self.inputs[index]
         # item_path_filename is simply the filename of the specific clip
-        # For example, the preceding item_path's filename would be 501_input0.npy
+        # For example, the preceding item_path's filename would be 501_input0.npz
         item_path_filename = item_path.split(os.sep)[-1]
         # split_idx represents the point in the previous filename where we want to split the string 
         # in order to retrieve a more precise filename (e.g., 501) preceding the chunk (e.g., input0)
@@ -125,7 +134,7 @@ class BaseLoader(Dataset):
         # chunk_id is the extracted, numeric chunk identifier. Following the previous comments, 
         # the chunk_id for example would be 0
         chunk_id = item_path_filename[split_idx + 6:].split('.')[0]
-        return data, label, filename, chunk_id
+        return face, background, label, filename, chunk_id
 
     def get_raw_data(self, raw_data_path):
         """Returns raw data directories under the path.
@@ -222,18 +231,19 @@ class BaseLoader(Dataset):
         print("Total Number of raw files preprocessed:", len(data_dirs_split), end='\n\n')
 
     def preprocess(self, frames, bvps, config_preprocess):
-        """Preprocesses a pair of data.
+        """Preprocesses a pair of data and additionally extracts a background ROI.
 
         Args:
             frames(np.array): Frames in a video.
             bvps(np.array): Blood volumne pulse (PPG) signal labels for a video.
             config_preprocess(CfgNode): preprocessing settings(ref:config.py).
         Returns:
-            frame_clips(np.array): processed video data by frames
+            face_clips(np.array): processed face video data by frames
+            bg_clips(np.array): processed background video data by frames
             bvps_clips(np.array): processed bvp (ppg) labels by frames
         """
-        # resize frames and crop for face region
-        frames = self.crop_face_resize(
+        # resize frames and crop for face region and background region
+        faces, bgs = self.crop_face_resize(
             frames,
             config_preprocess.CROP_FACE.DO_CROP_FACE,
             config_preprocess.CROP_FACE.BACKEND,
@@ -244,19 +254,25 @@ class BaseLoader(Dataset):
             config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
             config_preprocess.RESIZE.W,
             config_preprocess.RESIZE.H)
-        # Check data transformation type
-        data = list()  # Video data
+        # Check data transformation type for face and background
+        data_face = list()
+        data_bg = list()
         for data_type in config_preprocess.DATA_TYPE:
-            f_c = frames.copy()
+            f_c = faces.copy()
+            b_c = bgs.copy()
             if data_type == "Raw":
-                data.append(f_c)
+                data_face.append(f_c)
+                data_bg.append(b_c)
             elif data_type == "DiffNormalized":
-                data.append(BaseLoader.diff_normalize_data(f_c))
+                data_face.append(BaseLoader.diff_normalize_data(f_c))
+                data_bg.append(BaseLoader.diff_normalize_data(b_c))
             elif data_type == "Standardized":
-                data.append(BaseLoader.standardized_data(f_c))
+                data_face.append(BaseLoader.standardized_data(f_c))
+                data_bg.append(BaseLoader.standardized_data(b_c))
             else:
                 raise ValueError("Unsupported data type!")
-        data = np.concatenate(data, axis=-1)  # concatenate all channels
+        data_face = np.concatenate(data_face, axis=-1)
+        data_bg = np.concatenate(data_bg, axis=-1)
         if config_preprocess.LABEL_TYPE == "Raw":
             pass
         elif config_preprocess.LABEL_TYPE == "DiffNormalized":
@@ -267,13 +283,14 @@ class BaseLoader(Dataset):
             raise ValueError("Unsupported label type!")
 
         if config_preprocess.DO_CHUNK:  # chunk data into snippets
-            frames_clips, bvps_clips = self.chunk(
-                data, bvps, config_preprocess.CHUNK_LENGTH)
+            face_clips, bg_clips, bvps_clips = self.chunk(
+                data_face, data_bg, bvps, config_preprocess.CHUNK_LENGTH)
         else:
-            frames_clips = np.array([data])
+            face_clips = np.array([data_face])
+            bg_clips = np.array([data_bg])
             bvps_clips = np.array([bvps])
 
-        return frames_clips, bvps_clips
+        return face_clips, bg_clips, bvps_clips
 
     def face_detection(self, frame, backend, use_larger_box=False, larger_box_coef=1.0):
         """Face detection on a single frame.
@@ -349,9 +366,9 @@ class BaseLoader(Dataset):
             face_box_coor[3] = larger_box_coef * face_box_coor[3]
         return face_box_coor
 
-    def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection, 
-                         detection_freq, use_median_box, width, height):
-        """Crop face and resize frames.
+    def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection,
+                         detection_freq, use_median_box, width, height, bg_position="bottom_right"):
+        """Crop face and background regions and resize frames.
 
         Args:
             frames(np.array): Video frames.
@@ -366,7 +383,8 @@ class BaseLoader(Dataset):
             larger_box_coef(float): the coefficient of the larger region(height and weight),
                                 the middle point of the detected region will stay still during the process of enlarging.
         Returns:
-            resized_frames(list[np.array(float)]): Resized and cropped frames
+            face_frames(np.array): Resized and cropped face frames
+            bg_frames(np.array): Resized and cropped background frames
         """
         # Face Cropping
         if use_dynamic_detection:
@@ -388,6 +406,7 @@ class BaseLoader(Dataset):
         # Frame Resizing
         total_frames, _, _, channels = frames.shape
         resized_frames = np.zeros((total_frames, height, width, channels))
+        bg_resized_frames = np.zeros((total_frames, height, width, channels))
         for i in range(0, total_frames):
             frame = frames[i]
             if use_dynamic_detection:  # use the (i // detection_freq)-th facial region.
@@ -399,13 +418,35 @@ class BaseLoader(Dataset):
                     face_region = face_region_median
                 else:
                     face_region = face_region_all[reference_index]
-                frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
-                        max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
-            resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
-        return resized_frames
+                face_frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
+                                   max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
+                # determine background roi
+                if bg_position == "bottom_right":
+                    x_bg = frame.shape[1] - face_region[2]
+                    y_bg = frame.shape[0] - face_region[3]
+                else:  # top_left
+                    x_bg = 0
+                    y_bg = 0
+                x_bg = max(0, min(x_bg, frame.shape[1] - face_region[2]))
+                y_bg = max(0, min(y_bg, frame.shape[0] - face_region[3]))
+                bg_frame = frame[y_bg:y_bg + face_region[3], x_bg:x_bg + face_region[2]]
+            else:
+                face_frame = frame
+                if bg_position == "bottom_right":
+                    x_bg = frame.shape[1] - width
+                    y_bg = frame.shape[0] - height
+                else:
+                    x_bg = 0
+                    y_bg = 0
+                x_bg = max(0, x_bg)
+                y_bg = max(0, y_bg)
+                bg_frame = frame[y_bg:y_bg + height, x_bg:x_bg + width]
+            resized_frames[i] = cv2.resize(face_frame, (width, height), interpolation=cv2.INTER_AREA)
+            bg_resized_frames[i] = cv2.resize(bg_frame, (width, height), interpolation=cv2.INTER_AREA)
+        return resized_frames, bg_resized_frames
 
-    def chunk(self, frames, bvps, chunk_length):
-        """Chunk the data into small chunks.
+    def chunk(self, face_frames, bg_frames, bvps, chunk_length):
+        """Chunk the data into small clips for both face and background.
 
         Args:
             frames(np.array): video frames.
@@ -416,12 +457,13 @@ class BaseLoader(Dataset):
             bvp_clips: all chunks of bvp frames
         """
 
-        clip_num = frames.shape[0] // chunk_length
-        frames_clips = [frames[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
+        clip_num = face_frames.shape[0] // chunk_length
+        face_clips = [face_frames[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
+        bg_clips = [bg_frames[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
         bvps_clips = [bvps[i * chunk_length:(i + 1) * chunk_length] for i in range(clip_num)]
-        return np.array(frames_clips), np.array(bvps_clips)
+        return np.array(face_clips), np.array(bg_clips), np.array(bvps_clips)
 
-    def save(self, frames_clips, bvps_clips, filename):
+    def save(self, face_clips, bg_clips, bvps_clips, filename):
         """Save all the chunked data.
 
         Args:
@@ -437,16 +479,16 @@ class BaseLoader(Dataset):
         count = 0
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
-            input_path_name = self.cached_path + os.sep + "{0}_input{1}.npy".format(filename, str(count))
+            input_path_name = self.cached_path + os.sep + "{0}_input{1}.npz".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + "{0}_label{1}.npy".format(filename, str(count))
             self.inputs.append(input_path_name)
             self.labels.append(label_path_name)
-            np.save(input_path_name, frames_clips[i])
+            np.savez(input_path_name, face=face_clips[i], background=bg_clips[i])
             np.save(label_path_name, bvps_clips[i])
             count += 1
         return count
 
-    def save_multi_process(self, frames_clips, bvps_clips, filename):
+    def save_multi_process(self, face_clips, bg_clips, bvps_clips, filename):
         """Save all the chunked data with multi-thread processing.
 
         Args:
@@ -464,11 +506,11 @@ class BaseLoader(Dataset):
         label_path_name_list = []
         for i in range(len(bvps_clips)):
             assert (len(self.inputs) == len(self.labels))
-            input_path_name = self.cached_path + os.sep + "{0}_input{1}.npy".format(filename, str(count))
+            input_path_name = self.cached_path + os.sep + "{0}_input{1}.npz".format(filename, str(count))
             label_path_name = self.cached_path + os.sep + "{0}_label{1}.npy".format(filename, str(count))
             input_path_name_list.append(input_path_name)
             label_path_name_list.append(label_path_name)
-            np.save(input_path_name, frames_clips[i])
+            np.savez(input_path_name, face=face_clips[i], background=bg_clips[i])
             np.save(label_path_name, bvps_clips[i])
             count += 1
         return input_path_name_list, label_path_name_list
@@ -566,7 +608,7 @@ class BaseLoader(Dataset):
         # generate a list of all preprocessed / chunked data files
         file_list = []
         for fname in filename_list:
-            processed_file_data = list(glob.glob(self.cached_path + os.sep + "{0}_input*.npy".format(fname)))
+            processed_file_data = list(glob.glob(self.cached_path + os.sep + "{0}_input*.npz".format(fname)))
             file_list += processed_file_data
 
         if not file_list:
