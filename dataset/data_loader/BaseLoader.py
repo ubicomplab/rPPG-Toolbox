@@ -427,8 +427,8 @@ class BaseLoader(Dataset):
                 if bg_position == "top_left":
                     x_bg = 0
                     y_bg = 0
-                    w_bg = width
-                    h_bg = height
+                    w_bg = int(width*0.25)
+                    h_bg = int(height*0.25)
                 elif bg_position == "top_right":
                     x_bg = frame.shape[1] - width
                     y_bg = 0

@@ -4,22 +4,22 @@ TRAIN:
   BATCH_SIZE: 4
   EPOCHS: 10
   LR: 1e-4
-  MODEL_FILE_NAME: PURE_PURE_UBFC-rPPG_physformer
+  MODEL_FILE_NAME: PURE_PURE_UBFC-rPPG_physformerVQ
   PLOT_LOSSES_AND_LR: True
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: False               # if first time, should be true
+    DO_PREPROCESS: True               # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/playpen-nas-hdd/UNC_Google_Physio/PURE/RawData/test"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/playpen-nas-ssd/akshay/UNC_Google_Physio/preprocessed_gold/train"    # Processed dataset save path, need to be updated
-    EXP_DATA_NAME: ""
+    DATA_PATH: "/hdd/data/PURE/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/hdd/data/PURE/Processed_train"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "NDVQ"
     BEGIN: 0.0
     END: 0.8
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']
+      DATA_TYPE: ['Raw']
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
-      LABEL_TYPE: DiffNormalized
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 160
       CROP_FACE:
@@ -38,17 +38,17 @@ VALID:
   DATA:
     FS: 30
     DATASET: PURE
-    DO_PREPROCESS: False                  # if first time, should be true
+    DO_PREPROCESS: True                  # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/playpen-nas-hdd/UNC_Google_Physio/PURE/RawData/test"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/playpen-nas-ssd/akshay/UNC_Google_Physio/preprocessed_gold/val"    # Processed dataset save path, need to be updated
-    EXP_DATA_NAME: ""
+    DATA_PATH: "/hdd/data/PURE/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/hdd/data/PURE/Processed_test"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "NDVQ"
     BEGIN: 0.8
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']
+      DATA_TYPE: ['Raw']
       DATA_AUG: ['None']    # 'None' or 'Motion' is supported, used if the data path points to an augmented dataset or requires augmentation
-      LABEL_TYPE: DiffNormalized
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 160
       CROP_FACE:
@@ -69,16 +69,16 @@ TEST:
   DATA:
     FS: 30
     DATASET: UBFC-rPPG
-    DO_PREPROCESS: False                    # if first time, should be true
+    DO_PREPROCESS: True                    # if first time, should be true
     DATA_FORMAT: NCDHW
-    DATA_PATH: "/playpen-nas-hdd/UNC_Google_Physio/UBFC-rPPG/DATASET_2_backup/DATASET_2/test"                     # Raw dataset path, need to be updated
-    CACHED_PATH: "/playpen-nas-ssd/akshay/UNC_Google_Physio/preprocessed_gold/test"    # Processed dataset save path, need to be updated
-    EXP_DATA_NAME: ""
+    DATA_PATH: "/hdd/data/UBFCrPPG/RawData"                     # Raw dataset path, need to be updated
+    CACHED_PATH: "/hdd/data/UBFCrPPG/Processed_test"    # Processed dataset save path, need to be updated
+    EXP_DATA_NAME: "NDVQ"
     BEGIN: 0.0
     END: 1.0
     PREPROCESS:
-      DATA_TYPE: ['DiffNormalized']
-      LABEL_TYPE: DiffNormalized
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Standardized
       DO_CHUNK: True
       CHUNK_LENGTH: 160
       CROP_FACE:
@@ -99,7 +99,7 @@ LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.1
-  NAME: PhysFormer
+  NAME: PhysFormerVQ
   PHYSFORMER:                     # Probably need to update these in some meaningful way
     PATCH_SIZE: 4
     DIM: 96
