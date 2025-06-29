@@ -368,7 +368,7 @@ class BaseLoader(Dataset):
         return face_box_coor
 
     def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection,
-                         detection_freq, use_median_box, width, height, bg_position="bottom_right"):
+                         detection_freq, use_median_box, width, height, bg_position="top_left"):
         """Crop face and background regions and resize frames.
 
         Args:

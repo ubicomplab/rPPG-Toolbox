@@ -79,6 +79,8 @@ def train_and_test(config, data_loader_dict):
         model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'PhysFormer':
         model_trainer = trainer.PhysFormerTrainer.PhysFormerTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'PhysFormerVQ':
+        model_trainer = trainer.PhysFormerVQTrainer.PhysFormerVQTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'PhysMamba':
         model_trainer = trainer.PhysMambaTrainer.PhysMambaTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'RhythmFormer':
@@ -107,6 +109,8 @@ def test(config, data_loader_dict):
         model_trainer = trainer.BigSmallTrainer.BigSmallTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'PhysFormer':
         model_trainer = trainer.PhysFormerTrainer.PhysFormerTrainer(config, data_loader_dict)
+    elif config.MODEL.NAME == 'PhysFormerVQ':
+        model_trainer = trainer.PhysFormerVQTrainer.PhysFormerVQTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'PhysMamba':
         model_trainer = trainer.PhysMambaTrainer.PhysMambaTrainer(config, data_loader_dict)
     elif config.MODEL.NAME == 'RhythmFormer':
