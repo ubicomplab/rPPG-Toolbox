@@ -383,7 +383,8 @@ class BaseLoader(Dataset):
             use_face_detection(bool):  Whether crop the face.
             larger_box_coef(float): the coefficient of the larger region(height and weight),
                                 the middle point of the detected region will stay still during the process of enlarging.
-            bg_position(str): where to select background ROI, ``bottom_right`` or ``top_left``.
+            bg_position(str): where to select background ROI, ``bottom_right``,
+                ``top_left`` or ``top_right``.
         Returns:
             face_frames(np.array): Resized and cropped face frames
             bg_frames(np.array): Resized and cropped background frames
@@ -422,26 +423,46 @@ class BaseLoader(Dataset):
                     face_region = face_region_all[reference_index]
                 face_frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
                                    max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
-                # determine background roi
-                if bg_position == "bottom_right":
+                # determine background roi before applying face detection
+                if bg_position == "top_left":
+                    x_bg = 0
+                    y_bg = 0
+                    w_bg = width
+                    h_bg = height
+                elif bg_position == "top_right":
+                    x_bg = frame.shape[1] - width
+                    y_bg = 0
+                    w_bg = width
+                    h_bg = height
+                elif bg_position == "bottom_right":
                     x_bg = frame.shape[1] - face_region[2]
                     y_bg = frame.shape[0] - face_region[3]
-                else:  # top_left
+                    w_bg = face_region[2]
+                    h_bg = face_region[3]
+                else:  # bottom_left or unsupported
                     x_bg = 0
-                    y_bg = 0
-                x_bg = max(0, min(x_bg, frame.shape[1] - face_region[2]))
-                y_bg = max(0, min(y_bg, frame.shape[0] - face_region[3]))
-                bg_frame = frame[y_bg:y_bg + face_region[3], x_bg:x_bg + face_region[2]]
+                    y_bg = frame.shape[0] - height
+                    w_bg = width
+                    h_bg = height
+                x_bg = max(0, min(x_bg, frame.shape[1] - w_bg))
+                y_bg = max(0, min(y_bg, frame.shape[0] - h_bg))
+                bg_frame = frame[y_bg:y_bg + h_bg, x_bg:x_bg + w_bg]
             else:
                 face_frame = frame
-                if bg_position == "bottom_right":
-                    x_bg = frame.shape[1] - width
-                    y_bg = frame.shape[0] - height
-                else:
+                if bg_position == "top_left":
                     x_bg = 0
                     y_bg = 0
-                x_bg = max(0, x_bg)
-                y_bg = max(0, y_bg)
+                elif bg_position == "top_right":
+                    x_bg = frame.shape[1] - width
+                    y_bg = 0
+                elif bg_position == "bottom_right":
+                    x_bg = frame.shape[1] - width
+                    y_bg = frame.shape[0] - height
+                else:  # bottom_left
+                    x_bg = 0
+                    y_bg = frame.shape[0] - height
+                x_bg = max(0, min(x_bg, frame.shape[1] - width))
+                y_bg = max(0, min(y_bg, frame.shape[0] - height))
                 bg_frame = frame[y_bg:y_bg + height, x_bg:x_bg + width]
             resized_frames[i] = cv2.resize(face_frame, (width, height), interpolation=cv2.INTER_AREA)
             bg_resized_frames[i] = cv2.resize(bg_frame, (width, height), interpolation=cv2.INTER_AREA)
