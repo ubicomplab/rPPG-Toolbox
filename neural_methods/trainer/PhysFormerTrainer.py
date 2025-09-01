@@ -102,7 +102,7 @@ class PhysFormerTrainer(BaseTrainer):
             self.model.train()
             tbar = tqdm(data_loader["train"], ncols=80)
             for idx, batch in enumerate(tbar):
-                hr = torch.tensor([self.get_hr(i) for i in batch[1]]).float().to(self.device)
+                hr = torch.tensor([self.get_hr(i, sr=self.frame_rate) for i in batch[1]]).float().to(self.device)
                 data, label = batch[0].float().to(self.device), batch[1].float().to(self.device)
 
                 self.optimizer.zero_grad()
