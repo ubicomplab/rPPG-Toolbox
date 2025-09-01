@@ -42,6 +42,7 @@ class PhysFormerTrainer(BaseTrainer):
         self.batch_size = config.TRAIN.BATCH_SIZE
         self.num_of_gpu = config.NUM_OF_GPU_TRAIN
         self.frame_rate = config.TRAIN.DATA.FS
+        self.frame_rate_valid = config.VALID.DATA.FS
         self.config = config 
         self.min_valid_loss = None
         self.best_epoch = 0
@@ -102,7 +103,7 @@ class PhysFormerTrainer(BaseTrainer):
             self.model.train()
             tbar = tqdm(data_loader["train"], ncols=80)
             for idx, batch in enumerate(tbar):
-                hr = torch.tensor([self.get_hr(i) for i in batch[1]]).float().to(self.device)
+                hr = torch.tensor([self.get_hr(i, sr=self.frame_rate) for i in batch[1]]).float().to(self.device)
                 data, label = batch[0].float().to(self.device), batch[1].float().to(self.device)
 
                 self.optimizer.zero_grad()
@@ -197,7 +198,7 @@ class PhysFormerTrainer(BaseTrainer):
                 rPPG, _, _, _ = self.model(data, gra_sharp)
                 rPPG = (rPPG-torch.mean(rPPG, axis=-1).view(-1, 1))/torch.std(rPPG).view(-1, 1)
                 for _1, _2 in zip(rPPG, label):
-                    hrs.append((self.get_hr(_1.cpu().detach().numpy()), self.get_hr(_2.cpu().detach().numpy())))
+                    hrs.append((self.get_hr(_1.cpu().detach().numpy(), sr=self.frame_rate_valid), self.get_hr(_2.cpu().detach().numpy(), sr=self.frame_rate_valid)))
             RMSE = np.mean([(i-j)**2 for i, j in hrs])**0.5
         return RMSE
 
