@@ -13,7 +13,10 @@ import re
 from multiprocessing import Pool, Process, Value, Array, Manager
 
 import cv2
-import mat73
+try:
+    import mat73
+except ImportError:
+    mat73 = None
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
