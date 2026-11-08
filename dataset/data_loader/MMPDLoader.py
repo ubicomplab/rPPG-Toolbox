@@ -4,6 +4,8 @@
 
 import os
 import cv2
+cv2.ocl.setUseOpenCL(False)
+cv2.setNumThreads(0)
 import glob
 import numpy as np
 import re
@@ -63,6 +65,8 @@ class MMPDLoader(BaseLoader):
             subject = int(os.path.split(data_dir)[-1][7:])
             mat_dirs = os.listdir(data_dir)
             for mat_dir in mat_dirs:
+                if not mat_dir.endswith('.mat'):
+                    continue
                 index = mat_dir.split('_')[-1].split('.')[0]
                 dirs.append({'index': index, 
                              'path': data_dir+os.sep+mat_dir,

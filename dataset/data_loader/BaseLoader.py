@@ -17,14 +17,9 @@ from unsupervised_methods import utils
 import math
 import multiprocessing as mp
 
-# To be used only for preparing data - for detecting face with YOLO5Face
-try:
-    mp.set_start_method('spawn', force=True)
-    # print("spawned")
-except RuntimeError:
-    pass
-
 import cv2
+cv2.ocl.setUseOpenCL(False)
+cv2.setNumThreads(0)
 import numpy as np
 import pandas as pd
 import torch
@@ -289,8 +284,10 @@ class BaseLoader(Dataset):
         if backend == "HC":
             # Use OpenCV's Haar Cascade algorithm implementation for face detection
             # This should only utilize the CPU
-            detector = cv2.CascadeClassifier(
-            './dataset/haarcascade_frontalface_default.xml')
+            cascade_path = './dataset/haarcascade_frontalface_default.xml'
+            if not os.path.exists(cascade_path) and hasattr(cv2, 'data') and hasattr(cv2.data, 'haarcascades'):
+                cascade_path = os.path.join(cv2.data.haarcascades, 'haarcascade_frontalface_default.xml')
+            detector = cv2.CascadeClassifier(cascade_path)
 
             # Computed face_zone(s) are in the form [x_coord, y_coord, width, height]
             # (x,y) corresponds to the top-left corner of the zone to define using
@@ -299,7 +296,7 @@ class BaseLoader(Dataset):
 
             if len(face_zone) < 1:
                 print("ERROR: No Face Detected")
-                face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
+                face_box_coor = [0, 0, frame.shape[1], frame.shape[0]]
             elif len(face_zone) >= 2:
                 # Find the index of the largest face zone
                 # The face zones are boxes, so the width and height are the same
