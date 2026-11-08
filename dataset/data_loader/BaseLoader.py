@@ -179,7 +179,7 @@ class BaseLoader(Dataset):
             m = n - l
             if m >= 0:
                 Cn = np.true_divide(RGB[m:n, :], np.mean(RGB[m:n, :], axis=0))
-                Cn = np.mat(Cn).H
+                Cn = np.asmatrix(Cn).H
                 S = np.matmul(np.array([[0, 1, -1], [-2, 1, 1]]), Cn)
                 h = S[0, :] + (np.std(S[0, :]) / np.std(S[1, :])) * S[1, :]
                 mean_h = np.mean(h)
@@ -188,7 +188,7 @@ class BaseLoader(Dataset):
                 H[0, m:n] = H[0, m:n] + (h[0])
 
         bvp = H
-        bvp = utils.detrend(np.mat(bvp).H, 100)
+        bvp = utils.detrend(np.asmatrix(bvp).H, 100)
         bvp = np.asarray(np.transpose(bvp))[0]
 
         # filter POS PPG w/ 2nd order butterworth filter (around HR freq)
